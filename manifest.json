@@ -1,0 +1,98 @@
+{
+  "project": "Hafta Fisioterapi",
+  "document_package_version": "0.3.0",
+  "last_updated": "2026-08-12",
+  "encoding": "UTF-8",
+  "ai_readable": true,
+  "entrypoint": "AGENTS.md",
+  "read_order": [
+    "AGENTS.md",
+    "README-AI.md",
+    "docs/MASTER-PRD.md",
+    "docs/SECURITY.md",
+    "docs/PERMISSIONS.md",
+    "docs/DATABASE.md",
+    "docs/ARCHITECTURE.md",
+    "docs/DESIGN-REFERENCES.md",
+    "docs/DESIGN-SYSTEM.md",
+    "docs/MOBILE-FIRST-STRATEGY.md",
+    "docs/UI-GUIDELINES.md",
+    "docs/FORM-SPECIFICATIONS.md",
+    "docs/ROUTE-AND-NAVIGATION.md",
+    "docs/pages/01-LANDING-PAGE.md",
+    "docs/pages/02-AUTHENTICATION-PAGES.md",
+    "docs/pages/03-DASHBOARD-USER.md",
+    "docs/pages/04-DASHBOARD-ADMIN-THERAPIST.md",
+    "docs/pages/05-DASHBOARD-SUPER-ADMIN.md",
+    "docs/DEVELOPMENT-WORKFLOW.md",
+    "docs/CONTENT-REQUIREMENTS.md"
+  ],
+  "locked_stack_direction": {
+    "framework": "Next.js latest stable / App Router",
+    "language": "TypeScript strict",
+    "styling": "Tailwind CSS",
+    "ui": "shadcn/ui",
+    "design_guardrail": "Taste Skill",
+    "database": "Neon PostgreSQL",
+    "orm": "Drizzle ORM",
+    "authentication": "Better Auth or project-approved Better Auth integration",
+    "private_file_storage": "Cloudflare R2 when required",
+    "package_manager": "pnpm",
+    "ai_routing_development_only": "9Router"
+  },
+  "security_classification": "sensitive-health-data-application",
+  "ai_policy": {
+    "allow_real_patient_data_in_prompts": false,
+    "allow_secrets_in_prompts": false,
+    "allow_9router_in_production_patient_request_path": false
+  },
+  "single_file_context_bundle": "AI-CONTEXT-BUNDLE.md",
+  "task_specific_specs": {
+    "landing_page": "docs/pages/01-LANDING-PAGE.md",
+    "authentication": "docs/pages/02-AUTHENTICATION-PAGES.md",
+    "user_patient_portal": "docs/pages/03-DASHBOARD-USER.md",
+    "admin_therapist": "docs/pages/04-DASHBOARD-ADMIN-THERAPIST.md",
+    "super_admin": "docs/pages/05-DASHBOARD-SUPER-ADMIN.md",
+    "forms": "docs/FORM-SPECIFICATIONS.md",
+    "routes": "docs/ROUTE-AND-NAVIGATION.md"
+  },
+  "execution_entrypoint": "tasks/README.md",
+  "execution_tasks": [
+    "tasks/00-PROJECT-BOOTSTRAP.md",
+    "tasks/01-DESIGN-FOUNDATION.md",
+    "tasks/02-LANDING-PAGE.md",
+    "tasks/03-AUTH-AND-DATABASE.md",
+    "tasks/04-PERMISSION-FRAMEWORK.md",
+    "tasks/05-USER-PATIENT-PORTAL.md",
+    "tasks/06-ADMIN-THERAPIST-CLINICAL.md",
+    "tasks/07-SUPER-ADMIN.md",
+    "tasks/08-SECURITY-HARDENING.md"
+  ],
+  "design_sources": {
+    "layout_inspiration_only": "assets/design-references/01-layout-reference.png",
+    "approved_hafta_landing_direction": "assets/design-references/02-hafta-landing-direction.png",
+    "approved_design_system_board": "assets/design-references/03-hafta-design-system-board.png",
+    "canonical_design_tokens": "docs/DESIGN-SYSTEM.md",
+    "responsive_contract": "docs/MOBILE-FIRST-STRATEGY.md"
+  },
+  "responsive_policy": {
+    "approach": "mobile-first",
+    "mobile_gate_required_before_desktop": true,
+    "mobile_validation_widths_px": [
+      320,
+      360,
+      390,
+      430
+    ],
+    "tablet_validation_widths_px": [
+      768,
+      834
+    ],
+    "desktop_validation_widths_px": [
+      1024,
+      1280,
+      1440
+    ]
+  },
+  "development_entrypoint": "START-DEVELOPMENT.md"
+}
