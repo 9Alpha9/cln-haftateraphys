@@ -12,9 +12,12 @@ import {
   History,
   Shield,
   LogOut,
+  UserCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getRoleLabel, getRoleColor } from "@/lib/role-utils";
+import type { Role } from "@/lib/permissions";
 
 const navigation = [
   { name: "Ringkasan", href: "/dashboard", icon: Home },
@@ -26,8 +29,10 @@ const navigation = [
 
 export function PatientDashboardShell({
   children,
+  role,
 }: {
   children: React.ReactNode;
+  role: Role;
 }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -86,7 +91,18 @@ export function PatientDashboardShell({
           })}
         </nav>
 
-        <div className="border-t border-border p-4">
+        <div className="border-t border-border p-4 space-y-3">
+          <div className="flex items-center gap-2 rounded-md px-3 py-2">
+            <UserCircle className="h-4 w-4 text-muted-foreground" />
+            <span
+              className={cn(
+                "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+                getRoleColor(role)
+              )}
+            >
+              {getRoleLabel(role)}
+            </span>
+          </div>
           <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
             <LogOut className="h-4 w-4" />
             Keluar
@@ -108,6 +124,14 @@ export function PatientDashboardShell({
           <div className="flex-1" />
 
           <div className="flex items-center gap-3">
+            <span
+              className={cn(
+                "hidden sm:inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+                getRoleColor(role)
+              )}
+            >
+              {getRoleLabel(role)}
+            </span>
             <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-xs">
               P
             </div>

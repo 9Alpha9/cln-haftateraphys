@@ -8,20 +8,31 @@ import {
   X,
   Home,
   Users,
+  FileText,
   Settings,
   LogOut,
-  ChevronDown,
+  ShieldCheck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getRoleLabel, getRoleColor } from "@/lib/role-utils";
+import type { Role } from "@/lib/permissions";
 
 const navigation = [
   { name: "Beranda", href: "/dashboard", icon: Home },
-  { name: "Pasien", href: "/dashboard/patients", icon: Users },
+  { name: "Daftar Pasien", href: "/dashboard/patients", icon: Users },
+  { name: "Manajemen Pengguna", href: "/dashboard/users", icon: Users },
+  { name: "Log Audit", href: "/dashboard/audit-logs", icon: FileText },
   { name: "Pengaturan", href: "/dashboard/settings", icon: Settings },
 ];
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+export function AdminDashboardShell({
+  children,
+  role,
+}: {
+  children: React.ReactNode;
+  role: Role;
+}) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -79,7 +90,18 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           })}
         </nav>
 
-        <div className="border-t border-border p-4">
+        <div className="border-t border-border p-4 space-y-3">
+          <div className="flex items-center gap-2 rounded-md px-3 py-2">
+            <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+            <span
+              className={cn(
+                "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+                getRoleColor(role)
+              )}
+            >
+              {getRoleLabel(role)}
+            </span>
+          </div>
           <button className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
             <LogOut className="h-4 w-4" />
             Keluar
@@ -101,13 +123,17 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           <div className="flex-1" />
 
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
-              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-xs">
-                U
-              </div>
-              <span className="hidden sm:inline">User</span>
-              <ChevronDown className="h-4 w-4" />
-            </button>
+            <span
+              className={cn(
+                "hidden sm:inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+                getRoleColor(role)
+              )}
+            >
+              {getRoleLabel(role)}
+            </span>
+            <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-xs">
+              A
+            </div>
           </div>
         </header>
 

@@ -1,9 +1,12 @@
-import { PatientDashboardShell } from "@/components/patient/patient-dashboard-shell";
+import { DashboardShellRouter } from "@/components/dashboard/dashboard-shell-router";
+import { getUserRole } from "@/lib/get-user-role";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <PatientDashboardShell>{children}</PatientDashboardShell>;
+  const role = await getUserRole();
+
+  return <DashboardShellRouter role={role}>{children}</DashboardShellRouter>;
 }

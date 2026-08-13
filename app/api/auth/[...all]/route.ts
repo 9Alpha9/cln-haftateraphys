@@ -1,14 +1,18 @@
 import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-export async function GET(request: Request) {
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  });
+async function handleAuth(request: NextRequest) {
+  return "handler" in auth
+    ? auth.handler(request as unknown as Request)
+    : (auth as unknown as (req: Request) => Promise<Response>)(
+        request as unknown as Request
+      );
+}
 
-  if (!session) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+export async function GET(request: NextRequest) {
+  return handleAuth(request);
+}
 
-  return NextResponse.json({ user: session.user, session: session.session });
+export async function POST(request: NextRequest) {
+  return handleAuth(request);
 }

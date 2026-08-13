@@ -60,6 +60,7 @@ export function HeroSection() {
                   src="/images/models/model-all-bodys-5.png"
                   alt="Hafta Fisioterapi"
                   fill
+                  sizes="100%"
                   className="object-contain"
                   priority
                 />
