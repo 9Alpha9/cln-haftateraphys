@@ -1,7 +1,8 @@
-import { auth } from '@/lib/auth';
+import { getAuth } from '@/lib/auth';
 import { NextRequest } from 'next/server';
 
 async function handleAuth(request: NextRequest) {
+  const auth = getAuth();
   return 'handler' in auth
     ? auth.handler(request as unknown as Request)
     : (auth as unknown as (req: Request) => Promise<Response>)(request as unknown as Request);

@@ -1,4 +1,4 @@
-import { auth } from '@/lib/auth';
+import { getAuth } from '@/lib/auth';
 import { getDb } from '@/db';
 import { profiles } from '@/db/schema/profiles';
 import { eq } from 'drizzle-orm';
@@ -14,7 +14,7 @@ export class UnauthenticatedError extends Error {
 }
 
 export async function requireSession(options?: { redirectToLogin?: boolean }) {
-  const session = await auth.api.getSession({
+  const session = await getAuth().api.getSession({
     headers: await headers(),
   });
 

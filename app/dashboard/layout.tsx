@@ -2,6 +2,8 @@ import { DashboardShellRouter } from '@/components/dashboard/dashboard-shell-rou
 import { requireSession } from '@/lib/auth/require-session';
 import { getRecentNotifications, getUnreadNotificationsCount } from "@/server/queries/notifications";
 
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { role, session } = await requireSession({ redirectToLogin: true });
   const unreadCount = await getUnreadNotificationsCount();

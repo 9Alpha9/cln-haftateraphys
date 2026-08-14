@@ -1,7 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { patientIntakes, patients, users } from '@/db/schema';
-import { auth } from '@/lib/auth';
 
 /**
  * Fills the initial intake form (Form Awal) for every dummy patient.

@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { patientAssignments, patients, profiles, users } from '@/db/schema';
-import { auth } from '@/lib/auth';
+import { getAuth } from '@/lib/auth';
 
 /**
  * Adds 5 dummy patient records (each backed by a USER account) for local dev/
@@ -161,7 +161,7 @@ const run = async () => {
       userId = existingUser.id;
       console.log(`OK   ${email} already exists`);
     } else {
-      const res = await auth.api.signUpEmail({
+      const res = await getAuth().api.signUpEmail({
         body: { name: p.fullName, email, password: p.password },
       });
       const id = (res as { user?: { id: string } }).user?.id ?? (res as { id?: string }).id;

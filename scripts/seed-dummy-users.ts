@@ -1,6 +1,6 @@
 import { getDb } from '@/db';
 import { profiles, users } from '@/db/schema';
-import { auth } from '@/lib/auth';
+import { getAuth } from '@/lib/auth';
 import { eq } from 'drizzle-orm';
 
 /**
@@ -66,7 +66,7 @@ const run = async () => {
       continue;
     }
 
-    const res = await auth.api.signUpEmail({
+    const res = await getAuth().api.signUpEmail({
       body: { name: u.name, email, password: u.password },
     });
 
