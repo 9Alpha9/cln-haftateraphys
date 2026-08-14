@@ -147,9 +147,6 @@ export function LoginForm() {
             />
             Simpan data login
           </label>
-          <Link href="/forgot-password" className="text-sm text-primary hover:underline">
-            Lupa kata sandi?
-          </Link>
         </div>
 
         <Button type="submit" className="h-10 w-full" disabled={isPending}>
