@@ -54,8 +54,9 @@ export function FaqSection() {
             <ScrollAnimation key={faq.question} delay={index * 0.05}>
               <div className="py-4">
                 <button
+                  type="button"
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                  className="flex cursor-pointer w-full items-center justify-between text-left"
+                  className="flex w-full cursor-pointer flex-col items-start gap-2"
                 >
                   <span className="font-medium text-foreground">{faq.question}</span>
                   <motion.div animate={{ rotate: openIndex === index ? 180 : 0 }} transition={{ duration: 0.2 }}>
@@ -71,7 +72,9 @@ export function FaqSection() {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
+                      <div className="pt-3">
+                        <p className="text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>

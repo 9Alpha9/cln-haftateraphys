@@ -32,7 +32,7 @@ export function Marquee({ children, speed = 30, pauseOnHover = true, className }
       onMouseLeave={() => pauseOnHover && setIsPaused(false)}
     >
       <motion.div
-        className="flex w-max"
+        className="flex w-max gap-4"
         animate={{
           x: [0, -contentWidth],
         }}

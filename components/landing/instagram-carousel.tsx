@@ -84,7 +84,7 @@ export function InstagramCarousel({ images }: InstagramCarouselProps) {
               initial={false}
               animate={{ opacity: pageIndex === displayedIndex ? 1 : 0 }}
               transition={{ duration: reduceMotion ? 0 : 0.5, ease: 'easeInOut' }}
-              className="absolute inset-0 grid gap-1.5 sm:grid-cols-2 sm:gap-2 md:grid-cols-3 xl:grid-cols-4"
+              className="absolute inset-0 grid gap-1.5 overflow-hidden sm:grid-cols-2 sm:gap-2 md:grid-cols-3 xl:grid-cols-4"
               aria-hidden={pageIndex !== displayedIndex}
             >
               {page.map((image, imageIndex) => (
