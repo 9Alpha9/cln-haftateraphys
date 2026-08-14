@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
-import { getDashboardNavigation } from '@/lib/permissions/dashboard-navigation';
+import { getDashboardNavigationFlat } from '@/lib/permissions/dashboard-navigation';
 import { getCurrentPatientIntake } from '@/server/queries/patient-intakes';
 import { getDashboardStats } from '@/server/queries/dashboard-stats';
 import { DashboardCharts } from '@/components/dashboard/dashboard-charts';
@@ -240,7 +240,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     );
 
   const overview = adminOverview[role];
-  const allowedRoutes = new Set(getDashboardNavigation(role).map((item) => item.href));
+  const allowedRoutes = new Set(getDashboardNavigationFlat(role).map((item) => item.href));
   const cards = overview.cards.filter((card) => allowedRoutes.has(card.href));
   const showCharts = role === 'SUPER_ADMIN' || role === 'ADMIN' || role === 'THERAPIST';
   const stats = showCharts ? await getDashboardStats() : null;

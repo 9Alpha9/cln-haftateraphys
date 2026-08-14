@@ -4,21 +4,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { LogOut, Menu, UserCircle, ChevronDown, Settings, ShieldCheck, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { SidebarAccountMenu } from '@/components/dashboard/sidebar-account-menu';
 import { cn } from '@/lib/utils';
 import { getRoleColor, getRoleLabel } from '@/lib/role-utils';
 import { getDashboardNavigation } from '@/lib/permissions/dashboard-navigation';
 import { signOut } from '@/lib/auth/client';
-import { NotificationBell, type NotificationView } from "@/components/dashboard/notification-bell";
+import { NotificationBell, type NotificationView } from '@/components/dashboard/notification-bell';
 import type { Role } from '@/lib/permissions/roles';
 
 export function PatientDashboardShell({
@@ -37,7 +30,7 @@ export function PatientDashboardShell({
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navigation = getDashboardNavigation(role);
+  const navGroups = getDashboardNavigation(role);
 
   const goTo = (href: string) => router.push(href);
 
@@ -47,8 +40,13 @@ export function PatientDashboardShell({
     router.refresh();
   };
 
+  const isActive = (href: string) => {
+    if (href === '/dashboard') return pathname === '/dashboard';
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
   return (
-    <div className="flex min-h-screen bg-white">
+    <div className="flex min-h-screen bg-[#F6FAF8]">
       <button
         type="button"
         aria-label="Tutup navigasi"
@@ -62,18 +60,18 @@ export function PatientDashboardShell({
           sidebarOpen && 'translate-x-0',
         )}
       >
-        <div className="flex h-16 items-center justify-between border-b border-border px-5">
+        <div className="flex h-20 items-center justify-between border-b border-border px-6">
           <Link href="/dashboard" className="flex items-center gap-3">
             <Image
               src="/images/logos/logos-text.png"
               alt="Hafta Fisioterapi"
-              width={66}
-              height={44}
-              className="h-11 w-auto"
+              width={90}
+              height={60}
+              className="h-12 w-auto object-contain"
               priority
             />
-            <span className="hidden lg:block">
-              <span className="block text-xs text-muted-foreground">Patient Portal</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Patient Portal
             </span>
           </Link>
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(false)}>
@@ -81,98 +79,73 @@ export function PatientDashboardShell({
           </Button>
         </div>
 
-        <nav className="flex-1 space-y-1 p-4">
-          <p className="px-3 pb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Akun Saya</p>
-          {navigation.map((item) => {
-            const isActive =
-              pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(`${item.href}/`));
+        <nav className="flex-1 overflow-y-auto py-6 space-y-6">
+          {navGroups.map((group) => {
+            const visibleItems = group.items;
+            if (visibleItems.length === 0) return null;
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={cn(
-                  'flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:bg-primary/5 hover:text-primary',
-                )}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </Link>
+              <div key={group.label} className="px-4">
+                <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  {group.label}
+                </p>
+                <ul className="space-y-1">
+                  {visibleItems.map((item) => {
+                    const active = isActive(item.href);
+                    return (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          onClick={() => setSidebarOpen(false)}
+                          className={cn(
+                            'flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors',
+                            active
+                              ? 'bg-primary text-primary-foreground shadow-md shadow-primary/10'
+                              : 'text-slate-600 hover:bg-primary/5 hover:text-primary',
+                          )}
+                        >
+                          <item.icon className="h-4 w-4 shrink-0" />
+                          <span>{item.label}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             );
           })}
         </nav>
 
         <div className="border-t border-border p-4">
-          <div className="flex items-center gap-2 rounded-lg bg-surface px-3 py-2">
-            <UserCircle className="h-4 w-4 text-primary" />
-            <span className={cn('rounded-full px-2 py-0.5 text-xs font-semibold', getRoleColor(role))}>
-              {getRoleLabel(role)}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="mt-3 flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-surface hover:text-foreground"
-          >
-            <LogOut className="h-4 w-4" />
-            Keluar
-          </button>
+          <SidebarAccountMenu
+            userName={userName}
+            roleLabel={getRoleLabel(role)}
+            onProfile={() => goTo('/dashboard/profile')}
+            onSettings={() => goTo('/dashboard/settings')}
+            onSecurity={() => goTo('/dashboard/security')}
+            onLogout={handleLogout}
+          />
         </div>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-white/95 px-4 backdrop-blur lg:px-6 xl:px-8">
+        <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b border-border bg-white/95 px-6 backdrop-blur-md lg:px-8 shadow-sm">
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
           </Button>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-foreground">{userName || 'Patient Portal'}</p>
-            <p className="hidden truncate text-xs text-muted-foreground sm:block">
-              Informasi dan perkembangan yang tersedia untuk Anda
+            <h1 className="text-lg font-bold text-foreground tracking-tight">Selamat Pagi, {userName?.split(' ')[0] || 'Pasien'}</h1>
+            <p className="hidden text-xs text-muted-foreground font-semibold sm:block mt-0.5">
+              {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
             <NotificationBell unreadCount={unreadCount} initialNotifications={recentNotifications} />
-            <span className={cn('hidden rounded-full px-2.5 py-1 text-xs font-semibold sm:inline-flex', getRoleColor(role))}>
+            <span className={cn('hidden rounded-full px-3 py-1 text-xs font-semibold sm:inline-flex border', getRoleColor(role))}>
               {getRoleLabel(role)}
             </span>
-            <DropdownMenu>
-            <DropdownMenuTrigger
-              className="flex cursor-pointer items-center gap-2 rounded-full outline-none transition-opacity hover:opacity-80 focus-visible:ring-2 focus-visible:ring-ring"
-              aria-label="Menu akun"
-            >
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                P
-              </span>
-              <ChevronDown className="hidden h-4 w-4 text-muted-foreground sm:block" aria-hidden="true" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="min-w-56">
-              <DropdownMenuLabel>Akun</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => goTo('/dashboard/profile')}>
-                <UserCircle className="h-4 w-4" aria-hidden="true" />
-                Profil
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => goTo('/dashboard/settings')}>
-                <Settings className="h-4 w-4" aria-hidden="true" />
-                Pengaturan
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => goTo('/dashboard/security')}>
-                <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-                Keamanan
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-destructive focus-visible:bg-destructive/10">
-                <LogOut className="h-4 w-4" aria-hidden="true" />
-                Keluar
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+          </div>
         </header>
-        <main className="flex-1 p-4 md:p-6 lg:p-8">
+        <main className="flex-1 p-6 md:p-8">
           <div className="mx-auto w-full max-w-7xl">{children}</div>
         </main>
       </div>

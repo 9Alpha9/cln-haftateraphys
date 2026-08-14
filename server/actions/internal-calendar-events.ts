@@ -17,31 +17,30 @@ export async function createInternalCalendarEvent(input: InternalCalendarEventIn
   const { session, role } = await requireSession({ redirectToLogin: false });
   if (!hasPermission(role, PERMISSIONS.CALENDAR_EVENT_MANAGE)) throw new ForbiddenError();
   const db = getDb();
-  await db.transaction(async (tx) => {
-    await tx.insert(internalCalendarEvents).values({
-      title: data.title,
-      description: optionalValue(data.description),
-      eventType: data.eventType,
-      scheduledDate: data.scheduledDate,
-      startTime: optionalValue(data.startTime),
-      endTime: optionalValue(data.endTime),
-      patientVisible: data.patientVisible ? 1 : 0,
-      createdBy: session.user.id,
-    });
-
-    if (data.eventType === 'IMPORTANT_NOTICE' && data.patientVisible) {
-      const patientUsers = await tx.select({ userId: profiles.userId }).from(profiles).where(eq(profiles.accountType, 'USER'));
-      if (patientUsers.length > 0) {
-        await tx.insert(notifications).values(
-          patientUsers.map((p) => ({
-            userId: p.userId,
-            title: 'Pengumuman Penting',
-            message: data.title,
-          }))
-        );
-      }
-    }
+  
+  await db.insert(internalCalendarEvents).values({
+    title: data.title,
+    description: optionalValue(data.description),
+    eventType: data.eventType,
+    scheduledDate: data.scheduledDate,
+    startTime: optionalValue(data.startTime),
+    endTime: optionalValue(data.endTime),
+    patientVisible: data.patientVisible ? 1 : 0,
+    createdBy: session.user.id,
   });
+
+  if (data.eventType === 'IMPORTANT_NOTICE' && data.patientVisible) {
+    const patientUsers = await db.select({ userId: profiles.userId }).from(profiles).where(eq(profiles.accountType, 'USER'));
+    if (patientUsers.length > 0) {
+      await db.insert(notifications).values(
+        patientUsers.map((p) => ({
+          userId: p.userId,
+          title: 'Pengumuman Penting',
+          message: data.title,
+        }))
+      );
+    }
+  }
 
   revalidatePath('/dashboard');
 }

@@ -88,37 +88,72 @@ function DropdownMenuTrigger({ className, children, ...props }: React.ComponentP
   );
 }
 
-function DropdownMenuContent({ className, children, align = "end" }: React.ComponentProps<'div'> & { align?: "start" | "end" }) {
-  const { open, setOpen, triggerRef, contentRef } = useDropdownMenu();
-  const [position, setPosition] = React.useState({ top: 0, left: 0, right: 0 });
+function DropdownMenuContent({ className, children, align = "end", side = "bottom" }: React.ComponentProps<'div'> & { align?: "start" | "end"; side?: "bottom" | "right" }) {
+  const { open, triggerRef, contentRef } = useDropdownMenu();
+  const [position, setPosition] = React.useState({ top: 0, bottom: 0, left: 0, right: 0 });
+  const [resolvedSide, setResolvedSide] = React.useState<"bottom" | "right" | "top">(side);
 
   React.useEffect(() => {
     if (open && triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      setPosition({
-        top: rect.bottom + 8, // mt-2
-        left: rect.left,
-        right: window.innerWidth - rect.right,
-      });
+      const isDesktopSide = side === "right" && window.innerWidth >= 1024;
+      if (isDesktopSide) {
+        setResolvedSide("right");
+        setPosition({
+          top: Math.max(8, rect.bottom - 220),
+          bottom: 0,
+          left: rect.right + 16,
+          right: window.innerWidth - rect.right - 16,
+        });
+      } else if (side === "right") {
+        setResolvedSide("top");
+        setPosition({
+          top: 0,
+          bottom: 0,
+          left: 0,
+          right: 0,
+        });
+      } else {
+        setResolvedSide("bottom");
+        setPosition({
+          top: rect.bottom + 8,
+          bottom: 0,
+          left: Math.max(8, rect.left),
+          right: Math.max(8, window.innerWidth - rect.right),
+        });
+      }
     }
-  }, [open, triggerRef]);
+  }, [open, triggerRef, side]);
+
+  const getInitialPosition = () => {
+    if (resolvedSide === "right") return { opacity: 0, scale: 0.95, y: 0, x: -10 };
+    if (resolvedSide === "top") return { opacity: 0, scale: 0.95, y: 10, x: 0 };
+    return { opacity: 0, scale: 0.95, y: -10, x: 0 };
+  };
 
   const content = (
     <motion.div
       ref={contentRef}
       key="menu"
       role="menu"
-      initial={{ opacity: 0, scale: 0.95, y: -10 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95, y: -10 }}
+      initial={getInitialPosition()}
+      animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
+      exit={getInitialPosition()}
       transition={{ duration: 0.15, ease: "easeOut" }}
       style={{
         position: 'fixed',
-        top: position.top,
-        ...(align === "end" ? { right: position.right } : { left: position.left }),
+        ...(resolvedSide === "top" ? { bottom: position.bottom } : { top: position.top }),
+        ...(resolvedSide === "right"
+          ? { left: position.left }
+          : resolvedSide === "top"
+            ? { left: 16, right: 16, bottom: 16 }
+            : align === "end"
+              ? { right: position.right }
+              : { left: position.left }),
       }}
       className={cn(
         'z-[70] min-w-48 overflow-hidden rounded-lg border border-border bg-white p-1.5 text-popover-foreground shadow-lg',
+        resolvedSide === "top" && 'min-w-0 rounded-2xl p-2 shadow-xl',
         className,
       )}
     >
@@ -216,6 +251,8 @@ function DropdownMenuSubTrigger({ children, className, ...props }: React.Compone
   );
 }
 
+// Arrow indicator disabled for cleaner layout
+
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -226,4 +263,21 @@ export {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuSubTrigger,
+  useDropdownMenu,
 };
+
+export function DropdownMenuChevron({ className, side = "down" }: { className?: string; side?: "down" | "right" }) {
+  const { open } = useDropdownMenu();
+  const rotationClass = side === "right"
+    ? open ? "rotate-90" : ""
+    : open ? "rotate-180" : "";
+  return (
+    <ChevronRight
+      className={cn(
+        "h-4 w-4 shrink-0 text-slate-400 transition-transform duration-300",
+        rotationClass,
+        className,
+      )}
+    />
+  );
+}
