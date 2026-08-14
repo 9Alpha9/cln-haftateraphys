@@ -16,7 +16,10 @@ function createAuth() {
     }),
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: process.env.NODE_ENV === 'production',
+      // Email verification is disabled until an SMTP provider is configured.
+      // Without a provider, no user can verify their email and login would be
+      // permanently blocked in production.
+      requireEmailVerification: false,
     },
     advanced: {
       database: {
