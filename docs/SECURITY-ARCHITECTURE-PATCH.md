@@ -136,7 +136,7 @@ Tambahkan hanya security-specific pieces yang memang dibutuhkan.
 Recommended additions:
 
 ```text
-middleware.ts
+proxy.ts
 
 lib/auth/
 └── require-session.ts
@@ -161,7 +161,7 @@ REQUEST
    │
    ▼
 [1] HOST / ROUTE GATE
-    root middleware.ts
+    root proxy.ts
    │
    ▼
 [2] AUTHENTICATION GATE
@@ -185,9 +185,9 @@ REQUEST
 
 Tidak ada satu layer yang menggantikan layer lain.
 
-## 5. Layer 1 — root `middleware.ts`
+## 5. Layer 1 — root `proxy.ts`
 
-Tambahkan `middleware.ts` di root project sebagai **first request gate**, bukan satu-satunya authorization system.
+Tambahkan `proxy.ts` di root project sebagai **first request gate**, bukan satu-satunya authorization system.
 
 Responsibilities:
 
@@ -211,10 +211,10 @@ localhost:<port>/dashboard   → allowed for development
 Conceptual pattern:
 
 ```ts
-// middleware.ts — adapt to actual environment
+// proxy.ts — adapt to actual environment
 import { NextRequest, NextResponse } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const host = request.headers.get('host') ?? '';
   const pathname = request.nextUrl.pathname;
 
@@ -569,7 +569,7 @@ SEC-ARCH-01
 Inspect current auth / permission implementation
         ↓
 SEC-ARCH-02
-Add root host-aware middleware.ts
+Add root host-aware proxy.ts
         ↓
 SEC-ARCH-03
 Harden app/dashboard/layout.tsx session gate
