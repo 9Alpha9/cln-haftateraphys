@@ -1,6 +1,7 @@
 import { and, eq, ne } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { profiles, users } from '@/db/schema';
+import { getAuth } from '@/lib/auth';
 
 async function main() {
   const email = process.env.SUPER_ADMIN_EMAIL?.trim().toLowerCase();
@@ -14,14 +15,36 @@ async function main() {
   }
 
   const db = getDb();
-  const [user] = await db
+  let [user] = await db
     .select({ id: users.id, email: users.email, name: users.name })
     .from(users)
     .where(eq(users.email, email))
     .limit(1);
 
   if (!user) {
-    throw new Error('No existing user matches SUPER_ADMIN_EMAIL.');
+    if (!process.env.SUPER_ADMIN_PASSWORD) {
+      throw new Error('SUPER_ADMIN_PASSWORD is required to create the account.');
+    }
+
+    const res = await getAuth().api.signUpEmail({
+      body: {
+        name: process.env.SUPER_ADMIN_NAME?.trim() || 'Super Admin',
+        email,
+        password: process.env.SUPER_ADMIN_PASSWORD,
+      },
+    });
+
+    const userId = (res as { user?: { id: string } }).user?.id ?? (res as { id?: string }).id;
+    if (!userId) {
+      throw new Error('Failed to create super-admin user.');
+    }
+
+    const [created] = await db
+      .select({ id: users.id, email: users.email, name: users.name })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    user = created;
   }
 
   await db.transaction(async (tx) => {
