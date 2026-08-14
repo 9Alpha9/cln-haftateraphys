@@ -67,7 +67,7 @@ export function PatientDashboardShell({
             <Image
               src="/images/logos/logos-text.png"
               alt="Hafta Fisioterapi"
-              width={200}
+              width={66}
               height={44}
               className="h-11 w-auto"
               priority

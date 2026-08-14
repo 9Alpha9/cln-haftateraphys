@@ -130,8 +130,8 @@ export function RegisterForm() {
         <Image
           src="/images/logos/logos-text.png"
           alt="Hafta Fisioterapi"
-          width={200}
-          height={48}
+          width={192}
+          height={128}
           priority
           className="h-32 w-auto"
         />

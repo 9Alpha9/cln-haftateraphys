@@ -35,8 +35,8 @@ export function Footer() {
                 <Image
                   src="/images/logos/logos-text.png"
                   alt="Hafta Fisioterapi"
-                  width={120}
-                  height={40}
+                  width={144}
+                  height={96}
                   quality={100}
                   className="h-24 w-auto brightness-0 invert"
                 />

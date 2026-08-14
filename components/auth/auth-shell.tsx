@@ -61,8 +61,8 @@ export function AuthShell({ children, title, description }: AuthShellProps) {
           <Image
             src="/images/logos/logos-text.png"
             alt="Hafta Fisioterapi"
-            width={220}
-            height={52}
+            width={192}
+            height={128}
             className="h-auto w-48 brightness-0 invert"
             priority
           />
