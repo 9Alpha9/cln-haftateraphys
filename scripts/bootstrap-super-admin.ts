@@ -47,27 +47,26 @@ async function main() {
     user = created;
   }
 
-  await db.transaction(async (tx) => {
-    await tx
-      .insert(profiles)
-      .values({
-        userId: user.id,
-        displayName: user.name,
+  // neon-http driver has no transaction support; run sequentially.
+  await db
+    .insert(profiles)
+    .values({
+      userId: user.id,
+      displayName: user.name,
+      accountType: 'SUPER_ADMIN',
+    })
+    .onConflictDoUpdate({
+      target: profiles.userId,
+      set: {
         accountType: 'SUPER_ADMIN',
-      })
-      .onConflictDoUpdate({
-        target: profiles.userId,
-        set: {
-          accountType: 'SUPER_ADMIN',
-          updatedAt: new Date(),
-        },
-      });
+        updatedAt: new Date(),
+      },
+    });
 
-    await tx
-      .update(profiles)
-      .set({ accountType: 'USER', updatedAt: new Date() })
-      .where(and(ne(profiles.userId, user.id), eq(profiles.accountType, 'SUPER_ADMIN')));
-  });
+  await db
+    .update(profiles)
+    .set({ accountType: 'USER', updatedAt: new Date() })
+    .where(and(ne(profiles.userId, user.id), eq(profiles.accountType, 'SUPER_ADMIN')));
 
   console.log('Super Admin bootstrap completed.');
 }
