@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { shouldHideDashboardOnHost } from '@/lib/security/host-routing';
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const host = request.headers.get('host') ?? '';
   const pathname = request.nextUrl.pathname;
   const publicHost = process.env.PUBLIC_APP_HOST ?? '';
