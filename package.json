@@ -23,6 +23,12 @@
     "db:seed:dummyAppointments": "tsx --env-file-if-exists=.env scripts/seed-dummy-appointments.ts",
     "db:seed:superadmin": "tsx --env-file-if-exists=.env scripts/bootstrap-super-admin.ts"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "unrs-resolver"
+    ]
+  },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
     "@neondatabase/serverless": "^1.1.0",
