@@ -13,7 +13,6 @@ source_of_truth_for:
 
 > **UI implementation contract:** read `docs/DESIGN-REFERENCES.md`, `docs/DESIGN-SYSTEM.md`, and `docs/MOBILE-FIRST-STRATEGY.md`. Build and pass the mobile version first; desktop enhancement is not allowed before Mobile Gate passes.
 
-
 ## 1. Role model
 
 `ADMIN` is a staff role with scoped permissions. It may be combined with staff subtype such as:
@@ -56,6 +55,7 @@ Staff administrative subtype may have reduced navigation.
 ## 3. Dashboard home
 
 ### Objective
+
 Show operational priorities, not vanity metrics.
 
 ### Candidate modules
@@ -110,6 +110,7 @@ Avoid default list columns:
 - detailed diagnosis/clinical finding.
 
 ### Query rule
+
 Only return rows within authorized scope.
 
 Do not query all patients and filter client-side.
@@ -336,9 +337,11 @@ Show:
 - state.
 
 ### Create session rule
+
 Must belong to authorized patient and appropriate assignment/scope.
 
 ### Finalization
+
 Same immutable/amendment pattern as assessment.
 
 ## 10. Clinical history
@@ -350,6 +353,7 @@ Same immutable/amendment pattern as assessment.
 ```
 
 ### Purpose
+
 Chronological clinical timeline for authorized staff.
 
 Candidate timeline events:

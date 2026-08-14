@@ -1,24 +1,26 @@
-import Link from "next/link";
-import Image from "next/image";
-import { Container } from "@/components/container";
+import Link from 'next/link';
+import Image from 'next/image';
+import { Container } from '@/components/container';
 
 const footerLinks = {
   layanan: [
-    { name: "Fisioterapi Olahraga", href: "#layanan" },
-    { name: "Fisioterapi Pascabedah", href: "#layanan" },
-    { name: "Fisioterapi Ortopedi", href: "#layanan" },
-    { name: "Konsultasi Gratis", href: "#kontak" },
+    { name: 'Fisioterapi Olahraga', href: '/layanan#cedera-olahraga' },
+    { name: 'Nyeri Punggung & Leher', href: '/layanan#nyeri-punggung-leher' },
+    { name: 'Rehabilitasi Pasca Operasi', href: '/layanan#rehabilitasi-pasca-operasi' },
+    { name: 'Kesehatan Sendi & Otot', href: '/layanan#kesehatan-sendi-otot' },
+    { name: 'Konsultasi Gratis', href: '/#kontak' },
   ],
   informasi: [
-    { name: "Tentang Kami", href: "#tentang" },
-    { name: "Tim Therapist", href: "#tim" },
-    { name: "FAQ", href: "#faq" },
-    { name: "Kebijakan Privasi", href: "/kebijakan-privasi" },
+    { name: 'Tentang Kami', href: '/tentang' },
+    { name: 'Tim Therapist', href: '#tim' },
+    { name: 'FAQ', href: '#faq' },
+    { name: 'Kebijakan Privasi', href: '/privacy' },
+    { name: 'Syarat & Ketentuan', href: '/terms' },
   ],
   Kontak: [
-    { name: "WhatsApp", href: "https://wa.me/6281234567890" },
-    { name: "Email", href: "mailto:info@hafta-fisioterapi.com" },
-    { name: "Instagram", href: "https://instagram.com/haftafisioterapi" },
+    { name: 'WhatsApp', href: 'https://wa.me/6281232932872' },
+    { name: 'Email', href: 'mailto:info@hafta-fisioterapi.com' },
+    { name: 'Instagram', href: 'https://www.instagram.com/hafta.fisioterapi' },
   ],
 };
 
@@ -40,12 +42,11 @@ export function Footer() {
                 />
               </Link>
               <p className="mt-4 text-sm text-white/70 leading-relaxed">
-                Klinik fisioterapi profesional untuk pemulihan optimal dan
-                kualitas hidup yang lebih baik.
+                Klinik fisioterapi profesional untuk pemulihan optimal dan kualitas hidup yang lebih baik.
               </p>
               <div className="mt-4 flex items-center gap-3">
                 <a
-                  href="https://instagram.com/haftafisioterapi"
+                  href="https://www.instagram.com/hafta.fisioterapi"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
@@ -55,7 +56,7 @@ export function Footer() {
                   </svg>
                 </a>
                 <a
-                  href="https://wa.me/6281234567890"
+                  href="https://wa.me/6281232932872"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 transition-colors hover:bg-white/20"
@@ -68,16 +69,11 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-white/90">
-                Layanan
-              </h3>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-white/90">Layanan</h3>
               <ul className="mt-4 space-y-2">
                 {footerLinks.layanan.map((link) => (
                   <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-white/70 transition-colors hover:text-white"
-                    >
+                    <Link href={link.href} className="text-sm text-white/70 transition-colors hover:text-white">
                       {link.name}
                     </Link>
                   </li>
@@ -86,16 +82,11 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-white/90">
-                Informasi
-              </h3>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-white/90">Informasi</h3>
               <ul className="mt-4 space-y-2">
                 {footerLinks.informasi.map((link) => (
                   <li key={link.name}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-white/70 transition-colors hover:text-white"
-                    >
+                    <Link href={link.href} className="text-sm text-white/70 transition-colors hover:text-white">
                       {link.name}
                     </Link>
                   </li>
@@ -104,17 +95,15 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-white/90">
-                Kontak
-              </h3>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-white/90">Kontak</h3>
               <ul className="mt-4 space-y-2">
                 {footerLinks.Kontak.map((link) => (
                   <li key={link.name}>
                     <Link
                       href={link.href}
                       className="text-sm text-white/70 transition-colors hover:text-white"
-                      target={link.href.startsWith("http") ? "_blank" : undefined}
-                      rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                      target={link.href.startsWith('http') ? '_blank' : undefined}
+                      rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                     >
                       {link.name}
                     </Link>
@@ -127,8 +116,18 @@ export function Footer() {
 
         <div className="border-t border-white/10 py-6">
           <p className="text-center text-xs text-white/50">
-            &copy; {new Date().getFullYear()} Hafta Fisioterapi. Hak cipta
-            dilindungi.
+            &copy; {new Date().getFullYear()} Hafta Fisioterapi. Hak cipta dilindungi.
+          </p>
+          <p className="mt-2 text-center text-xs text-white/40">
+            Dibuat oleh{' '}
+            <a
+              href="https://www.bagian.web.id/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/60 underline-offset-4 transition-colors hover:text-white hover:underline"
+            >
+              Bagian
+            </a>
           </p>
         </div>
       </Container>

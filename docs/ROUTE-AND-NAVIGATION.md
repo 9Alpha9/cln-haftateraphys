@@ -16,59 +16,59 @@ last_updated: 2026-08-12
 
 ## 2. Public routes
 
-| Route | Audience | Auth | Notes |
-|---|---|---:|---|
-| `/` | public | no | landing page |
-| `/login` | public | no | redirect authenticated user optionally |
-| `/register` | public | no | creates USER only |
-| `/forgot-password` | public | no | anti-enumeration |
-| `/reset-password` | public | token | reset token required |
-| `/verify-email` | public | token/session | verification state |
-| `/privacy` | public | no | required before production data intake |
-| `/terms` | public | no | required before production data intake |
+| Route              | Audience |          Auth | Notes                                  |
+| ------------------ | -------- | ------------: | -------------------------------------- |
+| `/`                | public   |            no | landing page                           |
+| `/login`           | public   |            no | redirect authenticated user optionally |
+| `/register`        | public   |            no | creates USER only                      |
+| `/forgot-password` | public   |            no | anti-enumeration                       |
+| `/reset-password`  | public   |         token | reset token required                   |
+| `/verify-email`    | public   | token/session | verification state                     |
+| `/privacy`         | public   |            no | required before production data intake |
+| `/terms`           | public   |            no | required before production data intake |
 
 ## 3. Shared authenticated routes
 
-| Route | USER | ADMIN | SUPER_ADMIN |
-|---|---:|---:|---:|
-| `/dashboard` | yes | yes | yes |
-| `/dashboard/account/security` | yes | yes | yes |
+| Route                         | USER | ADMIN | SUPER_ADMIN |
+| ----------------------------- | ---: | ----: | ----------: |
+| `/dashboard`                  |  yes |   yes |         yes |
+| `/dashboard/account/security` |  yes |   yes |         yes |
 
 Content differs by role.
 
 ## 4. USER routes
 
-| Route | Permission/scope |
-|---|---|
-| `/dashboard/profile` | own patient profile |
-| `/dashboard/intake` | own intake lifecycle |
-| `/dashboard/history` | own patient-visible records |
-| `/dashboard/history/[recordId]` | own + patient-visible |
-| `/dashboard/documents` | own + feature enabled |
+| Route                           | Permission/scope            |
+| ------------------------------- | --------------------------- |
+| `/dashboard/profile`            | own patient profile         |
+| `/dashboard/intake`             | own intake lifecycle        |
+| `/dashboard/history`            | own patient-visible records |
+| `/dashboard/history/[recordId]` | own + patient-visible       |
+| `/dashboard/documents`          | own + feature enabled       |
 
 ## 5. ADMIN/THERAPIST routes
 
-| Route | Required policy |
-|---|---|
-| `/dashboard/patients` | `patient:list` + scope |
-| `/dashboard/patients/[patientId]` | `patient:read` + scope |
-| `.../intake` | `intake:read/review` + scope |
-| `.../assessment` | assessment permission + scope |
-| `.../treatment-plan` | treatment permission + scope |
-| `.../sessions` | session permission + scope |
-| `.../sessions/[sessionId]` | session permission + patient scope |
-| `.../history` | clinical read scope |
+| Route                             | Required policy                    |
+| --------------------------------- | ---------------------------------- |
+| `/dashboard/patients`             | `patient:list` + scope             |
+| `/dashboard/patients/[patientId]` | `patient:read` + scope             |
+| `.../intake`                      | `intake:read/review` + scope       |
+| `.../assessment`                  | assessment permission + scope      |
+| `.../treatment-plan`              | treatment permission + scope       |
+| `.../sessions`                    | session permission + scope         |
+| `.../sessions/[sessionId]`        | session permission + patient scope |
+| `.../history`                     | clinical read scope                |
 
 ## 6. SUPER_ADMIN routes
 
-| Route | Permission |
-|---|---|
-| `/dashboard/users` | `user:list` |
-| `/dashboard/users/[userId]` | `user:read` |
-| `/dashboard/staff` | administration permission |
-| `/dashboard/roles` | `permission:manage` / role governance |
-| `/dashboard/audit-logs` | `audit:read` |
-| `/dashboard/settings` | `settings:manage` |
+| Route                       | Permission                            |
+| --------------------------- | ------------------------------------- |
+| `/dashboard/users`          | `user:list`                           |
+| `/dashboard/users/[userId]` | `user:read`                           |
+| `/dashboard/staff`          | administration permission             |
+| `/dashboard/roles`          | `permission:manage` / role governance |
+| `/dashboard/audit-logs`     | `audit:read`                          |
+| `/dashboard/settings`       | `settings:manage`                     |
 
 Patient clinical routes remain denied unless explicit clinical permission exists.
 

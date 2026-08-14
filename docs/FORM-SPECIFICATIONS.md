@@ -27,11 +27,11 @@ Every significant form field should conceptually define:
 type FieldDefinition = {
   key: string;
   label: string;
-  type: "text" | "textarea" | "date" | "number" | "select" | "multi-select" | "boolean" | "file";
-  owner: "PATIENT" | "THERAPIST" | "STAFF" | "SYSTEM";
-  sensitivity: "STANDARD" | "PERSONAL" | "HEALTH" | "SECURITY";
-  required: boolean | "CONDITIONAL";
-  patientVisible: boolean | "CONFIGURABLE";
+  type: 'text' | 'textarea' | 'date' | 'number' | 'select' | 'multi-select' | 'boolean' | 'file';
+  owner: 'PATIENT' | 'THERAPIST' | 'STAFF' | 'SYSTEM';
+  sensitivity: 'STANDARD' | 'PERSONAL' | 'HEALTH' | 'SECURITY';
+  required: boolean | 'CONDITIONAL';
+  patientVisible: boolean | 'CONFIGURABLE';
   editableStates: string[];
   notes?: string;
 };
@@ -41,14 +41,14 @@ Do not literally create a runtime registry for all fields unless architecture be
 
 ## 3. Registration fields
 
-| Key | Type | Owner | Sensitivity | Required | Notes |
-|---|---|---|---|---:|---|
-| fullName | text | PATIENT | PERSONAL | yes | account/profile bootstrap only |
-| email | text/email | PATIENT | PERSONAL | yes | auth identifier |
-| password | password | PATIENT | SECURITY | yes | handled by auth layer |
-| passwordConfirmation | password | PATIENT | SECURITY | yes | never stored |
-| acceptTerms | boolean | PATIENT | STANDARD | yes | version/reference recommended |
-| acknowledgePrivacy | boolean | PATIENT | STANDARD | yes | version/reference recommended |
+| Key                  | Type       | Owner   | Sensitivity | Required | Notes                          |
+| -------------------- | ---------- | ------- | ----------- | -------: | ------------------------------ |
+| fullName             | text       | PATIENT | PERSONAL    |      yes | account/profile bootstrap only |
+| email                | text/email | PATIENT | PERSONAL    |      yes | auth identifier                |
+| password             | password   | PATIENT | SECURITY    |      yes | handled by auth layer          |
+| passwordConfirmation | password   | PATIENT | SECURITY    |      yes | never stored                   |
+| acceptTerms          | boolean    | PATIENT | STANDARD    |      yes | version/reference recommended  |
+| acknowledgePrivacy   | boolean    | PATIENT | STANDARD    |      yes | version/reference recommended  |
 
 `role`, `permissions`, `accountStatus`, `emailVerified`, `patientId` are not user-editable registration fields.
 
@@ -56,70 +56,70 @@ Do not literally create a runtime registry for all fields unless architecture be
 
 ### Identity
 
-| Key | Type | Sensitivity | Required | Patient editable |
-|---|---|---|---:|---:|
-| fullName | text | PERSONAL | yes | yes |
-| preferredName | text | PERSONAL | no | yes |
-| dateOfBirth | date | PERSONAL/HEALTH-CONTEXT | candidate yes | yes, with policy |
-| sexOrRelevantBiologicalField | select | HEALTH | conditional | yes |
-| occupation | text | PERSONAL | no/candidate | yes |
+| Key                          | Type   | Sensitivity             |      Required | Patient editable |
+| ---------------------------- | ------ | ----------------------- | ------------: | ---------------: |
+| fullName                     | text   | PERSONAL                |           yes |              yes |
+| preferredName                | text   | PERSONAL                |            no |              yes |
+| dateOfBirth                  | date   | PERSONAL/HEALTH-CONTEXT | candidate yes | yes, with policy |
+| sexOrRelevantBiologicalField | select | HEALTH                  |   conditional |              yes |
+| occupation                   | text   | PERSONAL                |  no/candidate |              yes |
 
 Only collect sex/gender/biological information if clinically/operationally needed and terminology is approved.
 
 ### Contact
 
-| Key | Type | Sensitivity | Required | Patient editable |
-|---|---|---|---:|---:|
-| phone | text/tel | PERSONAL | candidate yes | yes |
-| addressLine | textarea | PERSONAL | conditional | yes |
-| city | text/select | PERSONAL | conditional | yes |
-| postalCode | text | PERSONAL | no | yes |
+| Key         | Type        | Sensitivity |      Required | Patient editable |
+| ----------- | ----------- | ----------- | ------------: | ---------------: |
+| phone       | text/tel    | PERSONAL    | candidate yes |              yes |
+| addressLine | textarea    | PERSONAL    |   conditional |              yes |
+| city        | text/select | PERSONAL    |   conditional |              yes |
+| postalCode  | text        | PERSONAL    |            no |              yes |
 
 Apply data minimization. Do not require exact address unless operationally needed.
 
 ### Emergency contact
 
-| Key | Type | Sensitivity | Required |
-|---|---|---|---:|
-| emergencyContactName | text | PERSONAL | candidate |
-| emergencyContactRelationship | text/select | PERSONAL | candidate |
-| emergencyContactPhone | tel | PERSONAL | candidate |
+| Key                          | Type        | Sensitivity |  Required |
+| ---------------------------- | ----------- | ----------- | --------: |
+| emergencyContactName         | text        | PERSONAL    | candidate |
+| emergencyContactRelationship | text/select | PERSONAL    | candidate |
+| emergencyContactPhone        | tel         | PERSONAL    | candidate |
 
 ## 5. Patient intake candidate fields
 
 ### 5.1 Main complaint
 
-| Key | Type | Sensitivity | Required | Notes |
-|---|---|---|---:|---|
-| chiefComplaint | textarea | HEALTH | yes | patient own words |
-| affectedArea | text/select | HEALTH | yes/candidate | avoid diagnostic implication |
-| onsetDate | date | HEALTH | conditional | allow approximate timeframe if needed |
-| onsetDescription | textarea | HEALTH | candidate | how it started |
-| triggeringEvent | textarea | HEALTH | no/candidate | injury/activity event |
-| symptomScale | number/select | HEALTH | conditional | only if Hafta uses defined scale |
-| aggravatingFactors | textarea | HEALTH | candidate | activities making complaint worse |
-| relievingFactors | textarea | HEALTH | no | |
-| dailyLimitations | textarea | HEALTH | yes/candidate | function impact |
+| Key                | Type          | Sensitivity |      Required | Notes                                 |
+| ------------------ | ------------- | ----------- | ------------: | ------------------------------------- |
+| chiefComplaint     | textarea      | HEALTH      |           yes | patient own words                     |
+| affectedArea       | text/select   | HEALTH      | yes/candidate | avoid diagnostic implication          |
+| onsetDate          | date          | HEALTH      |   conditional | allow approximate timeframe if needed |
+| onsetDescription   | textarea      | HEALTH      |     candidate | how it started                        |
+| triggeringEvent    | textarea      | HEALTH      |  no/candidate | injury/activity event                 |
+| symptomScale       | number/select | HEALTH      |   conditional | only if Hafta uses defined scale      |
+| aggravatingFactors | textarea      | HEALTH      |     candidate | activities making complaint worse     |
+| relievingFactors   | textarea      | HEALTH      |            no |                                       |
+| dailyLimitations   | textarea      | HEALTH      | yes/candidate | function impact                       |
 
 ### 5.2 Activity and goals
 
-| Key | Type | Sensitivity | Required |
-|---|---|---|---:|
-| dailyActivity | textarea | HEALTH-CONTEXT | candidate |
-| sportActivity | textarea | HEALTH-CONTEXT | no |
-| patientGoal | textarea | HEALTH | yes/candidate |
-| returnToActivityGoal | textarea | HEALTH | no |
+| Key                  | Type     | Sensitivity    |      Required |
+| -------------------- | -------- | -------------- | ------------: |
+| dailyActivity        | textarea | HEALTH-CONTEXT |     candidate |
+| sportActivity        | textarea | HEALTH-CONTEXT |            no |
+| patientGoal          | textarea | HEALTH         | yes/candidate |
+| returnToActivityGoal | textarea | HEALTH         |            no |
 
 ### 5.3 Relevant history
 
-| Key | Type | Sensitivity | Required |
-|---|---|---|---:|
-| previousInjuryHistory | textarea | HEALTH | candidate |
-| surgeryHistory | textarea | HEALTH | candidate |
-| relevantMedicalHistory | textarea | HEALTH | candidate |
-| currentMedication | textarea | HEALTH | conditional |
-| allergies | textarea | HEALTH | conditional |
-| previousTreatment | textarea | HEALTH | no/candidate |
+| Key                    | Type     | Sensitivity |     Required |
+| ---------------------- | -------- | ----------- | -----------: |
+| previousInjuryHistory  | textarea | HEALTH      |    candidate |
+| surgeryHistory         | textarea | HEALTH      |    candidate |
+| relevantMedicalHistory | textarea | HEALTH      |    candidate |
+| currentMedication      | textarea | HEALTH      |  conditional |
+| allergies              | textarea | HEALTH      |  conditional |
+| previousTreatment      | textarea | HEALTH      | no/candidate |
 
 Never use AI to infer diagnosis from these free-text fields in v1.
 

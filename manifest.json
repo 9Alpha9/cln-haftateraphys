@@ -78,21 +78,9 @@
   "responsive_policy": {
     "approach": "mobile-first",
     "mobile_gate_required_before_desktop": true,
-    "mobile_validation_widths_px": [
-      320,
-      360,
-      390,
-      430
-    ],
-    "tablet_validation_widths_px": [
-      768,
-      834
-    ],
-    "desktop_validation_widths_px": [
-      1024,
-      1280,
-      1440
-    ]
+    "mobile_validation_widths_px": [320, 360, 390, 430],
+    "tablet_validation_widths_px": [768, 834],
+    "desktop_validation_widths_px": [1024, 1280, 1440]
   },
   "development_entrypoint": "START-DEVELOPMENT.md"
 }

@@ -95,30 +95,30 @@ Legend:
 - S = scoped/conditional
 - N = default denied
 
-| Permission | SUPER_ADMIN | ADMIN/THERAPIST | ADMIN/STAFF | USER |
-|---|---:|---:|---:|---:|
-| patient:list | S | S | S | N |
-| patient:read | S | S | S-minimum | own |
-| patient:create | Y | S | S | N |
-| patient:update-demographics | S | S | S | own-limited |
-| patient:assign | Y | S | N | N |
-| patient:archive | S | N/S | N | N |
-| patient:export | S-explicit | S-explicit | N | own-policy |
-| intake:read | S | S | S-minimum | own |
-| intake:create-own | N | N | N | Y |
-| intake:update-own-draft | N | N | N | Y |
-| intake:review | N/S | Y-scoped | S-minimum | N |
-| assessment:read | explicit | Y-scoped | N | visible-own |
-| assessment:create | explicit | Y-scoped | N | N |
-| assessment:update-draft | explicit | Y-owner/scoped | N | N |
-| assessment:finalize | explicit | Y-owner/scoped | N | N |
-| assessment:amend | explicit | Y-owner/scoped | N | N |
-| treatment-plan:* | explicit | scoped | N | read-visible-own |
-| session:* | explicit | scoped | N | read-visible-own |
-| role:assign | Y | N | N | N |
-| permission:manage | Y | N | N | N |
-| audit:read | Y | N/S-limited | N | N |
-| settings:manage | Y | N | N | N |
+| Permission                  | SUPER_ADMIN | ADMIN/THERAPIST | ADMIN/STAFF |             USER |
+| --------------------------- | ----------: | --------------: | ----------: | ---------------: |
+| patient:list                |           S |               S |           S |                N |
+| patient:read                |           S |               S |   S-minimum |              own |
+| patient:create              |           Y |               S |           S |                N |
+| patient:update-demographics |           S |               S |           S |      own-limited |
+| patient:assign              |           Y |               S |           N |                N |
+| patient:archive             |           S |             N/S |           N |                N |
+| patient:export              |  S-explicit |      S-explicit |           N |       own-policy |
+| intake:read                 |           S |               S |   S-minimum |              own |
+| intake:create-own           |           N |               N |           N |                Y |
+| intake:update-own-draft     |           N |               N |           N |                Y |
+| intake:review               |         N/S |        Y-scoped |   S-minimum |                N |
+| assessment:read             |    explicit |        Y-scoped |           N |      visible-own |
+| assessment:create           |    explicit |        Y-scoped |           N |                N |
+| assessment:update-draft     |    explicit |  Y-owner/scoped |           N |                N |
+| assessment:finalize         |    explicit |  Y-owner/scoped |           N |                N |
+| assessment:amend            |    explicit |  Y-owner/scoped |           N |                N |
+| treatment-plan:*            |    explicit |          scoped |           N | read-visible-own |
+| session:*                   |    explicit |          scoped |           N | read-visible-own |
+| role:assign                 |           Y |               N |           N |                N |
+| permission:manage           |           Y |               N |           N |                N |
+| audit:read                  |           Y |     N/S-limited |           N |                N |
+| settings:manage             |           Y |               N |           N |                N |
 
 `SUPER_ADMIN` clinical permissions are explicit, not implied.
 
@@ -127,7 +127,7 @@ Legend:
 ### USER
 
 ```ts
-resource.patient.userId === session.user.id
+resource.patient.userId === session.user.id;
 ```
 
 and field/record must be patient-visible.
@@ -167,11 +167,11 @@ export async function updateAssessment(input: unknown) {
 
   await authorize({
     session,
-    permission: "assessment:update-draft",
+    permission: 'assessment:update-draft',
     resource: assessment,
   });
 
-  if (assessment.status !== "DRAFT") {
+  if (assessment.status !== 'DRAFT') {
     throw new RecordFinalizedError();
   }
 

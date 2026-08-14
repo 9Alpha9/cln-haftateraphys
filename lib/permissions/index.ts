@@ -1,5 +1,8 @@
-export { PERMISSIONS, type Permission } from "./constants";
-export { ROLE_PERMISSIONS, type Role } from "./roles";
+export { PERMISSIONS, type Permission } from './constants';
+export { ROLE_PERMISSIONS, type Role } from './roles';
+export { getDashboardNavigation } from './dashboard-navigation';
+export { requirePermission } from './require-permission';
+export { requirePatientAccess } from './resource-access';
 export {
   authorize,
   hasPermission,
@@ -9,4 +12,4 @@ export {
   type AuthUser,
   type AuthSession,
   type AuthorizationContext,
-} from "./policy";
+} from './policy';

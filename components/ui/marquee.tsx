@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 
 interface MarqueeProps {
   children: React.ReactNode;
@@ -10,12 +10,7 @@ interface MarqueeProps {
   className?: string;
 }
 
-export function Marquee({
-  children,
-  speed = 30,
-  pauseOnHover = true,
-  className,
-}: MarqueeProps) {
+export function Marquee({ children, speed = 30, pauseOnHover = true, className }: MarqueeProps) {
   const [isPaused, setIsPaused] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -45,8 +40,8 @@ export function Marquee({
           x: {
             duration,
             repeat: Infinity,
-            ease: "linear",
-            repeatType: "loop",
+            ease: 'linear',
+            repeatType: 'loop',
           },
         }}
         style={{ x: 0 }}

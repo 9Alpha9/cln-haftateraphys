@@ -18,7 +18,6 @@ requirements: [LP-S01, LP-S02, LP-S03, LP-S04, LP-S05, LP-S06, LP-S07, LP-S08, L
 - `docs/UI-GUIDELINES.md`
 - `docs/CONTENT-REQUIREMENTS.md`
 
-
 ## Visual source
 
 Use:
@@ -53,9 +52,11 @@ Do not publish unconfirmed:
 - clinical outcome claim.
 
 ## Components
+
 Follow component candidates but minimize fragmentation.
 
 ## Analytics
+
 Only privacy-safe public CTA events if analytics is already approved. Do not add analytics provider solely for this task.
 
 ## Tests/checks
@@ -66,7 +67,6 @@ Only privacy-safe public CTA events if analytics is already approved. Do not add
 - keyboard nav;
 - no dead privacy/terms production paths;
 - responsive visual review.
-
 
 ## UI execution gates
 
@@ -82,4 +82,5 @@ If this task renders or changes UI:
 Do not start from a desktop screenshot and shrink it into mobile.
 
 ## Done when
+
 Acceptance criteria in `docs/pages/01-LANDING-PAGE.md` pass.

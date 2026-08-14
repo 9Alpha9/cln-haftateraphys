@@ -19,6 +19,7 @@ depends_on: [HF-TASK-004, HF-TASK-005]
 - `docs/DATABASE.md`
 
 ## Clinical gate
+
 Do not finalize production field terminology until Hafta therapist validates candidate clinical fields.
 
 ## Scope
@@ -50,7 +51,6 @@ Do not finalize production field terminology until Hafta therapist validates can
 - patient visibility DTO;
 - export default deny.
 
-
 ## UI execution gates
 
 If this task renders or changes UI:
@@ -65,4 +65,5 @@ If this task renders or changes UI:
 Do not start from a desktop screenshot and shrink it into mobile.
 
 ## Done when
+
 Clinical workflow UAT can be demonstrated with dummy patients and authorization/lifecycle tests pass.

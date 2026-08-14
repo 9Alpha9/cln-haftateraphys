@@ -1,4 +1,5 @@
 # HAFTA FISIOTERAPI — AI CONTEXT BUNDLE
+
 > Generated from canonical project documentation and execution tasks. Prefer canonical individual files when editing requirements.
 > Package version: 0.3.0
 > Last updated: 2026-08-12
@@ -14,7 +15,6 @@
 5. Read the task-specific page specification before implementation.
 6. Use `tasks/*.md` only as execution units after canonical docs are understood.
 7. This bundle is a convenience snapshot; canonical files remain the editable source of truth.
-
 
 <!-- BEGIN FILE: AGENTS.md -->
 
@@ -258,7 +258,6 @@ Jika requirement berubah:
 3. baru ubah implementasi;
 4. catat breaking change.
 
-
 ## Execution tasks
 
 Folder `tasks/` berisi task implementation-ready yang dapat diberikan langsung ke coding agent setelah canonical docs dibaca. Mulai dari `tasks/README.md`, lalu ikuti dependency/task order. Task files tidak boleh mengoverride security, permission, database, atau Master PRD.
@@ -356,6 +355,7 @@ The first file is inspiration only. The second and third represent the approved 
 <!-- BEGIN FILE: docs/MASTER-PRD.md -->
 
 ---
+
 title: Hafta Fisioterapi Master PRD
 version: 0.3.0
 status: draft-for-validation
@@ -382,21 +382,27 @@ Aplikasi bukan sekadar company profile. Landing page menjadi acquisition layer, 
 ## 2. Product goals
 
 ### G-001 — Public trust
+
 Menyediakan landing page yang menjelaskan Hafta, layanan, alur terapi, lokasi/kontak, therapist, edukasi, dan akses menuju patient portal.
 
 ### G-002 — Structured patient intake
+
 Pasien dapat mendaftar dan mengisi data yang dibutuhkan dengan struktur konsisten sebelum/selama proses fisioterapi.
 
 ### G-003 — Therapist workflow
+
 Staff/therapist yang berwenang dapat membuat assessment, treatment plan, session record, progress, dan patient history sesuai permission.
 
 ### G-004 — Patient transparency
+
 Pasien dapat melihat data miliknya sendiri yang memang ditandai boleh terlihat oleh pasien.
 
 ### G-005 — Secure administration
+
 Super Admin dapat mengelola akun, role/permission, configuration, dan audit tanpa otomatis mendapat akses klinis tanpa alasan.
 
 ### G-006 — Maintainability
+
 Codebase harus modular, clean, typed, memiliki migration, authorization test, dan struktur folder yang konsisten.
 
 ## 3. Non-goals untuk v1
@@ -416,14 +422,17 @@ Tidak termasuk kecuali kemudian disetujui:
 ## 4. User roles
 
 ### R-001 — SUPER_ADMIN
+
 Fokus pada administration, user management, role/permission, configuration, dan audit.
 
 SUPER_ADMIN tidak otomatis mempunyai unrestricted clinical read access. Clinical access harus mengikuti permission eksplisit.
 
 ### R-002 — ADMIN
+
 Role staff. Dapat memiliki sub-type seperti `THERAPIST` atau `STAFF` dan scoped permissions.
 
 ### R-003 — USER
+
 Patient account. Hanya boleh mengakses data miliknya sendiri dan resource yang secara eksplisit patient-visible.
 
 ## 5. Public information architecture
@@ -448,9 +457,11 @@ Optional future public routes:
 ## 6. Landing page requirements
 
 ### LP-001 — Header
+
 Harus memiliki logo/brand, navigation, CTA konsultasi/contact, dan login portal.
 
 ### LP-002 — Hero
+
 Harus menjelaskan value Hafta secara ringkas dan tidak membuat klaim medis berlebihan.
 
 Recommended direction:
@@ -460,9 +471,11 @@ Recommended direction:
 - secondary CTA: patient portal.
 
 ### LP-003 — Services / conditions
+
 Konten final harus menggunakan daftar layanan yang sudah dikonfirmasi client. Jangan mengubah posting edukasi Instagram menjadi klaim layanan resmi tanpa validasi.
 
 ### LP-004 — How therapy works
+
 Section yang menjelaskan alur umum:
 
 1. konsultasi/registrasi;
@@ -473,32 +486,41 @@ Section yang menjelaskan alur umum:
 6. evaluation/completion.
 
 ### LP-005 — About Hafta
+
 Menggunakan cerita/positioning resmi dari client.
 
 ### LP-006 — Therapist section
+
 Boleh berisi nama, foto, gelar/credential, dan fokus praktik hanya setelah data dikonfirmasi.
 
 ### LP-007 — Patient Portal value
+
 Jelaskan manfaat portal tanpa menyatakan fitur yang belum live.
 
 ### LP-008 — Education
+
 Boleh mengadaptasi tema edukasi publik dari Hafta setelah content approval.
 
 ### LP-009 — Testimonial/recovery story
+
 Hanya gunakan materi pasien dengan consent publikasi yang dapat dibuktikan.
 
 ### LP-010 — FAQ
+
 FAQ harus dikonfirmasi oleh operational owner.
 
 ### LP-011 — Location/contact
+
 Alamat, nomor, jam operasional, dan channel booking harus dikonfirmasi sebelum production.
 
 ### LP-012 — Privacy footer
+
 Link privacy policy dan terms wajib tersedia sebelum menerima data pasien production.
 
 ## 7. Authentication requirements
 
 ### AUTH-001 — Registration
+
 USER dapat membuat akun menggunakan email/password.
 
 Minimum fields:
@@ -512,18 +534,23 @@ Minimum fields:
 Patient medical data tidak dikumpulkan pada form register yang sama.
 
 ### AUTH-002 — Email verification
+
 Email verification harus didukung sebelum user melakukan operasi sensitif.
 
 ### AUTH-003 — Login
+
 Login menggunakan secure session cookie.
 
 ### AUTH-004 — Forgot/reset password
+
 Reset token harus short-lived, single-use, dan tidak mengungkap apakah email tertentu terdaftar melalui response yang mudah dieksploitasi.
 
 ### AUTH-005 — Staff MFA
+
 MFA sangat direkomendasikan dan menjadi target wajib sebelum production untuk ADMIN dan SUPER_ADMIN.
 
 ### AUTH-006 — Session management
+
 Harus ada logout, session expiration, dan mekanisme revoke session untuk staff.
 
 ## 8. USER / patient portal
@@ -539,14 +566,17 @@ Baseline routes:
 - `/dashboard/account/security`
 
 ### PT-001 — Patient profile
+
 Patient dapat mengisi dan mengubah profile non-clinical sesuai policy.
 
 ### PT-002 — Patient intake
+
 Form intake dipisah menjadi beberapa section agar manageable.
 
 Candidate fields:
 
 #### Identity/profile
+
 - full name;
 - date of birth;
 - sex/gender field hanya jika benar-benar dibutuhkan workflow klinis dan sudah disetujui;
@@ -555,11 +585,13 @@ Candidate fields:
 - occupation.
 
 #### Emergency contact
+
 - contact name;
 - relationship;
 - phone.
 
 #### Main complaint
+
 - chief complaint;
 - affected area;
 - onset date/time range;
@@ -570,6 +602,7 @@ Candidate fields:
 - functional limitations.
 
 #### Relevant history
+
 - injury history;
 - surgery history;
 - relevant medical history;
@@ -578,10 +611,12 @@ Candidate fields:
 - relevant examination/supporting document.
 
 #### Goal
+
 - patient goal;
 - activity/sport goal.
 
 #### Consent
+
 - privacy/data-processing consent;
 - clinical data submission acknowledgement;
 - optional media/publication consent harus terpisah dan tidak bundled.
@@ -589,6 +624,7 @@ Candidate fields:
 Final field list harus disetujui fisioterapis Hafta.
 
 ### PT-003 — Intake status
+
 Status candidate:
 
 - `DRAFT`
@@ -598,9 +634,11 @@ Status candidate:
 - `ACCEPTED`
 
 ### PT-004 — Patient history
+
 USER hanya dapat melihat record miliknya sendiri yang `patient_visible = true` dan sesuai lifecycle state.
 
 ### PT-005 — Patient cannot edit finalized clinical data
+
 Assessment, clinical findings, finalized therapy sessions, dan therapist notes tidak dapat dimodifikasi oleh USER.
 
 ## 9. ADMIN / therapist dashboard
@@ -619,6 +657,7 @@ Baseline routes:
 - `/dashboard/account/security`
 
 ### ADM-001 — Patient list
+
 Admin hanya melihat patient sesuai assigned scope/permission.
 
 Required capabilities:
@@ -630,6 +669,7 @@ Required capabilities:
 - no sensitive data exposed unnecessarily in table.
 
 ### ADM-002 — Patient overview
+
 Summary non-excessive:
 
 - patient identity minimum;
@@ -640,6 +680,7 @@ Summary non-excessive:
 - treatment status.
 
 ### ADM-003 — Assessment
+
 Authorized therapist dapat membuat assessment.
 
 Candidate sections:
@@ -653,6 +694,7 @@ Candidate sections:
 - visibility status.
 
 ### ADM-004 — Treatment plan
+
 Authorized therapist dapat membuat treatment plan terkait assessment.
 
 Candidate fields:
@@ -665,6 +707,7 @@ Candidate fields:
 - status.
 
 ### ADM-005 — Therapy sessions
+
 Setiap session memiliki independent record.
 
 Candidate fields:
@@ -681,12 +724,15 @@ Candidate fields:
 - patient visibility flag.
 
 ### ADM-006 — Finalization
+
 Finalized clinical record tidak boleh di-hard-delete. Correction menggunakan revision/amendment mechanism.
 
 ### ADM-007 — Assignment
+
 Patient dapat di-assign ke therapist sesuai permission.
 
 ### ADM-008 — Export
+
 Export clinical data adalah privileged operation, default denied, dan wajib audit.
 
 ## 10. SUPER_ADMIN dashboard
@@ -701,6 +747,7 @@ Routes candidate:
 - `/dashboard/settings`
 
 ### SA-001 — Account management
+
 Manage account state:
 
 - active;
@@ -710,15 +757,19 @@ Manage account state:
 - verification status.
 
 ### SA-002 — Role assignment
+
 Role changes wajib audit.
 
 ### SA-003 — Permission management
+
 Permission assignment tidak boleh dapat diedit oleh ADMIN biasa.
 
 ### SA-004 — Audit viewer
+
 Audit log hanya read-only dari UI normal.
 
 ### SA-005 — Clinical access
+
 Super Admin tidak otomatis mempunyai clinical read permission.
 
 ## 11. Status model
@@ -843,7 +894,6 @@ V1 dianggap layak staging jika:
 - secrets tidak bocor ke client/log/repository;
 - production patient data tidak pernah dikirim ke AI agent.
 
-
 ## 22. Detailed implementation specifications
 
 Master PRD ini menentukan kebijakan produk utama. Implementasi halaman harus membaca spesifikasi detail berikut:
@@ -866,6 +916,7 @@ Jika detail page spec membutuhkan perubahan terhadap product policy di Master PR
 <!-- BEGIN FILE: docs/SECURITY.md -->
 
 ---
+
 title: Hafta Fisioterapi Security Baseline
 version: 0.1.0
 last_updated: 2026-08-12
@@ -1141,6 +1192,7 @@ Clinical and personal data processing must be reviewed against applicable Indone
 <!-- BEGIN FILE: docs/PERMISSIONS.md -->
 
 ---
+
 title: Hafta Fisioterapi Permissions
 version: 0.1.0
 last_updated: 2026-08-12
@@ -1237,30 +1289,30 @@ Legend:
 - S = scoped/conditional
 - N = default denied
 
-| Permission | SUPER_ADMIN | ADMIN/THERAPIST | ADMIN/STAFF | USER |
-|---|---:|---:|---:|---:|
-| patient:list | S | S | S | N |
-| patient:read | S | S | S-minimum | own |
-| patient:create | Y | S | S | N |
-| patient:update-demographics | S | S | S | own-limited |
-| patient:assign | Y | S | N | N |
-| patient:archive | S | N/S | N | N |
-| patient:export | S-explicit | S-explicit | N | own-policy |
-| intake:read | S | S | S-minimum | own |
-| intake:create-own | N | N | N | Y |
-| intake:update-own-draft | N | N | N | Y |
-| intake:review | N/S | Y-scoped | S-minimum | N |
-| assessment:read | explicit | Y-scoped | N | visible-own |
-| assessment:create | explicit | Y-scoped | N | N |
-| assessment:update-draft | explicit | Y-owner/scoped | N | N |
-| assessment:finalize | explicit | Y-owner/scoped | N | N |
-| assessment:amend | explicit | Y-owner/scoped | N | N |
-| treatment-plan:* | explicit | scoped | N | read-visible-own |
-| session:* | explicit | scoped | N | read-visible-own |
-| role:assign | Y | N | N | N |
-| permission:manage | Y | N | N | N |
-| audit:read | Y | N/S-limited | N | N |
-| settings:manage | Y | N | N | N |
+| Permission                  | SUPER_ADMIN | ADMIN/THERAPIST | ADMIN/STAFF |             USER |
+| --------------------------- | ----------: | --------------: | ----------: | ---------------: |
+| patient:list                |           S |               S |           S |                N |
+| patient:read                |           S |               S |   S-minimum |              own |
+| patient:create              |           Y |               S |           S |                N |
+| patient:update-demographics |           S |               S |           S |      own-limited |
+| patient:assign              |           Y |               S |           N |                N |
+| patient:archive             |           S |             N/S |           N |                N |
+| patient:export              |  S-explicit |      S-explicit |           N |       own-policy |
+| intake:read                 |           S |               S |   S-minimum |              own |
+| intake:create-own           |           N |               N |           N |                Y |
+| intake:update-own-draft     |           N |               N |           N |                Y |
+| intake:review               |         N/S |        Y-scoped |   S-minimum |                N |
+| assessment:read             |    explicit |        Y-scoped |           N |      visible-own |
+| assessment:create           |    explicit |        Y-scoped |           N |                N |
+| assessment:update-draft     |    explicit |  Y-owner/scoped |           N |                N |
+| assessment:finalize         |    explicit |  Y-owner/scoped |           N |                N |
+| assessment:amend            |    explicit |  Y-owner/scoped |           N |                N |
+| treatment-plan:*            |    explicit |          scoped |           N | read-visible-own |
+| session:*                   |    explicit |          scoped |           N | read-visible-own |
+| role:assign                 |           Y |               N |           N |                N |
+| permission:manage           |           Y |               N |           N |                N |
+| audit:read                  |           Y |     N/S-limited |           N |                N |
+| settings:manage             |           Y |               N |           N |                N |
 
 `SUPER_ADMIN` clinical permissions are explicit, not implied.
 
@@ -1269,7 +1321,7 @@ Legend:
 ### USER
 
 ```ts
-resource.patient.userId === session.user.id
+resource.patient.userId === session.user.id;
 ```
 
 and field/record must be patient-visible.
@@ -1309,11 +1361,11 @@ export async function updateAssessment(input: unknown) {
 
   await authorize({
     session,
-    permission: "assessment:update-draft",
+    permission: 'assessment:update-draft',
     resource: assessment,
   });
 
-  if (assessment.status !== "DRAFT") {
+  if (assessment.status !== 'DRAFT') {
     throw new RecordFinalizedError();
   }
 
@@ -1351,6 +1403,7 @@ Minimal test matrix:
 <!-- BEGIN FILE: docs/DATABASE.md -->
 
 ---
+
 title: Hafta Fisioterapi Database Design
 version: 0.1.0
 last_updated: 2026-08-12
@@ -1379,11 +1432,13 @@ File binary tidak disimpan di PostgreSQL. Simpan metadata di PostgreSQL dan obje
 ## 3. Core entities
 
 ### 3.1 `users`
+
 Authentication identity dikelola sesuai schema Better Auth/integration actual.
 
 Jangan duplicate plaintext credential field di domain table.
 
 ### 3.2 `profiles`
+
 Candidate fields:
 
 - `user_id`
@@ -1559,6 +1614,7 @@ Object storage bucket private.
 Consent media/publication harus terpisah dari privacy/service consent.
 
 ### 3.15 `roles`
+
 Jika Better Auth/plugin menyimpan role secara sederhana, tetap pastikan domain permission model konsisten.
 
 Role fixed baseline:
@@ -1568,12 +1624,15 @@ Role fixed baseline:
 - `USER`
 
 ### 3.16 `permissions`
+
 Candidate permission keys didefinisikan di `PERMISSIONS.md`.
 
 ### 3.17 `role_permissions`
+
 Mapping role -> permission bila menggunakan database-backed permission.
 
 ### 3.18 `user_permissions`
+
 Optional explicit overrides. Avoid complexity unless truly needed.
 
 ### 3.19 `audit_logs`
@@ -1684,6 +1743,7 @@ Free-tier database limits are acceptable for development, not automatically suff
 <!-- BEGIN FILE: docs/ARCHITECTURE.md -->
 
 ---
+
 title: Hafta Fisioterapi Application Architecture
 version: 0.1.0
 last_updated: 2026-08-12
@@ -1849,27 +1909,35 @@ Next.js -> authorization -> signed storage access -> Cloudflare R2
 ## 5. Component boundary
 
 ### `app/`
+
 Route composition, layout, metadata, route handlers, server entry points.
 
 ### `components/`
+
 UI. Presentational component tidak melakukan privileged database operation.
 
 ### `server/actions/`
+
 Mutation entry point. Selalu re-check session, input validation, authorization, domain rule.
 
 ### `server/queries/`
+
 Read operations dengan scoped authorization.
 
 ### `server/services/`
+
 Business workflow seperti finalize assessment, assign therapist, amend session.
 
 ### `server/repositories/`
+
 Database access abstraction untuk query yang kompleks/reused.
 
 ### `db/`
+
 Schema, connection, migrations, seed.
 
 ### `lib/permissions/`
+
 Permission constants, policy evaluation, resource scope checks.
 
 ## 6. Server-first rule
@@ -1972,6 +2040,7 @@ Untuk perubahan besar buat `docs/adr/NNNN-title.md` dengan:
 <!-- BEGIN FILE: docs/DESIGN-REFERENCES.md -->
 
 ---
+
 title: Hafta Fisioterapi Design References
 version: 0.3.0
 last_updated: 2026-08-12
@@ -2116,18 +2185,21 @@ If an AI agent cannot inspect images, it must rely on the written descriptions a
 <!-- BEGIN FILE: docs/DESIGN-SYSTEM.md -->
 
 ---
+
 title: Hafta Fisioterapi Design System
 version: 0.3.0
 last_updated: 2026-08-12
 status: approved-for-implementation
 source_of_truth_for:
-  - visual-tokens
-  - typography
-  - spacing
-  - radius
-  - shadows
-  - component-states
-  - responsive-ui-foundation
+
+- visual-tokens
+- typography
+- spacing
+- radius
+- shadows
+- component-states
+- responsive-ui-foundation
+
 ---
 
 # Hafta Fisioterapi — Design System
@@ -2162,29 +2234,29 @@ See `docs/DESIGN-REFERENCES.md` for reference precedence and usage rules.
 
 ### 3.1 Brand tokens
 
-| Token | Hex | Usage |
-|---|---|---|
-| `emerald-900` | `#064E3B` | strongest brand surface, dark hero/footer |
-| `emerald-700` | `#065F46` | primary buttons, interactive brand color |
-| `teal-600` | `#0D766E` | supporting accents, focus/secondary emphasis |
-| `sage-200` | `#DDEBE3` | soft healthcare surface, chips, subtle panels |
-| `yellow-400` | `#FBBF24` | limited high-attention accent |
-| `yellow-500` | `#F59E0B` | hover/strong accent where accessible |
-| `surface` | `#F6FAF8` | off-white branded page surface |
-| `white` | `#FFFFFF` | card/surface |
+| Token         | Hex       | Usage                                         |
+| ------------- | --------- | --------------------------------------------- |
+| `emerald-900` | `#064E3B` | strongest brand surface, dark hero/footer     |
+| `emerald-700` | `#065F46` | primary buttons, interactive brand color      |
+| `teal-600`    | `#0D766E` | supporting accents, focus/secondary emphasis  |
+| `sage-200`    | `#DDEBE3` | soft healthcare surface, chips, subtle panels |
+| `yellow-400`  | `#FBBF24` | limited high-attention accent                 |
+| `yellow-500`  | `#F59E0B` | hover/strong accent where accessible          |
+| `surface`     | `#F6FAF8` | off-white branded page surface                |
+| `white`       | `#FFFFFF` | card/surface                                  |
 
 ### 3.2 Neutral/text tokens
 
-| Token | Hex | Usage |
-|---|---|---|
-| `gray-100` | `#F3F4F6` | subtle background |
-| `gray-200` | `#E5E7EB` | default border/divider |
-| `gray-300` | `#D1D5DB` | stronger neutral border |
-| `text-primary` | `#111827` | primary body/headings on light surface |
-| `text-secondary` | `#374151` | secondary copy |
-| `text-muted` | `#6B7280` | helper/meta text |
-| `border` | `#E5E7EB` | default border |
-| `border-strong` | `#CBD5E1` | stronger separator/control border |
+| Token            | Hex       | Usage                                  |
+| ---------------- | --------- | -------------------------------------- |
+| `gray-100`       | `#F3F4F6` | subtle background                      |
+| `gray-200`       | `#E5E7EB` | default border/divider                 |
+| `gray-300`       | `#D1D5DB` | stronger neutral border                |
+| `text-primary`   | `#111827` | primary body/headings on light surface |
+| `text-secondary` | `#374151` | secondary copy                         |
+| `text-muted`     | `#6B7280` | helper/meta text                       |
+| `border`         | `#E5E7EB` | default border                         |
+| `border-strong`  | `#CBD5E1` | stronger separator/control border      |
 
 ### 3.3 Semantic tokens
 
@@ -2236,17 +2308,17 @@ Use a framework-managed font loading strategy. If an official client brand font 
 
 Mobile values are the implementation starting point. Desktop values are progressive enhancements.
 
-| Style | Mobile | Desktop | Weight | Use |
-|---|---:|---:|---:|---|
-| Display | 34/40 | 44/52 | 600–700 | hero statement |
-| H1 | 28/36 | 36/44 | 600–700 | page title |
-| H2 | 24/32 | 32/40 | 600 | section title |
-| H3 | 18/26 | 20/28 | 600 | card/subsection title |
-| Body Large | 17/28 | 18/30 | 400 | important supporting copy |
-| Body | 16/26 | 16/26 | 400 | default readable body |
-| Small | 14/22 | 14/22 | 400 | metadata/helper |
-| Caption | 12/18 | 12/18 | 400–500 | compact metadata |
-| Button | 14/20 | 14/20 | 600 | controls |
+| Style      | Mobile | Desktop |  Weight | Use                       |
+| ---------- | -----: | ------: | ------: | ------------------------- |
+| Display    |  34/40 |   44/52 | 600–700 | hero statement            |
+| H1         |  28/36 |   36/44 | 600–700 | page title                |
+| H2         |  24/32 |   32/40 |     600 | section title             |
+| H3         |  18/26 |   20/28 |     600 | card/subsection title     |
+| Body Large |  17/28 |   18/30 |     400 | important supporting copy |
+| Body       |  16/26 |   16/26 |     400 | default readable body     |
+| Small      |  14/22 |   14/22 |     400 | metadata/helper           |
+| Caption    |  12/18 |   12/18 | 400–500 | compact metadata          |
+| Button     |  14/20 |   14/20 |     600 | controls                  |
 
 Rules:
 
@@ -2278,13 +2350,13 @@ space-32 = 128px
 
 ### Section rhythm
 
-| Token | Mobile | Desktop |
-|---|---:|---:|
-| `section-xs` | 40–48px | 48px |
-| `section-sm` | 48–56px | 64px |
-| `section-md` | 56–64px | 80px |
-| `section-lg` | 64–80px | 96px |
-| `section-xl` | 80–96px | 128px |
+| Token        |  Mobile | Desktop |
+| ------------ | ------: | ------: |
+| `section-xs` | 40–48px |    48px |
+| `section-sm` | 48–56px |    64px |
+| `section-md` | 56–64px |    80px |
+| `section-lg` | 64–80px |    96px |
+| `section-xl` | 80–96px |   128px |
 
 Do not blindly add huge desktop-style whitespace to mobile.
 
@@ -2608,16 +2680,19 @@ Desktop styling may enhance composition but must not redefine the content hierar
 <!-- BEGIN FILE: docs/MOBILE-FIRST-STRATEGY.md -->
 
 ---
+
 title: Hafta Fisioterapi Mobile-First Development Strategy
 version: 0.3.0
 last_updated: 2026-08-12
 status: non-negotiable
 source_of_truth_for:
-  - responsive-development-order
-  - mobile-layout
-  - tablet-enhancement
-  - desktop-enhancement
-  - responsive-qa
+
+- responsive-development-order
+- mobile-layout
+- tablet-enhancement
+- desktop-enhancement
+- responsive-qa
+
 ---
 
 # Mobile-First Development Strategy
@@ -2982,6 +3057,7 @@ No body horizontal overflow = PASS
 <!-- BEGIN FILE: docs/UI-GUIDELINES.md -->
 
 ---
+
 title: Hafta Fisioterapi UI Guidelines
 version: 0.3.0
 last_updated: 2026-08-12
@@ -3230,16 +3306,19 @@ Before marking UI complete:
 <!-- BEGIN FILE: docs/FORM-SPECIFICATIONS.md -->
 
 ---
+
 title: Hafta Fisioterapi Form and Field Specifications
 version: 0.2.0
 status: candidate-clinical-fields-require-hafta-validation
 last_updated: 2026-08-12
 source_of_truth_for:
-  - patient-profile-fields
-  - intake-fields
-  - assessment-form-structure
-  - treatment-plan-fields
-  - therapy-session-fields
+
+- patient-profile-fields
+- intake-fields
+- assessment-form-structure
+- treatment-plan-fields
+- therapy-session-fields
+
 ---
 
 # Form and Field Specifications
@@ -3258,11 +3337,11 @@ Every significant form field should conceptually define:
 type FieldDefinition = {
   key: string;
   label: string;
-  type: "text" | "textarea" | "date" | "number" | "select" | "multi-select" | "boolean" | "file";
-  owner: "PATIENT" | "THERAPIST" | "STAFF" | "SYSTEM";
-  sensitivity: "STANDARD" | "PERSONAL" | "HEALTH" | "SECURITY";
-  required: boolean | "CONDITIONAL";
-  patientVisible: boolean | "CONFIGURABLE";
+  type: 'text' | 'textarea' | 'date' | 'number' | 'select' | 'multi-select' | 'boolean' | 'file';
+  owner: 'PATIENT' | 'THERAPIST' | 'STAFF' | 'SYSTEM';
+  sensitivity: 'STANDARD' | 'PERSONAL' | 'HEALTH' | 'SECURITY';
+  required: boolean | 'CONDITIONAL';
+  patientVisible: boolean | 'CONFIGURABLE';
   editableStates: string[];
   notes?: string;
 };
@@ -3272,14 +3351,14 @@ Do not literally create a runtime registry for all fields unless architecture be
 
 ## 3. Registration fields
 
-| Key | Type | Owner | Sensitivity | Required | Notes |
-|---|---|---|---|---:|---|
-| fullName | text | PATIENT | PERSONAL | yes | account/profile bootstrap only |
-| email | text/email | PATIENT | PERSONAL | yes | auth identifier |
-| password | password | PATIENT | SECURITY | yes | handled by auth layer |
-| passwordConfirmation | password | PATIENT | SECURITY | yes | never stored |
-| acceptTerms | boolean | PATIENT | STANDARD | yes | version/reference recommended |
-| acknowledgePrivacy | boolean | PATIENT | STANDARD | yes | version/reference recommended |
+| Key                  | Type       | Owner   | Sensitivity | Required | Notes                          |
+| -------------------- | ---------- | ------- | ----------- | -------: | ------------------------------ |
+| fullName             | text       | PATIENT | PERSONAL    |      yes | account/profile bootstrap only |
+| email                | text/email | PATIENT | PERSONAL    |      yes | auth identifier                |
+| password             | password   | PATIENT | SECURITY    |      yes | handled by auth layer          |
+| passwordConfirmation | password   | PATIENT | SECURITY    |      yes | never stored                   |
+| acceptTerms          | boolean    | PATIENT | STANDARD    |      yes | version/reference recommended  |
+| acknowledgePrivacy   | boolean    | PATIENT | STANDARD    |      yes | version/reference recommended  |
 
 `role`, `permissions`, `accountStatus`, `emailVerified`, `patientId` are not user-editable registration fields.
 
@@ -3287,70 +3366,70 @@ Do not literally create a runtime registry for all fields unless architecture be
 
 ### Identity
 
-| Key | Type | Sensitivity | Required | Patient editable |
-|---|---|---|---:|---:|
-| fullName | text | PERSONAL | yes | yes |
-| preferredName | text | PERSONAL | no | yes |
-| dateOfBirth | date | PERSONAL/HEALTH-CONTEXT | candidate yes | yes, with policy |
-| sexOrRelevantBiologicalField | select | HEALTH | conditional | yes |
-| occupation | text | PERSONAL | no/candidate | yes |
+| Key                          | Type   | Sensitivity             |      Required | Patient editable |
+| ---------------------------- | ------ | ----------------------- | ------------: | ---------------: |
+| fullName                     | text   | PERSONAL                |           yes |              yes |
+| preferredName                | text   | PERSONAL                |            no |              yes |
+| dateOfBirth                  | date   | PERSONAL/HEALTH-CONTEXT | candidate yes | yes, with policy |
+| sexOrRelevantBiologicalField | select | HEALTH                  |   conditional |              yes |
+| occupation                   | text   | PERSONAL                |  no/candidate |              yes |
 
 Only collect sex/gender/biological information if clinically/operationally needed and terminology is approved.
 
 ### Contact
 
-| Key | Type | Sensitivity | Required | Patient editable |
-|---|---|---|---:|---:|
-| phone | text/tel | PERSONAL | candidate yes | yes |
-| addressLine | textarea | PERSONAL | conditional | yes |
-| city | text/select | PERSONAL | conditional | yes |
-| postalCode | text | PERSONAL | no | yes |
+| Key         | Type        | Sensitivity |      Required | Patient editable |
+| ----------- | ----------- | ----------- | ------------: | ---------------: |
+| phone       | text/tel    | PERSONAL    | candidate yes |              yes |
+| addressLine | textarea    | PERSONAL    |   conditional |              yes |
+| city        | text/select | PERSONAL    |   conditional |              yes |
+| postalCode  | text        | PERSONAL    |            no |              yes |
 
 Apply data minimization. Do not require exact address unless operationally needed.
 
 ### Emergency contact
 
-| Key | Type | Sensitivity | Required |
-|---|---|---|---:|
-| emergencyContactName | text | PERSONAL | candidate |
-| emergencyContactRelationship | text/select | PERSONAL | candidate |
-| emergencyContactPhone | tel | PERSONAL | candidate |
+| Key                          | Type        | Sensitivity |  Required |
+| ---------------------------- | ----------- | ----------- | --------: |
+| emergencyContactName         | text        | PERSONAL    | candidate |
+| emergencyContactRelationship | text/select | PERSONAL    | candidate |
+| emergencyContactPhone        | tel         | PERSONAL    | candidate |
 
 ## 5. Patient intake candidate fields
 
 ### 5.1 Main complaint
 
-| Key | Type | Sensitivity | Required | Notes |
-|---|---|---|---:|---|
-| chiefComplaint | textarea | HEALTH | yes | patient own words |
-| affectedArea | text/select | HEALTH | yes/candidate | avoid diagnostic implication |
-| onsetDate | date | HEALTH | conditional | allow approximate timeframe if needed |
-| onsetDescription | textarea | HEALTH | candidate | how it started |
-| triggeringEvent | textarea | HEALTH | no/candidate | injury/activity event |
-| symptomScale | number/select | HEALTH | conditional | only if Hafta uses defined scale |
-| aggravatingFactors | textarea | HEALTH | candidate | activities making complaint worse |
-| relievingFactors | textarea | HEALTH | no | |
-| dailyLimitations | textarea | HEALTH | yes/candidate | function impact |
+| Key                | Type          | Sensitivity |      Required | Notes                                 |
+| ------------------ | ------------- | ----------- | ------------: | ------------------------------------- |
+| chiefComplaint     | textarea      | HEALTH      |           yes | patient own words                     |
+| affectedArea       | text/select   | HEALTH      | yes/candidate | avoid diagnostic implication          |
+| onsetDate          | date          | HEALTH      |   conditional | allow approximate timeframe if needed |
+| onsetDescription   | textarea      | HEALTH      |     candidate | how it started                        |
+| triggeringEvent    | textarea      | HEALTH      |  no/candidate | injury/activity event                 |
+| symptomScale       | number/select | HEALTH      |   conditional | only if Hafta uses defined scale      |
+| aggravatingFactors | textarea      | HEALTH      |     candidate | activities making complaint worse     |
+| relievingFactors   | textarea      | HEALTH      |            no |                                       |
+| dailyLimitations   | textarea      | HEALTH      | yes/candidate | function impact                       |
 
 ### 5.2 Activity and goals
 
-| Key | Type | Sensitivity | Required |
-|---|---|---|---:|
-| dailyActivity | textarea | HEALTH-CONTEXT | candidate |
-| sportActivity | textarea | HEALTH-CONTEXT | no |
-| patientGoal | textarea | HEALTH | yes/candidate |
-| returnToActivityGoal | textarea | HEALTH | no |
+| Key                  | Type     | Sensitivity    |      Required |
+| -------------------- | -------- | -------------- | ------------: |
+| dailyActivity        | textarea | HEALTH-CONTEXT |     candidate |
+| sportActivity        | textarea | HEALTH-CONTEXT |            no |
+| patientGoal          | textarea | HEALTH         | yes/candidate |
+| returnToActivityGoal | textarea | HEALTH         |            no |
 
 ### 5.3 Relevant history
 
-| Key | Type | Sensitivity | Required |
-|---|---|---|---:|
-| previousInjuryHistory | textarea | HEALTH | candidate |
-| surgeryHistory | textarea | HEALTH | candidate |
-| relevantMedicalHistory | textarea | HEALTH | candidate |
-| currentMedication | textarea | HEALTH | conditional |
-| allergies | textarea | HEALTH | conditional |
-| previousTreatment | textarea | HEALTH | no/candidate |
+| Key                    | Type     | Sensitivity |     Required |
+| ---------------------- | -------- | ----------- | -----------: |
+| previousInjuryHistory  | textarea | HEALTH      |    candidate |
+| surgeryHistory         | textarea | HEALTH      |    candidate |
+| relevantMedicalHistory | textarea | HEALTH      |    candidate |
+| currentMedication      | textarea | HEALTH      |  conditional |
+| allergies              | textarea | HEALTH      |  conditional |
+| previousTreatment      | textarea | HEALTH      | no/candidate |
 
 Never use AI to infer diagnosis from these free-text fields in v1.
 
@@ -3596,6 +3675,7 @@ Before enabling real patient intake:
 <!-- BEGIN FILE: docs/ROUTE-AND-NAVIGATION.md -->
 
 ---
+
 title: Hafta Fisioterapi Route and Navigation Matrix
 version: 0.2.0
 status: implementation-ready
@@ -3613,59 +3693,59 @@ last_updated: 2026-08-12
 
 ## 2. Public routes
 
-| Route | Audience | Auth | Notes |
-|---|---|---:|---|
-| `/` | public | no | landing page |
-| `/login` | public | no | redirect authenticated user optionally |
-| `/register` | public | no | creates USER only |
-| `/forgot-password` | public | no | anti-enumeration |
-| `/reset-password` | public | token | reset token required |
-| `/verify-email` | public | token/session | verification state |
-| `/privacy` | public | no | required before production data intake |
-| `/terms` | public | no | required before production data intake |
+| Route              | Audience |          Auth | Notes                                  |
+| ------------------ | -------- | ------------: | -------------------------------------- |
+| `/`                | public   |            no | landing page                           |
+| `/login`           | public   |            no | redirect authenticated user optionally |
+| `/register`        | public   |            no | creates USER only                      |
+| `/forgot-password` | public   |            no | anti-enumeration                       |
+| `/reset-password`  | public   |         token | reset token required                   |
+| `/verify-email`    | public   | token/session | verification state                     |
+| `/privacy`         | public   |            no | required before production data intake |
+| `/terms`           | public   |            no | required before production data intake |
 
 ## 3. Shared authenticated routes
 
-| Route | USER | ADMIN | SUPER_ADMIN |
-|---|---:|---:|---:|
-| `/dashboard` | yes | yes | yes |
-| `/dashboard/account/security` | yes | yes | yes |
+| Route                         | USER | ADMIN | SUPER_ADMIN |
+| ----------------------------- | ---: | ----: | ----------: |
+| `/dashboard`                  |  yes |   yes |         yes |
+| `/dashboard/account/security` |  yes |   yes |         yes |
 
 Content differs by role.
 
 ## 4. USER routes
 
-| Route | Permission/scope |
-|---|---|
-| `/dashboard/profile` | own patient profile |
-| `/dashboard/intake` | own intake lifecycle |
-| `/dashboard/history` | own patient-visible records |
-| `/dashboard/history/[recordId]` | own + patient-visible |
-| `/dashboard/documents` | own + feature enabled |
+| Route                           | Permission/scope            |
+| ------------------------------- | --------------------------- |
+| `/dashboard/profile`            | own patient profile         |
+| `/dashboard/intake`             | own intake lifecycle        |
+| `/dashboard/history`            | own patient-visible records |
+| `/dashboard/history/[recordId]` | own + patient-visible       |
+| `/dashboard/documents`          | own + feature enabled       |
 
 ## 5. ADMIN/THERAPIST routes
 
-| Route | Required policy |
-|---|---|
-| `/dashboard/patients` | `patient:list` + scope |
-| `/dashboard/patients/[patientId]` | `patient:read` + scope |
-| `.../intake` | `intake:read/review` + scope |
-| `.../assessment` | assessment permission + scope |
-| `.../treatment-plan` | treatment permission + scope |
-| `.../sessions` | session permission + scope |
-| `.../sessions/[sessionId]` | session permission + patient scope |
-| `.../history` | clinical read scope |
+| Route                             | Required policy                    |
+| --------------------------------- | ---------------------------------- |
+| `/dashboard/patients`             | `patient:list` + scope             |
+| `/dashboard/patients/[patientId]` | `patient:read` + scope             |
+| `.../intake`                      | `intake:read/review` + scope       |
+| `.../assessment`                  | assessment permission + scope      |
+| `.../treatment-plan`              | treatment permission + scope       |
+| `.../sessions`                    | session permission + scope         |
+| `.../sessions/[sessionId]`        | session permission + patient scope |
+| `.../history`                     | clinical read scope                |
 
 ## 6. SUPER_ADMIN routes
 
-| Route | Permission |
-|---|---|
-| `/dashboard/users` | `user:list` |
-| `/dashboard/users/[userId]` | `user:read` |
-| `/dashboard/staff` | administration permission |
-| `/dashboard/roles` | `permission:manage` / role governance |
-| `/dashboard/audit-logs` | `audit:read` |
-| `/dashboard/settings` | `settings:manage` |
+| Route                       | Permission                            |
+| --------------------------- | ------------------------------------- |
+| `/dashboard/users`          | `user:list`                           |
+| `/dashboard/users/[userId]` | `user:read`                           |
+| `/dashboard/staff`          | administration permission             |
+| `/dashboard/roles`          | `permission:manage` / role governance |
+| `/dashboard/audit-logs`     | `audit:read`                          |
+| `/dashboard/settings`       | `settings:manage`                     |
 
 Patient clinical routes remain denied unless explicit clinical permission exists.
 
@@ -3716,21 +3796,23 @@ Breadcrumb content must not expose sensitive text.
 <!-- BEGIN FILE: docs/pages/01-LANDING-PAGE.md -->
 
 ---
+
 title: Hafta Fisioterapi Landing Page Specification
 version: 0.3.0
 status: implementation-ready-with-content-placeholders
 last_updated: 2026-08-12
 source_of_truth_for:
-  - public-homepage
-  - public-navigation
-  - landing-page-components
-  - landing-page-content-states
+
+- public-homepage
+- public-navigation
+- landing-page-components
+- landing-page-content-states
+
 ---
 
 # Landing Page Specification
 
 > **UI implementation contract:** read `docs/DESIGN-REFERENCES.md`, `docs/DESIGN-SYSTEM.md`, and `docs/MOBILE-FIRST-STRATEGY.md`. Build and pass the mobile version first; desktop enhancement is not allowed before Mobile Gate passes.
-
 
 ## 1. Purpose
 
@@ -3749,18 +3831,23 @@ Landing page tidak boleh membuat diagnosis otomatis, menjanjikan hasil klinis, a
 ## 3. Page goals
 
 ### LP-G01 — Trust
+
 User memahami siapa Hafta, apa pendekatannya, dan bagaimana menghubungi Hafta.
 
 ### LP-G02 — Clarity
+
 User memahami proses umum dari registrasi/konsultasi sampai evaluasi tanpa terminology klinis berlebihan.
 
 ### LP-G03 — Conversion
+
 User memiliki CTA jelas untuk konsultasi/booking atau masuk ke Patient Portal.
 
 ### LP-G04 — Portal awareness
+
 User memahami bahwa website tidak hanya company profile; pasien dapat memiliki portal untuk data dan history yang memang diizinkan.
 
 ### LP-G05 — Privacy-aware acquisition
+
 Tidak ada data kesehatan sensitif dikumpulkan langsung dari landing page selain melalui flow resmi yang authenticated/approved.
 
 ## 4. Route
@@ -3847,6 +3934,7 @@ Urutan boleh dioptimalkan berdasarkan hasil desain, tetapi `Hero`, `Service cont
 ## LP-S01 — Header
 
 ### Objective
+
 Memberi orientasi dan access path utama.
 
 ### Required UI
@@ -3883,6 +3971,7 @@ components/landing/header/MobileNavigation.tsx
 ## LP-S02 — Hero
 
 ### Objective
+
 Menjelaskan positioning Hafta dalam 5–10 detik pertama.
 
 ### Content model
@@ -3952,6 +4041,7 @@ Tidak boleh membawa patient identifiers.
 ## LP-S03 — Trust Context
 
 ### Objective
+
 Menjawab cepat: lokasi, fokus umum, dan apa yang user dapat harapkan.
 
 ### Allowed content
@@ -3970,6 +4060,7 @@ Menjawab cepat: lokasi, fokus umum, dan apa yang user dapat harapkan.
 - klaim testimoni tanpa consent.
 
 ### UI
+
 Boleh berupa compact trust strip, 3–4 info blocks, atau statement row. Hindari card spam.
 
 ---
@@ -3977,9 +4068,11 @@ Boleh berupa compact trust strip, 3–4 info blocks, atau statement row. Hindari
 ## LP-S04 — Services / Conditions Context
 
 ### Objective
+
 Membantu user mengenali konteks keluhan/rehabilitasi yang relevan tanpa menjadikannya self-diagnosis tool.
 
 ### Current public-content inspiration
+
 Tema yang sebelumnya ditemukan pada konten publik Hafta dapat digunakan sebagai inspirasi editorial saja, misalnya:
 
 - ankle sprain/cedera pergelangan kaki;
@@ -3998,7 +4091,7 @@ type ServiceCard = {
   shortDescription: string;
   icon?: string;
   href?: string;
-  status: "CONFIRMED" | "PLACEHOLDER";
+  status: 'CONFIRMED' | 'PLACEHOLDER';
 };
 ```
 
@@ -4014,6 +4107,7 @@ type ServiceCard = {
 ## LP-S05 — How Therapy Works
 
 ### Objective
+
 Mengurangi ketidakpastian pasien baru.
 
 ### Baseline steps
@@ -4028,6 +4122,7 @@ Mengurangi ketidakpastian pasien baru.
 Terminology final harus mengikuti workflow Hafta.
 
 ### UI
+
 Gunakan timeline/stepper yang tetap mudah dibaca di mobile. Jangan memakai animasi yang membuat step sulit dibaca.
 
 ### Copy rules
@@ -4041,6 +4136,7 @@ Gunakan timeline/stepper yang tetap mudah dibaca di mobile. Jangan memakai anima
 ## LP-S06 — About Hafta
 
 ### Objective
+
 Memberi identitas dan alasan keberadaan Hafta.
 
 ### Required client content
@@ -4052,6 +4148,7 @@ Memberi identitas dan alasan keberadaan Hafta.
 - service philosophy yang sudah disetujui.
 
 ### Placeholder behavior
+
 Jika content belum diberikan, gunakan fixture copy yang jelas ditandai development-only. Jangan deploy lorem ipsum atau invented history.
 
 ---
@@ -4059,6 +4156,7 @@ Jika content belum diberikan, gunakan fixture copy yang jelas ditandai developme
 ## LP-S07 — Therapist Team
 
 ### Objective
+
 Membangun trust terhadap tenaga yang memberikan layanan.
 
 ### Therapist card allowed fields
@@ -4083,6 +4181,7 @@ short_bio: approved, optional
 ## LP-S08 — Patient Portal Preview
 
 ### Objective
+
 Menjelaskan fungsi digital system Hafta dan mengarahkan patient existing untuk login.
 
 ### Key benefits to communicate
@@ -4102,6 +4201,7 @@ Menjelaskan fungsi digital system Hafta dan mengarahkan patient existing untuk l
 - unrestricted access to internal therapist notes.
 
 ### Visual
+
 Boleh menampilkan dashboard mock preview dengan **dummy data only**.
 
 ### CTA
@@ -4123,6 +4223,7 @@ Jika registration policy berubah menjadi invitation-only, CTA harus mengikuti po
 ## LP-S09 — Education / Insights
 
 ### Objective
+
 Menunjukkan edukasi yang relevan dan memberi jalur dari Instagram ke website.
 
 ### V1 options
@@ -4138,6 +4239,7 @@ Option B — future CMS/article pages:
 - `/edukasi/[slug]`.
 
 ### Rule
+
 Jangan membuat Instagram scraping yang rapuh atau melanggar access model hanya untuk homepage. Konten bisa dikurasi manual pada v1.
 
 ---
@@ -4145,6 +4247,7 @@ Jangan membuat Instagram scraping yang rapuh atau melanggar access model hanya u
 ## LP-S10 — Recovery Story / Testimonial
 
 ### Status
+
 Optional. Hidden until consent and content approval complete.
 
 ### Requirement
@@ -4214,6 +4317,7 @@ Primary actions:
 - optional `Buat Janji`.
 
 ### Security/privacy
+
 Landing contact form is not required for v1. Avoid collecting health complaint via unprotected generic contact form.
 
 ---
@@ -4221,6 +4325,7 @@ Landing contact form is not required for v1. Avoid collecting health complaint v
 ## LP-S13 — Final CTA
 
 ### Objective
+
 Memberi satu keputusan jelas setelah user memahami layanan.
 
 Candidate:
@@ -4251,6 +4356,7 @@ Copy final requires approval.
 - optional Instagram link.
 
 ### Production gate
+
 `/privacy` dan `/terms` tidak boleh dead link ketika registration/data collection production diaktifkan.
 
 ---
@@ -4416,23 +4522,25 @@ Landing page is implementation-complete when:
 <!-- BEGIN FILE: docs/pages/02-AUTHENTICATION-PAGES.md -->
 
 ---
+
 title: Hafta Fisioterapi Authentication Pages Specification
 version: 0.3.0
 status: implementation-ready
 last_updated: 2026-08-12
 source_of_truth_for:
-  - login
-  - registration
-  - email-verification
-  - forgot-password
-  - reset-password
-  - auth-ux
+
+- login
+- registration
+- email-verification
+- forgot-password
+- reset-password
+- auth-ux
+
 ---
 
 # Authentication Pages Specification
 
 > **UI implementation contract:** read `docs/DESIGN-REFERENCES.md`, `docs/DESIGN-SYSTEM.md`, and `docs/MOBILE-FIRST-STRATEGY.md`. Build and pass the mobile version first; desktop enhancement is not allowed before Mobile Gate passes.
-
 
 ## 1. Scope
 
@@ -4565,6 +4673,7 @@ Dashboard content is role-aware. Do not let client-provided redirect bypass allo
 ```
 
 ### Goal
+
 Create USER/patient account only unless staff invitation workflow explicitly allows otherwise.
 
 Public registration **must never allow choosing ADMIN or SUPER_ADMIN role**.
@@ -4652,6 +4761,7 @@ Terms/privacy acknowledgement at account registration does **not** replace clini
 - email.
 
 ### Response
+
 Always safe generic response such as:
 
 ```text
@@ -4780,20 +4890,22 @@ AND record state allows action
 <!-- BEGIN FILE: docs/pages/03-DASHBOARD-USER.md -->
 
 ---
+
 title: Hafta Fisioterapi USER Patient Portal Specification
 version: 0.3.0
 status: implementation-ready-with-clinical-field-validation-pending
 last_updated: 2026-08-12
 source_of_truth_for:
-  - user-dashboard
-  - patient-portal
-  - patient-self-service
+
+- user-dashboard
+- patient-portal
+- patient-self-service
+
 ---
 
 # USER / Patient Portal Specification
 
 > **UI implementation contract:** read `docs/DESIGN-REFERENCES.md`, `docs/DESIGN-SYSTEM.md`, and `docs/MOBILE-FIRST-STRATEGY.md`. Build and pass the mobile version first; desktop enhancement is not allowed before Mobile Gate passes.
-
 
 ## 1. Role
 
@@ -4860,6 +4972,7 @@ Halo, {firstName}
 No sensitive complaint in greeting.
 
 #### B. Next action card
+
 Priority-driven:
 
 ```text
@@ -4881,12 +4994,15 @@ Status:
 - Accepted
 
 #### D. Recent history
+
 Show only patient-visible records.
 
 #### E. Assigned therapist
+
 Only if assignment and therapist profile are patient-visible.
 
 #### F. Privacy note
+
 Short reminder that portal contains personal/health information; logout on shared devices.
 
 ### Avoid
@@ -4937,6 +5053,7 @@ Server resolves patient profile from authenticated user ID. Do not accept arbitr
 ```
 
 ### Goal
+
 Collect structured patient-submitted information before clinical assessment.
 
 ### Form architecture
@@ -4971,6 +5088,7 @@ Before submit, explain:
 - patient can no longer freely edit submitted fields unless revision is requested, according to final product rule.
 
 ### Autosave
+
 Optional, not mandatory. If implemented:
 
 - reliable;
@@ -4988,6 +5106,7 @@ Optional, not mandatory. If implemented:
 ```
 
 ### Purpose
+
 Allow patient to review selected finalized records from their own journey.
 
 ### Possible visible types
@@ -5186,20 +5305,22 @@ Do not split every field into separate component without reuse/value.
 <!-- BEGIN FILE: docs/pages/04-DASHBOARD-ADMIN-THERAPIST.md -->
 
 ---
+
 title: Hafta Fisioterapi ADMIN Therapist Dashboard Specification
 version: 0.3.0
 status: implementation-ready-with-clinical-workflow-validation-pending
 last_updated: 2026-08-12
 source_of_truth_for:
-  - admin-dashboard
-  - therapist-workflow
-  - patient-clinical-records
+
+- admin-dashboard
+- therapist-workflow
+- patient-clinical-records
+
 ---
 
 # ADMIN / Therapist Dashboard Specification
 
 > **UI implementation contract:** read `docs/DESIGN-REFERENCES.md`, `docs/DESIGN-SYSTEM.md`, and `docs/MOBILE-FIRST-STRATEGY.md`. Build and pass the mobile version first; desktop enhancement is not allowed before Mobile Gate passes.
-
 
 ## 1. Role model
 
@@ -5243,6 +5364,7 @@ Staff administrative subtype may have reduced navigation.
 ## 3. Dashboard home
 
 ### Objective
+
 Show operational priorities, not vanity metrics.
 
 ### Candidate modules
@@ -5297,6 +5419,7 @@ Avoid default list columns:
 - detailed diagnosis/clinical finding.
 
 ### Query rule
+
 Only return rows within authorized scope.
 
 Do not query all patients and filter client-side.
@@ -5523,9 +5646,11 @@ Show:
 - state.
 
 ### Create session rule
+
 Must belong to authorized patient and appropriate assignment/scope.
 
 ### Finalization
+
 Same immutable/amendment pattern as assessment.
 
 ## 10. Clinical history
@@ -5537,6 +5662,7 @@ Same immutable/amendment pattern as assessment.
 ```
 
 ### Purpose
+
 Chronological clinical timeline for authorized staff.
 
 Candidate timeline events:
@@ -5722,22 +5848,24 @@ components/patient/
 <!-- BEGIN FILE: docs/pages/05-DASHBOARD-SUPER-ADMIN.md -->
 
 ---
+
 title: Hafta Fisioterapi SUPER_ADMIN Dashboard Specification
 version: 0.3.0
 status: implementation-ready
 last_updated: 2026-08-12
 source_of_truth_for:
-  - super-admin-dashboard
-  - account-administration
-  - role-permission-management
-  - audit-viewer
-  - system-settings
+
+- super-admin-dashboard
+- account-administration
+- role-permission-management
+- audit-viewer
+- system-settings
+
 ---
 
 # SUPER_ADMIN Dashboard Specification
 
 > **UI implementation contract:** read `docs/DESIGN-REFERENCES.md`, `docs/DESIGN-SYSTEM.md`, and `docs/MOBILE-FIRST-STRATEGY.md`. Build and pass the mobile version first; desktop enhancement is not allowed before Mobile Gate passes.
-
 
 ## 1. Principle
 
@@ -5816,6 +5944,7 @@ Avoid exposing aggregate clinical information merely because role is SUPER_ADMIN
 ## 5. Staff management
 
 ### Purpose
+
 Manage staff identity/subtype, account state, and operational permissions.
 
 Candidate fields:
@@ -5860,6 +5989,7 @@ Fine-grained permission mapping can be managed separately.
 - server rejects unknown permission keys.
 
 ### Confirmation
+
 High-risk actions require explicit confirmation with impact summary.
 
 ## 7. Audit log viewer
@@ -5871,6 +6001,7 @@ High-risk actions require explicit confirmation with impact summary.
 ```
 
 ### Read-only
+
 Normal UI must not offer edit/delete.
 
 ### Filters
@@ -5892,9 +6023,11 @@ Normal UI must not offer edit/delete.
 - safe metadata.
 
 ### Sensitive data minimization
+
 Do not log/display full complaint, clinical narrative, password, token, cookie, document body, or secret.
 
 ### Export
+
 Audit export is separate privileged capability if ever enabled.
 
 ## 8. System settings
@@ -5988,6 +6121,7 @@ Permission matrix editor must not become source-of-truth on client; server valid
 <!-- BEGIN FILE: docs/DEVELOPMENT-WORKFLOW.md -->
 
 ---
+
 title: Hafta Fisioterapi Development Workflow
 version: 0.3.0
 last_updated: 2026-08-12
@@ -6299,6 +6433,7 @@ Preferred:
 <!-- BEGIN FILE: docs/CONTENT-REQUIREMENTS.md -->
 
 ---
+
 title: Hafta Fisioterapi Content Requirements
 version: 0.1.0
 last_updated: 2026-08-12
@@ -6466,6 +6601,7 @@ Each task contains read-first files, scope, forbidden changes, tests, and done c
 <!-- BEGIN FILE: tasks/00-PROJECT-BOOTSTRAP.md -->
 
 ---
+
 task_id: HF-TASK-000
 phase: bootstrap
 status: ready
@@ -6481,6 +6617,7 @@ depends_on: []
 - `docs/DEVELOPMENT-WORKFLOW.md`
 
 ## Objective
+
 Initialize the Hafta Fisioterapi application repository using the locked technology direction without implementing business features yet.
 
 ## Scope
@@ -6526,6 +6663,7 @@ Initialize the Hafta Fisioterapi application repository using the locked technol
 <!-- BEGIN FILE: tasks/01-DESIGN-FOUNDATION.md -->
 
 ---
+
 task_id: HF-TASK-001
 phase: design-foundation
 status: ready
@@ -6546,6 +6684,7 @@ depends_on: [HF-TASK-000]
 - `docs/pages/02-AUTHENTICATION-PAGES.md`
 
 ## Objective
+
 Create reusable visual foundations before individual pages, based on the approved Hafta design system and references. Mobile primitives are completed first; desktop variants are progressive enhancements.
 
 ## Scope
@@ -6562,6 +6701,7 @@ Create reusable visual foundations before individual pages, based on the approve
 - responsive navigation foundation.
 
 ## Taste Skill
+
 Run Taste Skill/design review against hierarchy, spacing, typography, and generic-AI visual patterns.
 
 ## Do not
@@ -6569,7 +6709,6 @@ Run Taste Skill/design review against hierarchy, spacing, typography, and generi
 - invent or replace the locked brand palette from `docs/DESIGN-SYSTEM.md` without explicit approval;
 - hardcode page-specific clinical logic;
 - create dozens of wrapper components with no reuse.
-
 
 ## UI execution gates
 
@@ -6597,6 +6736,7 @@ Do not start from a desktop screenshot and shrink it into mobile.
 <!-- BEGIN FILE: tasks/02-LANDING-PAGE.md -->
 
 ---
+
 task_id: HF-TASK-002
 phase: public-web
 status: ready
@@ -6615,7 +6755,6 @@ requirements: [LP-S01, LP-S02, LP-S03, LP-S04, LP-S05, LP-S06, LP-S07, LP-S08, L
 - `docs/pages/01-LANDING-PAGE.md`
 - `docs/UI-GUIDELINES.md`
 - `docs/CONTENT-REQUIREMENTS.md`
-
 
 ## Visual source
 
@@ -6651,9 +6790,11 @@ Do not publish unconfirmed:
 - clinical outcome claim.
 
 ## Components
+
 Follow component candidates but minimize fragmentation.
 
 ## Analytics
+
 Only privacy-safe public CTA events if analytics is already approved. Do not add analytics provider solely for this task.
 
 ## Tests/checks
@@ -6664,7 +6805,6 @@ Only privacy-safe public CTA events if analytics is already approved. Do not add
 - keyboard nav;
 - no dead privacy/terms production paths;
 - responsive visual review.
-
 
 ## UI execution gates
 
@@ -6680,6 +6820,7 @@ If this task renders or changes UI:
 Do not start from a desktop screenshot and shrink it into mobile.
 
 ## Done when
+
 Acceptance criteria in `docs/pages/01-LANDING-PAGE.md` pass.
 
 <!-- END FILE: tasks/02-LANDING-PAGE.md -->
@@ -6687,6 +6828,7 @@ Acceptance criteria in `docs/pages/01-LANDING-PAGE.md` pass.
 <!-- BEGIN FILE: tasks/03-AUTH-AND-DATABASE.md -->
 
 ---
+
 task_id: HF-TASK-003
 phase: auth-database
 status: ready
@@ -6706,6 +6848,7 @@ depends_on: [HF-TASK-000]
 - `docs/FORM-SPECIFICATIONS.md`
 
 ## Objective
+
 Create Neon + Drizzle foundation and secure authentication lifecycle.
 
 ## Scope
@@ -6736,7 +6879,6 @@ Create Neon + Drizzle foundation and secure authentication lifecycle.
 - trust role from request payload;
 - create production patient fixtures.
 
-
 ## UI execution gates
 
 If this task renders or changes UI:
@@ -6762,6 +6904,7 @@ Do not start from a desktop screenshot and shrink it into mobile.
 <!-- BEGIN FILE: tasks/04-PERMISSION-FRAMEWORK.md -->
 
 ---
+
 task_id: HF-TASK-004
 phase: authorization
 status: ready
@@ -6779,6 +6922,7 @@ depends_on: [HF-TASK-003]
 - `docs/DATABASE.md`
 
 ## Objective
+
 Implement default-deny RBAC + resource scope authorization before patient CRUD.
 
 ## Scope
@@ -6794,6 +6938,7 @@ Implement default-deny RBAC + resource scope authorization before patient CRUD.
 - authorization test matrix.
 
 ## Mandatory tests
+
 Use the minimum matrix in `docs/PERMISSIONS.md`.
 
 ## Do not
@@ -6803,6 +6948,7 @@ Use the minimum matrix in `docs/PERMISSIONS.md`.
 - grant SUPER_ADMIN implicit clinical permission.
 
 ## Done when
+
 Authorization helper is used by representative protected reads/mutations and attack-path tests pass.
 
 <!-- END FILE: tasks/04-PERMISSION-FRAMEWORK.md -->
@@ -6810,6 +6956,7 @@ Authorization helper is used by representative protected reads/mutations and att
 <!-- BEGIN FILE: tasks/05-USER-PATIENT-PORTAL.md -->
 
 ---
+
 task_id: HF-TASK-005
 phase: patient-portal
 status: ready
@@ -6839,6 +6986,7 @@ depends_on: [HF-TASK-003, HF-TASK-004]
 - documents only if feature enabled.
 
 ## Database
+
 Use canonical schema/migrations. Any schema change requires migration and doc review.
 
 ## Security tests
@@ -6850,8 +6998,8 @@ Use canonical schema/migrations. Any schema change requires migration and doc re
 - document ownership enforced.
 
 ## UX
-Mobile-first. Long intake form grouped into clear steps. Patient-facing status labels must be understandable.
 
+Mobile-first. Long intake form grouped into clear steps. Patient-facing status labels must be understandable.
 
 ## UI execution gates
 
@@ -6867,6 +7015,7 @@ If this task renders or changes UI:
 Do not start from a desktop screenshot and shrink it into mobile.
 
 ## Done when
+
 Acceptance criteria in USER page spec and authorization tests pass.
 
 <!-- END FILE: tasks/05-USER-PATIENT-PORTAL.md -->
@@ -6874,6 +7023,7 @@ Acceptance criteria in USER page spec and authorization tests pass.
 <!-- BEGIN FILE: tasks/06-ADMIN-THERAPIST-CLINICAL.md -->
 
 ---
+
 task_id: HF-TASK-006
 phase: clinical-workflow
 status: ready-after-clinical-field-validation
@@ -6894,6 +7044,7 @@ depends_on: [HF-TASK-004, HF-TASK-005]
 - `docs/DATABASE.md`
 
 ## Clinical gate
+
 Do not finalize production field terminology until Hafta therapist validates candidate clinical fields.
 
 ## Scope
@@ -6925,7 +7076,6 @@ Do not finalize production field terminology until Hafta therapist validates can
 - patient visibility DTO;
 - export default deny.
 
-
 ## UI execution gates
 
 If this task renders or changes UI:
@@ -6940,6 +7090,7 @@ If this task renders or changes UI:
 Do not start from a desktop screenshot and shrink it into mobile.
 
 ## Done when
+
 Clinical workflow UAT can be demonstrated with dummy patients and authorization/lifecycle tests pass.
 
 <!-- END FILE: tasks/06-ADMIN-THERAPIST-CLINICAL.md -->
@@ -6947,6 +7098,7 @@ Clinical workflow UAT can be demonstrated with dummy patients and authorization/
 <!-- BEGIN FILE: tasks/07-SUPER-ADMIN.md -->
 
 ---
+
 task_id: HF-TASK-007
 phase: administration
 status: ready
@@ -6989,7 +7141,6 @@ depends_on: [HF-TASK-004]
 - clinical resource denied without explicit permission;
 - audit log write protection.
 
-
 ## UI execution gates
 
 If this task renders or changes UI:
@@ -7004,6 +7155,7 @@ If this task renders or changes UI:
 Do not start from a desktop screenshot and shrink it into mobile.
 
 ## Done when
+
 Page spec acceptance criteria pass.
 
 <!-- END FILE: tasks/07-SUPER-ADMIN.md -->
@@ -7011,6 +7163,7 @@ Page spec acceptance criteria pass.
 <!-- BEGIN FILE: tasks/08-SECURITY-HARDENING.md -->
 
 ---
+
 task_id: HF-TASK-008
 phase: security-hardening
 status: pre-production
@@ -7062,6 +7215,7 @@ Do not launch patient data collection if:
 - storage bucket public unintentionally.
 
 ## Done when
+
 Human security review + automated gates + UAT pass.
 
 <!-- END FILE: tasks/08-SECURITY-HARDENING.md -->
@@ -7069,102 +7223,102 @@ Human security review + automated gates + UAT pass.
 <!-- BEGIN FILE: manifest.json -->
 
 {
-  "project": "Hafta Fisioterapi",
-  "document_package_version": "0.3.0",
-  "last_updated": "2026-08-12",
-  "encoding": "UTF-8",
-  "ai_readable": true,
-  "entrypoint": "AGENTS.md",
-  "read_order": [
-    "AGENTS.md",
-    "README-AI.md",
-    "docs/MASTER-PRD.md",
-    "docs/SECURITY.md",
-    "docs/PERMISSIONS.md",
-    "docs/DATABASE.md",
-    "docs/ARCHITECTURE.md",
-    "docs/DESIGN-REFERENCES.md",
-    "docs/DESIGN-SYSTEM.md",
-    "docs/MOBILE-FIRST-STRATEGY.md",
-    "docs/UI-GUIDELINES.md",
-    "docs/FORM-SPECIFICATIONS.md",
-    "docs/ROUTE-AND-NAVIGATION.md",
-    "docs/pages/01-LANDING-PAGE.md",
-    "docs/pages/02-AUTHENTICATION-PAGES.md",
-    "docs/pages/03-DASHBOARD-USER.md",
-    "docs/pages/04-DASHBOARD-ADMIN-THERAPIST.md",
-    "docs/pages/05-DASHBOARD-SUPER-ADMIN.md",
-    "docs/DEVELOPMENT-WORKFLOW.md",
-    "docs/CONTENT-REQUIREMENTS.md"
-  ],
-  "locked_stack_direction": {
-    "framework": "Next.js latest stable / App Router",
-    "language": "TypeScript strict",
-    "styling": "Tailwind CSS",
-    "ui": "shadcn/ui",
-    "design_guardrail": "Taste Skill",
-    "database": "Neon PostgreSQL",
-    "orm": "Drizzle ORM",
-    "authentication": "Better Auth or project-approved Better Auth integration",
-    "private_file_storage": "Cloudflare R2 when required",
-    "package_manager": "pnpm",
-    "ai_routing_development_only": "9Router"
-  },
-  "security_classification": "sensitive-health-data-application",
-  "ai_policy": {
-    "allow_real_patient_data_in_prompts": false,
-    "allow_secrets_in_prompts": false,
-    "allow_9router_in_production_patient_request_path": false
-  },
-  "single_file_context_bundle": "AI-CONTEXT-BUNDLE.md",
-  "task_specific_specs": {
-    "landing_page": "docs/pages/01-LANDING-PAGE.md",
-    "authentication": "docs/pages/02-AUTHENTICATION-PAGES.md",
-    "user_patient_portal": "docs/pages/03-DASHBOARD-USER.md",
-    "admin_therapist": "docs/pages/04-DASHBOARD-ADMIN-THERAPIST.md",
-    "super_admin": "docs/pages/05-DASHBOARD-SUPER-ADMIN.md",
-    "forms": "docs/FORM-SPECIFICATIONS.md",
-    "routes": "docs/ROUTE-AND-NAVIGATION.md"
-  },
-  "execution_entrypoint": "tasks/README.md",
-  "execution_tasks": [
-    "tasks/00-PROJECT-BOOTSTRAP.md",
-    "tasks/01-DESIGN-FOUNDATION.md",
-    "tasks/02-LANDING-PAGE.md",
-    "tasks/03-AUTH-AND-DATABASE.md",
-    "tasks/04-PERMISSION-FRAMEWORK.md",
-    "tasks/05-USER-PATIENT-PORTAL.md",
-    "tasks/06-ADMIN-THERAPIST-CLINICAL.md",
-    "tasks/07-SUPER-ADMIN.md",
-    "tasks/08-SECURITY-HARDENING.md"
-  ],
-  "design_sources": {
-    "layout_inspiration_only": "assets/design-references/01-layout-reference.png",
-    "approved_hafta_landing_direction": "assets/design-references/02-hafta-landing-direction.png",
-    "approved_design_system_board": "assets/design-references/03-hafta-design-system-board.png",
-    "canonical_design_tokens": "docs/DESIGN-SYSTEM.md",
-    "responsive_contract": "docs/MOBILE-FIRST-STRATEGY.md"
-  },
-  "responsive_policy": {
-    "approach": "mobile-first",
-    "mobile_gate_required_before_desktop": true,
-    "mobile_validation_widths_px": [
-      320,
-      360,
-      390,
-      430
-    ],
-    "tablet_validation_widths_px": [
-      768,
-      834
-    ],
-    "desktop_validation_widths_px": [
-      1024,
-      1280,
-      1440
-    ]
-  },
-  "development_entrypoint": "START-DEVELOPMENT.md"
+"project": "Hafta Fisioterapi",
+"document_package_version": "0.3.0",
+"last_updated": "2026-08-12",
+"encoding": "UTF-8",
+"ai_readable": true,
+"entrypoint": "AGENTS.md",
+"read_order": [
+"AGENTS.md",
+"README-AI.md",
+"docs/MASTER-PRD.md",
+"docs/SECURITY.md",
+"docs/PERMISSIONS.md",
+"docs/DATABASE.md",
+"docs/ARCHITECTURE.md",
+"docs/DESIGN-REFERENCES.md",
+"docs/DESIGN-SYSTEM.md",
+"docs/MOBILE-FIRST-STRATEGY.md",
+"docs/UI-GUIDELINES.md",
+"docs/FORM-SPECIFICATIONS.md",
+"docs/ROUTE-AND-NAVIGATION.md",
+"docs/pages/01-LANDING-PAGE.md",
+"docs/pages/02-AUTHENTICATION-PAGES.md",
+"docs/pages/03-DASHBOARD-USER.md",
+"docs/pages/04-DASHBOARD-ADMIN-THERAPIST.md",
+"docs/pages/05-DASHBOARD-SUPER-ADMIN.md",
+"docs/DEVELOPMENT-WORKFLOW.md",
+"docs/CONTENT-REQUIREMENTS.md"
+],
+"locked_stack_direction": {
+"framework": "Next.js latest stable / App Router",
+"language": "TypeScript strict",
+"styling": "Tailwind CSS",
+"ui": "shadcn/ui",
+"design_guardrail": "Taste Skill",
+"database": "Neon PostgreSQL",
+"orm": "Drizzle ORM",
+"authentication": "Better Auth or project-approved Better Auth integration",
+"private_file_storage": "Cloudflare R2 when required",
+"package_manager": "pnpm",
+"ai_routing_development_only": "9Router"
+},
+"security_classification": "sensitive-health-data-application",
+"ai_policy": {
+"allow_real_patient_data_in_prompts": false,
+"allow_secrets_in_prompts": false,
+"allow_9router_in_production_patient_request_path": false
+},
+"single_file_context_bundle": "AI-CONTEXT-BUNDLE.md",
+"task_specific_specs": {
+"landing_page": "docs/pages/01-LANDING-PAGE.md",
+"authentication": "docs/pages/02-AUTHENTICATION-PAGES.md",
+"user_patient_portal": "docs/pages/03-DASHBOARD-USER.md",
+"admin_therapist": "docs/pages/04-DASHBOARD-ADMIN-THERAPIST.md",
+"super_admin": "docs/pages/05-DASHBOARD-SUPER-ADMIN.md",
+"forms": "docs/FORM-SPECIFICATIONS.md",
+"routes": "docs/ROUTE-AND-NAVIGATION.md"
+},
+"execution_entrypoint": "tasks/README.md",
+"execution_tasks": [
+"tasks/00-PROJECT-BOOTSTRAP.md",
+"tasks/01-DESIGN-FOUNDATION.md",
+"tasks/02-LANDING-PAGE.md",
+"tasks/03-AUTH-AND-DATABASE.md",
+"tasks/04-PERMISSION-FRAMEWORK.md",
+"tasks/05-USER-PATIENT-PORTAL.md",
+"tasks/06-ADMIN-THERAPIST-CLINICAL.md",
+"tasks/07-SUPER-ADMIN.md",
+"tasks/08-SECURITY-HARDENING.md"
+],
+"design_sources": {
+"layout_inspiration_only": "assets/design-references/01-layout-reference.png",
+"approved_hafta_landing_direction": "assets/design-references/02-hafta-landing-direction.png",
+"approved_design_system_board": "assets/design-references/03-hafta-design-system-board.png",
+"canonical_design_tokens": "docs/DESIGN-SYSTEM.md",
+"responsive_contract": "docs/MOBILE-FIRST-STRATEGY.md"
+},
+"responsive_policy": {
+"approach": "mobile-first",
+"mobile_gate_required_before_desktop": true,
+"mobile_validation_widths_px": [
+320,
+360,
+390,
+430
+],
+"tablet_validation_widths_px": [
+768,
+834
+],
+"desktop_validation_widths_px": [
+1024,
+1280,
+1440
+]
+},
+"development_entrypoint": "START-DEVELOPMENT.md"
 }
 
 <!-- END FILE: manifest.json -->

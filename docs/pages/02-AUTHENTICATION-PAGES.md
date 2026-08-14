@@ -16,7 +16,6 @@ source_of_truth_for:
 
 > **UI implementation contract:** read `docs/DESIGN-REFERENCES.md`, `docs/DESIGN-SYSTEM.md`, and `docs/MOBILE-FIRST-STRATEGY.md`. Build and pass the mobile version first; desktop enhancement is not allowed before Mobile Gate passes.
 
-
 ## 1. Scope
 
 Routes:
@@ -148,6 +147,7 @@ Dashboard content is role-aware. Do not let client-provided redirect bypass allo
 ```
 
 ### Goal
+
 Create USER/patient account only unless staff invitation workflow explicitly allows otherwise.
 
 Public registration **must never allow choosing ADMIN or SUPER_ADMIN role**.
@@ -235,6 +235,7 @@ Terms/privacy acknowledgement at account registration does **not** replace clini
 - email.
 
 ### Response
+
 Always safe generic response such as:
 
 ```text

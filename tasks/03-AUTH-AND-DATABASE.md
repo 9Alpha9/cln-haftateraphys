@@ -18,6 +18,7 @@ depends_on: [HF-TASK-000]
 - `docs/FORM-SPECIFICATIONS.md`
 
 ## Objective
+
 Create Neon + Drizzle foundation and secure authentication lifecycle.
 
 ## Scope
@@ -47,7 +48,6 @@ Create Neon + Drizzle foundation and secure authentication lifecycle.
 - manually persist plaintext password;
 - trust role from request payload;
 - create production patient fixtures.
-
 
 ## UI execution gates
 

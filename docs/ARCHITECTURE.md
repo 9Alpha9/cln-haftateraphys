@@ -164,27 +164,35 @@ Next.js -> authorization -> signed storage access -> Cloudflare R2
 ## 5. Component boundary
 
 ### `app/`
+
 Route composition, layout, metadata, route handlers, server entry points.
 
 ### `components/`
+
 UI. Presentational component tidak melakukan privileged database operation.
 
 ### `server/actions/`
+
 Mutation entry point. Selalu re-check session, input validation, authorization, domain rule.
 
 ### `server/queries/`
+
 Read operations dengan scoped authorization.
 
 ### `server/services/`
+
 Business workflow seperti finalize assessment, assign therapist, amend session.
 
 ### `server/repositories/`
+
 Database access abstraction untuk query yang kompleks/reused.
 
 ### `db/`
+
 Schema, connection, migrations, seed.
 
 ### `lib/permissions/`
+
 Permission constants, policy evaluation, resource scope checks.
 
 ## 6. Server-first rule

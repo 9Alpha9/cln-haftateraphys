@@ -1,18 +1,19 @@
-"use client";
+'use client';
 
-import { useState, useTransition } from "react";
-import Link from "next/link";
-import { Loader2, MailCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { PasswordField } from "@/components/auth/password-field";
-import { AuthAlert } from "@/components/auth/auth-alert";
-import { signUp } from "@/lib/auth/client";
+import { useState, useTransition } from 'react';
+import Link from 'next/link';
+import { Loader2, MailCheck } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { PasswordField } from '@/components/auth/password-field';
+import { AuthAlert } from '@/components/auth/auth-alert';
+import { signUp } from '@/lib/auth/client';
+import Image from 'next/image';
 
 type FormError = {
   message: string;
-  type: "error" | "success";
+  type: 'error' | 'success';
 };
 
 export function RegisterForm() {
@@ -25,40 +26,39 @@ export function RegisterForm() {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
-    const name = String(formData.get("name") ?? "").trim();
-    const email = String(formData.get("email") ?? "").trim();
-    const password = String(formData.get("password") ?? "");
-    const confirmPassword = String(formData.get("confirmPassword") ?? "");
-    const termsAccepted = formData.get("terms") === "on";
+    const name = String(formData.get('name') ?? '').trim();
+    const email = String(formData.get('email') ?? '').trim();
+    const password = String(formData.get('password') ?? '');
+    const confirmPassword = String(formData.get('confirmPassword') ?? '');
+    const termsAccepted = formData.get('terms') === 'on';
 
     if (!name) {
-      setError({ message: "Nama wajib diisi.", type: "error" });
+      setError({ message: 'Nama wajib diisi.', type: 'error' });
       return;
     }
 
     if (!email) {
-      setError({ message: "Email wajib diisi.", type: "error" });
+      setError({ message: 'Email wajib diisi.', type: 'error' });
       return;
     }
 
     if (password.length < 8) {
       setError({
-        message: "Kata sandi minimal 8 karakter.",
-        type: "error",
+        message: 'Kata sandi minimal 8 karakter.',
+        type: 'error',
       });
       return;
     }
 
     if (password !== confirmPassword) {
-      setError({ message: "Konfirmasi kata sandi tidak cocok.", type: "error" });
+      setError({ message: 'Konfirmasi kata sandi tidak cocok.', type: 'error' });
       return;
     }
 
     if (!termsAccepted) {
       setError({
-        message:
-          "Anda harus menyetujui Syarat & Ketentuan dan Kebijakan Privasi.",
-        type: "error",
+        message: 'Anda harus menyetujui Syarat & Ketentuan dan Kebijakan Privasi.',
+        type: 'error',
       });
       return;
     }
@@ -69,23 +69,23 @@ export function RegisterForm() {
           name,
           email,
           password,
-          callbackURL: "/login",
+          callbackURL: '/login',
         });
 
         if (result?.error) {
           const errData = result.error as { message?: string; code?: string };
 
-          if (errData?.code === "USER_ALREADY_EXISTS") {
+          if (errData?.code === 'USER_ALREADY_EXISTS') {
             setError({
-              message: "Email atau kata sandi tidak sesuai.",
-              type: "error",
+              message: 'Email atau kata sandi tidak sesuai.',
+              type: 'error',
             });
             return;
           }
 
           setError({
-            message: "Terjadi kesalahan. Silakan coba lagi.",
-            type: "error",
+            message: 'Terjadi kesalahan. Silakan coba lagi.',
+            type: 'error',
           });
           return;
         }
@@ -93,8 +93,8 @@ export function RegisterForm() {
         setRegistered(true);
       } catch {
         setError({
-          message: "Terjadi kesalahan server. Silakan coba lagi.",
-          type: "error",
+          message: 'Terjadi kesalahan server. Silakan coba lagi.',
+          type: 'error',
         });
       }
     });
@@ -106,12 +106,10 @@ export function RegisterForm() {
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success/10">
           <MailCheck className="size-7 text-success" aria-hidden="true" />
         </div>
-        <h2 className="text-lg font-semibold text-foreground">
-          Pendaftaran berhasil!
-        </h2>
+        <h2 className="text-lg font-semibold text-foreground">Pendaftaran berhasil!</h2>
         <p className="text-sm text-muted-foreground">
-          Kami telah mengirimkan email verifikasi ke alamat email Anda. Silakan
-          cek inbox dan klik link verifikasi untuk mengaktifkan akun.
+          Kami telah mengirimkan email verifikasi ke alamat email Anda. Silakan cek inbox dan klik link verifikasi untuk
+          mengaktifkan akun.
         </p>
         <Link
           href="/login"
@@ -125,8 +123,20 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <div>
+        <span className="text-2xl font-semibold py-6 items-start block">Daftar Akun.</span>
+      </div>
+      <div className="flex flex-col justify-center items-center gap-6">
+        <Image
+          src="/images/logos/logos-text.png"
+          alt="Hafta Fisioterapi"
+          width={200}
+          height={48}
+          priority
+          className="h-32 w-auto"
+        />
+      </div>
       {error && <AuthAlert type={error.type} message={error.message} />}
-
       <div className="space-y-2">
         <Label htmlFor="name">Nama Lengkap</Label>
         <Input
@@ -182,11 +192,11 @@ export function RegisterForm() {
             disabled={isPending}
           />
           <span className="text-muted-foreground">
-            Saya menyetujui{" "}
+            Saya menyetujui{' '}
             <a href="/terms" className="underline hover:text-foreground">
               Syarat & Ketentuan
-            </a>{" "}
-            dan{" "}
+            </a>{' '}
+            dan{' '}
             <a href="/privacy" className="underline hover:text-foreground">
               Kebijakan Privasi
             </a>
@@ -194,27 +204,20 @@ export function RegisterForm() {
         </label>
       </div>
 
-      <Button
-        type="submit"
-        className="h-10 w-full"
-        disabled={isPending}
-      >
+      <Button type="submit" className="h-10 w-full" disabled={isPending}>
         {isPending ? (
           <>
             <Loader2 className="size-4 animate-spin" aria-hidden="true" />
             Memproses...
           </>
         ) : (
-          "Buat Akun"
+          'Buat Akun'
         )}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
-        Sudah punya akun?{" "}
-        <Link
-          href="/login"
-          className="font-medium text-primary hover:underline"
-        >
+        Sudah punya akun?{' '}
+        <Link href="/login" className="font-medium text-primary hover:underline">
           Masuk
         </Link>
       </p>

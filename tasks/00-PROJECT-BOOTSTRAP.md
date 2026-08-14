@@ -14,6 +14,7 @@ depends_on: []
 - `docs/DEVELOPMENT-WORKFLOW.md`
 
 ## Objective
+
 Initialize the Hafta Fisioterapi application repository using the locked technology direction without implementing business features yet.
 
 ## Scope

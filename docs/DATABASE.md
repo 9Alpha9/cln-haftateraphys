@@ -27,11 +27,13 @@ File binary tidak disimpan di PostgreSQL. Simpan metadata di PostgreSQL dan obje
 ## 3. Core entities
 
 ### 3.1 `users`
+
 Authentication identity dikelola sesuai schema Better Auth/integration actual.
 
 Jangan duplicate plaintext credential field di domain table.
 
 ### 3.2 `profiles`
+
 Candidate fields:
 
 - `user_id`
@@ -207,6 +209,7 @@ Object storage bucket private.
 Consent media/publication harus terpisah dari privacy/service consent.
 
 ### 3.15 `roles`
+
 Jika Better Auth/plugin menyimpan role secara sederhana, tetap pastikan domain permission model konsisten.
 
 Role fixed baseline:
@@ -216,12 +219,15 @@ Role fixed baseline:
 - `USER`
 
 ### 3.16 `permissions`
+
 Candidate permission keys didefinisikan di `PERMISSIONS.md`.
 
 ### 3.17 `role_permissions`
+
 Mapping role -> permission bila menggunakan database-backed permission.
 
 ### 3.18 `user_permissions`
+
 Optional explicit overrides. Avoid complexity unless truly needed.
 
 ### 3.19 `audit_logs`

@@ -41,7 +41,6 @@ depends_on: [HF-TASK-004]
 - clinical resource denied without explicit permission;
 - audit log write protection.
 
-
 ## UI execution gates
 
 If this task renders or changes UI:
@@ -56,4 +55,5 @@ If this task renders or changes UI:
 Do not start from a desktop screenshot and shrink it into mobile.
 
 ## Done when
+
 Page spec acceptance criteria pass.

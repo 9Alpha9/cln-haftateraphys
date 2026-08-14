@@ -45,29 +45,29 @@ See `docs/DESIGN-REFERENCES.md` for reference precedence and usage rules.
 
 ### 3.1 Brand tokens
 
-| Token | Hex | Usage |
-|---|---|---|
-| `emerald-900` | `#064E3B` | strongest brand surface, dark hero/footer |
-| `emerald-700` | `#065F46` | primary buttons, interactive brand color |
-| `teal-600` | `#0D766E` | supporting accents, focus/secondary emphasis |
-| `sage-200` | `#DDEBE3` | soft healthcare surface, chips, subtle panels |
-| `yellow-400` | `#FBBF24` | limited high-attention accent |
-| `yellow-500` | `#F59E0B` | hover/strong accent where accessible |
-| `surface` | `#F6FAF8` | off-white branded page surface |
-| `white` | `#FFFFFF` | card/surface |
+| Token         | Hex       | Usage                                         |
+| ------------- | --------- | --------------------------------------------- |
+| `emerald-900` | `#064E3B` | strongest brand surface, dark hero/footer     |
+| `emerald-700` | `#065F46` | primary buttons, interactive brand color      |
+| `teal-600`    | `#0D766E` | supporting accents, focus/secondary emphasis  |
+| `sage-200`    | `#DDEBE3` | soft healthcare surface, chips, subtle panels |
+| `yellow-400`  | `#FBBF24` | limited high-attention accent                 |
+| `yellow-500`  | `#F59E0B` | hover/strong accent where accessible          |
+| `surface`     | `#F6FAF8` | off-white branded page surface                |
+| `white`       | `#FFFFFF` | card/surface                                  |
 
 ### 3.2 Neutral/text tokens
 
-| Token | Hex | Usage |
-|---|---|---|
-| `gray-100` | `#F3F4F6` | subtle background |
-| `gray-200` | `#E5E7EB` | default border/divider |
-| `gray-300` | `#D1D5DB` | stronger neutral border |
-| `text-primary` | `#111827` | primary body/headings on light surface |
-| `text-secondary` | `#374151` | secondary copy |
-| `text-muted` | `#6B7280` | helper/meta text |
-| `border` | `#E5E7EB` | default border |
-| `border-strong` | `#CBD5E1` | stronger separator/control border |
+| Token            | Hex       | Usage                                  |
+| ---------------- | --------- | -------------------------------------- |
+| `gray-100`       | `#F3F4F6` | subtle background                      |
+| `gray-200`       | `#E5E7EB` | default border/divider                 |
+| `gray-300`       | `#D1D5DB` | stronger neutral border                |
+| `text-primary`   | `#111827` | primary body/headings on light surface |
+| `text-secondary` | `#374151` | secondary copy                         |
+| `text-muted`     | `#6B7280` | helper/meta text                       |
+| `border`         | `#E5E7EB` | default border                         |
+| `border-strong`  | `#CBD5E1` | stronger separator/control border      |
 
 ### 3.3 Semantic tokens
 
@@ -119,17 +119,17 @@ Use a framework-managed font loading strategy. If an official client brand font 
 
 Mobile values are the implementation starting point. Desktop values are progressive enhancements.
 
-| Style | Mobile | Desktop | Weight | Use |
-|---|---:|---:|---:|---|
-| Display | 34/40 | 44/52 | 600–700 | hero statement |
-| H1 | 28/36 | 36/44 | 600–700 | page title |
-| H2 | 24/32 | 32/40 | 600 | section title |
-| H3 | 18/26 | 20/28 | 600 | card/subsection title |
-| Body Large | 17/28 | 18/30 | 400 | important supporting copy |
-| Body | 16/26 | 16/26 | 400 | default readable body |
-| Small | 14/22 | 14/22 | 400 | metadata/helper |
-| Caption | 12/18 | 12/18 | 400–500 | compact metadata |
-| Button | 14/20 | 14/20 | 600 | controls |
+| Style      | Mobile | Desktop |  Weight | Use                       |
+| ---------- | -----: | ------: | ------: | ------------------------- |
+| Display    |  34/40 |   44/52 | 600–700 | hero statement            |
+| H1         |  28/36 |   36/44 | 600–700 | page title                |
+| H2         |  24/32 |   32/40 |     600 | section title             |
+| H3         |  18/26 |   20/28 |     600 | card/subsection title     |
+| Body Large |  17/28 |   18/30 |     400 | important supporting copy |
+| Body       |  16/26 |   16/26 |     400 | default readable body     |
+| Small      |  14/22 |   14/22 |     400 | metadata/helper           |
+| Caption    |  12/18 |   12/18 | 400–500 | compact metadata          |
+| Button     |  14/20 |   14/20 |     600 | controls                  |
 
 Rules:
 
@@ -161,13 +161,13 @@ space-32 = 128px
 
 ### Section rhythm
 
-| Token | Mobile | Desktop |
-|---|---:|---:|
-| `section-xs` | 40–48px | 48px |
-| `section-sm` | 48–56px | 64px |
-| `section-md` | 56–64px | 80px |
-| `section-lg` | 64–80px | 96px |
-| `section-xl` | 80–96px | 128px |
+| Token        |  Mobile | Desktop |
+| ------------ | ------: | ------: |
+| `section-xs` | 40–48px |    48px |
+| `section-sm` | 48–56px |    64px |
+| `section-md` | 56–64px |    80px |
+| `section-lg` | 64–80px |    96px |
+| `section-xl` | 80–96px |   128px |
 
 Do not blindly add huge desktop-style whitespace to mobile.
 

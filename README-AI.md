@@ -62,7 +62,6 @@ Jika requirement berubah:
 3. baru ubah implementasi;
 4. catat breaking change.
 
-
 ## Execution tasks
 
 Folder `tasks/` berisi task implementation-ready yang dapat diberikan langsung ke coding agent setelah canonical docs dibaca. Mulai dari `tasks/README.md`, lalu ikuti dependency/task order. Task files tidak boleh mengoverride security, permission, database, atau Master PRD.

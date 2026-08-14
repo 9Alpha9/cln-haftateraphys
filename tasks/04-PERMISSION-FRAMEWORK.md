@@ -16,6 +16,7 @@ depends_on: [HF-TASK-003]
 - `docs/DATABASE.md`
 
 ## Objective
+
 Implement default-deny RBAC + resource scope authorization before patient CRUD.
 
 ## Scope
@@ -31,6 +32,7 @@ Implement default-deny RBAC + resource scope authorization before patient CRUD.
 - authorization test matrix.
 
 ## Mandatory tests
+
 Use the minimum matrix in `docs/PERMISSIONS.md`.
 
 ## Do not
@@ -40,4 +42,5 @@ Use the minimum matrix in `docs/PERMISSIONS.md`.
 - grant SUPER_ADMIN implicit clinical permission.
 
 ## Done when
+
 Authorization helper is used by representative protected reads/mutations and attack-path tests pass.

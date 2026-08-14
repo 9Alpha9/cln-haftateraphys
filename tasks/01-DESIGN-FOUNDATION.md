@@ -19,6 +19,7 @@ depends_on: [HF-TASK-000]
 - `docs/pages/02-AUTHENTICATION-PAGES.md`
 
 ## Objective
+
 Create reusable visual foundations before individual pages, based on the approved Hafta design system and references. Mobile primitives are completed first; desktop variants are progressive enhancements.
 
 ## Scope
@@ -35,6 +36,7 @@ Create reusable visual foundations before individual pages, based on the approve
 - responsive navigation foundation.
 
 ## Taste Skill
+
 Run Taste Skill/design review against hierarchy, spacing, typography, and generic-AI visual patterns.
 
 ## Do not
@@ -42,7 +44,6 @@ Run Taste Skill/design review against hierarchy, spacing, typography, and generi
 - invent or replace the locked brand palette from `docs/DESIGN-SYSTEM.md` without explicit approval;
 - hardcode page-specific clinical logic;
 - create dozens of wrapper components with no reuse.
-
 
 ## UI execution gates
 

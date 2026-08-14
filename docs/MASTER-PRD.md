@@ -25,21 +25,27 @@ Aplikasi bukan sekadar company profile. Landing page menjadi acquisition layer, 
 ## 2. Product goals
 
 ### G-001 — Public trust
+
 Menyediakan landing page yang menjelaskan Hafta, layanan, alur terapi, lokasi/kontak, therapist, edukasi, dan akses menuju patient portal.
 
 ### G-002 — Structured patient intake
+
 Pasien dapat mendaftar dan mengisi data yang dibutuhkan dengan struktur konsisten sebelum/selama proses fisioterapi.
 
 ### G-003 — Therapist workflow
+
 Staff/therapist yang berwenang dapat membuat assessment, treatment plan, session record, progress, dan patient history sesuai permission.
 
 ### G-004 — Patient transparency
+
 Pasien dapat melihat data miliknya sendiri yang memang ditandai boleh terlihat oleh pasien.
 
 ### G-005 — Secure administration
+
 Super Admin dapat mengelola akun, role/permission, configuration, dan audit tanpa otomatis mendapat akses klinis tanpa alasan.
 
 ### G-006 — Maintainability
+
 Codebase harus modular, clean, typed, memiliki migration, authorization test, dan struktur folder yang konsisten.
 
 ## 3. Non-goals untuk v1
@@ -59,14 +65,17 @@ Tidak termasuk kecuali kemudian disetujui:
 ## 4. User roles
 
 ### R-001 — SUPER_ADMIN
+
 Fokus pada administration, user management, role/permission, configuration, dan audit.
 
 SUPER_ADMIN tidak otomatis mempunyai unrestricted clinical read access. Clinical access harus mengikuti permission eksplisit.
 
 ### R-002 — ADMIN
+
 Role staff. Dapat memiliki sub-type seperti `THERAPIST` atau `STAFF` dan scoped permissions.
 
 ### R-003 — USER
+
 Patient account. Hanya boleh mengakses data miliknya sendiri dan resource yang secara eksplisit patient-visible.
 
 ## 5. Public information architecture
@@ -91,9 +100,11 @@ Optional future public routes:
 ## 6. Landing page requirements
 
 ### LP-001 — Header
+
 Harus memiliki logo/brand, navigation, CTA konsultasi/contact, dan login portal.
 
 ### LP-002 — Hero
+
 Harus menjelaskan value Hafta secara ringkas dan tidak membuat klaim medis berlebihan.
 
 Recommended direction:
@@ -103,9 +114,11 @@ Recommended direction:
 - secondary CTA: patient portal.
 
 ### LP-003 — Services / conditions
+
 Konten final harus menggunakan daftar layanan yang sudah dikonfirmasi client. Jangan mengubah posting edukasi Instagram menjadi klaim layanan resmi tanpa validasi.
 
 ### LP-004 — How therapy works
+
 Section yang menjelaskan alur umum:
 
 1. konsultasi/registrasi;
@@ -116,32 +129,41 @@ Section yang menjelaskan alur umum:
 6. evaluation/completion.
 
 ### LP-005 — About Hafta
+
 Menggunakan cerita/positioning resmi dari client.
 
 ### LP-006 — Therapist section
+
 Boleh berisi nama, foto, gelar/credential, dan fokus praktik hanya setelah data dikonfirmasi.
 
 ### LP-007 — Patient Portal value
+
 Jelaskan manfaat portal tanpa menyatakan fitur yang belum live.
 
 ### LP-008 — Education
+
 Boleh mengadaptasi tema edukasi publik dari Hafta setelah content approval.
 
 ### LP-009 — Testimonial/recovery story
+
 Hanya gunakan materi pasien dengan consent publikasi yang dapat dibuktikan.
 
 ### LP-010 — FAQ
+
 FAQ harus dikonfirmasi oleh operational owner.
 
 ### LP-011 — Location/contact
+
 Alamat, nomor, jam operasional, dan channel booking harus dikonfirmasi sebelum production.
 
 ### LP-012 — Privacy footer
+
 Link privacy policy dan terms wajib tersedia sebelum menerima data pasien production.
 
 ## 7. Authentication requirements
 
 ### AUTH-001 — Registration
+
 USER dapat membuat akun menggunakan email/password.
 
 Minimum fields:
@@ -155,18 +177,23 @@ Minimum fields:
 Patient medical data tidak dikumpulkan pada form register yang sama.
 
 ### AUTH-002 — Email verification
+
 Email verification harus didukung sebelum user melakukan operasi sensitif.
 
 ### AUTH-003 — Login
+
 Login menggunakan secure session cookie.
 
 ### AUTH-004 — Forgot/reset password
+
 Reset token harus short-lived, single-use, dan tidak mengungkap apakah email tertentu terdaftar melalui response yang mudah dieksploitasi.
 
 ### AUTH-005 — Staff MFA
+
 MFA sangat direkomendasikan dan menjadi target wajib sebelum production untuk ADMIN dan SUPER_ADMIN.
 
 ### AUTH-006 — Session management
+
 Harus ada logout, session expiration, dan mekanisme revoke session untuk staff.
 
 ## 8. USER / patient portal
@@ -182,14 +209,17 @@ Baseline routes:
 - `/dashboard/account/security`
 
 ### PT-001 — Patient profile
+
 Patient dapat mengisi dan mengubah profile non-clinical sesuai policy.
 
 ### PT-002 — Patient intake
+
 Form intake dipisah menjadi beberapa section agar manageable.
 
 Candidate fields:
 
 #### Identity/profile
+
 - full name;
 - date of birth;
 - sex/gender field hanya jika benar-benar dibutuhkan workflow klinis dan sudah disetujui;
@@ -198,11 +228,13 @@ Candidate fields:
 - occupation.
 
 #### Emergency contact
+
 - contact name;
 - relationship;
 - phone.
 
 #### Main complaint
+
 - chief complaint;
 - affected area;
 - onset date/time range;
@@ -213,6 +245,7 @@ Candidate fields:
 - functional limitations.
 
 #### Relevant history
+
 - injury history;
 - surgery history;
 - relevant medical history;
@@ -221,10 +254,12 @@ Candidate fields:
 - relevant examination/supporting document.
 
 #### Goal
+
 - patient goal;
 - activity/sport goal.
 
 #### Consent
+
 - privacy/data-processing consent;
 - clinical data submission acknowledgement;
 - optional media/publication consent harus terpisah dan tidak bundled.
@@ -232,6 +267,7 @@ Candidate fields:
 Final field list harus disetujui fisioterapis Hafta.
 
 ### PT-003 — Intake status
+
 Status candidate:
 
 - `DRAFT`
@@ -241,9 +277,11 @@ Status candidate:
 - `ACCEPTED`
 
 ### PT-004 — Patient history
+
 USER hanya dapat melihat record miliknya sendiri yang `patient_visible = true` dan sesuai lifecycle state.
 
 ### PT-005 — Patient cannot edit finalized clinical data
+
 Assessment, clinical findings, finalized therapy sessions, dan therapist notes tidak dapat dimodifikasi oleh USER.
 
 ## 9. ADMIN / therapist dashboard
@@ -262,6 +300,7 @@ Baseline routes:
 - `/dashboard/account/security`
 
 ### ADM-001 — Patient list
+
 Admin hanya melihat patient sesuai assigned scope/permission.
 
 Required capabilities:
@@ -273,6 +312,7 @@ Required capabilities:
 - no sensitive data exposed unnecessarily in table.
 
 ### ADM-002 — Patient overview
+
 Summary non-excessive:
 
 - patient identity minimum;
@@ -283,6 +323,7 @@ Summary non-excessive:
 - treatment status.
 
 ### ADM-003 — Assessment
+
 Authorized therapist dapat membuat assessment.
 
 Candidate sections:
@@ -296,6 +337,7 @@ Candidate sections:
 - visibility status.
 
 ### ADM-004 — Treatment plan
+
 Authorized therapist dapat membuat treatment plan terkait assessment.
 
 Candidate fields:
@@ -308,6 +350,7 @@ Candidate fields:
 - status.
 
 ### ADM-005 — Therapy sessions
+
 Setiap session memiliki independent record.
 
 Candidate fields:
@@ -324,12 +367,15 @@ Candidate fields:
 - patient visibility flag.
 
 ### ADM-006 — Finalization
+
 Finalized clinical record tidak boleh di-hard-delete. Correction menggunakan revision/amendment mechanism.
 
 ### ADM-007 — Assignment
+
 Patient dapat di-assign ke therapist sesuai permission.
 
 ### ADM-008 — Export
+
 Export clinical data adalah privileged operation, default denied, dan wajib audit.
 
 ## 10. SUPER_ADMIN dashboard
@@ -344,6 +390,7 @@ Routes candidate:
 - `/dashboard/settings`
 
 ### SA-001 — Account management
+
 Manage account state:
 
 - active;
@@ -353,15 +400,19 @@ Manage account state:
 - verification status.
 
 ### SA-002 — Role assignment
+
 Role changes wajib audit.
 
 ### SA-003 — Permission management
+
 Permission assignment tidak boleh dapat diedit oleh ADMIN biasa.
 
 ### SA-004 — Audit viewer
+
 Audit log hanya read-only dari UI normal.
 
 ### SA-005 — Clinical access
+
 Super Admin tidak otomatis mempunyai clinical read permission.
 
 ## 11. Status model
@@ -485,7 +536,6 @@ V1 dianggap layak staging jika:
 - audit log untuk sensitive mutations bekerja;
 - secrets tidak bocor ke client/log/repository;
 - production patient data tidak pernah dikirim ke AI agent.
-
 
 ## 22. Detailed implementation specifications
 

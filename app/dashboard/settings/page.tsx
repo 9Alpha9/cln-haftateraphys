@@ -1,85 +1,52 @@
-import { Container } from "@/components/container";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, Shield, Database, Bell } from "lucide-react";
+import { Settings, Shield, Database, Bell } from 'lucide-react';
+import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PERMISSIONS, requirePermission } from '@/lib/permissions';
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
+  await requirePermission(PERMISSIONS.SETTINGS_MANAGE);
+  const items = [
+    {
+      title: 'Keamanan',
+      text: 'Pengaturan keamanan dan autentikasi',
+      note: 'MFA untuk staff akan diimplementasikan sebelum production',
+      icon: Shield,
+    },
+    {
+      title: 'Database',
+      text: 'Backup dan pengaturan database',
+      note: 'Backup policy akan ditentukan sebelum production',
+      icon: Database,
+    },
+    {
+      title: 'Notifikasi',
+      text: 'Pengaturan email dan notifikasi',
+      note: 'Email provider akan dikonfigurasi sebelum production',
+      icon: Bell,
+    },
+    { title: 'Umum', text: 'Pengaturan umum aplikasi', icon: Settings },
+  ];
   return (
-    <Container>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Pengaturan</h1>
-          <p className="text-muted-foreground">
-            Kelola pengaturan sistem
-          </p>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Card>
+    <div className="mx-auto max-w-7xl space-y-6">
+      <DashboardPageHeader
+        title="Pengaturan"
+        description="Kelola konfigurasi sistem yang tersedia."
+        breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Pengaturan' }]}
+      />
+      <div className="grid gap-4 sm:grid-cols-2">
+        {items.map((item) => (
+          <Card key={item.title}>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">
-                Keamanan
-              </CardTitle>
-              <Shield className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-semibold">{item.title}</CardTitle>
+              <item.icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Pengaturan keamanan dan autentikasi
-              </p>
-              <p className="mt-2 text-xs text-muted-foreground/70">
-                * MFA untuk staff akan diimplementasikan sebelum production
-              </p>
+              <p className="text-sm text-muted-foreground">{item.text}</p>
+              {item.note ? <p className="mt-2 text-xs text-muted-foreground">{item.note}</p> : null}
             </CardContent>
           </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">
-                Database
-              </CardTitle>
-              <Database className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Backup dan pengaturan database
-              </p>
-              <p className="mt-2 text-xs text-muted-foreground/70">
-                * Backup policy akan ditentukan sebelum production
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">
-                Notifikasi
-              </CardTitle>
-              <Bell className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Pengaturan email dan notifikasi
-              </p>
-              <p className="mt-2 text-xs text-muted-foreground/70">
-                * Email provider akan dikonfigurasi sebelum production
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">
-                Umum
-              </CardTitle>
-              <Settings className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Pengaturan umum aplikasi
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        ))}
       </div>
-    </Container>
+    </div>
   );
 }

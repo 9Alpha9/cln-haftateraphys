@@ -1,26 +1,26 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { Container } from "@/components/container";
-import { Section } from "@/components/section";
-import { ScrollAnimation } from "@/components/ui/scroll-animation";
-import { Target, Heart, Shield } from "lucide-react";
+import Image from 'next/image';
+import { Container } from '@/components/container';
+import { Section } from '@/components/section';
+import { ScrollAnimation } from '@/components/ui/scroll-animation';
+import { Target, Heart, Shield } from 'lucide-react';
 
 const values = [
   {
     icon: Target,
-    title: "Fokus pada Hasil",
-    description: "Program terapi dirancang untuk mencapai目标 pemulihan yang terukur",
+    title: 'Fokus pada Hasil',
+    description: 'Program terapi dirancang untuk mencapai目标 pemulihan yang terukur',
   },
   {
     icon: Heart,
-    title: "Pendekatan Holistik",
-    description: "Tidak hanya menangani gejala, tetapi memahami akar masalah",
+    title: 'Pendekatan Holistik',
+    description: 'Tidak hanya menangani gejala, tetapi memahami akar masalah',
   },
   {
     icon: Shield,
-    title: "Standar Profesional",
-    description: "Mengikuti protokol evidance-based practice dalam setiap sesi",
+    title: 'Standar Profesional',
+    description: 'Mengikuti protokol evidance-based practice dalam setiap sesi',
   },
 ];
 
@@ -35,14 +35,12 @@ export function AboutSection() {
                 Tentang Hafta Fisioterapi
               </h2>
               <p className="mt-4 text-muted-foreground leading-relaxed">
-                Hafta Fisioterapi hadir untuk memberikan layanan fisioterapi yang
-                profesional dan terjangkau. Kami percaya setiap pasien berhak
-                mendapatkan program pemulihan yang tepat dan terstruktur.
+                Hafta Fisioterapi hadir untuk memberikan layanan fisioterapi yang profesional dan terjangkau. Kami
+                percaya setiap pasien berhak mendapatkan program pemulihan yang tepat dan terstruktur.
               </p>
               <p className="mt-4 text-muted-foreground leading-relaxed">
-                Dengan pendekatan berbasis bukti ilmiah, kami membantu pasien
-                memahami kondisi mereka dan menjalani program pemulihan dengan
-                percaya diri.
+                Dengan pendekatan berbasis bukti ilmiah, kami membantu pasien memahami kondisi mereka dan menjalani
+                program pemulihan dengan percaya diri.
               </p>
               <p className="mt-4 text-xs text-muted-foreground/70">
                 * Konten placeholder - menunggu konfirmasi cerita resmi dari klien
@@ -52,15 +50,16 @@ export function AboutSection() {
 
           <ScrollAnimation direction="right" delay={0.2}>
             <div className="relative">
-              <div className="aspect-[4/3] overflow-hidden rounded-2xl">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
                 <Image
                   src="/images/logos/logos.png"
                   alt="Hafta Fisioterapi"
                   fill
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-contain"
                 />
               </div>
-              <div className="absolute -bottom-4 -right-4 rounded-xl bg-primary p-4 text-white shadow-lg">
+              <div className="absolute -bottom-4 left-0 md:right-0 rounded-xl bg-primary p-4 text-white shadow-lg sm:left-auto sm:right-4">
                 <div className="text-center">
                   <p className="text-2xl font-bold">5+</p>
                   <p className="text-xs">Tahun Pengalaman</p>
@@ -79,9 +78,7 @@ export function AboutSection() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-foreground">{value.title}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {value.description}
-                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">{value.description}</p>
                 </div>
               </div>
             </ScrollAnimation>

@@ -14,7 +14,6 @@ source_of_truth_for:
 
 > **UI implementation contract:** read `docs/DESIGN-REFERENCES.md`, `docs/DESIGN-SYSTEM.md`, and `docs/MOBILE-FIRST-STRATEGY.md`. Build and pass the mobile version first; desktop enhancement is not allowed before Mobile Gate passes.
 
-
 ## 1. Purpose
 
 Landing page Hafta Fisioterapi adalah public acquisition layer sekaligus pintu masuk menuju Patient Portal. Halaman harus membangun kepercayaan, menjelaskan alur layanan secara mudah, mengarahkan calon pasien ke kanal konsultasi/booking yang disetujui Hafta, dan memberi akses jelas ke login/register.
@@ -32,18 +31,23 @@ Landing page tidak boleh membuat diagnosis otomatis, menjanjikan hasil klinis, a
 ## 3. Page goals
 
 ### LP-G01 — Trust
+
 User memahami siapa Hafta, apa pendekatannya, dan bagaimana menghubungi Hafta.
 
 ### LP-G02 — Clarity
+
 User memahami proses umum dari registrasi/konsultasi sampai evaluasi tanpa terminology klinis berlebihan.
 
 ### LP-G03 — Conversion
+
 User memiliki CTA jelas untuk konsultasi/booking atau masuk ke Patient Portal.
 
 ### LP-G04 — Portal awareness
+
 User memahami bahwa website tidak hanya company profile; pasien dapat memiliki portal untuk data dan history yang memang diizinkan.
 
 ### LP-G05 — Privacy-aware acquisition
+
 Tidak ada data kesehatan sensitif dikumpulkan langsung dari landing page selain melalui flow resmi yang authenticated/approved.
 
 ## 4. Route
@@ -130,6 +134,7 @@ Urutan boleh dioptimalkan berdasarkan hasil desain, tetapi `Hero`, `Service cont
 ## LP-S01 — Header
 
 ### Objective
+
 Memberi orientasi dan access path utama.
 
 ### Required UI
@@ -166,6 +171,7 @@ components/landing/header/MobileNavigation.tsx
 ## LP-S02 — Hero
 
 ### Objective
+
 Menjelaskan positioning Hafta dalam 5–10 detik pertama.
 
 ### Content model
@@ -235,6 +241,7 @@ Tidak boleh membawa patient identifiers.
 ## LP-S03 — Trust Context
 
 ### Objective
+
 Menjawab cepat: lokasi, fokus umum, dan apa yang user dapat harapkan.
 
 ### Allowed content
@@ -253,6 +260,7 @@ Menjawab cepat: lokasi, fokus umum, dan apa yang user dapat harapkan.
 - klaim testimoni tanpa consent.
 
 ### UI
+
 Boleh berupa compact trust strip, 3–4 info blocks, atau statement row. Hindari card spam.
 
 ---
@@ -260,9 +268,11 @@ Boleh berupa compact trust strip, 3–4 info blocks, atau statement row. Hindari
 ## LP-S04 — Services / Conditions Context
 
 ### Objective
+
 Membantu user mengenali konteks keluhan/rehabilitasi yang relevan tanpa menjadikannya self-diagnosis tool.
 
 ### Current public-content inspiration
+
 Tema yang sebelumnya ditemukan pada konten publik Hafta dapat digunakan sebagai inspirasi editorial saja, misalnya:
 
 - ankle sprain/cedera pergelangan kaki;
@@ -281,7 +291,7 @@ type ServiceCard = {
   shortDescription: string;
   icon?: string;
   href?: string;
-  status: "CONFIRMED" | "PLACEHOLDER";
+  status: 'CONFIRMED' | 'PLACEHOLDER';
 };
 ```
 
@@ -297,6 +307,7 @@ type ServiceCard = {
 ## LP-S05 — How Therapy Works
 
 ### Objective
+
 Mengurangi ketidakpastian pasien baru.
 
 ### Baseline steps
@@ -311,6 +322,7 @@ Mengurangi ketidakpastian pasien baru.
 Terminology final harus mengikuti workflow Hafta.
 
 ### UI
+
 Gunakan timeline/stepper yang tetap mudah dibaca di mobile. Jangan memakai animasi yang membuat step sulit dibaca.
 
 ### Copy rules
@@ -324,6 +336,7 @@ Gunakan timeline/stepper yang tetap mudah dibaca di mobile. Jangan memakai anima
 ## LP-S06 — About Hafta
 
 ### Objective
+
 Memberi identitas dan alasan keberadaan Hafta.
 
 ### Required client content
@@ -335,6 +348,7 @@ Memberi identitas dan alasan keberadaan Hafta.
 - service philosophy yang sudah disetujui.
 
 ### Placeholder behavior
+
 Jika content belum diberikan, gunakan fixture copy yang jelas ditandai development-only. Jangan deploy lorem ipsum atau invented history.
 
 ---
@@ -342,6 +356,7 @@ Jika content belum diberikan, gunakan fixture copy yang jelas ditandai developme
 ## LP-S07 — Therapist Team
 
 ### Objective
+
 Membangun trust terhadap tenaga yang memberikan layanan.
 
 ### Therapist card allowed fields
@@ -366,6 +381,7 @@ short_bio: approved, optional
 ## LP-S08 — Patient Portal Preview
 
 ### Objective
+
 Menjelaskan fungsi digital system Hafta dan mengarahkan patient existing untuk login.
 
 ### Key benefits to communicate
@@ -385,6 +401,7 @@ Menjelaskan fungsi digital system Hafta dan mengarahkan patient existing untuk l
 - unrestricted access to internal therapist notes.
 
 ### Visual
+
 Boleh menampilkan dashboard mock preview dengan **dummy data only**.
 
 ### CTA
@@ -406,6 +423,7 @@ Jika registration policy berubah menjadi invitation-only, CTA harus mengikuti po
 ## LP-S09 — Education / Insights
 
 ### Objective
+
 Menunjukkan edukasi yang relevan dan memberi jalur dari Instagram ke website.
 
 ### V1 options
@@ -421,6 +439,7 @@ Option B — future CMS/article pages:
 - `/edukasi/[slug]`.
 
 ### Rule
+
 Jangan membuat Instagram scraping yang rapuh atau melanggar access model hanya untuk homepage. Konten bisa dikurasi manual pada v1.
 
 ---
@@ -428,6 +447,7 @@ Jangan membuat Instagram scraping yang rapuh atau melanggar access model hanya u
 ## LP-S10 — Recovery Story / Testimonial
 
 ### Status
+
 Optional. Hidden until consent and content approval complete.
 
 ### Requirement
@@ -497,6 +517,7 @@ Primary actions:
 - optional `Buat Janji`.
 
 ### Security/privacy
+
 Landing contact form is not required for v1. Avoid collecting health complaint via unprotected generic contact form.
 
 ---
@@ -504,6 +525,7 @@ Landing contact form is not required for v1. Avoid collecting health complaint v
 ## LP-S13 — Final CTA
 
 ### Objective
+
 Memberi satu keputusan jelas setelah user memahami layanan.
 
 Candidate:
@@ -534,6 +556,7 @@ Copy final requires approval.
 - optional Instagram link.
 
 ### Production gate
+
 `/privacy` dan `/terms` tidak boleh dead link ketika registration/data collection production diaktifkan.
 
 ---

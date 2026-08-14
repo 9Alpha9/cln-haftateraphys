@@ -1,17 +1,19 @@
-import type { Metadata } from "next";
-import { Poppins } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Poppins } from 'next/font/google';
+import { BackToTop } from '@/components/ui/back-to-top';
+import { FloatingWhatsApp } from '@/components/ui/floating-whatsapp';
+import './globals.css';
 
 const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-poppins",
-  display: "swap",
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-poppins',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: "Hafta Fisioterapi",
-  description: "Sistem manajemen klinik fisioterapi",
+  title: 'Hafta Fisioterapi',
+  description: 'Sistem manajemen klinik fisioterapi',
 };
 
 export default function RootLayout({
@@ -20,9 +22,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={poppins.variable} suppressHydrationWarning>
+    <html lang="id" className={poppins.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
         {children}
+        <BackToTop />
+        <FloatingWhatsApp />
       </body>
     </html>
   );

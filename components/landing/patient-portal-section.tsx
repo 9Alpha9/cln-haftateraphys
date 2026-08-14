@@ -1,32 +1,32 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { Container } from "@/components/container";
-import { Section } from "@/components/section";
-import { ScrollAnimation } from "@/components/ui/scroll-animation";
-import { ClipboardCheck, Eye, History, Shield } from "lucide-react";
+import Link from 'next/link';
+import Image from 'next/image';
+import { Container } from '@/components/container';
+import { Section } from '@/components/section';
+import { ScrollAnimation } from '@/components/ui/scroll-animation';
+import { ClipboardCheck, Eye, History, Shield } from 'lucide-react';
 
 const features = [
   {
     icon: ClipboardCheck,
-    title: "Lengkapi Data Diri",
-    description: "Isi informasi pasien secara terstruktur sebelum sesi terapi",
+    title: 'Lengkapi Data Diri',
+    description: 'Isi informasi pasien secara terstruktur sebelum sesi terapi',
   },
   {
     icon: Eye,
-    title: "Lihat Status",
-    description: "Pantau status intake dan data yang telah Anda submit",
+    title: 'Lihat Status',
+    description: 'Pantau status intake dan data yang telah Anda submit',
   },
   {
     icon: History,
-    title: "Riwayat Terapi",
-    description: "Akses informasi terapi yang telah difinalisasi oleh therapist",
+    title: 'Riwayat Terapi',
+    description: 'Akses informasi terapi yang telah difinalisasi oleh therapist',
   },
   {
     icon: Shield,
-    title: "Keamanan Akun",
-    description: "Kelola keamanan akun dan preferensi privasi Anda",
+    title: 'Keamanan Akun',
+    description: 'Kelola keamanan akun dan preferensi privasi Anda',
   },
 ];
 
@@ -37,12 +37,10 @@ export function PatientPortalSection() {
         <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-12">
           <ScrollAnimation direction="left">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight md:text-3xl">
-                Patient Portal
-              </h2>
+              <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Patient Portal</h2>
               <p className="mt-3 text-white/80">
-                Akses informasi dan data terapi Anda secara online. Patient Portal
-                memudahkan Anda untuk memantau perkembangan pemulihan.
+                Akses informasi dan data terapi Anda secara online. Patient Portal memudahkan Anda untuk memantau
+                perkembangan pemulihan.
               </p>
 
               <div className="mt-8 grid gap-4 sm:grid-cols-2 py-10">
@@ -53,9 +51,7 @@ export function PatientPortalSection() {
                     </div>
                     <div>
                       <h3 className="font-medium">{feature.title}</h3>
-                      <p className="mt-1 text-sm text-white/70">
-                        {feature.description}
-                      </p>
+                      <p className="mt-1 text-sm text-white/70">{feature.description}</p>
                     </div>
                   </div>
                 ))}
@@ -85,6 +81,7 @@ export function PatientPortalSection() {
                   src="/images/portals/portals.png"
                   alt="Patient Portal"
                   fill
+                  sizes="(max-width: 1024px) 100vw, 38rem"
                   className="object-contain p-4"
                 />
               </div>

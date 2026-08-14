@@ -13,7 +13,6 @@ source_of_truth_for:
 
 > **UI implementation contract:** read `docs/DESIGN-REFERENCES.md`, `docs/DESIGN-SYSTEM.md`, and `docs/MOBILE-FIRST-STRATEGY.md`. Build and pass the mobile version first; desktop enhancement is not allowed before Mobile Gate passes.
 
-
 ## 1. Role
 
 `USER` represents patient account in v1.
@@ -79,6 +78,7 @@ Halo, {firstName}
 No sensitive complaint in greeting.
 
 #### B. Next action card
+
 Priority-driven:
 
 ```text
@@ -100,12 +100,15 @@ Status:
 - Accepted
 
 #### D. Recent history
+
 Show only patient-visible records.
 
 #### E. Assigned therapist
+
 Only if assignment and therapist profile are patient-visible.
 
 #### F. Privacy note
+
 Short reminder that portal contains personal/health information; logout on shared devices.
 
 ### Avoid
@@ -156,6 +159,7 @@ Server resolves patient profile from authenticated user ID. Do not accept arbitr
 ```
 
 ### Goal
+
 Collect structured patient-submitted information before clinical assessment.
 
 ### Form architecture
@@ -190,6 +194,7 @@ Before submit, explain:
 - patient can no longer freely edit submitted fields unless revision is requested, according to final product rule.
 
 ### Autosave
+
 Optional, not mandatory. If implemented:
 
 - reliable;
@@ -207,6 +212,7 @@ Optional, not mandatory. If implemented:
 ```
 
 ### Purpose
+
 Allow patient to review selected finalized records from their own journey.
 
 ### Possible visible types

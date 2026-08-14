@@ -15,7 +15,6 @@ source_of_truth_for:
 
 > **UI implementation contract:** read `docs/DESIGN-REFERENCES.md`, `docs/DESIGN-SYSTEM.md`, and `docs/MOBILE-FIRST-STRATEGY.md`. Build and pass the mobile version first; desktop enhancement is not allowed before Mobile Gate passes.
 
-
 ## 1. Principle
 
 SUPER_ADMIN is system governance role, not automatically a clinical omniscient role.
@@ -93,6 +92,7 @@ Avoid exposing aggregate clinical information merely because role is SUPER_ADMIN
 ## 5. Staff management
 
 ### Purpose
+
 Manage staff identity/subtype, account state, and operational permissions.
 
 Candidate fields:
@@ -137,6 +137,7 @@ Fine-grained permission mapping can be managed separately.
 - server rejects unknown permission keys.
 
 ### Confirmation
+
 High-risk actions require explicit confirmation with impact summary.
 
 ## 7. Audit log viewer
@@ -148,6 +149,7 @@ High-risk actions require explicit confirmation with impact summary.
 ```
 
 ### Read-only
+
 Normal UI must not offer edit/delete.
 
 ### Filters
@@ -169,9 +171,11 @@ Normal UI must not offer edit/delete.
 - safe metadata.
 
 ### Sensitive data minimization
+
 Do not log/display full complaint, clinical narrative, password, token, cookie, document body, or secret.
 
 ### Export
+
 Audit export is separate privileged capability if ever enabled.
 
 ## 8. System settings

@@ -28,6 +28,7 @@ depends_on: [HF-TASK-003, HF-TASK-004]
 - documents only if feature enabled.
 
 ## Database
+
 Use canonical schema/migrations. Any schema change requires migration and doc review.
 
 ## Security tests
@@ -39,8 +40,8 @@ Use canonical schema/migrations. Any schema change requires migration and doc re
 - document ownership enforced.
 
 ## UX
-Mobile-first. Long intake form grouped into clear steps. Patient-facing status labels must be understandable.
 
+Mobile-first. Long intake form grouped into clear steps. Patient-facing status labels must be understandable.
 
 ## UI execution gates
 
@@ -56,4 +57,5 @@ If this task renders or changes UI:
 Do not start from a desktop screenshot and shrink it into mobile.
 
 ## Done when
+
 Acceptance criteria in USER page spec and authorization tests pass.

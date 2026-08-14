@@ -1,414 +1,293 @@
-"use client";
-
-import { useUserRole } from "@/hooks/use-user-role";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Link from 'next/link';
 import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
-} from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, LineChart, Line } from "recharts";
-import { Users, ClipboardCheck, FileText, Activity, Calendar, TrendingUp } from "lucide-react";
-import Link from "next/link";
+  ArrowRight,
+  CalendarPlus,
+  ClipboardList,
+  FileText,
+  LockKeyhole,
+  Settings,
+  ShieldCheck,
+  Users,
+} from 'lucide-react';
+import { requireSession } from '@/lib/auth/require-session';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { getDashboardNavigation } from '@/lib/permissions/dashboard-navigation';
+import { getCurrentPatientIntake } from '@/server/queries/patient-intakes';
+import { getDashboardStats } from '@/server/queries/dashboard-stats';
+import { DashboardCharts } from '@/components/dashboard/dashboard-charts';
+import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
+import { AppointmentCalendar } from '@/components/dashboard/appointment-calendar';
+import { getCalendarAppointments } from '@/server/queries/appointment-calendar';
+import { getIndonesianHolidays } from '@/server/queries/indonesian-holidays';
+import { getInternalCalendarEvents } from '@/server/queries/internal-calendar-events';
+import type { Role } from '@/lib/permissions';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-const ADMIN_ROLES = ["SUPER_ADMIN", "ADMIN", "THERAPIST", "STAFF"];
-
-const patientChartConfig = {
-  pasien: {
-    label: "Pasien Baru",
-    color: "hsl(var(--primary))",
-  },
-} satisfies ChartConfig;
-
-const intakeChartConfig = {
-  pending: {
-    label: "Menunggu",
-    color: "hsl(45, 93%, 47%)",
-  },
-  reviewed: {
-    label: "Ditinjau",
-    color: "hsl(142, 71%, 45%)",
-  },
-  rejected: {
-    label: "Ditolak",
-    color: "hsl(0, 84%, 60%)",
-  },
-} satisfies ChartConfig;
-
-const sessionChartConfig = {
-  selesai: {
-    label: "Selesai",
-    color: "hsl(142, 71%, 45%)",
-  },
-  terjadwal: {
-    label: "Terjadwal",
-    color: "hsl(var(--primary))",
-  },
-} satisfies ChartConfig;
-
-const patientMonthlyData = [
-  { bulan: "Jan", pasien: 4 },
-  { bulan: "Feb", pasien: 7 },
-  { bulan: "Mar", pasien: 5 },
-  { bulan: "Apr", pasien: 10 },
-  { bulan: "Mei", pasien: 8 },
-  { bulan: "Jun", pasien: 12 },
-];
-
-const intakeStatusData = [
-  { name: "Menunggu", value: 3, fill: "hsl(45, 93%, 47%)" },
-  { name: "Ditinjau", value: 5, fill: "hsl(142, 71%, 45%)" },
-  { name: "Ditolak", value: 1, fill: "hsl(0, 84%, 60%)" },
-];
-
-const sessionWeeklyData = [
-  { hari: "Sen", selesai: 4, terjadwal: 6 },
-  { hari: "Sel", selesai: 3, terjadwal: 5 },
-  { hari: "Rab", selesai: 6, terjadwal: 4 },
-  { hari: "Kam", selesai: 5, terjadwal: 7 },
-  { hari: "Jum", selesai: 2, terjadwal: 3 },
-];
-
-function AdminDashboard() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Dashboard Admin</h1>
-        <p className="text-muted-foreground">
-          Kelola pasien dan workflow klinis
-        </p>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Pasien</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">46</div>
-            <p className="text-xs text-muted-foreground">
-              +12 bulan ini
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Intake Review</CardTitle>
-            <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">3</div>
-            <p className="text-xs text-muted-foreground">
-              Menunggu review
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Draft Assessment</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">2</div>
-            <p className="text-xs text-muted-foreground">
-              Perlu diselesaikan
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Sesi Hari Ini</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">5</div>
-            <p className="text-xs text-muted-foreground">
-              3 selesai, 2 terjadwal
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Pasien Baru per Bulan
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={patientChartConfig} className="h-[250px]">
-              <BarChart data={patientMonthlyData}>
-                <XAxis dataKey="bulan" />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="pasien" fill="var(--color-pasien)" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <ClipboardCheck className="h-4 w-4" />
-              Status Intake
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ChartContainer config={intakeChartConfig} className="h-[250px]">
-              <PieChart>
-                <Pie
-                  data={intakeStatusData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={90}
-                  dataKey="value"
-                  label={({ name, value }) => `${name}: ${value}`}
-                >
-                  {intakeStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.fill} />
-                  ))}
-                </Pie>
-                <ChartTooltip content={<ChartTooltipContent />} />
-              </PieChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-4 w-4" />
-            Sesi Terapi Minggu Ini
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={sessionChartConfig} className="h-[250px]">
-            <LineChart data={sessionWeeklyData}>
-              <XAxis dataKey="hari" />
-              <YAxis />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Line type="monotone" dataKey="selesai" stroke="var(--color-selesai)" strokeWidth={2} dot={{ fill: "var(--color-selesai)" }} />
-              <Line type="monotone" dataKey="terjadwal" stroke="var(--color-terjadwal)" strokeWidth={2} dot={{ fill: "var(--color-terjadwal)" }} strokeDasharray="5 5" />
-            </LineChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Akses Cepat</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <Link
-                href="/dashboard/patients"
-                className="flex items-center gap-3 rounded-md p-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-              >
-                <Users className="h-4 w-4 text-muted-foreground" />
-                Daftar Pasien
-              </Link>
-              <Link
-                href="/dashboard/users"
-                className="flex items-center gap-3 rounded-md p-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-              >
-                <Users className="h-4 w-4 text-muted-foreground" />
-                Manajemen Pengguna
-              </Link>
-              <Link
-                href="/dashboard/audit-logs"
-                className="flex items-center gap-3 rounded-md p-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
-              >
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                Log Audit
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Activity Terbaru</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 h-2 w-2 rounded-full bg-green-500" />
-                <div>
-                  <p className="text-sm font-medium">Intake diterima</p>
-                  <p className="text-xs text-muted-foreground">Budi Santoso - 2 jam lalu</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 h-2 w-2 rounded-full bg-blue-500" />
-                <div>
-                  <p className="text-sm font-medium">Sesi terapi selesai</p>
-                  <p className="text-xs text-muted-foreground">Siti Aminah - 4 jam lalu</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 h-2 w-2 rounded-full bg-amber-500" />
-                <div>
-                  <p className="text-sm font-medium">Assessment baru</p>
-                  <p className="text-xs text-muted-foreground">Ahmad Rizki - kemarin</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-const treatmentProgressData = [
-  { minggu: "M1", skor: 30 },
-  { minggu: "M2", skor: 45 },
-  { minggu: "M3", skor: 55 },
-  { minggu: "M4", skor: 70 },
-  { minggu: "M5", skor: 80 },
-  { minggu: "M6", skor: 85 },
-];
-
-const treatmentChartConfig = {
-  skor: {
-    label: "Skor Pemulihan",
-    color: "hsl(var(--primary))",
-  },
-} satisfies ChartConfig;
-
-function PatientDashboard() {
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Ringkasan</h1>
-        <p className="text-muted-foreground">
-          Pantau perkembangan terapi Anda
-        </p>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Sesi Berikutnya</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">Kam</div>
-            <p className="text-xs text-muted-foreground">
-              14 Agustus 2026, 10:00 WIB
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Total Sesi</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12</div>
-            <p className="text-xs text-muted-foreground">
-              6 selesai, 6 tersisa
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Skor Pemulihan</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">85%</div>
-            <p className="text-xs text-emerald-600">
-              +15% dari minggu lalu
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
-            Progress Pemulihan
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={treatmentChartConfig} className="h-[250px]">
-            <LineChart data={treatmentProgressData}>
-              <XAxis dataKey="minggu" />
-              <YAxis domain={[0, 100]} />
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Line type="monotone" dataKey="skor" stroke="var(--color-skor)" strokeWidth={2} dot={{ fill: "var(--color-skor)" }} />
-            </LineChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Form Awal</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-3 rounded-md border p-3">
-              <div className="h-2 w-2 rounded-full bg-green-500" />
-              <div>
-                <p className="text-sm font-medium">Sudah mengisi form awal</p>
-                <p className="text-xs text-muted-foreground">Terakhir diperbarui: 1 Agustus 2026</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Riwayat Terapi</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 h-2 w-2 rounded-full bg-green-500" />
-                <div>
-                  <p className="text-sm font-medium">Sesi #6 selesai</p>
-                  <p className="text-xs text-muted-foreground">10 Agustus 2026 - Penguatan otot</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 h-2 w-2 rounded-full bg-green-500" />
-                <div>
-                  <p className="text-sm font-medium">Sesi #5 selesai</p>
-                  <p className="text-xs text-muted-foreground">3 Agustus 2026 - Peregangan</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 h-2 w-2 rounded-full bg-green-500" />
-                <div>
-                  <p className="text-sm font-medium">Sesi #4 selesai</p>
-                  <p className="text-xs text-muted-foreground">27 Juli 2026 - Mobilisasi</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-export default function DashboardPage() {
-  const { role } = useUserRole();
-
-  if (ADMIN_ROLES.includes(role)) {
-    return <AdminDashboard />;
+const adminOverview: Record<
+  Exclude<Role, 'USER'>,
+  {
+    title: string;
+    description: string;
+    cards: { label: string; description: string; href: string; icon: typeof Users }[];
   }
+> = {
+  SUPER_ADMIN: {
+    title: 'Ringkasan Administrasi',
+    description: 'Kelola akun, kontrol akses, audit, dan konfigurasi sistem Hafta.',
+    cards: [
+      { label: 'Pengguna', description: 'Tinjau akun dan status akses.', href: '/dashboard/users', icon: Users },
+      {
+        label: 'Log Audit',
+        description: 'Pantau aktivitas administratif.',
+        href: '/dashboard/audit-logs',
+        icon: FileText,
+      },
+      { label: 'Pengaturan', description: 'Kelola konfigurasi sistem.', href: '/dashboard/settings', icon: Settings },
+    ],
+  },
+  ADMIN: {
+    title: 'Ringkasan Operasional',
+    description: 'Pantau workflow pasien dan tindak lanjuti aktivitas operasional yang menjadi tanggung jawab Anda.',
+    cards: [
+      {
+        label: 'Pasien',
+        description: 'Akses pasien sesuai scope yang ditugaskan.',
+        href: '/dashboard/patients',
+        icon: Users,
+      },
+      {
+        label: 'Intake',
+        description: 'Tinjau informasi awal yang memerlukan tindak lanjut.',
+        href: '/dashboard/intake',
+        icon: ClipboardList,
+      },
+      { label: 'Pengguna', description: 'Kelola akun sesuai permission.', href: '/dashboard/users', icon: Users },
+    ],
+  },
+  THERAPIST: {
+    title: 'Ringkasan Terapis',
+    description: 'Akses hanya pasien dan pekerjaan klinis yang ditugaskan kepada Anda.',
+    cards: [
+      {
+        label: 'Pasien Saya',
+        description: 'Lihat pasien dengan assignment aktif.',
+        href: '/dashboard/patients',
+        icon: Users,
+      },
+      {
+        label: 'Intake',
+        description: 'Tinjau intake sesuai scope klinis.',
+        href: '/dashboard/intake',
+        icon: ClipboardList,
+      },
+    ],
+  },
+  STAFF: {
+    title: 'Ringkasan Staff',
+    description: 'Akses informasi administratif sesuai peran dan scope kerja Anda.',
+    cards: [
+      {
+        label: 'Pasien',
+        description: 'Kelola data administratif sesuai scope.',
+        href: '/dashboard/patients',
+        icon: Users,
+      },
+      { label: 'Pengguna', description: 'Tinjau akun sesuai permission.', href: '/dashboard/users', icon: Users },
+    ],
+  },
+};
 
-  return <PatientDashboard />;
+async function PatientDashboard({
+  userId,
+  calendarAppointments,
+  month,
+  holidays,
+  internalEvents,
+}: {
+  userId: string;
+  calendarAppointments: Awaited<ReturnType<typeof getCalendarAppointments>>;
+  month: string;
+  holidays: Awaited<ReturnType<typeof getIndonesianHolidays>>;
+  internalEvents: Awaited<ReturnType<typeof getInternalCalendarEvents>>;
+}) {
+  const intake = await getCurrentPatientIntake(userId);
+  const intakeCopy =
+    intake?.status === 'DRAFT'
+      ? {
+        title: 'Lanjutkan Form Awal',
+        description: 'Draft Form Awal Anda masih dapat dilengkapi.',
+        action: 'Lanjutkan Form Awal',
+      }
+      : intake?.status === 'NEEDS_REVISION'
+        ? {
+          title: 'Perbaiki Form Awal',
+          description: 'Tim Hafta meminta perbaikan pada Form Awal Anda.',
+          action: 'Perbaiki Form Awal',
+        }
+        : intake?.status === 'SUBMITTED' || intake?.status === 'UNDER_REVIEW'
+          ? {
+            title: 'Form Awal sedang ditinjau',
+            description: 'Data Anda telah dikirim dan sedang ditinjau oleh tim Hafta.',
+            action: 'Lihat Form Awal',
+          }
+          : intake?.status === 'ACCEPTED'
+            ? {
+              title: 'Form Awal diterima',
+              description: 'Informasi awal Anda telah diterima oleh tim Hafta.',
+              action: 'Lihat Form Awal',
+            }
+            : {
+              title: 'Mulai dari Form Awal',
+              description: 'Lengkapi informasi yang dibutuhkan sebelum proses berikutnya.',
+              action: 'Isi Form Awal',
+            };
+  const cards = [
+    {
+      label: 'Lengkapi Form Awal',
+      description: 'Berikan informasi awal untuk membantu persiapan layanan.',
+      href: '/dashboard/intake',
+      icon: ClipboardList,
+    },
+    {
+      label: 'Data Saya',
+      description: 'Perbarui informasi profil Anda bila diperlukan.',
+      href: '/dashboard/profile',
+      icon: Users,
+    },
+    {
+      label: 'Riwayat Terapi',
+      description: 'Lihat informasi yang sudah ditandai dapat dilihat pasien.',
+      href: '/dashboard/history',
+      icon: FileText,
+    },
+    {
+      label: 'Keamanan Akun',
+      description: 'Kelola keamanan dan sesi akun Anda.',
+      href: '/dashboard/security',
+      icon: LockKeyhole,
+    },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <p className="text-sm font-semibold text-primary">Patient Portal</p>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-foreground md:text-3xl">Ringkasan Anda</h1>
+        <p className="mt-2 max-w-2xl text-muted-foreground">
+          Kelola informasi awal, akses riwayat yang tersedia, dan jaga keamanan akun Anda.
+        </p>
+      </div>
+      <AppointmentCalendar
+        appointments={calendarAppointments}
+        initialMonth={month}
+        holidays={holidays}
+        internalEvents={internalEvents}
+      />
+      <Card className="border-primary/15 bg-primary/[0.03] shadow-sm">
+        <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="font-semibold text-foreground">{intakeCopy.title}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{intakeCopy.description}</p>
+          </div>
+          <Link
+            href="/dashboard/intake"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            {intakeCopy.action} <ArrowRight className="h-4 w-4" />
+          </Link>
+        </CardContent>
+      </Card>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {cards.map((card) => (
+          <Link
+            key={card.href}
+            href={card.href}
+            className="group rounded-xl border border-border bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+          >
+            <card.icon className="h-5 w-5 text-primary" />
+            <h2 className="mt-4 font-semibold text-foreground">{card.label}</h2>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{card.description}</p>
+            <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+              Buka <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ month?: string }> }) {
+  const { role, session } = await requireSession({ redirectToLogin: true });
+  const params = await searchParams;
+  const currentMonth = new Date();
+  const month = /^\d{4}-(0[1-9]|1[0-2])$/.test(params.month ?? '')
+    ? params.month!
+    : `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
+  const calendarAppointments = await getCalendarAppointments(month);
+  const holidays = await getIndonesianHolidays(Number(month.slice(0, 4)));
+  const internalEvents = await getInternalCalendarEvents(month);
+
+  if (role === 'USER')
+    return (
+      <PatientDashboard
+        userId={session.user.id}
+        calendarAppointments={calendarAppointments}
+        month={month}
+        holidays={holidays}
+        internalEvents={internalEvents}
+      />
+    );
+
+  const overview = adminOverview[role];
+  const allowedRoutes = new Set(getDashboardNavigation(role).map((item) => item.href));
+  const cards = overview.cards.filter((card) => allowedRoutes.has(card.href));
+  const showCharts = role === 'SUPER_ADMIN' || role === 'ADMIN' || role === 'THERAPIST';
+  const stats = showCharts ? await getDashboardStats() : null;
+
+  return (
+    <div className="mx-auto max-w-7xl space-y-6">
+      <DashboardPageHeader
+        title={overview.title}
+        description={overview.description}
+        breadcrumbs={[{ label: 'Dashboard' }]}
+      />
+      <Card className="border-primary/15 bg-primary/[0.03] shadow-sm">
+        <CardContent className="flex items-start gap-3 p-5">
+          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Menu dan data yang tampil disesuaikan dengan permission. Akses klinis tetap membutuhkan scope atau
+            assignment yang valid.
+          </p>
+        </CardContent>
+      </Card>
+      {stats ? <DashboardCharts initialStats={stats} /> : null}
+      <div className="space-y-3">
+        <div className="flex justify-end">
+          {hasPermission(role, PERMISSIONS.CALENDAR_EVENT_MANAGE) ? (
+            <Link href="/dashboard/calendar-events/new" className="inline-flex h-10 items-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-primary hover:bg-primary/5">
+              <CalendarPlus className="h-4 w-4" /> Tambah Event
+            </Link>
+          ) : null}
+        </div>
+        <AppointmentCalendar appointments={calendarAppointments} initialMonth={month} holidays={holidays} internalEvents={internalEvents} />
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {cards.map((card) => (
+          <Link
+            key={card.href}
+            href={card.href}
+            className="group rounded-xl border border-border bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md"
+          >
+            <card.icon className="h-5 w-5 text-primary" />
+            <h2 className="mt-4 font-semibold text-foreground">{card.label}</h2>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{card.description}</p>
+            <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary">
+              Buka <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </span>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
 }

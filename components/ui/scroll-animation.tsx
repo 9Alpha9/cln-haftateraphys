@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 
 interface ScrollAnimationProps {
   children: React.ReactNode;
   className?: string;
   delay?: number;
-  direction?: "up" | "down" | "left" | "right";
+  direction?: 'up' | 'down' | 'left' | 'right';
 }
 
 const directionMap = {
@@ -16,12 +16,7 @@ const directionMap = {
   right: { x: -40, y: 0 },
 };
 
-export function ScrollAnimation({
-  children,
-  className,
-  delay = 0,
-  direction = "up",
-}: ScrollAnimationProps) {
+export function ScrollAnimation({ children, className, delay = 0, direction = 'up' }: ScrollAnimationProps) {
   const offset = directionMap[direction];
 
   return (
@@ -29,7 +24,7 @@ export function ScrollAnimation({
       className={className}
       initial={{ opacity: 0, ...offset }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
+      viewport={{ once: true, margin: '-100px' }}
       transition={{
         duration: 0.6,
         delay,

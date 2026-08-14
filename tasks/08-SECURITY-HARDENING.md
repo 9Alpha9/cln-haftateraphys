@@ -50,4 +50,5 @@ Do not launch patient data collection if:
 - storage bucket public unintentionally.
 
 ## Done when
+
 Human security review + automated gates + UAT pass.
