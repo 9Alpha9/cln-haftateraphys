@@ -51,9 +51,14 @@ export default async function PatientsPage({
           </p>
         </div>
         {canCreate ? (
-          <Link href="/dashboard/patients/new" className={cn(buttonVariants({ size: 'lg' }))}>
-            <Plus /> Tambah Pasien
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard/patients/new" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }))}>
+              Hubungkan Akun
+            </Link>
+            <Link href="/dashboard/users/add" className={cn(buttonVariants({ size: 'lg' }))}>
+              <Plus /> Daftarkan Pasien
+            </Link>
+          </div>
         ) : null}
       </div>
       <Card>

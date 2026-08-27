@@ -18,7 +18,7 @@ export const patientIntakes = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     patientId: uuid('patient_id')
       .notNull()
-      .references(() => patients.id, { onDelete: 'restrict' }),
+      .references(() => patients.id, { onDelete: 'cascade' }),
     version: integer('version').default(1).notNull(),
     status: intakeStatusEnum('status').default('DRAFT').notNull(),
     chiefComplaint: text('chief_complaint'),
@@ -36,7 +36,7 @@ export const patientIntakes = pgTable(
     patientGoal: text('patient_goal'),
     dataAccuracyAcknowledged: integer('data_accuracy_acknowledged').default(0).notNull(),
     reviewMessage: text('review_message'),
-    reviewedBy: uuid('reviewed_by').references(() => users.id, { onDelete: 'restrict' }),
+    reviewedBy: uuid('reviewed_by').references(() => users.id, { onDelete: 'set null' }),
     reviewedAt: timestamp('reviewed_at', { withTimezone: true }),
     submittedAt: timestamp('submitted_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),

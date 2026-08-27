@@ -8,10 +8,10 @@ export const appointmentNotificationReads = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     appointmentId: uuid('appointment_id')
       .notNull()
-      .references(() => appointments.id, { onDelete: 'restrict' }),
+      .references(() => appointments.id, { onDelete: 'cascade' }),
     userId: uuid('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'restrict' }),
+      .references(() => users.id, { onDelete: 'cascade' }),
     readAt: timestamp('read_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [

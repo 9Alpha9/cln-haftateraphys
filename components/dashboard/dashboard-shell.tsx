@@ -4,7 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, Settings, User, LogOut, X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SidebarAccountMenu } from '@/components/dashboard/sidebar-account-menu';
 import { cn } from '@/lib/utils';
@@ -12,18 +12,27 @@ import { getRoleColor, getRoleLabel } from '@/lib/role-utils';
 import { getDashboardNavigation } from '@/lib/permissions/dashboard-navigation';
 import { signOut } from '@/lib/auth/client';
 import { NotificationBell, type NotificationView } from '@/components/dashboard/notification-bell';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import type { Role } from '@/lib/permissions/roles';
 
 export function AdminDashboardShell({
   children,
   role,
   userName,
+  userEmail,
   unreadCount = 0,
   recentNotifications = [],
 }: {
   children: React.ReactNode;
   role: Role;
   userName?: string;
+  userEmail?: string;
   unreadCount?: number;
   recentNotifications?: NotificationView[];
 }) {
@@ -97,10 +106,10 @@ export function AdminDashboardShell({
                         <Link
                           href={item.href}
                           onClick={() => setSidebarOpen(false)}
-                          className={cn(
+                           className={cn(
                             'flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors',
                             active
-                              ? ' text-primary-foreground shadow-md shadow-primary/10 bg-gradient-to-r from-primary to-slate-800'
+                              ? 'bg-primary text-primary-foreground shadow-md shadow-primary/10'
                               : 'text-slate-600 hover:bg-primary/5 hover:text-primary',
                           )}
                         >
@@ -129,21 +138,49 @@ export function AdminDashboardShell({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b border-border bg-white/95 px-6 backdrop-blur-md lg:px-8 shadow-sm">
+        <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b border-border bg-white px-6 lg:px-8 shadow-sm">
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
           </Button>
           <div className="min-w-0 flex-1">
-            <h1 className="text-lg font-bold text-foreground tracking-tight">Selamat Pagi, {userName?.split(' ')[0] || 'Admin'}</h1>
-            <p className="hidden text-xs text-muted-foreground font-semibold sm:block mt-0.5">
+            <h1 className="text-lg font-bold text-foreground tracking-tight">
+              {userName || 'Admin'}
+            </h1>
+            <p className="hidden text-xs text-muted-foreground font-medium sm:block mt-0.5">
               {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </p>
           </div>
           <div className="flex items-center gap-4">
             <NotificationBell unreadCount={unreadCount} initialNotifications={recentNotifications} />
-            <span className={cn('hidden rounded-full px-3 py-1 text-xs font-semibold sm:inline-flex border', getRoleColor(role))}>
-              {getRoleLabel(role)}
-            </span>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center gap-3 rounded-xl p-1.5 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                  {userName?.[0]?.toUpperCase() ?? 'A'}
+                </span>
+                <div className="hidden min-w-0 flex-col text-left sm:flex">
+                  <span className="truncate text-sm font-bold text-foreground">{userName || 'Administrator'}</span>
+                  <span className="truncate text-xs text-muted-foreground">@{userEmail || 'admin'}</span>
+                </div>
+                <ChevronDown className="hidden h-4 w-4 shrink-0 text-muted-foreground sm:block" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="px-3 py-2">
+                  <p className="text-sm font-bold text-foreground">{userName || 'Administrator'}</p>
+                  <p className="text-xs text-muted-foreground">@{userEmail || 'admin'}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => goTo('/dashboard/profile')}>
+                  <User className="h-4 w-4" /> Profil
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => goTo('/dashboard/settings')}>
+                  <Settings className="h-4 w-4" /> Pengaturan
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
+                  <LogOut className="h-4 w-4" /> Keluar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
         <main className="flex-1 p-6 md:p-8">

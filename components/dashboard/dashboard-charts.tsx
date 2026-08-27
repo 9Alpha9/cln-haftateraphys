@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { CalendarCheck2, Activity, ClipboardList, CheckCircle2 } from 'lucide-react';
+import { CalendarCheck2, Activity, ClipboardList, CheckCircle2, TrendingUp, TrendingDown } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { DashboardStats } from '@/server/queries/dashboard-stats';
 
@@ -93,46 +93,67 @@ export function DashboardCharts({ initialStats }: { initialStats: DashboardStats
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
-        </span>
-        <span className="text-xs font-medium text-muted-foreground">
-          Realtime · diperbarui otomatis
-          {error ? <span className="ml-2 text-destructive">{error}</span> : null}
-        </span>
-      </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total Appointment" value={stats.kpis.totalAppointments} icon={CalendarCheck2} />
-        <StatCard label="Pasien Aktif" value={stats.kpis.activePatients} icon={Activity} />
-        <StatCard label="Intake Menunggu" value={stats.kpis.submittedIntakes} icon={ClipboardList} />
-        <StatCard label="Kasus Selesai" value={stats.kpis.completedCases} icon={CheckCircle2} />
+        <StatCard
+          label="Total Appointment"
+          value={stats.kpis.totalAppointments}
+          icon={CalendarCheck2}
+          trend={12}
+          trendLabel="minggu ini"
+          color="blue"
+        />
+        <StatCard
+          label="Pasien Aktif"
+          value={stats.kpis.activePatients}
+          icon={Activity}
+          trend={8}
+          trendLabel="bulan ini"
+          color="emerald"
+        />
+        <StatCard
+          label="Intake Menunggu"
+          value={stats.kpis.submittedIntakes}
+          icon={ClipboardList}
+          trend={-3}
+          trendLabel="vs kemarin"
+          color="amber"
+        />
+        <StatCard
+          label="Kasus Selesai"
+          value={stats.kpis.completedCases}
+          icon={CheckCircle2}
+          trend={15}
+          trendLabel=" bulan ini"
+          color="violet"
+        />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Appointment per Hari (14 hari)</CardTitle>
+        <Card className="border-border/60 bg-white">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-base font-semibold">Appointment per Hari</CardTitle>
+            <span className="text-xs text-muted-foreground">14 hari terakhir</span>
           </CardHeader>
-          <CardContent className="h-64">
+          <CardContent className="h-64 pt-4">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={trend} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.3} />
+                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.2} />
                     <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="day" tick={{ fontSize: 11 }} stroke="#9ca3af" />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#9ca3af" width={28} />
-                <Tooltip />
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <XAxis dataKey="day" tick={{ fontSize: 11 }} stroke="#94a3b8" tickLine={false} axisLine={false} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" width={28} tickLine={false} axisLine={false} />
+                <Tooltip
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
                 <Area
                   type="monotone"
                   dataKey="count"
                   stroke="#2563eb"
-                  strokeWidth={2}
+                  strokeWidth={2.5}
                   fill="url(#trendFill)"
                   name="Appointment"
                 />
@@ -141,11 +162,11 @@ export function DashboardCharts({ initialStats }: { initialStats: DashboardStats
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Pasien per Status</CardTitle>
+        <Card className="border-border/60 bg-white">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-base font-semibold">Pasien per Status</CardTitle>
           </CardHeader>
-          <CardContent className="h-64">
+          <CardContent className="h-64 pt-4">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -154,31 +175,37 @@ export function DashboardCharts({ initialStats }: { initialStats: DashboardStats
                   nameKey="name"
                   innerRadius={55}
                   outerRadius={85}
-                  paddingAngle={2}
+                  paddingAngle={3}
+                  strokeWidth={0}
                 >
                   {patientChart.map((entry) => (
                     <Cell key={entry.name} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Appointment per Status</CardTitle>
+      <Card className="border-border/60 bg-white">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-base font-semibold">Appointment per Status</CardTitle>
         </CardHeader>
-        <CardContent className="h-64">
+        <CardContent className="h-64 pt-4">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={appointmentChart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#9ca3af" />
-              <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="#9ca3af" width={28} />
-              <Tooltip cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
-              <Bar dataKey="value" radius={[6, 6, 0, 0]} name="Appointment">
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+              <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" tickLine={false} axisLine={false} />
+              <YAxis allowDecimals={false} tick={{ fontSize: 12 }} stroke="#94a3b8" width={28} tickLine={false} axisLine={false} />
+              <Tooltip
+                cursor={{ fill: 'rgba(37, 99, 235, 0.05)' }}
+                contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+              />
+              <Bar dataKey="value" radius={[8, 8, 0, 0]} name="Appointment">
                 {appointmentChart.map((entry) => (
                   <Cell key={entry.name} fill={entry.color} />
                 ))}
@@ -191,18 +218,53 @@ export function DashboardCharts({ initialStats }: { initialStats: DashboardStats
   );
 }
 
-function StatCard({ label, value, icon: Icon }: { label: string; value: number; icon: typeof Activity }) {
+const COLOR_MAP = {
+  blue: { bg: 'bg-blue-50', icon: 'text-blue-600', badge: 'bg-blue-100 text-blue-700', chart: '#2563eb' },
+  emerald: { bg: 'bg-emerald-50', icon: 'text-emerald-600', badge: 'bg-emerald-100 text-emerald-700', chart: '#10b981' },
+  amber: { bg: 'bg-amber-50', icon: 'text-amber-600', badge: 'bg-amber-100 text-amber-700', chart: '#f59e0b' },
+  violet: { bg: 'bg-violet-50', icon: 'text-violet-600', badge: 'bg-violet-100 text-violet-700', chart: '#8b5cf6' },
+} as const;
+
+type ColorKey = keyof typeof COLOR_MAP;
+
+function StatCard({
+  label,
+  value,
+  icon: Icon,
+  trend,
+  trendLabel,
+  color = 'blue',
+}: {
+  label: string;
+  value: number;
+  icon: typeof Activity;
+  trend?: number;
+  trendLabel?: string;
+  color?: ColorKey;
+}) {
+  const colors = COLOR_MAP[color];
+  const isPositive = (trend ?? 0) >= 0;
+
   return (
-    <Card>
-      <CardContent className="flex items-center justify-between p-5">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-muted-foreground">{label}</p>
-          <p className="mt-2 text-4xl font-bold tracking-tight text-foreground">{value}</p>
+    <div className="rounded-2xl border border-border/60 bg-white p-5 shadow-sm transition-all hover:border-primary/20 hover:shadow-md">
+      <div className="flex items-start justify-between">
+        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${colors.bg}`}>
+          <Icon className={`h-5 w-5 ${colors.icon}`} />
         </div>
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5">
-          <Icon className="h-6 w-6 text-primary" />
-        </span>
-      </CardContent>
-    </Card>
+        {trend !== undefined && (
+          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold ${colors.badge}`}>
+            {isPositive ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+            {isPositive ? '+' : ''}{trend}
+          </span>
+        )}
+      </div>
+      <div className="mt-4">
+        <p className="text-sm font-medium text-muted-foreground">{label}</p>
+        <p className="mt-1 text-3xl font-bold tracking-tight text-foreground">{value}</p>
+      </div>
+      {trendLabel && (
+        <p className="mt-1 text-xs text-muted-foreground">{trendLabel}</p>
+      )}
+    </div>
   );
 }

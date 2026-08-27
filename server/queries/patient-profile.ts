@@ -7,9 +7,13 @@ export async function getCurrentPatientProfile(userId: string) {
   const [profile] = await db
     .select({
       fullName: patients.fullName,
+      gender: patients.gender,
+      medicalRecordNumber: patients.medicalRecordNumber,
       dateOfBirth: patients.dateOfBirth,
       occupation: patients.occupation,
       addressLine: patients.addressLine,
+      addressProvince: patients.addressProvince,
+      addressCity: patients.addressCity,
       emergencyContactName: patients.emergencyContactName,
       emergencyContactRelationship: patients.emergencyContactRelationship,
       emergencyContactPhone: patients.emergencyContactPhone,

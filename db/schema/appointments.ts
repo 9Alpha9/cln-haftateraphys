@@ -25,10 +25,10 @@ export const appointments = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     patientId: uuid('patient_id')
       .notNull()
-      .references(() => patients.id, { onDelete: 'restrict' }),
+      .references(() => patients.id, { onDelete: 'cascade' }),
     therapistId: uuid('therapist_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'restrict' }),
+      .references(() => users.id, { onDelete: 'cascade' }),
     scheduledDate: timestamp('scheduled_date', { mode: 'string', withTimezone: false }).notNull(),
     startTime: text('start_time').notNull(),
     durationMinutes: integer('duration_minutes').default(60).notNull(),
@@ -39,7 +39,7 @@ export const appointments = pgTable(
     rescheduledFromId: uuid('rescheduled_from_id'),
     createdBy: uuid('created_by')
       .notNull()
-      .references(() => users.id, { onDelete: 'restrict' }),
+      .references(() => users.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },

@@ -12,12 +12,14 @@ export function DashboardShellRouter({
   children,
   role,
   userName,
+  userEmail,
   unreadCount,
   recentNotifications,
 }: {
   children: React.ReactNode;
   role: Role;
   userName?: string;
+  userEmail?: string;
   unreadCount?: number;
   recentNotifications?: NotificationView[];
 }) {
@@ -26,14 +28,14 @@ export function DashboardShellRouter({
 
   if (ADMIN_ROLES.includes(role)) {
     return (
-      <AdminDashboardShell role={role} userName={userName} unreadCount={unreadCount} recentNotifications={recentNotifications}>
+      <AdminDashboardShell role={role} userName={userName} userEmail={userEmail} unreadCount={unreadCount} recentNotifications={recentNotifications}>
         {children}
       </AdminDashboardShell>
     );
   }
 
   return (
-    <PatientDashboardShell role={role} userName={userName} unreadCount={unreadCount} recentNotifications={recentNotifications}>
+    <PatientDashboardShell role={role} userName={userName} userEmail={userEmail} unreadCount={unreadCount} recentNotifications={recentNotifications}>
       {children}
     </PatientDashboardShell>
   );

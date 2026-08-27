@@ -34,9 +34,13 @@ export async function updateCurrentPatientProfile(input: PatientProfileInput) {
         .update(patients)
         .set({
           fullName: data.fullName,
+          gender: data.gender ?? 'MALE',
+          medicalRecordNumber: toNullable(data.medicalRecordNumber),
           dateOfBirth: data.dateOfBirth ? new Date(`${data.dateOfBirth}T00:00:00.000Z`) : null,
           occupation: toNullable(data.occupation),
           addressLine: toNullable(data.addressLine),
+          addressProvince: toNullable(data.addressProvince),
+          addressCity: toNullable(data.addressCity),
           emergencyContactName: toNullable(data.emergencyContactName),
           emergencyContactRelationship: toNullable(data.emergencyContactRelationship),
           emergencyContactPhone: toNullable(data.emergencyContactPhone),
@@ -53,9 +57,13 @@ export async function updateCurrentPatientProfile(input: PatientProfileInput) {
       await tx.insert(patients).values({
         userId: session.user.id,
         fullName: data.fullName,
+        gender: data.gender ?? 'MALE',
+        medicalRecordNumber: toNullable(data.medicalRecordNumber),
         dateOfBirth: data.dateOfBirth ? new Date(`${data.dateOfBirth}T00:00:00.000Z`) : null,
         occupation: toNullable(data.occupation),
         addressLine: toNullable(data.addressLine),
+        addressProvince: toNullable(data.addressProvince),
+        addressCity: toNullable(data.addressCity),
         emergencyContactName: toNullable(data.emergencyContactName),
         emergencyContactRelationship: toNullable(data.emergencyContactRelationship),
         emergencyContactPhone: toNullable(data.emergencyContactPhone),

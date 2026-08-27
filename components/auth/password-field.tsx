@@ -44,17 +44,16 @@ export function PasswordField({
           disabled={disabled}
           className="h-10 pr-10"
         />
-        <Button
+        <button
           type="button"
-          variant="ghost"
-          size="icon-sm"
-          className="absolute right-1 top-1/2 -translate-y-1/2"
           tabIndex={-1}
           onClick={() => setVisible((v) => !v)}
           aria-label={visible ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+          className="absolute right-1 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-[min(var(--radius-md),12px)] text-muted-foreground transition-none hover:bg-muted hover:text-foreground cursor-pointer"
+          style={{ transition: 'none' }}
         >
           {visible ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}
-        </Button>
+        </button>
       </div>
     </div>
   );

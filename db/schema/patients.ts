@@ -13,6 +13,8 @@ export const patientCaseStatusEnum = pgEnum('patient_case_status', [
 
 export const assignmentTypeEnum = pgEnum('assignment_type', ['PRIMARY_THERAPIST', 'COVERAGE']);
 
+export const patientGenderEnum = pgEnum('patient_gender', ['MALE', 'FEMALE', 'OTHER']);
+
 export const patients = pgTable(
   'patients',
   {
@@ -20,15 +22,26 @@ export const patients = pgTable(
     userId: uuid('user_id')
       .notNull()
       .unique()
-      .references(() => users.id, { onDelete: 'restrict' }),
+      .references(() => users.id, { onDelete: 'cascade' }),
     fullName: text('full_name').notNull(),
+    gender: patientGenderEnum('gender').default('MALE'),
+    medicalRecordNumber: text('medical_record_number').unique(),
     dateOfBirth: timestamp('date_of_birth', { withTimezone: true }),
     occupation: text('occupation'),
     addressLine: text('address_line'),
+    addressProvince: text('address_province'),
+    addressCity: text('address_city'),
     emergencyContactName: text('emergency_contact_name'),
     emergencyContactRelationship: text('emergency_contact_relationship'),
     emergencyContactPhone: text('emergency_contact_phone'),
     caseStatus: patientCaseStatusEnum('case_status').default('INTAKE').notNull(),
+    therapyGoal: text('therapy_goal'),
+    therapyDiagnosisLabel: text('therapy_diagnosis_label'),
+    therapyFrequencyText: text('therapy_frequency_text'),
+    nextTherapyAt: timestamp('next_therapy_at', { withTimezone: true }),
+    therapistNote: text('therapist_note'),
+    therapistNoteAuthor: text('therapist_note_author'),
+    therapistNoteAt: timestamp('therapist_note_at', { withTimezone: true }),
     archivedAt: timestamp('archived_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
@@ -42,16 +55,16 @@ export const patientAssignments = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     patientId: uuid('patient_id')
       .notNull()
-      .references(() => patients.id, { onDelete: 'restrict' }),
+      .references(() => patients.id, { onDelete: 'cascade' }),
     staffUserId: uuid('staff_user_id')
       .notNull()
-      .references(() => users.id, { onDelete: 'restrict' }),
+      .references(() => users.id, { onDelete: 'cascade' }),
     assignmentType: assignmentTypeEnum('assignment_type').default('PRIMARY_THERAPIST').notNull(),
     activeFrom: timestamp('active_from', { withTimezone: true }).defaultNow().notNull(),
     activeUntil: timestamp('active_until', { withTimezone: true }),
     createdBy: uuid('created_by')
       .notNull()
-      .references(() => users.id, { onDelete: 'restrict' }),
+      .references(() => users.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [

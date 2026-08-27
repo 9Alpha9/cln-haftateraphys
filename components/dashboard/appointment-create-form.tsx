@@ -1,15 +1,14 @@
 'use client';
 
-import { useRef, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { useToast } from '@/components/ui/toast';
 import { createAppointment } from '@/server/actions/appointments';
 
-type FormState = { type: 'error' | 'success'; message: string } | null;
 type SelectOption = { id: string; label: string };
 
 const PERIOD_LABEL: Record<string, string> = {
@@ -49,13 +48,12 @@ export function AppointmentCreateForm({
   therapistOptions: SelectOption[];
 }) {
   const [pending, startTransition] = useTransition();
-  const [state, setState] = useState<FormState>(null);
   const router = useRouter();
+  const { showToast } = useToast();
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
-    setState(null);
 
     startTransition(async () => {
       try {
@@ -69,25 +67,17 @@ export function AppointmentCreateForm({
             'INITIAL_ASSESSMENT' | 'THERAPY_SESSION' | 'FOLLOW_UP' | 'EVALUATION',
           administrativeNote: String(formData.get('administrativeNote') ?? ''),
         });
-        setState({ type: 'success', message: 'Appointment berhasil dibuat.' });
+        showToast('success', 'Appointment berhasil dibuat.');
         router.push('/dashboard/appointments');
         router.refresh();
       } catch {
-        setState({
-          type: 'error',
-          message: 'Appointment tidak dapat dibuat. Periksa data, scope pasien, dan jadwal terapis.',
-        });
+        showToast('error', 'Appointment tidak dapat dibuat. Periksa data, scope pasien, dan jadwal terapis.');
       }
     });
   }
 
   return (
     <form onSubmit={onSubmit} className="space-y-5">
-      {state ? (
-        <Alert variant={state.type === 'error' ? 'destructive' : 'success'}>
-          <AlertDescription>{state.message}</AlertDescription>
-        </Alert>
-      ) : null}
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="patientId">Pasien</Label>
@@ -99,9 +89,6 @@ export function AppointmentCreateForm({
               </option>
             ))}
           </Select>
-          {patientOptions.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Belum ada pasien aktif yang dapat dipilih.</p>
-          ) : null}
         </div>
         <div className="space-y-2">
           <Label htmlFor="therapistId">Terapis</Label>
@@ -113,9 +100,6 @@ export function AppointmentCreateForm({
               </option>
             ))}
           </Select>
-          {therapistOptions.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Belum ada terapis aktif yang dapat dipilih.</p>
-          ) : null}
         </div>
         <div className="space-y-2">
           <Label htmlFor="scheduledDate">Tanggal</Label>
@@ -138,7 +122,7 @@ export function AppointmentCreateForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="durationMinutes">Durasi</Label>
-          <Select id="durationMinutes" name="durationMinutes" defaultValue="60" required disabled={pending}>
+          <Select id="durationMinutes" name="durationMinutes" defaultValue="60" disabled={pending}>
             <option value="">Pilih durasi</option>
             {[15, 30, 45, 60, 90, 120].map((min) => (
               <option key={min} value={min}>
@@ -149,7 +133,7 @@ export function AppointmentCreateForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="type">Jenis</Label>
-          <Select id="type" name="type" defaultValue="THERAPY_SESSION" disabled={pending}>
+          <Select id="type" name="type" disabled={pending}>
             <option value="INITIAL_ASSESSMENT">Assessment Awal</option>
             <option value="THERAPY_SESSION">Sesi Terapi</option>
             <option value="FOLLOW_UP">Tindak Lanjut</option>
@@ -171,7 +155,7 @@ export function AppointmentCreateForm({
           Batal
         </Button>
         <Button type="submit" disabled={pending}>
-          {pending ? 'Menyimpan...' : 'Buat Appointment'}
+          {pending ? 'Menyimpan...' : 'Simpan Jadwal'}
         </Button>
       </div>
     </form>

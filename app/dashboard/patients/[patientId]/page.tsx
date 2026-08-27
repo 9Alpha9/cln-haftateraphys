@@ -32,50 +32,52 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
         />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Profil</CardTitle>
-              <User className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Lihat dan edit data pasien</p>
-            </CardContent>
-          </Card>
+          <div className="relative overflow-hidden rounded-xl border border-border bg-white p-5 shadow-sm opacity-70">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-foreground">Profil</span>
+              <User className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">Detail profil pasien di bawah</p>
+            <div className="mt-4 flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Terbuka di bawah</span>
+            </div>
+          </div>
 
           <Link
             href={`/dashboard/patients/${patient.id}/intake`}
-            className="rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="group relative overflow-hidden rounded-xl border border-border bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
           >
-            <Card className="h-full transition-colors hover:border-primary/40 hover:bg-surface">
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium">Intake</CardTitle>
-                <ClipboardList className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">Form awal dan keluhan</p>
-              </CardContent>
-            </Card>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">Intake</span>
+              <ClipboardList className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">Form awal dan keluhan pasien</p>
+            <div className="mt-4 flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-primary group-hover:underline">Buka Intake &rarr;</span>
+            </div>
           </Link>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Assessment</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Evaluasi klinis</p>
-            </CardContent>
-          </Card>
+          <div className="relative overflow-hidden rounded-xl border border-border bg-white p-5 shadow-sm opacity-65">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-foreground">Assessment</span>
+              <FileText className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">Evaluasi klinis lengkap</p>
+            <div className="mt-4 flex items-center justify-between">
+              <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Segera Hadir</span>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Sesi</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">Riwayat sesi terapi</p>
-            </CardContent>
-          </Card>
+          <div className="relative overflow-hidden rounded-xl border border-border bg-white p-5 shadow-sm opacity-65">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-foreground">Sesi</span>
+              <Activity className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">Riwayat sesi terapi</p>
+            <div className="mt-4 flex items-center justify-between">
+              <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Segera Hadir</span>
+            </div>
+          </div>
         </div>
 
         <Card>

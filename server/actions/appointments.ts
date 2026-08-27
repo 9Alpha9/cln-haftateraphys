@@ -3,11 +3,12 @@
 import { and, eq, inArray, lt, ne } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/db';
-import { appointments, patients } from '@/db/schema';
+import { appointments, appointmentNotificationReads, patients } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { assertPatientSchedulingScope } from '@/server/queries/appointments';
 import { notifyUser } from '@/server/notify';
+import { createAuditLog } from '@/lib/audit';
 
 const activeStatuses = ['SCHEDULED', 'CONFIRMED'] as const;
 const appointmentTypes = ['INITIAL_ASSESSMENT', 'THERAPY_SESSION', 'FOLLOW_UP', 'EVALUATION'] as const;
@@ -106,6 +107,19 @@ export async function createAppointment(input: CreateAppointmentInput) {
     createdBy: session.user.id,
   });
 
+  await createAuditLog({
+    action: 'appointment.create',
+    targetType: 'appointment',
+    targetId: input.patientId,
+    meta: {
+      therapistId: input.therapistId,
+      scheduledDate: input.scheduledDate,
+      startTime: input.startTime,
+      type: input.type,
+    },
+    userId: session.user.id,
+  });
+
   if (patient?.userId) {
     await notifyUser({
       userId: patient.userId,
@@ -114,6 +128,103 @@ export async function createAppointment(input: CreateAppointmentInput) {
       actionUrl: '/dashboard/appointments',
     });
   }
+
+  revalidatePath('/dashboard/appointments');
+}
+
+export type UpdateAppointmentInput = {
+  appointmentId: string;
+  patientId: string;
+  therapistId: string;
+  scheduledDate: string;
+  startTime: string;
+  durationMinutes: number;
+  type: AppointmentType;
+  administrativeNote?: string;
+};
+
+export async function updateAppointment(input: UpdateAppointmentInput) {
+  requireCreateAppointmentInput(input);
+
+  const { session, role } = await requireSession({ redirectToLogin: false });
+  if (!hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE)) {
+    throw new ForbiddenError();
+  }
+
+  const db = getDb();
+  const [existing] = await db
+    .select({ id: appointments.id, therapistId: appointments.therapistId })
+    .from(appointments)
+    .where(eq(appointments.id, input.appointmentId))
+    .limit(1);
+
+  if (!existing) {
+    throw new Error('Appointment tidak ditemukan.');
+  }
+
+  if (role === 'THERAPIST' && existing.therapistId !== session.user.id) {
+    throw new ForbiddenError();
+  }
+
+  await assertPatientSchedulingScope(input.patientId);
+
+  await db
+    .update(appointments)
+    .set({
+      patientId: input.patientId,
+      therapistId: input.therapistId,
+      scheduledDate: input.scheduledDate,
+      startTime: input.startTime,
+      durationMinutes: input.durationMinutes,
+      type: input.type,
+      administrativeNote: input.administrativeNote?.trim() || null,
+    })
+    .where(eq(appointments.id, input.appointmentId));
+
+  await createAuditLog({
+    action: 'appointment.update',
+    targetType: 'appointment',
+    targetId: input.appointmentId,
+    meta: {
+      patientId: input.patientId,
+      therapistId: input.therapistId,
+      scheduledDate: input.scheduledDate,
+      startTime: input.startTime,
+      type: input.type,
+    },
+    userId: session.user.id,
+  });
+
+  revalidatePath('/dashboard/appointments');
+}
+
+export async function deleteAppointment(appointmentId: string) {
+  const { session, role } = await requireSession({ redirectToLogin: false });
+  if (!hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE)) {
+    throw new ForbiddenError();
+  }
+
+  const db = getDb();
+  const [appointment] = await db
+    .select({ id: appointments.id, createdBy: appointments.createdBy })
+    .from(appointments)
+    .where(eq(appointments.id, appointmentId))
+    .limit(1);
+
+  if (!appointment) {
+    throw new Error('Appointment tidak ditemukan.');
+  }
+
+  await db.delete(appointmentNotificationReads).where(eq(appointmentNotificationReads.appointmentId, appointmentId));
+  await db.delete(appointments).where(eq(appointments.id, appointmentId));
+
+  await createAuditLog({
+    action: 'appointment.cancel',
+    targetType: 'appointment',
+    targetId: appointmentId,
+    meta: { deletedBy: session.user.id },
+    userId: session.user.id,
+  });
 
   revalidatePath('/dashboard/appointments');
 }

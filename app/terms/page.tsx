@@ -50,18 +50,7 @@ export default function TermsPage() {
       <main className="flex-1">
         <Container>
           <div className="py-12 md:py-16">
-            <Link
-              href="/"
-              className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-primary/80"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Kembali ke Beranda
-            </Link>
             <article className="mx-auto mt-6 max-w-3xl rounded-2xl border border-border bg-white p-6 shadow-sm md:p-10">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                <FileText className="h-6 w-6 text-primary" />
-              </div>
-              <p className="mt-6 text-sm font-semibold text-primary">Hafta Fisioterapi</p>
               <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">Syarat & Ketentuan</h1>
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                 Dokumen ini adalah draft syarat dan ketentuan untuk website Hafta Fisioterapi dan perlu ditinjau serta

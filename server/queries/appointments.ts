@@ -16,6 +16,48 @@ export type AppointmentView = {
   isNew: boolean;
 };
 
+export type AppointmentDetail = {
+  id: string;
+  patientId: string;
+  therapistId: string;
+  scheduledDate: string;
+  startTime: string;
+  durationMinutes: number;
+  type: string;
+  status: string;
+  administrativeNote: string | null;
+  patientName: string;
+  therapistName: string | null;
+};
+
+export async function getAppointmentById(appointmentId: string): Promise<AppointmentDetail | null> {
+  const { session, role } = await requireSession({ redirectToLogin: true });
+  if (!hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE)) throw new ForbiddenError();
+
+  const db = getDb();
+  const [appointment] = await db
+    .select({
+      id: appointments.id,
+      patientId: appointments.patientId,
+      therapistId: appointments.therapistId,
+      scheduledDate: appointments.scheduledDate,
+      startTime: appointments.startTime,
+      durationMinutes: appointments.durationMinutes,
+      type: appointments.type,
+      status: appointments.status,
+      administrativeNote: appointments.administrativeNote,
+      patientName: patients.fullName,
+      therapistName: users.name,
+    })
+    .from(appointments)
+    .innerJoin(patients, eq(appointments.patientId, patients.id))
+    .innerJoin(users, eq(appointments.therapistId, users.id))
+    .where(eq(appointments.id, appointmentId))
+    .limit(1);
+
+  return appointment ?? null;
+}
+
 export async function getScopedAppointments(page = 1, pageSize = 6) {
   const { session, role } = await requireSession({ redirectToLogin: true });
   if (!hasPermission(role, PERMISSIONS.APPOINTMENT_LIST)) throw new ForbiddenError();

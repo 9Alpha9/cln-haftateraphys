@@ -94,6 +94,7 @@ Canonical visual direction is defined by `docs/DESIGN-SYSTEM.md` and `docs/DESIG
 - Validation schema berada di `lib/validators` atau dekat domain jika benar-benar feature-specific.
 - Jangan membuat `page.tsx` atau component raksasa yang memuat seluruh logic feature.
 - Jangan membuat duplicate component jika komponen yang sesuai sudah ada.
+- Jika baris kode dilakukan perubahan jangan merubah baris kode yang sudah dibenarkan.
 
 ## 6. Coding rules
 

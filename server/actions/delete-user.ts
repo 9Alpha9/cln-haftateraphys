@@ -1,21 +1,10 @@
 'use server';
 
-import { eq, inArray, or, sql } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { getDb } from '@/db';
-import {
-  appointmentNotificationReads,
-  appointments,
-  homeProgramItems,
-  homePrograms,
-  internalCalendarEvents,
-  patientAssignments,
-  patientIntakes,
-  patients,
-  profiles,
-  users,
-} from '@/db/schema';
+import { profiles, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { recordAudit } from '@/server/audit';
@@ -29,10 +18,10 @@ export type DeleteUserResult =
   | { ok: false; error: string };
 
 /**
- * Permanently deletes a user account and all of its data (patient records,
- * appointments, intakes, home programs, assignments, etc.) inside a single
- * transaction. Guarded to SUPER_ADMIN only, never self, never the last super
- * admin. Destructive and irreversible.
+ * Permanently deletes a user account. All related data (patients, appointments,
+ * intakes, home programs, assignments, notifications, etc.) is automatically
+ * removed via ON DELETE CASCADE constraints. Guarded to SUPER_ADMIN only,
+ * never self, never the last super admin.
  */
 export async function deleteUser(input: unknown): Promise<DeleteUserResult> {
   try {
@@ -72,119 +61,14 @@ export async function deleteUser(input: unknown): Promise<DeleteUserResult> {
       }
     }
 
-    await db.transaction(async (tx) => {
-      const patientRows = await tx
-        .select({ id: patients.id })
-        .from(patients)
-        .where(eq(patients.userId, userId));
-      const patientIds = patientRows.map((p) => p.id);
+    const [deletedUser] = await db
+      .delete(users)
+      .where(eq(users.id, userId))
+      .returning({ id: users.id });
 
-      let apptIds: string[] = [];
-      if (patientIds.length > 0) {
-        const appts = await tx
-          .select({ id: appointments.id })
-          .from(appointments)
-          .where(inArray(appointments.patientId, patientIds));
-        apptIds = appts.map((a) => a.id);
-      }
-
-      const targetAppts = await tx
-        .select({ id: appointments.id })
-        .from(appointments)
-        .where(or(eq(appointments.therapistId, userId), eq(appointments.createdBy, userId)));
-      apptIds = [...new Set([...apptIds, ...targetAppts.map((a) => a.id)])];
-
-      let programIds: string[] = [];
-      if (patientIds.length > 0) {
-        const progs = await tx
-          .select({ id: homePrograms.id })
-          .from(homePrograms)
-          .where(inArray(homePrograms.patientId, patientIds));
-        programIds = progs.map((p) => p.id);
-      }
-
-      const targetPrograms = await tx
-        .select({ id: homePrograms.id })
-        .from(homePrograms)
-        .where(eq(homePrograms.createdBy, userId));
-      programIds = [...new Set([...programIds, ...targetPrograms.map((p) => p.id)])];
-
-      const never = eq(users.id, sql`'00000000-0000-0000-0000-000000000000'`);
-
-      if (apptIds.length > 0) {
-        await tx
-          .delete(appointmentNotificationReads)
-          .where(
-            or(
-              eq(appointmentNotificationReads.userId, userId),
-              inArray(appointmentNotificationReads.appointmentId, apptIds),
-            ),
-          );
-      } else {
-        await tx
-          .delete(appointmentNotificationReads)
-          .where(eq(appointmentNotificationReads.userId, userId));
-      }
-
-      if (apptIds.length > 0) {
-        await tx
-          .update(appointments)
-          .set({ rescheduledFromId: null })
-          .where(inArray(appointments.rescheduledFromId, apptIds));
-      }
-
-      await tx
-        .delete(appointments)
-        .where(
-          or(
-            patientIds.length > 0 ? inArray(appointments.patientId, patientIds) : never,
-            eq(appointments.therapistId, userId),
-            eq(appointments.createdBy, userId),
-          ),
-        );
-
-      if (patientIds.length > 0) {
-        await tx.delete(patientIntakes).where(inArray(patientIntakes.patientId, patientIds));
-        await tx.delete(patientAssignments).where(inArray(patientAssignments.patientId, patientIds));
-      }
-      await tx
-        .delete(patientAssignments)
-        .where(
-          or(
-            eq(patientAssignments.staffUserId, userId),
-            eq(patientAssignments.createdBy, userId),
-          ),
-        );
-
-      if (programIds.length > 0) {
-        await tx.delete(homeProgramItems).where(inArray(homeProgramItems.homeProgramId, programIds));
-        await tx
-          .delete(homePrograms)
-          .where(
-            or(
-              inArray(homePrograms.id, programIds),
-              eq(homePrograms.createdBy, userId),
-            ),
-          );
-      } else {
-        await tx.delete(homePrograms).where(eq(homePrograms.createdBy, userId));
-      }
-
-      if (patientIds.length > 0) {
-        await tx.delete(patients).where(inArray(patients.id, patientIds));
-      }
-
-      await tx
-        .update(patientIntakes)
-        .set({ reviewedBy: null })
-        .where(eq(patientIntakes.reviewedBy, userId));
-
-      await tx
-        .delete(internalCalendarEvents)
-        .where(eq(internalCalendarEvents.createdBy, userId));
-
-      await tx.delete(users).where(eq(users.id, userId));
-    });
+    if (!deletedUser) {
+      return { ok: false, error: 'Akun tidak berhasil dihapus dari database.' };
+    }
 
     await recordAudit('user.delete', {
       targetType: 'user',
@@ -198,6 +82,6 @@ export async function deleteUser(input: unknown): Promise<DeleteUserResult> {
     if (error instanceof z.ZodError) {
       return { ok: false, error: 'Data tidak valid.' };
     }
-    return { ok: false, error: 'Gagal menghapus akun. Periksa apakah ada data terkait yang memblokir.' };
+    return { ok: false, error: `Gagal menghapus akun: ${error instanceof Error ? error.message : 'Unknown error'}` };
   }
 }

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Container } from '@/components/container';
+import { BackToTop } from '@/components/ui/back-to-top';
 
 const footerLinks = {
   layanan: [
@@ -13,7 +14,7 @@ const footerLinks = {
   informasi: [
     { name: 'Tentang Kami', href: '/tentang' },
     { name: 'Tim Therapist', href: '#tim' },
-    { name: 'FAQ', href: '#faq' },
+    { name: 'FAQ', href: '/faq' },
     { name: 'Kebijakan Privasi', href: '/privacy' },
     { name: 'Syarat & Ketentuan', href: '/terms' },
   ],
@@ -115,20 +116,27 @@ export function Footer() {
         </div>
 
         <div className="border-t border-white/10 py-6">
-          <p className="text-center text-xs text-white/50">
-            &copy; {new Date().getFullYear()} Hafta Fisioterapi. Hak cipta dilindungi.
-          </p>
-          <p className="mt-2 text-center text-xs text-white/40">
-            Dibuat oleh{' '}
-            <a
-              href="https://www.bagian.web.id/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/60 underline-offset-4 transition-colors hover:text-white hover:underline"
-            >
-              Bagian
-            </a>
-          </p>
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <div className="flex-1 text-center sm:text-left">
+              <p className="text-xs text-white/50">
+                &copy; {new Date().getFullYear()} Hafta Fisioterapi. Hak cipta dilindungi.
+              </p>
+              <p className="mt-2 text-xs text-white/40">
+                Dibuat oleh{' '}
+                <a
+                  href="https://www.bagian.web.id/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white/60 underline-offset-4 transition-colors hover:text-white hover:underline"
+                >
+                  Bagian
+                </a>
+              </p>
+            </div>
+            <div className="flex justify-end">
+              <BackToTop position="static" />
+            </div>
+          </div>
         </div>
       </Container>
     </footer>

@@ -45,7 +45,7 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
         {items.map((notif) => (
           <li
             key={notif.id}
-            className={cn('flex flex-col gap-1 px-4 py-3', !notif.isRead && 'bg-primary/5')}
+            className={cn('flex flex-col gap-1 mx-4 px-4 py-3 mb-2 mt-2 rounded-md', !notif.isRead && 'bg-primary/5')}
           >
             <div className="flex w-full items-center justify-between gap-2">
               <span className="font-semibold text-foreground">{notif.title}</span>

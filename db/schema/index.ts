@@ -7,4 +7,5 @@ export * from './internal-calendar-events';
 export * from './notifications';
 export * from './home-programs';
 export * from './patient-intakes';
+export * from './therapy-progress';
 export * from './audit-logs';

@@ -1,6 +1,6 @@
 import {
+  Activity,
   CalendarDays,
-  ChartNoAxesCombined,
   ClipboardList,
   FileText,
   type LucideIcon,
@@ -51,6 +51,12 @@ const adminNavigation: DashboardNavGroup[] = [
         icon: ClipboardList,
         requiredPermission: PERMISSIONS.INTAKE_READ,
       },
+      {
+        label: 'Rekam Medis',
+        href: '/dashboard/progress',
+        icon: Activity,
+        requiredPermission: PERMISSIONS.PROGRESS_READ,
+      },
     ],
   },
   {
@@ -90,9 +96,9 @@ const patientNavigation: DashboardNavGroup[] = [
       { label: 'Ringkasan', href: '/dashboard', icon: ClipboardList },
       { label: 'Jadwal', href: '/dashboard/appointments', icon: CalendarDays },
       {
-        label: 'Progress',
+        label: 'Rekam Medis',
         href: '/dashboard/progress',
-        icon: ChartNoAxesCombined,
+        icon: Activity,
         requiredPermission: PERMISSIONS.PROGRESS_READ_OWN,
       },
     ],

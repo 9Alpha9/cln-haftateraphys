@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
-import { BackToTop } from '@/components/ui/back-to-top';
 import { FloatingWhatsApp } from '@/components/ui/floating-whatsapp';
+import { ToastProvider } from '@/components/ui/toast';
 import './globals.css';
 
 const poppins = Poppins({
@@ -24,8 +24,9 @@ export default function RootLayout({
   return (
     <html lang="id" className={poppins.variable} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
-        {children}
-        <BackToTop />
+        <ToastProvider>
+          {children}
+        </ToastProvider>
         <FloatingWhatsApp />
       </body>
     </html>

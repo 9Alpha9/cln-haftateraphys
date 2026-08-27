@@ -12,7 +12,7 @@ export const homePrograms = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     patientId: uuid('patient_id')
       .notNull()
-      .references(() => patients.id, { onDelete: 'restrict' }),
+      .references(() => patients.id, { onDelete: 'cascade' }),
     treatmentPlanId: uuid('treatment_plan_id'),
     status: homeProgramStatusEnum('status').default('DRAFT').notNull(),
     startsAt: timestamp('starts_at', { withTimezone: true }),
@@ -20,7 +20,7 @@ export const homePrograms = pgTable(
     patientVisible: integer('patient_visible').default(0).notNull(),
     createdBy: uuid('created_by')
       .notNull()
-      .references(() => users.id, { onDelete: 'restrict' }),
+      .references(() => users.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
@@ -33,7 +33,7 @@ export const homeProgramItems = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     homeProgramId: uuid('home_program_id')
       .notNull()
-      .references(() => homePrograms.id, { onDelete: 'restrict' }),
+      .references(() => homePrograms.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     instruction: text('instruction').notNull(),
     sets: integer('sets'),

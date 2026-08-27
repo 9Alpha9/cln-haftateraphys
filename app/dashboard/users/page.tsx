@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
 import { UserRoleSelector } from '@/components/dashboard/user-role-selector';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +31,7 @@ export default async function UsersPage({
   const users = result.items;
   const canManageRole = role === 'SUPER_ADMIN' && hasPermission(role, PERMISSIONS.ROLE_ASSIGN);
   const canDeleteUser = role === 'SUPER_ADMIN' && hasPermission(role, PERMISSIONS.USER_SUSPEND);
+  const canCreateUser = hasPermission(role, PERMISSIONS.USER_CREATE);
 
   const hrefFor = (pageNumber: number) =>
     `/dashboard/users?${new URLSearchParams({ page: String(pageNumber) }).toString()}`;
@@ -41,9 +43,13 @@ export default async function UsersPage({
         description="Kelola akun pengguna dan role."
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Pengguna' }]}
         action={
-          <Button size="lg">
-            <UserPlus className="h-4 w-4" aria-hidden="true" /> Tambah Pengguna
-          </Button>
+          canCreateUser ? (
+            <Link href="/dashboard/users/add">
+              <Button size="lg">
+                <UserPlus className="h-4 w-4" aria-hidden="true" /> Tambah Pengguna
+              </Button>
+            </Link>
+          ) : undefined
         }
       />
 

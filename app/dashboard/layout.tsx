@@ -10,7 +10,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const recentNotifications = await getRecentNotifications();
 
   return (
-    <DashboardShellRouter role={role} userName={session.user.name ?? ''} unreadCount={unreadCount} recentNotifications={recentNotifications}>
+    <DashboardShellRouter role={role} userName={session.user.name ?? ''} userEmail={session.user.email ?? ''} unreadCount={unreadCount} recentNotifications={recentNotifications}>
       {children}
     </DashboardShellRouter>
   );

@@ -12,6 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/toast';
 import { deleteUser } from '@/server/actions/delete-user';
 
 interface DeleteUserButtonProps {
@@ -23,18 +24,18 @@ interface DeleteUserButtonProps {
 export function DeleteUserButton({ userId, userName, disabled = false }: DeleteUserButtonProps) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const { showToast } = useToast();
 
   const handleConfirm = () => {
-    setError(null);
     startTransition(async () => {
       const result = await deleteUser({ userId });
       if (result.ok) {
         setOpen(false);
+        showToast('success', `Akun ${userName} berhasil dihapus.`);
         router.refresh();
       } else {
-        setError(result.error);
+        showToast('error', result.error);
       }
     });
   };
@@ -60,7 +61,6 @@ export function DeleteUserButton({ userId, userName, disabled = false }: DeleteU
               program, dan lainnya) akan dihapus permanen dan tidak dapat dipulihkan.
             </DialogDescription>
           </DialogHeader>
-          {error && <p className="text-sm text-destructive">{error}</p>}
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)} disabled={pending}>
               Batal

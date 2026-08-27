@@ -42,13 +42,6 @@ export function FaqSection() {
   return (
     <Section id="faq" className="bg-white">
       <Container>
-        <ScrollAnimation>
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground md:text-3xl">Pertanyaan Umum</h2>
-            <p className="mt-3 text-muted-foreground">Jawaban atas pertanyaan yang sering ditanyakan</p>
-          </div>
-        </ScrollAnimation>
-
         <div className="mx-auto mt-10 max-w-4xl divide-y divide-border ">
           {faqs.map((faq, index) => (
             <ScrollAnimation key={faq.question} delay={index * 0.05}>
@@ -56,11 +49,11 @@ export function FaqSection() {
                 <button
                   type="button"
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                  className="flex w-full cursor-pointer flex-col items-start gap-2"
+                  className="flex w-full cursor-pointer items-center justify-between gap-4 text-left"
                 >
                   <span className="font-medium text-foreground">{faq.question}</span>
-                  <motion.div animate={{ rotate: openIndex === index ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                    <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground" />
+                  <motion.div className="shrink-0" animate={{ rotate: openIndex === index ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
                   </motion.div>
                 </button>
                 <AnimatePresence>
