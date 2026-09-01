@@ -45,15 +45,15 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
 
           <Link
             href={`/dashboard/patients/${patient.id}/intake`}
-            className="group relative overflow-hidden rounded-xl border border-border bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
+            className="group relative overflow-hidden rounded-xl border border-border bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-accent/40 hover:shadow-md"
           >
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">Intake</span>
-              <ClipboardList className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              <span className="text-sm font-semibold text-foreground group-hover:text-[#92400e] transition-colors">Intake</span>
+              <ClipboardList className="h-5 w-5 text-muted-foreground group-hover:text-[#92400e] transition-colors" />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">Form awal dan keluhan pasien</p>
             <div className="mt-4 flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary group-hover:underline">Buka Intake &rarr;</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#92400e] group-hover:underline">Buka Intake &rarr;</span>
             </div>
           </Link>
 
@@ -92,7 +92,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
               </div>
               <div>
                 <label className="text-sm font-medium text-foreground">Status Kasus</label>
-                <span className="mt-1 inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                <span className="mt-1 inline-flex rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-[#92400e]">
                   {patient.caseStatus}
                 </span>
               </div>

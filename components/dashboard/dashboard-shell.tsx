@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Menu, Settings, User, LogOut, X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SidebarAccountMenu } from '@/components/dashboard/sidebar-account-menu';
@@ -26,6 +26,7 @@ export function AdminDashboardShell({
   role,
   userName,
   userEmail,
+  avatarUrl,
   unreadCount = 0,
   recentNotifications = [],
 }: {
@@ -33,12 +34,20 @@ export function AdminDashboardShell({
   role: Role;
   userName?: string;
   userEmail?: string;
+  avatarUrl?: string | null;
   unreadCount?: number;
   recentNotifications?: NotificationView[];
 }) {
   const pathname = usePathname();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [liveAvatar, setLiveAvatar] = useState<string | null>(avatarUrl ?? null);
+  useEffect(() => setLiveAvatar(avatarUrl ?? null), [avatarUrl]);
+  useEffect(() => {
+    const h = (e: Event) => setLiveAvatar((e as CustomEvent).detail?.avatarUrl ?? null);
+    window.addEventListener('hafta:avatar', h as EventListener);
+    return () => window.removeEventListener('hafta:avatar', h as EventListener);
+  }, []);
   const navGroups = getDashboardNavigation(role);
   const dashboardTitle = role === 'SUPER_ADMIN' ? 'Administrasi Sistem' : 'Operasional Klinik';
 
@@ -60,7 +69,7 @@ export function AdminDashboardShell({
       <button
         type="button"
         aria-label="Tutup navigasi"
-        className={cn('fixed inset-0 z-40 bg-emerald-950/45 lg:hidden', sidebarOpen ? 'block' : 'hidden')}
+        className={cn('fixed inset-0 z-40 bg-black/30 lg:hidden', sidebarOpen ? 'block' : 'hidden')}
         onClick={() => setSidebarOpen(false)}
       />
 
@@ -79,6 +88,7 @@ export function AdminDashboardShell({
               height={60}
               className="h-12 w-auto object-contain"
               priority
+              unoptimized
             />
             <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               {dashboardTitle}
@@ -109,8 +119,8 @@ export function AdminDashboardShell({
                            className={cn(
                             'flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors',
                             active
-                              ? 'bg-primary text-primary-foreground shadow-md shadow-primary/10'
-                              : 'text-slate-600 hover:bg-primary/5 hover:text-primary',
+                              ? 'bg-accent text-accent-foreground shadow-xs'
+                              : 'text-slate-600 hover:bg-accent/15 hover:text-[#92400e]',
                           )}
                         >
                           <item.icon className="h-4 w-4 shrink-0" />
@@ -138,7 +148,7 @@ export function AdminDashboardShell({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b border-border bg-white px-6 lg:px-8 shadow-sm">
+        <header className="sticky top-0 z-30 flex h-20 items-center gap-4 border-b border-border bg-white px-6 lg:px-8">
           <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
           </Button>
@@ -153,9 +163,14 @@ export function AdminDashboardShell({
           <div className="flex items-center gap-4">
             <NotificationBell unreadCount={unreadCount} initialNotifications={recentNotifications} />
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-3 rounded-xl p-1.5 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-                  {userName?.[0]?.toUpperCase() ?? 'A'}
+              <DropdownMenuTrigger className="flex items-center gap-3 rounded-xl p-1.5 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-accent text-sm font-bold text-accent-foreground">
+                  {liveAvatar ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={liveAvatar} alt="Avatar" className="h-full w-full object-cover" />
+                  ) : (
+                    (userName?.[0]?.toUpperCase() ?? 'A')
+                  )}
                 </span>
                 <div className="hidden min-w-0 flex-col text-left sm:flex">
                   <span className="truncate text-sm font-bold text-foreground">{userName || 'Administrator'}</span>

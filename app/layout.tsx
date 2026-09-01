@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Poppins } from 'next/font/google';
 import { FloatingWhatsApp } from '@/components/ui/floating-whatsapp';
 import { ToastProvider } from '@/components/ui/toast';
+import { Sonner } from '@/components/ui/sonner';
 import './globals.css';
 
 const poppins = Poppins({
@@ -27,6 +28,7 @@ export default function RootLayout({
         <ToastProvider>
           {children}
         </ToastProvider>
+        <Sonner />
         <FloatingWhatsApp />
       </body>
     </html>

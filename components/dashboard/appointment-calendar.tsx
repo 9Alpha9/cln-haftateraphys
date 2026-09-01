@@ -97,8 +97,8 @@ export function AppointmentCalendar({
     <section className="rounded-xl border border-border bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-            <CalendarDays className="h-4 w-4 text-primary" />
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/20">
+            <CalendarDays className="h-4 w-4 text-[#92400e]" />
           </span>
           <div>
             <h2 className="font-semibold text-foreground">Kalender Terapi</h2>
@@ -145,9 +145,9 @@ export function AppointmentCalendar({
                   className={cn(
                     'relative min-h-10 rounded-md p-1 text-left transition-colors sm:min-h-12',
                     isSelected
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'bg-accent text-accent-foreground'
                       : dayAppointments.length
-                        ? 'bg-primary/10 text-primary hover:bg-primary/15'
+                        ? 'bg-accent/20 text-[#92400e] hover:bg-accent/30'
                         : 'hover:bg-surface',
                   )}
                 >
@@ -163,7 +163,7 @@ export function AppointmentCalendar({
                     <span
                       className={cn(
                         'mt-0.5 block text-[9px] font-bold',
-                        isSelected ? 'text-primary-foreground' : 'text-primary',
+                        isSelected ? 'text-accent-foreground' : 'text-[#92400e]',
                       )}
                     >
                       {dayAppointments.length}
@@ -172,8 +172,8 @@ export function AppointmentCalendar({
                   {dayInternalEvents.length > 0 ? (
                     <span
                       className={cn(
-                        'absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-teal-600',
-                        isSelected && 'bg-primary-foreground',
+                        'absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-[#f59e0b]',
+                        isSelected && 'bg-accent-foreground',
                       )}
                       title={dayInternalEvents.map((event) => event.title).join(', ')}
                     />
@@ -211,7 +211,7 @@ export function AppointmentCalendar({
                 className="mt-3 space-y-2"
               >
                 {selectedInternalEvents.map((event) => (
-                  <div key={event.id} className="rounded-lg border border-teal-600/20 bg-teal-600/5 p-3">
+                  <div key={event.id} className="rounded-lg border border-accent/30 bg-accent/10 p-3">
                     <p className="text-sm font-semibold text-foreground">{event.title}</p>
                     <p className="mt-1 text-xs text-muted-foreground">
                       {event.startTime ?? 'Seharian'} · {event.eventType.replaceAll('_', ' ')}
@@ -240,7 +240,7 @@ export function AppointmentCalendar({
                         ) : null}
                       </div>
                       <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Clock3 className="h-3.5 w-3.5 text-primary" />
+                        <Clock3 className="h-3.5 w-3.5 text-[#92400e]" />
                         {appointment.startTime} · {typeLabel[appointment.type] ?? appointment.type}
                       </p>
                     </motion.div>

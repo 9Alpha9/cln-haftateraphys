@@ -71,7 +71,7 @@ function TextField({
         <textarea
           id={name}
           disabled={disabled}
-          className="flex min-h-28 w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+          className="flex min-h-28 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-60"
           {...field}
         />
       ) : (
@@ -367,15 +367,16 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
               <strong className="text-foreground">Target:</strong> {getValues('patientGoal') || 'Belum diisi'}
             </p>
           </div>
-          <label className="flex items-start gap-3 rounded-lg border border-border p-4 text-sm">
+          <div className="flex items-start gap-3 rounded-lg border border-accent/30 bg-accent/5 p-4 text-sm">
             <input
+              id="dataAccuracyAcknowledged"
               type="checkbox"
-              className="mt-1 h-4 w-4 accent-primary"
+              className="mt-1 h-4 w-4 shrink-0 accent-[var(--accent)] cursor-pointer"
               disabled={pending}
               {...register('dataAccuracyAcknowledged', { required: 'Konfirmasi ketepatan data diperlukan.' })}
             />
-            <span>Saya mengonfirmasi bahwa informasi yang saya kirimkan akurat sesuai pengetahuan saya.</span>
-          </label>
+            <span className="select-none">Saya mengonfirmasi bahwa informasi yang saya kirimkan akurat sesuai pengetahuan saya.</span>
+          </div>
           {errors.dataAccuracyAcknowledged ? (
             <p className="text-sm text-destructive">{errors.dataAccuracyAcknowledged.message}</p>
           ) : null}

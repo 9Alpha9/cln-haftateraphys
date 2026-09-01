@@ -184,14 +184,15 @@ export function RegisterForm() {
       />
 
       <div className="space-y-3">
-        <label className="flex items-start gap-2 text-sm">
+        <div className="flex items-start gap-2 text-sm">
           <input
+            id="terms"
             type="checkbox"
             name="terms"
-            className="mt-0.5 size-4 rounded border-input accent-primary"
+            className="mt-0.5 size-4 shrink-0 rounded border-input accent-[var(--accent)] cursor-pointer"
             disabled={isPending}
           />
-          <span className="text-muted-foreground">
+          <span className="text-muted-foreground select-none">
             Saya menyetujui{' '}
             <a href="/terms" className="underline hover:text-foreground">
               Syarat & Ketentuan
@@ -201,7 +202,7 @@ export function RegisterForm() {
               Kebijakan Privasi
             </a>
           </span>
-        </label>
+        </div>
       </div>
 
       <Button type="submit" className="h-10 w-full" disabled={isPending}>

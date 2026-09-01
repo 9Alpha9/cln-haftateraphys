@@ -53,7 +53,7 @@ export function MedicalRecordFilters({
           defaultValue={initialSearch}
           disabled={pending}
           placeholder="Cari nama pasien..."
-          className="h-10 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+          className="h-10 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50"
         />
       </div>
       <Select name="status" defaultValue={initialStatus} disabled={pending}>

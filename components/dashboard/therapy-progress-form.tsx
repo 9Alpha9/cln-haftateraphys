@@ -159,11 +159,9 @@ export function TherapyProgressForm({ patientOptions }: { patientOptions: Patien
           disabled={pending}
         />
       </div>
-      <div className="flex items-center gap-3">
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" name="patientVisible" value={1} className="h-4 w-4 rounded border-input" />
-          Tampilkan ke pasien
-        </label>
+      <div className="flex items-center gap-3 rounded-lg border border-accent/30 bg-accent/5 p-3">
+        <input id="progressPatientVisible" type="checkbox" name="patientVisible" value={1} className="h-4 w-4 shrink-0 rounded border-input accent-[var(--accent)] cursor-pointer" />
+        <span className="text-sm select-none">Tampilkan ke pasien</span>
       </div>
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         <Button type="button" variant="outline" onClick={() => router.back()} disabled={pending}>

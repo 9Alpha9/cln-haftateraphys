@@ -46,7 +46,7 @@ export default async function HistoryPage() {
         <CardContent>
           {history.length === 0 ? (
             <div className="flex min-h-48 flex-col items-center justify-center text-center">
-              <ClipboardList className="h-10 w-10 text-primary/70" />
+              <ClipboardList className="h-10 w-10 text-[#92400e]/70" />
               <p className="mt-4 font-semibold text-foreground">Belum ada riwayat yang dapat ditampilkan.</p>
             </div>
           ) : (
@@ -66,7 +66,7 @@ export default async function HistoryPage() {
                         : `Diperbarui ${item.updatedAt.toLocaleDateString('id-ID')}`}
                     </p>
                   </div>
-                  <span className="w-fit rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                  <span className="w-fit rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-[#92400e]">
                     {statusLabel[item.status as keyof typeof statusLabel]}
                   </span>
                 </div>

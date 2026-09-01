@@ -47,7 +47,7 @@ export function BackToTop({ showAfter = 400, label = 'Kembali ke atas', position
           transition={{ duration: 0.2, ease: 'easeOut' }}
           whileTap={{ scale: 0.92 }}
           className={cn(
-            'cursor-pointer flex items-center justify-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
+            'cursor-pointer flex items-center justify-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-accent/50',
             isFixed
               ? 'fixed z-40 size-12 border-primary/20 bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:bg-primary/90 right-4 md:right-6'
               : 'relative size-10 border-white/20 bg-white/10 text-white hover:bg-white/20',

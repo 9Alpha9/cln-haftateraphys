@@ -19,6 +19,7 @@ export async function getCurrentPatientProfile(userId: string) {
       emergencyContactPhone: patients.emergencyContactPhone,
       preferredName: profiles.displayName,
       phone: profiles.phone,
+      avatarKey: profiles.avatarKey,
     })
     .from(profiles)
     .leftJoin(patients, eq(patients.userId, profiles.userId))

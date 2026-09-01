@@ -147,7 +147,7 @@ export function AppointmentCreateForm({
           id="administrativeNote"
           name="administrativeNote"
           disabled={pending}
-          className="flex min-h-28 w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex min-h-28 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
       </div>
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

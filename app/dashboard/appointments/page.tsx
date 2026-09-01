@@ -57,8 +57,8 @@ export default async function AppointmentsPage({ searchParams }: { searchParams:
       {result.items.length === 0 ? (
         <Card>
           <CardContent className="flex min-h-64 flex-col items-center justify-center p-6 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-              <CalendarDays className="h-6 w-6 text-primary" />
+            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/15">
+              <CalendarDays className="h-6 w-6 text-[#92400e]" />
             </span>
             <h2 className="mt-4 font-semibold text-foreground">Belum ada jadwal terapi</h2>
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">

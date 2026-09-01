@@ -43,9 +43,9 @@ export function SidebarAccountMenu({
         aria-expanded={open}
         aria-haspopup="menu"
         onClick={() => setOpen((value) => !value)}
-        className="cursor-pointer flex w-full items-center gap-3 rounded-xl border border-border bg-slate-50 p-3 text-left transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="cursor-pointer flex w-full items-center gap-3 rounded-xl border border-border bg-slate-50 p-3 text-left transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-sm font-bold text-primary-foreground">
           {userName?.[0]?.toUpperCase() ?? 'A'}
         </span>
         <span className="min-w-0 flex-1">

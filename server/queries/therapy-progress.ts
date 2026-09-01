@@ -108,6 +108,8 @@ export type PatientMedicalRecordSummary = {
   medicalRecordNumber: string | null;
   dateOfBirth: Date | null;
   addressCity: string | null;
+  addressProvince: string | null;
+  addressLine: string | null;
   caseStatus: string;
   therapyGoal: string | null;
   therapyDiagnosisLabel: string | null;
@@ -117,6 +119,12 @@ export type PatientMedicalRecordSummary = {
   therapistNoteAuthor: string | null;
   therapistNoteAt: Date | null;
   therapistName: string | null;
+  preferredName: string | null;
+  occupation: string | null;
+  emergencyContactName: string | null;
+  emergencyContactRelationship: string | null;
+  emergencyContactPhone: string | null;
+  avatarKey: string | null;
 };
 
 export async function getOwnMedicalRecordSummary(): Promise<PatientMedicalRecordSummary | null> {
@@ -134,6 +142,8 @@ export async function getOwnMedicalRecordSummary(): Promise<PatientMedicalRecord
       medicalRecordNumber: patients.medicalRecordNumber,
       dateOfBirth: patients.dateOfBirth,
       addressCity: patients.addressCity,
+      addressProvince: patients.addressProvince,
+      addressLine: patients.addressLine,
       caseStatus: patients.caseStatus,
       therapyGoal: patients.therapyGoal,
       therapyDiagnosisLabel: patients.therapyDiagnosisLabel,
@@ -142,6 +152,12 @@ export async function getOwnMedicalRecordSummary(): Promise<PatientMedicalRecord
       therapistNote: patients.therapistNote,
       therapistNoteAuthor: patients.therapistNoteAuthor,
       therapistNoteAt: patients.therapistNoteAt,
+      preferredName: profiles.displayName,
+      occupation: patients.occupation,
+      emergencyContactName: patients.emergencyContactName,
+      emergencyContactRelationship: patients.emergencyContactRelationship,
+      emergencyContactPhone: patients.emergencyContactPhone,
+      avatarKey: profiles.avatarKey,
     })
     .from(patients)
     .innerJoin(users, eq(patients.userId, users.id))

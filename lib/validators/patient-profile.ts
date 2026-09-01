@@ -16,6 +16,7 @@ export const patientProfileSchema = z.object({
   emergencyContactName: optionalText,
   emergencyContactRelationship: optionalText,
   emergencyContactPhone: z.string().trim().max(30).optional().or(z.literal('')),
+  avatarKey: z.string().trim().optional().or(z.literal('')),
 });
 
 export type PatientProfileInput = z.infer<typeof patientProfileSchema>;

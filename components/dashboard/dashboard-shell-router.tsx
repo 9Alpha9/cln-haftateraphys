@@ -13,6 +13,7 @@ export function DashboardShellRouter({
   role,
   userName,
   userEmail,
+  avatarUrl,
   unreadCount,
   recentNotifications,
 }: {
@@ -20,6 +21,7 @@ export function DashboardShellRouter({
   role: Role;
   userName?: string;
   userEmail?: string;
+  avatarUrl?: string | null;
   unreadCount?: number;
   recentNotifications?: NotificationView[];
 }) {
@@ -28,14 +30,14 @@ export function DashboardShellRouter({
 
   if (ADMIN_ROLES.includes(role)) {
     return (
-      <AdminDashboardShell role={role} userName={userName} userEmail={userEmail} unreadCount={unreadCount} recentNotifications={recentNotifications}>
+      <AdminDashboardShell role={role} userName={userName} userEmail={userEmail} avatarUrl={avatarUrl} unreadCount={unreadCount} recentNotifications={recentNotifications}>
         {children}
       </AdminDashboardShell>
     );
   }
 
   return (
-    <PatientDashboardShell role={role} userName={userName} userEmail={userEmail} unreadCount={unreadCount} recentNotifications={recentNotifications}>
+    <PatientDashboardShell role={role} userName={userName} userEmail={userEmail} avatarUrl={avatarUrl} unreadCount={unreadCount} recentNotifications={recentNotifications}>
       {children}
     </PatientDashboardShell>
   );

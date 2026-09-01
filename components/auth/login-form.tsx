@@ -137,16 +137,15 @@ export function LoginForm() {
           disabled={isPending}
         />
 
-        <div className="flex items-center justify-between">
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
-            <input
-              type="checkbox"
-              checked={remember}
-              onChange={(e) => setRemember(e.target.checked)}
-              className="h-4 w-4 rounded border-border accent-primary"
-            />
-            Simpan data login
-          </label>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <input
+            id="rememberLogin"
+            type="checkbox"
+            checked={remember}
+            onChange={(e) => setRemember(e.target.checked)}
+            className="h-4 w-4 shrink-0 rounded border-border accent-[var(--accent)] cursor-pointer"
+          />
+          <span className="select-none">Simpan data login</span>
         </div>
 
         <Button type="submit" className="h-10 w-full" disabled={isPending}>

@@ -30,7 +30,7 @@ export default async function PrintMedicalRecordPage({
       <PrintTrigger mode={mode} patientName={record.patientName} recordId={record.id} recordedAt={record.recordedAt} />
       <div className="mx-auto max-w-3xl rounded-xl border border-slate-200 bg-white p-8 shadow-sm print:max-w-none print:rounded-none print:border-none print:p-0 print:shadow-none">
         {/* Kop Surat Header */}
-        <div className="flex items-center justify-between border-b-2 border-primary/20 pb-5">
+        <div className="flex items-center justify-between border-b-2 border-accent/30 pb-5">
           <div className="flex items-center gap-4">
             <Image
               src="/images/logos/logos-text.png"
@@ -47,7 +47,7 @@ export default async function PrintMedicalRecordPage({
             </div>
           </div>
           <div className="text-right">
-            <span className="rounded bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 print:border print:border-emerald-200">
+            <span className="rounded bg-accent/15 text-[#92400e] print:border print:border-accent/30">
               REKAM MEDIS RESMI
             </span>
             <p className="mt-2 font-mono text-xs text-slate-400">ID: {record.id.slice(0, 8).toUpperCase()}</p>

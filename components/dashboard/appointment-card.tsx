@@ -85,7 +85,7 @@ export function AppointmentCard({
               </p>
             </div>
             <div className="flex flex-col items-end gap-1.5 shrink-0">
-              <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+              <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-[#92400e]">
                 {statusLabel[appointment.status as keyof typeof statusLabel]}
               </span>
               {appointment.isNew && (
@@ -102,14 +102,14 @@ export function AppointmentCard({
           </div>
           <div className="grid gap-2 rounded-lg bg-surface p-3 text-sm">
             <p className="flex items-center gap-2 text-muted-foreground">
-              <CalendarDays className="h-4 w-4 text-primary" /> <span>{date}</span>
+              <CalendarDays className="h-4 w-4 text-[#92400e]" /> <span>{date}</span>
             </p>
             <p className="flex items-center gap-2 text-muted-foreground">
-              <Clock3 className="h-4 w-4 text-primary" />{" "}
+              <Clock3 className="h-4 w-4 text-[#92400e]" />{" "}
               <span>{appointment.startTime} · {appointment.durationMinutes} menit</span>
             </p>
             <p className="flex items-center gap-2 text-muted-foreground">
-              <UserRound className="h-4 w-4 text-primary" />{" "}
+              <UserRound className="h-4 w-4 text-[#92400e]" />{" "}
               <span>
                 Terapis: {appointment.therapistName ?? "Belum ditentukan"}
               </span>

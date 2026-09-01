@@ -10,7 +10,16 @@ import { notifyUser } from '@/server/notify';
 import { patientProfileSchema, type PatientProfileInput } from '@/lib/validators/patient-profile';
 
 function toNullable(value: string | undefined) {
-  return value?.trim() || null;
+  if (value == null) return null;
+  const t = value.trim();
+  return t ? (t.startsWith('data:') ? t : t) : null;
+}
+
+function avatarOrNull(v: unknown) {
+  if (typeof v !== 'string') return null;
+  const t = v.trim();
+  if (!t) return null;
+  return t;
 }
 
 export async function updateCurrentPatientProfile(input: PatientProfileInput) {
@@ -29,33 +38,9 @@ export async function updateCurrentPatientProfile(input: PatientProfileInput) {
     .limit(1);
 
   if (patient) {
-    await db.transaction(async (tx) => {
-      await tx
-        .update(patients)
-        .set({
-          fullName: data.fullName,
-          gender: data.gender ?? 'MALE',
-          medicalRecordNumber: toNullable(data.medicalRecordNumber),
-          dateOfBirth: data.dateOfBirth ? new Date(`${data.dateOfBirth}T00:00:00.000Z`) : null,
-          occupation: toNullable(data.occupation),
-          addressLine: toNullable(data.addressLine),
-          addressProvince: toNullable(data.addressProvince),
-          addressCity: toNullable(data.addressCity),
-          emergencyContactName: toNullable(data.emergencyContactName),
-          emergencyContactRelationship: toNullable(data.emergencyContactRelationship),
-          emergencyContactPhone: toNullable(data.emergencyContactPhone),
-          updatedAt: new Date(),
-        })
-        .where(eq(patients.id, patient.id));
-      await tx
-        .update(profiles)
-        .set({ displayName: toNullable(data.preferredName), phone: toNullable(data.phone), updatedAt: new Date() })
-        .where(eq(profiles.userId, session.user.id));
-    });
-  } else {
-    await db.transaction(async (tx) => {
-      await tx.insert(patients).values({
-        userId: session.user.id,
+    await db
+      .update(patients)
+      .set({
         fullName: data.fullName,
         gender: data.gender ?? 'MALE',
         medicalRecordNumber: toNullable(data.medicalRecordNumber),
@@ -67,13 +52,43 @@ export async function updateCurrentPatientProfile(input: PatientProfileInput) {
         emergencyContactName: toNullable(data.emergencyContactName),
         emergencyContactRelationship: toNullable(data.emergencyContactRelationship),
         emergencyContactPhone: toNullable(data.emergencyContactPhone),
-      });
-      await tx
-        .update(profiles)
-        .set({ displayName: toNullable(data.preferredName), phone: toNullable(data.phone), updatedAt: new Date() })
-        .where(eq(profiles.userId, session.user.id));
+        updatedAt: new Date(),
+      })
+      .where(eq(patients.id, patient.id));
+  } else {
+    await db.insert(patients).values({
+      userId: session.user.id,
+      fullName: data.fullName,
+      gender: data.gender ?? 'MALE',
+      medicalRecordNumber: toNullable(data.medicalRecordNumber),
+      dateOfBirth: data.dateOfBirth ? new Date(`${data.dateOfBirth}T00:00:00.000Z`) : null,
+      occupation: toNullable(data.occupation),
+      addressLine: toNullable(data.addressLine),
+      addressProvince: toNullable(data.addressProvince),
+      addressCity: toNullable(data.addressCity),
+      emergencyContactName: toNullable(data.emergencyContactName),
+      emergencyContactRelationship: toNullable(data.emergencyContactRelationship),
+      emergencyContactPhone: toNullable(data.emergencyContactPhone),
     });
   }
+  await db
+    .insert(profiles)
+    .values({
+      userId: session.user.id,
+      displayName: toNullable(data.preferredName),
+      phone: toNullable(data.phone),
+      avatarKey: avatarOrNull(data.avatarKey),
+      accountType: 'USER',
+    })
+    .onConflictDoUpdate({
+      target: profiles.userId,
+      set: {
+        displayName: toNullable(data.preferredName),
+        phone: toNullable(data.phone),
+        avatarKey: avatarOrNull(data.avatarKey),
+        updatedAt: new Date(),
+      },
+    });
 
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/profile');

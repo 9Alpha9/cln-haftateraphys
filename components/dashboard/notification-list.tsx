@@ -45,12 +45,12 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
         {items.map((notif) => (
           <li
             key={notif.id}
-            className={cn('flex flex-col gap-1 mx-4 px-4 py-3 mb-2 mt-2 rounded-md', !notif.isRead && 'bg-primary/5')}
+            className={cn('flex flex-col gap-1 mx-4 px-4 py-3 mb-2 mt-2 rounded-md', !notif.isRead && 'bg-accent/5')}
           >
             <div className="flex w-full items-center justify-between gap-2">
               <span className="font-semibold text-foreground">{notif.title}</span>
               {!notif.isRead && (
-                <span className="h-2 w-2 shrink-0 rounded-full bg-primary" aria-label="Belum dibaca" />
+                <span className="h-2 w-2 shrink-0 rounded-full bg-accent" aria-label="Belum dibaca" />
               )}
             </div>
             {notif.message ? (

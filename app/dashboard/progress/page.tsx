@@ -103,8 +103,8 @@ export default async function ProgressPage({
       {records.length === 0 ? (
         <Card>
           <CardContent className="flex min-h-64 flex-col items-center justify-center p-6 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-              <Activity className="h-6 w-6 text-primary" />
+            <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/15">
+              <Activity className="h-6 w-6 text-[#92400e]" />
             </span>
             <h2 className="mt-4 font-semibold text-foreground">
               {isPatient ? 'Belum ada rekam medis yang dibagikan' : 'Belum ada evaluasi medis'}
@@ -134,7 +134,7 @@ export default async function ProgressPage({
                   </div>
                   {!isPatient ? (
                     <div className="flex shrink-0 flex-wrap justify-end gap-1.5">
-                      <span className={record.status === 'FINALIZED' ? 'rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary' : 'rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground'}>
+                      <span className={record.status === 'FINALIZED' ? 'rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-semibold text-[#92400e]' : 'rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground'}>
                         {getStatusLabel(record.status)}
                       </span>
                       <span className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">

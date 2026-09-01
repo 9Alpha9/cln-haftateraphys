@@ -42,7 +42,7 @@ export function FloatingWhatsApp({
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className={cn(
-        'group fixed z-40 flex items-center gap-2 rounded-full bg-green-600 text-white shadow-lg shadow-green-600/30 transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 right-4 md:right-6',
+        'group fixed z-40 flex items-center gap-2 rounded-full bg-green-600 text-white shadow-lg shadow-green-600/30 transition-colors hover:bg-green-700 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-accent/50 right-4 md:right-6',
         className,
       )}
       style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 4.75rem)' }}

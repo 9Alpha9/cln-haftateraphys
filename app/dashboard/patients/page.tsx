@@ -69,7 +69,7 @@ export default async function PatientsPage({
               name="q"
               defaultValue={search}
               placeholder="Cari nama pasien"
-              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-accent"
             />
             <Select name="status" defaultValue={status}>
               <option value="">Semua status</option>
@@ -85,7 +85,7 @@ export default async function PatientsPage({
         <CardContent>
           {result.items.length === 0 ? (
             <div className="flex min-h-48 flex-col items-center justify-center text-center">
-              <Users className="h-10 w-10 text-primary/70" />
+              <Users className="h-10 w-10 text-[#92400e]/70" />
               <p className="mt-4 font-semibold text-foreground">Tidak ada pasien ditemukan</p>
               <p className="mt-2 max-w-sm text-sm text-muted-foreground">
                 Ubah pencarian atau filter, atau tambahkan akun USER sebagai pasien.
@@ -115,7 +115,7 @@ export default async function PatientsPage({
                       </TableCell>
                       <TableCell className="font-semibold text-foreground">{patient.fullName}</TableCell>
                       <TableCell>
-                        <span className="inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                        <span className="inline-flex rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-[#92400e]">
                           {patient.caseStatus}
                         </span>
                       </TableCell>

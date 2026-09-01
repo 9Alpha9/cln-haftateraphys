@@ -94,7 +94,7 @@ export function InstagramCarousel({ images }: InstagramCarouselProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                   tabIndex={pageIndex === displayedIndex ? 0 : -1}
-                  className="group relative block h-full overflow-hidden rounded-sm bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="group relative block h-full overflow-hidden rounded-sm bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
                   <Image
                     src={image}
@@ -118,7 +118,7 @@ export function InstagramCarousel({ images }: InstagramCarouselProps) {
             type="button"
             onClick={showPrevious}
             aria-label="Slide Instagram sebelumnya"
-            className="absolute left-0  inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-primary transition-colors hover:text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="absolute left-0  inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-primary transition-colors hover:text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -130,7 +130,7 @@ export function InstagramCarousel({ images }: InstagramCarouselProps) {
                 onClick={() => setActiveIndex(pageIndex)}
                 aria-label={`Tampilkan slide Instagram ${pageIndex + 1}`}
                 aria-current={pageIndex === displayedIndex ? 'true' : undefined}
-                className={`h-1.5  cursor-pointer rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                className={`h-1.5  cursor-pointer rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                   pageIndex === displayedIndex ? 'w-4 bg-primary' : 'w-1.5 bg-primary/25 hover:bg-primary/50'
                 }`}
               />
@@ -140,7 +140,7 @@ export function InstagramCarousel({ images }: InstagramCarouselProps) {
             type="button"
             onClick={showNext}
             aria-label="Slide Instagram berikutnya"
-            className="absolute  right-0 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-primary transition-colors hover:text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="absolute  right-0 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-primary transition-colors hover:text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -151,7 +151,7 @@ export function InstagramCarousel({ images }: InstagramCarouselProps) {
         href="https://www.instagram.com/hafta.fisioterapi/"
         target="_blank"
         rel="noopener noreferrer"
-        className="mx-auto mt-4 inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md bg-surface px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-sage-200 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="mx-auto mt-4 inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md bg-surface px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-sage-200 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z" />

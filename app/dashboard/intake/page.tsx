@@ -65,12 +65,12 @@ export default async function IntakePage({
               name="q"
               defaultValue={search}
               placeholder="Cari nama pasien"
-              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-accent"
             />
             <select
               name="status"
               defaultValue={status}
-              className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="h-10 rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <option value="">Semua status</option>
               <option value="SUBMITTED">Terkirim</option>
@@ -85,7 +85,7 @@ export default async function IntakePage({
         <CardContent>
           {result.items.length === 0 ? (
             <div className="flex min-h-48 flex-col items-center justify-center text-center">
-              <ClipboardList className="h-10 w-10 text-primary/70" />
+              <ClipboardList className="h-10 w-10 text-[#92400e]/70" />
               <p className="mt-4 font-semibold text-foreground">Tidak ada intake ditemukan</p>
               <p className="mt-2 text-sm text-muted-foreground">Ubah pencarian atau filter status.</p>
             </div>
@@ -117,7 +117,7 @@ export default async function IntakePage({
                         {intake.affectedArea || '-'}
                       </TableCell>
                       <TableCell>
-                        <span className="inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                        <span className="inline-flex rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-[#92400e]">
                           {statusLabel[intake.status as keyof typeof statusLabel]}
                         </span>
                       </TableCell>

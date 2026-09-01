@@ -17,10 +17,10 @@ function getActionIcon(action: string) {
     return <XCircle className="h-4 w-4 text-red-500" />;
   }
   if (action.includes('CREATE') || action.includes('SUBMIT') || action.includes('ACCEPT')) {
-    return <CheckCircle className="h-4 w-4 text-emerald-500" />;
+    return <CheckCircle className="h-4 w-4 text-[#f59e0b]" />;
   }
   if (action.includes('UPDATE') || action.includes('EDIT') || action.includes('ASSIGN')) {
-    return <Info className="h-4 w-4 text-blue-500" />;
+    return <Info className="h-4 w-4 text-[#ea580c]" />;
   }
   if (action.includes('DELETE') || action.includes('CANCEL') || action.includes('SUSPEND') || action.includes('ARCHIVE')) {
     return <AlertCircle className="h-4 w-4 text-amber-500" />;
@@ -33,16 +33,16 @@ function getActionColor(action: string) {
     return 'text-red-600 bg-red-50 border-red-200';
   }
   if (action.includes('CREATE') || action.includes('SUBMIT') || action.includes('ACCEPT')) {
-    return 'text-emerald-600 bg-emerald-50 border-emerald-200';
+    return 'text-[#92400e] bg-accent/15 border-accent/30';
   }
   if (action.includes('UPDATE') || action.includes('EDIT') || action.includes('ASSIGN')) {
-    return 'text-blue-600 bg-blue-50 border-blue-200';
+    return 'text-[#92400e] bg-accent/15 border-accent/30';
   }
   if (action.includes('DELETE') || action.includes('CANCEL') || action.includes('SUSPEND') || action.includes('ARCHIVE')) {
     return 'text-amber-600 bg-amber-50 border-amber-200';
   }
   if (action.includes('LOGIN') || action.includes('LOGOUT')) {
-    return 'text-violet-600 bg-violet-50 border-violet-200';
+    return 'text-[#92400e] bg-accent/15 border-accent/30';
   }
   return 'text-slate-600 bg-slate-50 border-slate-200';
 }

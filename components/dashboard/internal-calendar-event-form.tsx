@@ -99,15 +99,15 @@ export function InternalCalendarEventForm() {
           id="description"
           name="description"
           disabled={pending}
-          className="flex min-h-28 w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex min-h-28 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:border-accent"
         />
       </div>
-      <label className="flex items-start gap-3 rounded-lg border border-border p-4 text-sm">
-        <input type="checkbox" name="patientVisible" className="mt-1 h-4 w-4 accent-primary" disabled={pending} />
-        <span>Tampilkan event ini kepada pasien di kalender mereka.</span>
-      </label>
+      <div className="flex items-start gap-3 rounded-lg border border-accent/30 bg-accent/5 p-4 text-sm">
+        <input id="patientVisible" type="checkbox" name="patientVisible" className="mt-1 h-4 w-4 shrink-0 accent-[var(--accent)] cursor-pointer" disabled={pending} />
+        <span className="select-none">Tampilkan event ini kepada pasien di kalender mereka.</span>
+      </div>
       <div className="flex justify-end">
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending} className="bg-accent text-accent-foreground hover:bg-accent/90">
           {pending ? 'Menyimpan...' : 'Simpan Event'}
         </Button>
       </div>

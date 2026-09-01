@@ -25,7 +25,7 @@ export default async function AddUserPage() {
       <div>
         <Link
           href={backHref}
-          className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary hover:underline"
+          className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-[#92400e] hover:underline"
         >
           <ArrowLeft className="h-4 w-4" /> {backLabel}
         </Link>

@@ -1,7 +1,8 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
+import { Camera, User } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,11 +15,15 @@ import { useWilayahIndonesia } from '@/lib/use-wilayah-indonesia';
 export function PatientProfileForm({
   initialValues,
   email,
+  initialAvatarUrl,
 }: {
   initialValues: Partial<PatientProfileInput>;
   email: string;
+  initialAvatarUrl?: string | null;
 }) {
   const [pending, startTransition] = useTransition();
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(initialAvatarUrl ?? null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const {
     provinces,
     regencies,
@@ -34,6 +39,26 @@ export function PatientProfileForm({
     formState: { errors, isSubmitSuccessful },
     setError,
   } = useForm<PatientProfileInput>({ defaultValues: initialValues });
+
+  function onAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      setError('root', { message: 'Ukuran foto maksimal 2MB.' });
+      return;
+    }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setError('root', { message: 'Format foto harus JPG, PNG, atau WebP.' });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = String(reader.result ?? '');
+      setAvatarPreview(dataUrl);
+      setValue('avatarKey', dataUrl, { shouldDirty: true });
+    };
+    reader.readAsDataURL(file);
+  }
 
   return (
     <form
@@ -58,7 +83,54 @@ export function PatientProfileForm({
           <AlertDescription>{errors.root.message}</AlertDescription>
         </Alert>
       ) : null}
-      <section className="space-y-4">
+      <section className="space-y-5">
+        <div className="flex flex-col gap-5 rounded-2xl border border-accent/20 bg-accent/[0.04] p-5 sm:flex-row sm:items-center">
+          <div className="relative mx-auto sm:mx-0">
+            <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white shadow-sm">
+              {avatarPreview ? (
+                <img src={avatarPreview} alt="Foto profil" className="h-full w-full object-cover" />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center bg-accent/15 text-2xl font-bold text-[#92400e]">
+                  {(initialValues.fullName ?? email)?.[0]?.toUpperCase() ?? <User className="h-8 w-8" />}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white text-[#92400e] shadow-sm hover:bg-accent hover:text-accent-foreground"
+              aria-label="Ubah foto profil"
+            >
+              <Camera className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="flex-1 text-center sm:text-left">
+            <h3 className="text-sm font-bold text-foreground">Foto Profil</h3>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              JPG, PNG maksimal 2MB. Klik ikon kamera untuk mengganti foto.
+            </p>
+            <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={onAvatarChange} />
+            <div className="mt-3 flex justify-center gap-2 sm:justify-start">
+              <Button type="button" size="sm" onClick={() => fileRef.current?.click()} className="bg-accent text-accent-foreground hover:bg-accent/90">
+                Pilih Foto
+              </Button>
+              {avatarPreview ? (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setAvatarPreview(null);
+                    setValue('avatarKey', '', { shouldDirty: true });
+                    if (fileRef.current) fileRef.current.value = '';
+                  }}
+                >
+                  Hapus
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        </div>
         <div>
           <h2 className="font-semibold text-foreground">Identitas & Kontak</h2>
           <p className="text-sm text-muted-foreground">
@@ -77,16 +149,11 @@ export function PatientProfileForm({
           </div>
           <div className="space-y-2">
             <Label htmlFor="gender">Jenis Kelamin</Label>
-            <select
-              id="gender"
-              disabled={pending}
-              className="flex h-10 w-full cursor-pointer appearance-none rounded-lg border border-input bg-background py-2 pl-3 pr-12 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
-              {...register('gender')}
-            >
+            <Select disabled={pending} {...register('gender')}>
               <option value="MALE">Laki-laki</option>
               <option value="FEMALE">Perempuan</option>
               <option value="OTHER">Lainnya</option>
-            </select>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="medicalRecordNumber">No. Rekam Medis</Label>
@@ -109,16 +176,22 @@ export function PatientProfileForm({
             <Input id="dateOfBirth" type="date" disabled={pending} {...register('dateOfBirth')} />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="age">Usia</Label>
+            <Input
+              id="age"
+              disabled
+              value={(initialValues.dateOfBirth ? new Date().getFullYear() - new Date(initialValues.dateOfBirth).getFullYear() : '-') + ' tahun'}
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="occupation">Pekerjaan</Label>
             <Input id="occupation" disabled={pending} {...register('occupation')} />
           </div>
           <div className="space-y-2">
             <Label htmlFor="addressProvince">Provinsi</Label>
-            <select
-              id="addressProvince"
+            <Select
               disabled={pending || loadingProvinces}
               defaultValue={initialValues.addressProvince ?? ''}
-              className="flex h-10 w-full cursor-pointer appearance-none rounded-lg border border-input bg-background py-2 pl-3 pr-12 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
               {...register('addressProvince')}
               onChange={(event) => {
                 setSelectedProvinceId(event.target.value);
@@ -130,7 +203,7 @@ export function PatientProfileForm({
               {provinces.map((province) => (
                 <option key={province.id} value={province.id}>{province.name}</option>
               ))}
-            </select>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="addressCity">Kabupaten / Kota</Label>
@@ -138,7 +211,7 @@ export function PatientProfileForm({
               id="addressCity"
               disabled={pending || !regencies.length || loadingRegencies}
               defaultValue={initialValues.addressCity ?? ''}
-              className="flex h-10 w-full cursor-pointer appearance-none rounded-lg border border-input bg-background py-2 pl-3 pr-12 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+              className="flex h-10 w-full cursor-pointer appearance-none rounded-lg border border-input bg-background py-2 pl-3 pr-12 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50"
               {...register('addressCity')}
               onChange={(event) => setValue('addressCity', event.target.value)}
             >
@@ -154,7 +227,7 @@ export function PatientProfileForm({
           <textarea
             id="addressLine"
             disabled={pending}
-            className="flex min-h-28 w-full resize-y rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-28 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-60"
             {...register('addressLine')}
           />
         </div>
