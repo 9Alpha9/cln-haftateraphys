@@ -1,21 +1,25 @@
 import { Document, Image, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import { createTw } from '@hyperline/react-pdf-tailwind';
-
-const tw = createTw({
-  theme: {
-    fontFamily: {
-      sans: ['Helvetica'],
-    },
-  },
-});
 
 const styles = StyleSheet.create({
   page: {
-    ...tw('p-10 bg-white'),
+    padding: 40,
+    backgroundColor: '#ffffff',
+    fontFamily: 'Helvetica',
     paddingBottom: 95,
   },
-  header: tw('mb-7 border-b border-slate-200 pb-4 flex flex-row justify-between items-center'),
-  headerIdentity: tw('flex flex-row items-center'),
+  header: {
+    marginBottom: 28,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e2e8f0',
+    paddingBottom: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerIdentity: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   headerLogo: {
     width: 105,
     height: 42,
@@ -25,28 +29,107 @@ const styles = StyleSheet.create({
   headerClinic: {
     width: 285,
   },
-  clinicInfo: tw('text-[9px] text-slate-900 font-semibold mt-0.5'),
-  clinicInfoAccent: tw('text-[12px] text-slate-900 font-bold mb-0.5'),
-  badge: tw('text-[9px] font-bold text-slate-700 bg-slate-100 px-2 py-1 border border-slate-200'),
-  recordId: tw('text-[9px] text-slate-400 mt-1'),
+  clinicInfo: {
+    fontSize: 9,
+    color: '#0f172a',
+    fontFamily: 'Helvetica-Bold',
+    marginTop: 2,
+  },
+  clinicInfoAccent: {
+    fontSize: 12,
+    color: '#0f172a',
+    fontFamily: 'Helvetica-Bold',
+    marginBottom: 2,
+  },
+  badgeContainer: {
+    alignItems: 'flex-end',
+  },
+  badge: {
+    fontSize: 9,
+    fontFamily: 'Helvetica-Bold',
+    color: '#334155',
+    backgroundColor: '#f1f5f9',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  recordId: {
+    fontSize: 9,
+    color: '#94a3b8',
+    marginTop: 4,
+  },
 
-  infoBox: tw('mb-8'),
-  infoRow: tw('flex flex-row mb-4'),
-  infoCol: tw('w-1/2'),
-  infoLabel: tw('text-[10px] text-slate-400 mb-1'),
-  infoValue: tw('text-xs font-bold text-slate-900'),
+  infoBox: {
+    marginBottom: 32,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    marginBottom: 16,
+  },
+  infoCol: {
+    width: '50%',
+  },
+  infoLabel: {
+    fontSize: 10,
+    color: '#94a3b8',
+    marginBottom: 4,
+  },
+  infoValue: {
+    fontSize: 12,
+    fontFamily: 'Helvetica-Bold',
+    color: '#0f172a',
+  },
 
-  sectionTitle: tw('text-xs font-bold text-slate-800 mb-4'),
-  metricsGrid: tw('flex flex-row gap-4 mb-8'),
-  metricCard: tw('w-1/4 items-center py-2'),
-  metricLabel: tw('text-[10px] text-slate-500 font-bold'),
-  metricValue: tw('text-[18px] font-bold text-slate-900 mt-1'),
-  metricTotal: tw('text-[10px] text-slate-400'),
+  sectionTitle: {
+    fontSize: 12,
+    fontFamily: 'Helvetica-Bold',
+    color: '#1e293b',
+    marginBottom: 16,
+  },
+  metricsGrid: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 32,
+  },
+  metricCard: {
+    width: '25%',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  metricLabel: {
+    fontSize: 10,
+    color: '#64748b',
+    fontFamily: 'Helvetica-Bold',
+  },
+  metricValue: {
+    fontSize: 18,
+    fontFamily: 'Helvetica-Bold',
+    color: '#0f172a',
+    marginTop: 4,
+  },
+  metricTotal: {
+    fontSize: 10,
+    color: '#94a3b8',
+  },
 
-  notesSection: tw('mb-8'),
-  noteItem: tw('mb-6'),
-  noteTitle: tw('text-[11px] font-bold text-slate-700 mb-1'),
-  noteContent: tw('text-[11px] leading-[18px] text-slate-800'),
+  notesSection: {
+    marginBottom: 32,
+  },
+  noteItem: {
+    marginBottom: 24,
+  },
+  noteTitle: {
+    fontSize: 11,
+    fontFamily: 'Helvetica-Bold',
+    color: '#334155',
+    marginBottom: 4,
+  },
+  noteContent: {
+    fontSize: 11,
+    lineHeight: 1.6,
+    color: '#1e293b',
+  },
 
   footer: {
     position: 'absolute',
@@ -57,21 +140,39 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-end',
   },
-  footerInfo: tw('text-[9px] text-slate-400'),
+  footerInfo: {
+    fontSize: 9,
+    color: '#94a3b8',
+  },
   signatureBox: {
     width: 155,
     alignItems: 'center',
   },
-  signatureLabel: tw('text-[9px] text-slate-500'),
-  signatureSpace: tw('h-11 justify-center'),
-  signaturePlaceholder: tw('text-[9px] text-slate-300 italic'),
+  signatureLabel: {
+    fontSize: 9,
+    color: '#64748b',
+  },
+  signatureSpace: {
+    height: 44,
+    justifyContent: 'center',
+  },
+  signaturePlaceholder: {
+    fontSize: 9,
+    color: '#cbd5e1',
+    fontStyle: 'italic',
+  },
   signatureLine: {
     width: 105,
     borderTopWidth: 1,
     borderTopColor: '#cbd5e1',
     marginBottom: 4,
   },
-  signatureName: tw('text-[10px] font-bold text-slate-900 text-center'),
+  signatureName: {
+    fontSize: 10,
+    fontFamily: 'Helvetica-Bold',
+    color: '#0f172a',
+    textAlign: 'center',
+  },
 });
 
 export type MedicalRecordPdfData = {
@@ -113,7 +214,7 @@ export const MedicalRecordDocument = ({ record }: { record: MedicalRecordPdfData
               <Text style={styles.clinicInfo}>Telp: (021) 555-0199</Text>
             </View>
           </View>
-          <View style={tw('items-end')}>
+          <View style={styles.badgeContainer}>
             <Text style={styles.badge}>REKAM MEDIS RESMI</Text>
             <Text style={styles.recordId}>ID: {record.id.slice(0, 8).toUpperCase()}</Text>
           </View>
