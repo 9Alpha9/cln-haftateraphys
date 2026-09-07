@@ -37,7 +37,7 @@ export function PatientMedicalRecordView({
 }) {
   const [activeTab, setActiveTab] = useState<TabKey>('medis');
   const [selectedRecordId, setSelectedRecordId] = useState(records[0]?.id ?? '');
-  const [showAllVisits, setShowAllVisits] = useState(false);
+  const [showAllVisits, setShowAllVisits] = useState<boolean>(false);
   const latestRecord = records[0] ?? null;
   const firstRecord = records[records.length - 1] ?? null;
   const selectedRecord = useMemo(
@@ -235,7 +235,7 @@ export function PatientMedicalRecordView({
               {records.length > 4 ? (
                 <button
                   type="button"
-                  onClick={() => setShowAllVisits((current) => !current)}
+                  onClick={() => setShowAllVisits((current: boolean) => !current)}
                   className="mt-4 flex items-center gap-2 text-[13px] font-semibold text-[#D97706] hover:text-[#B45309]"
                 >
                   {showAllVisits ? 'Tampilkan lebih sedikit' : `Lihat semua ${records.length} kunjungan`}
