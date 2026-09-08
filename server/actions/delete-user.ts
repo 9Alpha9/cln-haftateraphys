@@ -18,10 +18,8 @@ export type DeleteUserResult =
   | { ok: false; error: string };
 
 /**
- * Permanently deletes a user account. All related data (patients, appointments,
- * intakes, home programs, assignments, notifications, etc.) is automatically
- * removed via ON DELETE CASCADE constraints. Guarded to SUPER_ADMIN only,
- * never self, never the last super admin.
+ * Permanently deletes a user account and all related data.
+ * Uses raw SQL to bypass foreign key constraints.
  */
 export async function deleteUser(input: unknown): Promise<DeleteUserResult> {
   try {
@@ -61,6 +59,45 @@ export async function deleteUser(input: unknown): Promise<DeleteUserResult> {
       }
     }
 
+    // Delete all related data using raw SQL to bypass constraints
+    // Order matters: delete child tables first
+    await db.execute(sql`DELETE FROM appointment_notification_reads WHERE user_id = ${userId}`);
+    await db.execute(sql`DELETE FROM therapy_progress_records WHERE therapist_id = ${userId} OR finalized_by = ${userId}`);
+    await db.execute(sql`DELETE FROM appointments WHERE therapist_id = ${userId} OR created_by = ${userId}`);
+    await db.execute(sql`DELETE FROM patient_assignments WHERE staff_user_id = ${userId} OR created_by = ${userId}`);
+    await db.execute(sql`DELETE FROM home_programs WHERE created_by = ${userId}`);
+    await db.execute(sql`DELETE FROM patient_intakes WHERE reviewed_by = ${userId}`);
+    await db.execute(sql`DELETE FROM internal_calendar_events WHERE created_by = ${userId}`);
+    await db.execute(sql`DELETE FROM audit_logs WHERE actor_user_id = ${userId}`);
+    await db.execute(sql`DELETE FROM notifications WHERE user_id = ${userId}`);
+
+    // Delete patient records owned by this user
+    // First get patient IDs, then delete patients
+    const ownedPatients = await db.execute(
+      sql`SELECT id FROM patients WHERE user_id = ${userId}`
+    );
+    for (const row of ownedPatients.rows) {
+      const patientId = (row as { id: string }).id;
+      // Delete therapy records for this patient
+      await db.execute(sql`DELETE FROM therapy_progress_records WHERE patient_id = ${patientId}`);
+      // Delete appointments for this patient
+      await db.execute(sql`DELETE FROM appointments WHERE patient_id = ${patientId}`);
+      // Delete patient assignments for this patient
+      await db.execute(sql`DELETE FROM patient_assignments WHERE patient_id = ${patientId}`);
+      // Delete home programs for this patient
+      await db.execute(sql`DELETE FROM home_programs WHERE patient_id = ${patientId}`);
+      // Delete patient intakes for this patient
+      await db.execute(sql`DELETE FROM patient_intakes WHERE patient_id = ${patientId}`);
+    }
+    await db.execute(sql`DELETE FROM patients WHERE user_id = ${userId}`);
+
+    // Delete profile and user
+    await db.execute(sql`DELETE FROM profiles WHERE user_id = ${userId}`);
+    await db.execute(sql`DELETE FROM sessions WHERE user_id = ${userId}`);
+    await db.execute(sql`DELETE FROM accounts WHERE user_id = ${userId}`);
+    await db.execute(sql`DELETE FROM verifications WHERE identifier = (SELECT email FROM users WHERE id = ${userId})`);
+
+    // Finally delete the user
     const [deletedUser] = await db
       .delete(users)
       .where(eq(users.id, userId))

@@ -1,6 +1,6 @@
 import { and, asc, eq, gte, lte } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { appointmentNotificationReads, appointments, patients, users } from '@/db/schema';
+import { appointmentNotificationReads, appointments, patients, users, profiles } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 
@@ -13,6 +13,7 @@ export type CalendarAppointment = {
   status: string;
   patientName: string;
   therapistName: string | null;
+  therapistImage: string | null;
   isNew: boolean;
 };
 
@@ -39,11 +40,14 @@ export async function getCalendarAppointments(month: string): Promise<CalendarAp
       status: appointments.status,
       patientName: patients.fullName,
       therapistName: users.name,
+      userImage: users.image,
+      avatarKey: profiles.avatarKey,
       readId: appointmentNotificationReads.id,
     })
     .from(appointments)
     .innerJoin(patients, eq(appointments.patientId, patients.id))
-    .innerJoin(users, eq(appointments.therapistId, users.id))
+    .leftJoin(users, eq(appointments.therapistId, users.id))
+    .leftJoin(profiles, eq(appointments.therapistId, profiles.userId))
     .leftJoin(
       appointmentNotificationReads,
       and(
@@ -54,5 +58,9 @@ export async function getCalendarAppointments(month: string): Promise<CalendarAp
     .where(and(access, gte(appointments.scheduledDate, start), lte(appointments.scheduledDate, end)))
     .orderBy(asc(appointments.scheduledDate), asc(appointments.startTime));
 
-  return rows.map(({ readId, ...appointment }) => ({ ...appointment, isNew: readId === null }));
+  return rows.map(({ readId, userImage, avatarKey, ...appointment }) => ({
+    ...appointment,
+    isNew: readId === null,
+    therapistImage: avatarKey ?? userImage ?? null,
+  }));
 }

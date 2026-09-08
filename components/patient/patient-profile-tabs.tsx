@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { Camera, User, Shield, MapPin, Phone, Mail, Briefcase, Calendar, Heart, Lock, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Select } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { ChangePasswordForm } from '@/components/dashboard/change-password-form';
 import { updateCurrentPatientProfile } from '@/server/actions/patient-profile';
 import type { PatientProfileInput } from '@/lib/validators/patient-profile';
@@ -36,6 +37,7 @@ export function PatientProfileTabs({ initialValues, email, initialAvatarUrl, use
     setValue,
     watch,
     reset,
+    control,
     formState: { errors, isDirty },
   } = useForm<PatientProfileInput>({ defaultValues: { ...initialValues, avatarKey: (initialValues as { avatarKey?: string })?.avatarKey ?? (initialAvatarUrl ?? '') } });
 
@@ -222,7 +224,17 @@ export function PatientProfileTabs({ initialValues, email, initialAvatarUrl, use
                       </div>
                       <div className="flex flex-col gap-2">
                         <span className="text-sm font-medium">Tanggal lahir</span>
-                        <Input type="date" disabled={pending} {...register('dateOfBirth')} />
+                        <Controller
+                          control={control}
+                          name="dateOfBirth"
+                          render={({ field }) => (
+                            <DatePicker
+                              value={field.value ?? ''}
+                              onChange={field.onChange}
+                              disabled={pending}
+                            />
+                          )}
+                        />
                       </div>
                       <div className="flex flex-col gap-2">
                         <span className="text-sm font-medium">Usia</span>

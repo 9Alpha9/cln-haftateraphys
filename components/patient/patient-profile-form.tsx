@@ -1,13 +1,14 @@
 'use client';
 
 import { useRef, useState, useTransition } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { Camera, User } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { updateCurrentPatientProfile } from '@/server/actions/patient-profile';
 import type { PatientProfileInput } from '@/lib/validators/patient-profile';
 import { useWilayahIndonesia } from '@/lib/use-wilayah-indonesia';
@@ -36,6 +37,7 @@ export function PatientProfileForm({
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors, isSubmitSuccessful },
     setError,
   } = useForm<PatientProfileInput>({ defaultValues: initialValues });
@@ -173,7 +175,18 @@ export function PatientProfileForm({
           </div>
           <div className="space-y-2">
             <Label htmlFor="dateOfBirth">Tanggal lahir</Label>
-            <Input id="dateOfBirth" type="date" disabled={pending} {...register('dateOfBirth')} />
+            <Controller
+              control={control}
+              name="dateOfBirth"
+              render={({ field }) => (
+                <DatePicker
+                  id="dateOfBirth"
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                  disabled={pending}
+                />
+              )}
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="age">Usia</Label>

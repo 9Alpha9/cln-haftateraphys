@@ -41,7 +41,11 @@ export function IntakeReviewActions({
   if (status === 'SUBMITTED' && canReview)
     return (
       <div className="space-y-3">
-        <Button disabled={pending} onClick={() => run('start-review')}>
+        <Button
+          disabled={pending}
+          onClick={() => run('start-review')}
+          className="rounded-xl bg-[var(--hafta-ylw-400)] hover:bg-[var(--hafta-ylw-300)] text-white font-semibold"
+        >
           {pending ? 'Memproses...' : 'Mulai Tinjau'}
         </Button>
         {error ? (
@@ -53,10 +57,10 @@ export function IntakeReviewActions({
     );
   if (status !== 'UNDER_REVIEW') return null;
   return (
-    <div className="space-y-4 rounded-lg border border-border p-4">
+    <div className="space-y-4 rounded-xl border border-[#E9E2D8] bg-white p-5">
       <div>
-        <p className="font-semibold text-foreground">Keputusan Review</p>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="font-semibold text-[#1F2937]">Keputusan Review</p>
+        <p className="mt-1 text-sm text-[#6B7280]">
           Pesan perbaikan akan dapat dilihat pasien. Jangan masukkan catatan internal.
         </p>
       </div>
@@ -67,7 +71,7 @@ export function IntakeReviewActions({
       ) : null}
       {canRequestRevision ? (
         <div className="space-y-2">
-          <label htmlFor="reviewMessage" className="text-sm font-medium text-foreground">
+          <label htmlFor="reviewMessage" className="text-sm font-semibold text-[#1F2937]">
             Pesan perbaikan untuk pasien
           </label>
           <textarea
@@ -75,18 +79,28 @@ export function IntakeReviewActions({
             value={reviewMessage}
             onChange={(event) => setReviewMessage(event.target.value)}
             disabled={pending}
-            className="flex min-h-28 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-60"
+            rows={4}
+            className="flex min-h-[6rem] w-full resize-none rounded-xl border border-[#E9E2D8] bg-[#FBF9F6] px-3.5 py-2.5 text-sm leading-relaxed text-[#1F2937] placeholder:text-[#9CA3AF] focus-visible:outline-none focus-visible:border-[var(--hafta-ylw-400)] focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-400)]/20 disabled:cursor-not-allowed disabled:opacity-60 transition-all"
           />
         </div>
       ) : null}
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
         {canRequestRevision ? (
-          <Button variant="outline" disabled={pending} onClick={() => run('request-revision')}>
+          <Button
+            variant="outline"
+            disabled={pending}
+            onClick={() => run('request-revision')}
+            className="rounded-xl border border-[#E9E2D8] bg-white text-[#1F2937] hover:bg-[#FFF7ED]/50 hover:text-[var(--hafta-ylw-400)]"
+          >
             Minta Perbaikan
           </Button>
         ) : null}
         {canAccept ? (
-          <Button disabled={pending} onClick={() => run('accept')}>
+          <Button
+            disabled={pending}
+            onClick={() => run('accept')}
+            className="rounded-xl bg-[var(--hafta-ylw-400)] hover:bg-[var(--hafta-ylw-300)] text-white font-semibold"
+          >
             {pending ? 'Memproses...' : 'Terima Form Awal'}
           </Button>
         ) : null}

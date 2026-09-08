@@ -10,11 +10,13 @@ export function PrintTrigger({
   patientName,
   recordId,
   recordedAt,
+  backHref = '/dashboard/progress',
 }: {
   mode: 'print' | 'pdf';
   patientName: string;
   recordId: string;
   recordedAt: Date;
+  backHref?: string;
 }) {
   useEffect(() => {
     const datePart = recordedAt.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -27,7 +29,7 @@ export function PrintTrigger({
 
   return (
     <div className="mx-auto mb-6 flex max-w-3xl items-center justify-between print:hidden">
-      <Link href="/dashboard/progress">
+      <Link href={backHref}>
         <Button variant="outline" size="sm">
           <ArrowLeft className="h-4 w-4" /> Kembali
         </Button>

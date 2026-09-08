@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 export function SidebarAccountMenu({
   userName,
   roleLabel,
+  avatarUrl,
   onProfile,
   onSettings,
   onSecurity,
@@ -15,6 +16,7 @@ export function SidebarAccountMenu({
 }: {
   userName?: string;
   roleLabel: string;
+  avatarUrl?: string | null;
   onProfile: () => void;
   onSettings: () => void;
   onSecurity: () => void;
@@ -45,8 +47,13 @@ export function SidebarAccountMenu({
         onClick={() => setOpen((value) => !value)}
         className="cursor-pointer flex w-full items-center gap-3 rounded-xl border border-border bg-slate-50 p-3 text-left transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
-        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-sm font-bold text-primary-foreground">
-          {userName?.[0]?.toUpperCase() ?? 'A'}
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-accent text-sm font-bold text-primary-foreground">
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+          ) : (
+            userName?.[0]?.toUpperCase() ?? 'A'
+          )}
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-bold text-foreground">{userName || 'Administrator'}</span>

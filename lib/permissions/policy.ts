@@ -38,8 +38,9 @@ export class UnauthenticatedError extends Error {
 }
 
 export function hasPermission(role: Role, permission: Permission): boolean {
+  if (role === 'SUPER_ADMIN') return true;
   const rolePermissions = ROLE_PERMISSIONS[role];
-  return rolePermissions.includes(permission);
+  return rolePermissions?.includes(permission) ?? false;
 }
 
 export function authorize(context: AuthorizationContext): void {

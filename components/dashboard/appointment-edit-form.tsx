@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { DatePicker } from '@/components/ui/date-picker';
 import { useToast } from '@/components/ui/toast';
 import { updateAppointment } from '@/server/actions/appointments';
 import type { AppointmentDetail } from '@/server/queries/appointments';
@@ -32,14 +33,6 @@ for (let hour = 8; hour <= 21; hour++) {
   }
 }
 
-function openPicker(event: React.MouseEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) {
-  try {
-    event.currentTarget.showPicker();
-  } catch {
-    // Browser yang tidak mendukung showPicker tetap memakai picker native saat input diinteraksikan.
-  }
-}
-
 export function AppointmentEditForm({
   appointment,
   therapistOptions,
@@ -48,10 +41,12 @@ export function AppointmentEditForm({
   therapistOptions: SelectOption[];
 }) {
   const [pending, startTransition] = useTransition();
+  const [scheduledDate, setScheduledDate] = useState(
+    appointment.scheduledDate ? appointment.scheduledDate.split('T')[0].split(' ')[0] : '',
+  );
   const router = useRouter();
   const { showToast } = useToast();
 
-  const dateValue = appointment.scheduledDate ? appointment.scheduledDate.split('T')[0].split(' ')[0] : '';
   const startTimeValue = appointment.startTime ?? '';
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -110,7 +105,13 @@ export function AppointmentEditForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="scheduledDate">Tanggal</Label>
-          <Input id="scheduledDate" name="scheduledDate" type="date" required defaultValue={dateValue} disabled={pending} onClick={openPicker} onFocus={openPicker} />
+          <input type="hidden" name="scheduledDate" value={scheduledDate} required />
+          <DatePicker
+            id="scheduledDate"
+            value={scheduledDate}
+            onChange={setScheduledDate}
+            disabled={pending}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="startTime">Waktu Mulai</Label>

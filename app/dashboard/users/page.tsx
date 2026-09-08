@@ -12,12 +12,13 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { UserPlus, Users, ShieldAlert } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS, requirePermission, type Role } from '@/lib/permissions';
 import { getRoleColor, getRoleLabel } from '@/lib/role-utils';
 import { getUsersList } from '@/server/queries/users';
 import { DeleteUserButton } from '@/components/dashboard/delete-user-button';
+import { cn } from '@/lib/utils';
 
 export default async function UsersPage({
   searchParams,
@@ -42,12 +43,17 @@ export default async function UsersPage({
         title="Manajemen Pengguna"
         description="Kelola akun pengguna dan role."
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Pengguna' }]}
+        icon={<Users className="h-7 w-7 text-white" />}
         action={
           canCreateUser ? (
-            <Link href="/dashboard/users/add">
-              <Button size="lg">
-                <UserPlus className="h-4 w-4" aria-hidden="true" /> Tambah Pengguna
-              </Button>
+            <Link
+              href="/dashboard/users/add"
+              className={cn(
+                buttonVariants({ size: 'lg' }),
+                'shadow-md w-full sm:w-auto justify-center px-6'
+              )}
+            >
+              <UserPlus className="h-4 w-4" aria-hidden="true" /> Tambah Pengguna
             </Link>
           ) : undefined
         }

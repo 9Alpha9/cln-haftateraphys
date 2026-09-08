@@ -113,7 +113,7 @@ export async function getScopedAppointments(page = 1, pageSize = 6) {
 
 export async function assertPatientSchedulingScope(patientId: string) {
   const { role } = await requireSession({ redirectToLogin: true });
-  if (role === 'USER' || role === 'SUPER_ADMIN' || !hasPermission(role, PERMISSIONS.APPOINTMENT_CREATE)) {
+  if (role === 'USER' || !hasPermission(role, PERMISSIONS.APPOINTMENT_CREATE)) {
     throw new ForbiddenError();
   }
 

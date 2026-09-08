@@ -7,16 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { createInternalCalendarEvent } from '@/server/actions/internal-calendar-events';
 
 export function InternalCalendarEventForm() {
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [scheduledDate, setScheduledDate] = useState('');
   const router = useRouter();
-
-  function openPicker(e: React.MouseEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) {
-    try { e.currentTarget.showPicker(); } catch { /* ignore */ }
-  }
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -64,7 +62,13 @@ export function InternalCalendarEventForm() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="scheduledDate">Tanggal</Label>
-          <Input id="scheduledDate" name="scheduledDate" type="date" required disabled={pending} onClick={openPicker} onFocus={openPicker} />
+          <input type="hidden" name="scheduledDate" value={scheduledDate} required />
+          <DatePicker
+            id="scheduledDate"
+            value={scheduledDate}
+            onChange={setScheduledDate}
+            disabled={pending}
+          />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-2">

@@ -68,9 +68,9 @@ export function MedicalRecordActions({ record }: { record: MedicalRecordPdfData 
       <iframe ref={iframeRef} className="hidden" title="Print Frame" />
       <Button type="button" variant="outline" size="sm" disabled={printing} className="h-9 gap-1.5 rounded-xl border-[#E9E2D8] bg-white px-3 text-[12px] font-semibold text-[#1F2937] hover:bg-[#FFF7ED]" onClick={() => void openPrintPage()}>
         {printing ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-[#D97706]" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--hafta-ylw-400)]" />
         ) : (
-          <Printer className="h-3.5 w-3.5 text-[#D97706]" />
+          <Printer className="h-3.5 w-3.5 text-[var(--hafta-ylw-400)]" />
         )}
         {printing ? 'Mencetak...' : 'Print'}
       </Button>
@@ -79,13 +79,13 @@ export function MedicalRecordActions({ record }: { record: MedicalRecordPdfData 
         variant="outline"
         size="sm"
         disabled={loading}
-        className="h-9 gap-1.5 rounded-xl border-[#F28C28]/20 bg-[#FFF7ED] px-3 text-[12px] font-semibold text-[#D97706] hover:bg-[#FFF0DB]"
+        className="h-9 gap-1.5 rounded-xl border-[#F28C28]/20 bg-[#FFF7ED] px-3 text-[12px] font-semibold text-[var(--hafta-ylw-400)] hover:bg-[#FFF0DB]"
         onClick={() => void downloadPdf()}
       >
         {loading ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-[#D97706]" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--hafta-ylw-400)]" />
         ) : (
-          <FileDown className="h-3.5 w-3.5 text-[#D97706]" />
+          <FileDown className="h-3.5 w-3.5 text-[var(--hafta-ylw-400)]" />
         )}
         {loading ? 'Memproses...' : 'Unduh PDF'}
       </Button>

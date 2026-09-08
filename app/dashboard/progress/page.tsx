@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { Activity, Eye, EyeOff, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
@@ -18,6 +18,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
+import { cn } from '@/lib/utils';
 
 function getStatusLabel(status: 'DRAFT' | 'FINALIZED') {
   return status === 'FINALIZED' ? 'Final' : 'Draft';
@@ -68,12 +69,17 @@ export default async function ProgressPage({
             : 'Kelola evaluasi klinis pasien dalam cakupan akses Anda.'
         }
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Rekam Medis' }]}
+        icon={<Activity className="h-7 w-7 text-white" />}
         action={
           canCreate ? (
-            <Link href="/dashboard/progress/new">
-              <Button size="lg">
-                <Plus className="h-4 w-4" aria-hidden="true" /> Tambah Evaluasi
-              </Button>
+            <Link
+              href="/dashboard/progress/new"
+              className={cn(
+                buttonVariants({ size: 'lg' }),
+                'shadow-md w-full sm:w-auto justify-center px-6'
+              )}
+            >
+              <Plus className="h-4 w-4" aria-hidden="true" /> Tambah Evaluasi
             </Link>
           ) : undefined
         }

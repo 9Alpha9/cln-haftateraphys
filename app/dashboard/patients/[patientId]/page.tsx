@@ -1,8 +1,9 @@
 import { Container } from '@/components/container';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TherapyScheduleForm } from '@/components/patient/therapy-schedule-form';
 import Link from 'next/link';
-import { User, ClipboardList, FileText, Activity } from 'lucide-react';
+import { User, ClipboardList, FileText, Activity, CalendarDays } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { PERMISSIONS, requirePatientAccess, ForbiddenError } from '@/lib/permissions';
 import { getPatientTherapist } from '@/server/queries/patients';
@@ -29,6 +30,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
             { label: 'Pasien', href: '/dashboard/patients' },
             { label: 'Detail Pasien' },
           ]}
+          icon={<User className="h-7 w-7 text-white" />}
         />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -142,6 +144,26 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
                 </p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CalendarDays className="h-5 w-5 text-muted-foreground" />
+              Jadwal Terapi
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TherapyScheduleForm
+              patientId={patient.id}
+              initialValues={{
+                nextTherapyAt: patient.nextTherapyAt,
+                therapyFrequencyText: patient.therapyFrequencyText,
+                therapyGoal: patient.therapyGoal,
+                therapistNote: patient.therapistNote,
+              }}
+            />
           </CardContent>
         </Card>
       </div>

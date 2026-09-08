@@ -32,6 +32,7 @@ export default async function SettingsPage() {
         title="Pengaturan"
         description="Kelola konfigurasi sistem yang tersedia."
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Pengaturan' }]}
+        icon={<Settings className="h-7 w-7 text-white" />}
       />
       <div className="grid gap-4 sm:grid-cols-2">
         {items.map((item) => (

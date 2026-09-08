@@ -16,10 +16,10 @@ function createAuth() {
     }),
     emailAndPassword: {
       enabled: true,
-      // Email verification is disabled until an SMTP provider is configured.
-      // Without a provider, no user can verify their email and login would be
-      // permanently blocked in production.
       requireEmailVerification: false,
+    },
+    username: {
+      enabled: true,
     },
     advanced: {
       database: {

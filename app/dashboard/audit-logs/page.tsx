@@ -65,6 +65,7 @@ export default async function AuditLogsPage({ searchParams }: { searchParams: Pr
         title="Log Audit"
         description="Pantau aktivitas dan perubahan data sistem."
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Log Audit' }]}
+        icon={<Terminal className="h-7 w-7 text-white" />}
       />
       <Card className="border-border/60 bg-white overflow-hidden">
         <CardContent className="p-0">

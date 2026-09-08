@@ -11,9 +11,7 @@ export const therapyProgressRecords = pgTable(
     patientId: uuid('patient_id')
       .notNull()
       .references(() => patients.id, { onDelete: 'restrict' }),
-    therapistId: uuid('therapist_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'restrict' }),
+    therapistId: uuid('therapist_id').references(() => users.id, { onDelete: 'set null' }),
     recordedAt: timestamp('recorded_at', { withTimezone: true }).defaultNow().notNull(),
     painScore: integer('pain_score').notNull(),
     rangeOfMotionScore: integer('range_of_motion_score').notNull(),
@@ -28,7 +26,7 @@ export const therapyProgressRecords = pgTable(
     status: therapyProgressStatusEnum('status').default('DRAFT').notNull(),
     patientVisible: integer('patient_visible').default(0).notNull(),
     finalizedAt: timestamp('finalized_at', { withTimezone: true }),
-    finalizedBy: uuid('finalized_by').references(() => users.id, { onDelete: 'restrict' }),
+    finalizedBy: uuid('finalized_by').references(() => users.id, { onDelete: 'set null' }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },

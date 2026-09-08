@@ -13,6 +13,7 @@ import { recordAudit } from '@/server/audit';
 const createUserSchema = z.object({
   name: z.string().min(1, 'Nama wajib diisi'),
   email: z.string().email('Format email tidak valid'),
+  username: z.string().trim().min(3, 'Username minimal 3 karakter').max(30).optional().or(z.literal('')),
   phone: z.string().optional(),
   password: z.string().min(12, 'Password minimal 12 karakter'),
   role: z.enum(['ADMIN', 'THERAPIST', 'STAFF', 'USER']),
@@ -24,7 +25,7 @@ export type CreateUserResult =
 
 export async function createUser(input: unknown): Promise<CreateUserResult> {
   try {
-    const { name, email, phone, password, role } = createUserSchema.parse(input);
+    const { name, email, username, phone, password, role } = createUserSchema.parse(input);
     const { session, role: actorRole } = await requireSession({
       redirectToLogin: false,
     });
@@ -38,21 +39,35 @@ export async function createUser(input: unknown): Promise<CreateUserResult> {
     }
 
     const db = getDb();
+    const normalizedEmail = email.toLowerCase();
+    const normalizedUsername = username?.toLowerCase() || null;
 
-    const existing = await db
+    const existingEmail = await db
       .select({ id: users.id })
       .from(users)
-      .where(eq(users.email, email.toLowerCase()))
+      .where(eq(users.email, normalizedEmail))
       .limit(1);
 
-    if (existing.length > 0) {
+    if (existingEmail.length > 0) {
       return { ok: false, error: 'Email sudah terdaftar.' };
+    }
+
+    if (normalizedUsername) {
+      const existingUsername = await db
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.username, normalizedUsername))
+        .limit(1);
+
+      if (existingUsername.length > 0) {
+        return { ok: false, error: 'Username sudah digunakan.' };
+      }
     }
 
     const res = await getAuth().api.signUpEmail({
       body: {
         name,
-        email: email.toLowerCase(),
+        email: normalizedEmail,
         password,
       },
     });
@@ -61,6 +76,13 @@ export async function createUser(input: unknown): Promise<CreateUserResult> {
 
     if (!userId) {
       return { ok: false, error: 'Gagal membuat akun pengguna.' };
+    }
+
+    if (normalizedUsername) {
+      await db
+        .update(users)
+        .set({ username: normalizedUsername })
+        .where(eq(users.id, userId));
     }
 
     await db.transaction(async (tx) => {

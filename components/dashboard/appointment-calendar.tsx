@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { CalendarDays, ChevronLeft, ChevronRight, Clock3 } from 'lucide-react';
+import Image from 'next/image';
+import { CalendarDays, ChevronLeft, ChevronRight, Clock3, UserRound } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -94,32 +95,32 @@ export function AppointmentCalendar({
   }
 
   return (
-    <section className="rounded-xl border border-border bg-white p-4 shadow-sm">
-      <div className="flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/20">
-            <CalendarDays className="h-4 w-4 text-[#92400e]" />
+    <section className="rounded-2xl border border-[#E8ECEB] bg-white p-5 shadow-sm">
+      <div className="flex flex-col gap-3 border-b border-[#E8ECEB] pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-hafta-ylw-50">
+            <CalendarDays className="h-4 w-4 text-hafta-ylw-700" strokeWidth={2.25} />
           </span>
           <div>
-            <h2 className="font-semibold text-foreground">Kalender Terapi</h2>
-            <p className="text-xs text-muted-foreground">Pilih tanggal untuk melihat jadwal.</p>
+            <h2 className="font-semibold text-[#111827]">Kalender Terapi</h2>
+            <p className="text-xs text-[#6B7280]">Pilih tanggal untuk melihat jadwal.</p>
           </div>
         </div>
-        <div className="flex items-center justify-between gap-1 rounded-lg border border-border bg-surface p-1">
+        <div className="flex items-center justify-between gap-1 rounded-xl border border-[#E8ECEB] bg-[#F9FAFB] p-1">
           <Button variant="ghost" size="icon" aria-label="Bulan sebelumnya" onClick={() => changeMonth(-1)}>
-            <ChevronLeft />
+            <ChevronLeft className="h-4 w-4" />
           </Button>
-          <p className="min-w-32 text-center text-sm font-semibold text-foreground">{monthFormatter.format(month)}</p>
+          <p className="min-w-32 text-center text-sm font-semibold text-[#111827]">{monthFormatter.format(month)}</p>
           <Button variant="ghost" size="icon" aria-label="Bulan berikutnya" onClick={() => changeMonth(1)}>
-            <ChevronRight />
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
       <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(15rem,.65fr)]">
         <div>
-          <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-muted-foreground">
-            {weekdayLabels.map((label) => (
-              <span key={label} className="py-1">
+          <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-[#9CA3AF]">
+            {weekdayLabels.map((label, index) => (
+              <span key={label} className={cn('py-1', index === 0 && 'text-hafta-red-500 font-bold')}>
                 {label}
               </span>
             ))}
@@ -127,7 +128,7 @@ export function AppointmentCalendar({
           <div className="grid grid-cols-7 gap-1">
             {days.map((day, index) => {
               if (!day)
-                return <span key={`empty-${index}`} className="min-h-10 rounded-md bg-surface/60 sm:min-h-12" />;
+                return <span key={`empty-${index}`} className="min-h-10 rounded-xl bg-[#F9FAFB] sm:min-h-12" />;
               const key = dateKey(day);
               const holiday = holidaysByDate.get(key);
               const isSunday = day.getDay() === 0;
@@ -143,37 +144,50 @@ export function AppointmentCalendar({
                   title={holiday?.name ?? (isSunday ? 'Minggu' : undefined)}
                   onClick={() => setSelectedDate(key)}
                   className={cn(
-                    'relative min-h-10 rounded-md p-1 text-left transition-colors sm:min-h-12',
-                    isSelected
-                      ? 'bg-accent text-accent-foreground'
-                      : dayAppointments.length
-                        ? 'bg-accent/20 text-[#92400e] hover:bg-accent/30'
-                        : 'hover:bg-surface',
+                    'relative flex min-h-12 flex-col items-center justify-center rounded-xl p-1 text-center transition-all duration-150 sm:min-h-14',
+                     isSelected
+                       ? 'bg-hafta-ylw-200 text-hafta-ylw-900 shadow-md'
+                       : dayAppointments.length
+                         ? 'bg-hafta-ylw-50 text-hafta-ylw-900 ring-1 ring-hafta-ylw-100 hover:bg-hafta-ylw-100'
+                         : 'hover:bg-[#F9FAFB]',
                   )}
                 >
                   <span
                     className={cn(
-                      'flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-semibold',
-                      !isSelected && isRedDay && 'text-destructive',
+                       'text-[13px] font-semibold leading-none',
+                       !isSelected && isRedDay ? 'text-hafta-red-600' : 'text-[#111827]',
+                       isSelected && 'text-hafta-ylw-900'
                     )}
                   >
                     {day.getDate()}
                   </span>
+                  
+                  {/* Indicator Dot untuk janji temu */}
                   {dayAppointments.length > 0 ? (
-                    <span
-                      className={cn(
-                        'mt-0.5 block text-[9px] font-bold',
-                        isSelected ? 'text-accent-foreground' : 'text-[#92400e]',
+                    <div className="mt-1 flex gap-0.5">
+                      {dayAppointments.slice(0, 3).map((_, i) => (
+                        <span
+                          key={i}
+                          className={cn(
+                            'h-1 w-1 rounded-full',
+                            isSelected ? 'bg-hafta-ylw-900' : 'bg-hafta-ylw-600'
+                          )}
+                        />
+                      ))}
+                      {dayAppointments.length > 3 && (
+                        <span className={cn('text-[7px] leading-[4px] font-bold', isSelected ? 'text-hafta-ylw-900' : 'text-hafta-ylw-600')}>+</span>
                       )}
-                    >
-                      {dayAppointments.length}
-                    </span>
-                  ) : null}
+                    </div>
+                  ) : (
+                    <span className="mt-1 h-1 w-1" /> /* Spacer agar angka tetap seimbang di tengah */
+                  )}
+
+                  {/* Indicator Dot untuk internal events */}
                   {dayInternalEvents.length > 0 ? (
                     <span
                       className={cn(
-                        'absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full bg-[#f59e0b]',
-                        isSelected && 'bg-accent-foreground',
+                        'absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-hafta-ylw-400',
+                        isSelected && 'bg-hafta-ylw-800'
                       )}
                       title={dayInternalEvents.map((event) => event.title).join(', ')}
                     />
@@ -183,7 +197,7 @@ export function AppointmentCalendar({
                       initial={{ scale: 0.8, opacity: 0 }}
                       animate={{ scale: [1, 1.08, 1], opacity: 1 }}
                       transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1.8 }}
-                      className="absolute right-0.5 top-0.5 h-1.5 w-1.5 rounded-full bg-accent"
+                      className="absolute left-2 top-2 h-1.5 w-1.5 rounded-full bg-hafta-ble-500"
                     />
                   ) : null}
                 </button>
@@ -191,8 +205,8 @@ export function AppointmentCalendar({
             })}
           </div>
         </div>
-        <div className="rounded-lg bg-surface p-3">
-          <p className="text-sm font-semibold text-foreground">
+        <div className="rounded-xl bg-[#F9FAFB] p-3">
+          <p className="text-sm font-semibold text-[#111827]">
             {selectedDate
               ? new Date(`${selectedDate}T00:00:00`).toLocaleDateString('id-ID', {
                   weekday: 'long',
@@ -211,44 +225,71 @@ export function AppointmentCalendar({
                 className="mt-3 space-y-2"
               >
                 {selectedInternalEvents.map((event) => (
-                  <div key={event.id} className="rounded-lg border border-accent/30 bg-accent/10 p-3">
-                    <p className="text-sm font-semibold text-foreground">{event.title}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                  <div key={event.id} className="rounded-xl border border-hafta-ylw-100 bg-hafta-ylw-50 p-4 shadow-sm">
+                    <p className="text-sm font-bold text-hafta-ylw-900">{event.title}</p>
+                    <p className="mt-1 text-[11px] font-semibold text-hafta-ylw-700">
                       {event.startTime ?? 'Seharian'} · {event.eventType.replaceAll('_', ' ')}
                     </p>
                     {event.description ? (
-                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{event.description}</p>
+                      <p className="mt-2 text-xs leading-relaxed text-hafta-ylw-800">{event.description}</p>
                     ) : null}
                   </div>
                 ))}
                 {selectedAppointments.length === 0 && selectedInternalEvents.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Tidak ada jadwal pada tanggal ini.</p>
+                  <p className="text-sm text-[#6B7280] text-center mt-6">Tidak ada jadwal pada tanggal ini.</p>
                 ) : (
                   selectedAppointments.map((appointment) => (
                     <motion.div
                       key={appointment.id}
                       initial={{ opacity: 0, x: -6 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className="rounded-lg border border-border bg-white p-3"
+                      className="rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm"
                     >
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="text-sm font-semibold text-foreground">{appointment.patientName}</p>
-                        {appointment.isNew ? (
-                          <span className="rounded-full bg-accent px-1.5 py-0.5 text-[9px] font-bold text-accent-foreground">
-                            BARU
-                          </span>
-                        ) : null}
+                      <div className="flex items-start gap-3.5">
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#F1F5F9] text-[#64748B]">
+                          {appointment.therapistImage ? (
+                            <Image
+                              src={appointment.therapistImage}
+                              alt={appointment.therapistName ?? 'Terapis'}
+                              width={44}
+                              height={44}
+                              className="h-full w-full object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <UserRound className="h-5 w-5" strokeWidth={2} />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="text-[13px] font-bold text-[#111827] truncate">{typeLabel[appointment.type] ?? appointment.type}</p>
+                              <p className="mt-0.5 text-[11px] font-medium text-[#6B7280] truncate">Dengan {appointment.therapistName ?? 'Terapis Hafta'}</p>
+                            </div>
+                            {appointment.isNew ? (
+                              <span className="shrink-0 rounded-full bg-hafta-ble-50 px-2 py-0.5 text-[9px] font-bold text-hafta-ble-600">Baru</span>
+                            ) : null}
+                          </div>
+                          
+                          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] font-semibold text-[#64748B]">
+                            <span className="inline-flex items-center gap-1">
+                              <Clock3 className="h-3.5 w-3.5 text-hafta-ylw-600" strokeWidth={2.25} />
+                              {appointment.startTime}
+                            </span>
+                            <span className="inline-flex items-center gap-1">
+                              <span className="h-1 w-1 rounded-full bg-[#D1D5DB]" />
+                              {appointment.durationMinutes} menit
+                            </span>
+                          </div>
+                          <p className="mt-2 text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">Status: {appointment.status.replaceAll('_', ' ')}</p>
+                        </div>
                       </div>
-                      <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Clock3 className="h-3.5 w-3.5 text-[#92400e]" />
-                        {appointment.startTime} · {typeLabel[appointment.type] ?? appointment.type}
-                      </p>
                     </motion.div>
                   ))
                 )}
               </motion.div>
             ) : (
-              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              <p className="mt-2 text-sm leading-relaxed text-[#6B7280]">
                 Jadwal terapi pada tanggal yang dipilih akan tampil di sini.
               </p>
             )}

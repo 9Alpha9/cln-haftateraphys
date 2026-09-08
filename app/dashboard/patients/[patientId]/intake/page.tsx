@@ -1,9 +1,22 @@
+import { ClipboardList } from 'lucide-react';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
 import { IntakeReviewActions } from '@/components/dashboard/intake-review-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { getScopedIntakeForReview } from '@/server/queries/intake-review';
+
+const statusConfig: Record<
+  string,
+  { label: string; color: string; bg: string; border: string }
+> = {
+  DRAFT:           { label: 'Draft',          color: 'text-[#6B7280]',  bg: 'bg-[#F9FAFB]',    border: 'border-[#E5E7EB]' },
+  SUBMITTED:       { label: 'Terkirim',       color: 'text-[#1D4ED8]',  bg: 'bg-[#EFF6FF]',    border: 'border-[#BFDBFE]' },
+  UNDER_REVIEW:    { label: 'Sedang Ditinjau', color: 'text-[var(--hafta-ylw-400)]',  bg: 'bg-[#FFF7ED]',    border: 'border-[#FED7AA]' },
+  NEEDS_REVISION:  { label: 'Perlu Perbaikan', color: 'text-[#DC2626]',  bg: 'bg-[#FEF2F2]',    border: 'border-[#FECACA]' },
+  ACCEPTED:        { label: 'Diterima',        color: 'text-[#15803D]',  bg: 'bg-[#F0FDF4]',    border: 'border-[#BBF7D0]' },
+  ARCHIVED:        { label: 'Diarsipkan',      color: 'text-[#6B7280]',  bg: 'bg-[#F9FAFB]',    border: 'border-[#E5E7EB]' },
+};
 
 const fields = [
   ['Keluhan utama', 'chiefComplaint'],
@@ -35,6 +48,7 @@ export default async function PatientIntakeReviewPage({ params }: { params: Prom
             { label: 'Pasien', href: '/dashboard/patients' },
             { label: 'Form Awal' },
           ]}
+          icon={<ClipboardList className="h-7 w-7 text-white" />}
         />
       </div>
     );
@@ -43,13 +57,32 @@ export default async function PatientIntakeReviewPage({ params }: { params: Prom
       <div className="mx-auto max-w-7xl space-y-6">
         <DashboardPageHeader
           title={`Form Awal · ${intake.patientName}`}
-          description={`Status: ${intake.status}`}
+          description=""
           breadcrumbs={[
             { label: 'Dashboard', href: '/dashboard' },
             { label: 'Pasien', href: '/dashboard/patients' },
             { label: 'Form Awal' },
           ]}
+          icon={<ClipboardList className="h-7 w-7 text-white" />}
         />
+        {/* Status badge */}
+        {(function StatusBadge() {
+          const cfg = statusConfig[intake.status] ?? statusConfig['DRAFT'];
+          const dotColor: Record<string, string> = {
+            DRAFT:          'bg-[#9CA3AF]',
+            SUBMITTED:      'bg-[#3B82F6]',
+            UNDER_REVIEW:   'bg-[var(--hafta-ylw-400)]',
+            NEEDS_REVISION: 'bg-[#EF4444]',
+            ACCEPTED:       'bg-[#22C55E]',
+            ARCHIVED:       'bg-[#9CA3AF]',
+          };
+          return (
+            <div className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium ${cfg.bg} ${cfg.border} ${cfg.color}`}>
+              <span className={`h-2 w-2 shrink-0 rounded-full ${dotColor[intake.status] ?? dotColor['DRAFT']}`} />
+              <span>Status: <strong>{cfg.label}</strong></span>
+            </div>
+          );
+        })()}
         <Card>
           <CardHeader>
             <CardTitle>Informasi Pasien</CardTitle>

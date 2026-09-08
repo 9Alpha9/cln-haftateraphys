@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
 import { useToast } from '@/components/ui/toast';
 import { createAppointment } from '@/server/actions/appointments';
 
@@ -32,14 +33,6 @@ for (let hour = 8; hour <= 21; hour++) {
   }
 }
 
-function openPicker(event: React.MouseEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) {
-  try {
-    event.currentTarget.showPicker();
-  } catch {
-    // Browser yang tidak mendukung showPicker tetap memakai picker native saat input diinteraksikan.
-  }
-}
-
 export function AppointmentCreateForm({
   patientOptions,
   therapistOptions,
@@ -48,6 +41,7 @@ export function AppointmentCreateForm({
   therapistOptions: SelectOption[];
 }) {
   const [pending, startTransition] = useTransition();
+  const [scheduledDate, setScheduledDate] = useState('');
   const router = useRouter();
   const { showToast } = useToast();
 
@@ -103,7 +97,13 @@ export function AppointmentCreateForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="scheduledDate">Tanggal</Label>
-          <Input id="scheduledDate" name="scheduledDate" type="date" required disabled={pending} onClick={openPicker} onFocus={openPicker} />
+          <input type="hidden" name="scheduledDate" value={scheduledDate} required />
+          <DatePicker
+            id="scheduledDate"
+            value={scheduledDate}
+            onChange={setScheduledDate}
+            disabled={pending}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="startTime">Waktu Mulai</Label>

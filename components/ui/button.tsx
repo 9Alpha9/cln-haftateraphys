@@ -8,16 +8,16 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'cursor-pointer bg-accent text-accent-foreground hover:bg-accent/90',
+        default: 'cursor-pointer bg-primary text-primary-foreground hover:opacity-90',
         outline:
-          'cursor-pointer border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
+          'cursor-pointer border-border bg-background hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
         secondary:
           'cursor-pointer bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground',
         ghost:
-          'cursor-pointer hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50',
+          'cursor-pointer hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground dark:hover:bg-accent/50',
         destructive:
-          'cursor-pointer bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40',
-        link: 'text-primary underline-offset-4 hover:underline',
+          'cursor-pointer bg-[var(--hafta-red-600)] text-[#ffffff] hover:bg-[var(--hafta-red-500)] focus-visible:border-[var(--hafta-red-400)] focus-visible:ring-[var(--hafta-red-300)]',
+        link: 'text-[var(--hafta-ylw-700)] underline-offset-4 hover:underline',
       },
       size: {
         default: 'cursor-pointer h-10 gap-2 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3',

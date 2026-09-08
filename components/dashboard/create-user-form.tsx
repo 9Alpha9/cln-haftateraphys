@@ -1,7 +1,8 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useTransition, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,6 +19,7 @@ const STAFF_ROLES = [
 
 export function CreateUserForm({ canCreateStaffAccounts }: { canCreateStaffAccounts: boolean }) {
   const [pending, startTransition] = useTransition();
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
   const { showToast } = useToast();
 
@@ -30,6 +32,7 @@ export function CreateUserForm({ canCreateStaffAccounts }: { canCreateStaffAccou
         const result = await createUser({
           name: String(formData.get('name') ?? ''),
           email: String(formData.get('email') ?? ''),
+          username: String(formData.get('username') ?? '') || undefined,
           phone: String(formData.get('phone') ?? '') || undefined,
           password: String(formData.get('password') ?? ''),
           role: String(formData.get('role') ?? 'USER') as 'ADMIN' | 'THERAPIST' | 'STAFF' | 'USER',
@@ -75,15 +78,30 @@ export function CreateUserForm({ canCreateStaffAccounts }: { canCreateStaffAccou
         </div>
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            required
-            minLength={12}
-            placeholder="Minimal 12 karakter"
-            disabled={pending}
-          />
+          <div className="relative">
+            <input
+              id="password"
+              name="password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              minLength={12}
+              placeholder="Minimal 12 karakter"
+              disabled={pending}
+              className="flex h-10 w-full min-w-0 rounded-lg border border-input bg-background px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 pr-10"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </button>
+          </div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="phone">Telepon (opsional)</Label>
@@ -96,15 +114,32 @@ export function CreateUserForm({ canCreateStaffAccounts }: { canCreateStaffAccou
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="role">Role</Label>
-          <Select id="role" name="role" required defaultValue="USER" disabled={pending}>
-            {STAFF_ROLES.filter((role) => canCreateStaffAccounts || role.value === 'USER').map((role) => (
-              <option key={role.value} value={role.value}>
-                {role.label}
-              </option>
-            ))}
-          </Select>
+          <Label htmlFor="username">Username (opsional)</Label>
+          <Input
+            id="username"
+            name="username"
+            type="text"
+            placeholder="username untuk login"
+            minLength={3}
+            maxLength={30}
+            disabled={pending}
+          />
+          <p className="text-[11px] text-muted-foreground">Bisa digunakan untuk login selain email.</p>
         </div>
+        {canCreateStaffAccounts ? (
+          <div className="space-y-2">
+            <Label htmlFor="role">Role</Label>
+            <Select id="role" name="role" required defaultValue="USER" disabled={pending}>
+              {STAFF_ROLES.map((role) => (
+                <option key={role.value} value={role.value}>
+                  {role.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+        ) : (
+          <input type="hidden" name="role" value="USER" />
+        )}
       </div>
 
       <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">

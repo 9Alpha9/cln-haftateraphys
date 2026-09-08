@@ -8,7 +8,7 @@ export type AppointmentSelectOption = { id: string; label: string };
 
 export async function getAppointmentFormOptions() {
   const { session, role } = await requireSession({ redirectToLogin: true });
-  if (!hasPermission(role, PERMISSIONS.APPOINTMENT_CREATE) || role === 'USER' || role === 'SUPER_ADMIN') {
+  if (!hasPermission(role, PERMISSIONS.APPOINTMENT_CREATE) || role === 'USER') {
     throw new ForbiddenError();
   }
 

@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getTherapyProgressById } from '@/server/queries/therapy-progress';
 import { PrintTrigger } from '@/components/dashboard/print-trigger';
+import { PrintFooter } from '@/components/ui/print-footer';
 
 export default async function PrintMedicalRecordPage({
   params,
@@ -28,7 +29,7 @@ export default async function PrintMedicalRecordPage({
   return (
     <div className="min-h-screen bg-slate-50 p-4 sm:p-8 print:bg-white print:p-0">
       <PrintTrigger mode={mode} patientName={record.patientName} recordId={record.id} recordedAt={record.recordedAt} />
-      <div className="mx-auto max-w-3xl rounded-xl border border-slate-200 bg-white p-8 shadow-sm print:max-w-none print:rounded-none print:border-none print:p-0 print:shadow-none">
+      <div className="mx-auto max-w-3xl min-h-[calc(100vh-8rem)] print:min-h-screen flex flex-col rounded-xl border border-slate-200 bg-white p-8 shadow-sm print:max-w-none print:rounded-none print:border-none print:p-0 print:shadow-none">
         {/* Kop Surat Header */}
         <div className="flex items-center justify-between border-b-2 border-accent/30 pb-5">
           <div className="flex items-center gap-4">
@@ -148,19 +149,7 @@ export default async function PrintMedicalRecordPage({
         </div>
 
         {/* Tanda Tangan & Paraf Terapis */}
-        <div className="mt-12 flex justify-between items-end border-t border-slate-200 pt-6">
-          <div className="text-xs text-slate-400">
-            <p>Dokumen ini disahkan secara digital oleh Klinik Hafta Fisioterapi.</p>
-            <p>Dicetak pada: {new Date().toLocaleString('id-ID')}</p>
-          </div>
-          <div className="text-center w-48">
-            <p className="text-xs text-slate-500">Terapis Penanggung Jawab,</p>
-            <div className="h-16 flex items-center justify-center">
-              <span className="text-xs italic text-slate-300">[Tanda Tangan & Paraf]</span>
-            </div>
-            <p className="text-sm font-bold text-slate-900 border-t border-slate-300 pt-1">{record.therapistName || 'Terapis Hafta'}</p>
-          </div>
-        </div>
+        <PrintFooter signerRole="Terapis Penanggung Jawab," signerName={record.therapistName || 'Terapis Hafta'} />
       </div>
     </div>
   );

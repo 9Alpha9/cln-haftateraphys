@@ -490,6 +490,50 @@ Canonical rule: `docs/MOBILE-FIRST-STRATEGY.md`.
 - Desktop boleh meningkatkan density/composition tetapi tidak boleh mengubah hierarchy inti atau menambahkan hover-only operation.
 - Mobile Gate + Desktop Gate + cross-breakpoint QA adalah Definition of Done untuk UI.
 
+## 16A. UI consistency rules — NON-NEGOTIABLE
+
+> **LOCKED RULES — Jangan dirubah atau diedit tanpa approval eksplisit pemilik proyek.**
+
+### Dashboard page header
+
+Semua halaman dashboard HARUS menggunakan `DashboardPageHeader` component dengan:
+
+1. **Icon**: Setiap page header WAJIB memiliki `icon` prop yang sesuai dengan konteks halaman.
+   - Icon menggunakan `h-7 w-7 text-white` di dalam gradient box `from-amber-400 to-orange-400`.
+   - Contoh icon per halaman:
+     - Dashboard: `LayoutDashboard`
+     - Jadwal/Appointment: `CalendarDays` / `CalendarPlus` / `Pencil`
+     - Pasien: `Users` / `UserPlus` / `User`
+     - Intake: `ClipboardList`
+     - Pengguna: `Users` / `UserPlus`
+     - Rekam Medis: `Activity` / `ClipboardPlus`
+     - Log Audit: `Terminal`
+     - Pengaturan: `Settings`
+     - Form Awal: `ClipboardList`
+
+2. **Back link ("Kembali ke...")**: Jika ada link navigasi kembali, HARUS ditempatkan di sisi KANAN header menggunakan `action` prop, BUKAN di kiri.
+   - Style: `rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-sm hover:bg-gray-50`
+   - Icon: `ArrowLeft` dengan ukuran `h-4 w-4`
+   - Label: cukup nama halaman tujuan (contoh: "Appointment", "Pasien", "Rekam Medis"), BUKAN "Kembali ke..."
+
+3. **Layout structure**: 
+   - Full-width gradient header dengan decorative shapes.
+   - Content area menggunakan `mx-auto max-w-7xl`.
+   - Gap antara header dan content: `space-y-6`.
+
+###禁忌 (DO NOT)
+
+- Jangan membuat custom inline header yang menduplikasi CSS/structure DashboardPageHeader.
+- Jangan menempatkan back link di sisi kiri header.
+- Jangan menggunakan style back link yang berbeda-beda antar halaman.
+- Jangan menghapus icon dari page header.
+- Jangan mengubah gradient, decorative shapes, atau spacing header tanpa approval.
+
+### Reference
+
+- Component: `components/dashboard/dashboard-page-header.tsx`
+- Props: `{ title, description?, breadcrumbs, action?, icon? }`
+
 ## 17. Performance requirements
 
 - Gunakan Server Components secara default jika tidak membutuhkan interactivity client.
