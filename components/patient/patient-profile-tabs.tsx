@@ -1,19 +1,31 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
-import { Camera, User, Shield, MapPin, Phone, Mail, Briefcase, Calendar, Heart, Lock, ChevronDown } from 'lucide-react';
+import {
+  CalendarDays,
+  Camera,
+  ChevronRight,
+  HeartHandshake,
+  Lock,
+  Mail,
+  MapPin,
+  Phone,
+  Save,
+  ShieldCheck,
+  UserRound,
+  type LucideIcon,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Select } from '@/components/ui/select';
-import { DatePicker } from '@/components/ui/date-picker';
 import { ChangePasswordForm } from '@/components/dashboard/change-password-form';
-import { updateCurrentPatientProfile } from '@/server/actions/patient-profile';
-import type { PatientProfileInput } from '@/lib/validators/patient-profile';
+import { DatePicker } from '@/components/ui/date-picker';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import { useWilayahIndonesia } from '@/lib/use-wilayah-indonesia';
+import type { PatientProfileInput } from '@/lib/validators/patient-profile';
+import { updateCurrentPatientProfile } from '@/server/actions/patient-profile';
 import { toast } from 'sonner';
 
 type Props = {
@@ -21,57 +33,151 @@ type Props = {
   email: string;
   initialAvatarUrl?: string | null;
   userName?: string;
+  emailVerified?: boolean;
 };
 
-export function PatientProfileTabs({ initialValues, email, initialAvatarUrl, userName }: Props) {
+type SectionId = 'identitas' | 'alamat' | 'darurat' | 'keamanan';
+
+const SECTIONS: {
+  id: SectionId;
+  label: string;
+  description: string;
+  icon: LucideIcon;
+}[] = [
+  { id: 'identitas', label: 'Identitas Diri', description: 'Nama, kontak, dan pekerjaan', icon: UserRound },
+  { id: 'alamat', label: 'Alamat Domisili', description: 'Wilayah dan alamat lengkap', icon: MapPin },
+  { id: 'darurat', label: 'Kontak Darurat', description: 'Kontak yang dapat dihubungi', icon: HeartHandshake },
+  { id: 'keamanan', label: 'Keamanan', description: 'Kata sandi dan akses akun', icon: Lock },
+];
+
+const fieldClass =
+  'h-11 rounded-xl border-stone-200 bg-white text-sm shadow-none focus-visible:border-[var(--hafta-ylw-300)] focus-visible:ring-[var(--hafta-ylw-100)]';
+const labelClass = 'text-xs font-semibold text-stone-600';
+
+function calculateAge(dateOfBirth?: string) {
+  if (!dateOfBirth) return '-';
+  const birth = new Date(`${dateOfBirth}T00:00:00`);
+  if (Number.isNaN(birth.getTime())) return '-';
+  const today = new Date();
+  let age = today.getFullYear() - birth.getFullYear();
+  const month = today.getMonth() - birth.getMonth();
+  if (month < 0 || (month === 0 && today.getDate() < birth.getDate())) age -= 1;
+  return `${age} tahun`;
+}
+
+function Field({
+  label,
+  hint,
+  error,
+  children,
+  className,
+}: {
+  label: string;
+  hint?: string;
+  error?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <label className={cn('flex min-w-0 flex-col gap-2', className)}>
+      <span className={labelClass}>{label}</span>
+      {children}
+      {error ? <span className="text-[11px] font-medium text-[var(--hafta-red-600)]">{error}</span> : null}
+      {!error && hint ? <span className="text-[11px] leading-relaxed text-stone-400">{hint}</span> : null}
+    </label>
+  );
+}
+
+export function PatientProfileTabs({
+  initialValues,
+  email,
+  initialAvatarUrl,
+  userName,
+  emailVerified = false,
+}: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initialAvatarUrl ?? null);
-  const [activeTab, setActiveTab] = useState('profil');
+  const [activeSection, setActiveSection] = useState<SectionId>('identitas');
   const fileRef = useRef<HTMLInputElement>(null);
-  const { provinces, regencies, setSelectedProvinceId, loadingProvinces, loadingRegencies } = useWilayahIndonesia();
+  const {
+    provinces,
+    regencies,
+    selectedProvinceId,
+    setSelectedProvinceId,
+    loadingProvinces,
+    loadingRegencies,
+  } = useWilayahIndonesia();
 
   const {
     register,
     handleSubmit,
     setValue,
-    watch,
     reset,
     control,
     formState: { errors, isDirty },
-  } = useForm<PatientProfileInput>({ defaultValues: { ...initialValues, avatarKey: (initialValues as { avatarKey?: string })?.avatarKey ?? (initialAvatarUrl ?? '') } });
+  } = useForm<PatientProfileInput>({
+    defaultValues: {
+      ...initialValues,
+      avatarKey: (initialValues as { avatarKey?: string })?.avatarKey ?? initialAvatarUrl ?? '',
+    },
+  });
 
-  const fullNameWatch = watch('fullName') || initialValues.fullName || userName || '';
+  const values = useWatch({ control }) as PatientProfileInput;
+  const fullName = values.fullName || initialValues.fullName || userName || 'Pasien';
+  const dateOfBirth = values.dateOfBirth ?? '';
+  const completionFields = [
+    values.fullName,
+    values.phone,
+    values.gender,
+    values.dateOfBirth,
+    values.occupation,
+    values.addressProvince,
+    values.addressCity,
+    values.addressLine,
+    values.emergencyContactName,
+    values.emergencyContactRelationship,
+    values.emergencyContactPhone,
+  ];
+  const completion = Math.round(
+    (completionFields.filter((value) => Boolean(String(value ?? '').trim())).length /
+      completionFields.length) *
+      100,
+  );
 
   useEffect(() => {
-    setAvatarPreview(initialAvatarUrl ?? null);
-  }, [initialAvatarUrl]);
+    if (!provinces.length || selectedProvinceId) return;
+    const match = provinces.find((province) => province.name === initialValues.addressProvince);
+    if (match) setSelectedProvinceId(match.id);
+  }, [initialValues.addressProvince, provinces, selectedProvinceId, setSelectedProvinceId]);
 
-  function compressImage(file: File, maxW = 256, quality = 0.7): Promise<string> {
+  function compressImage(file: File, maxWidth = 256, quality = 0.7): Promise<string> {
     return new Promise((resolve, reject) => {
-      const img = new window.Image();
-      img.onload = () => {
-        const scale = Math.min(1, maxW / Math.max(img.width, img.height));
-        const w = Math.round(img.width * scale);
-        const h = Math.round(img.height * scale);
+      const image = new window.Image();
+      image.onload = () => {
+        const scale = Math.min(1, maxWidth / Math.max(image.width, image.height));
+        const width = Math.round(image.width * scale);
+        const height = Math.round(image.height * scale);
         const canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return reject(new Error('Canvas tidak tersedia'));
-        ctx.drawImage(img, 0, 0, w, h);
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext('2d');
+        if (!context) return reject(new Error('Canvas tidak tersedia'));
+        context.drawImage(image, 0, 0, width, height);
         resolve(canvas.toDataURL('image/jpeg', quality));
       };
-      img.onerror = () => reject(new Error('Gagal memuat gambar'));
-      const r = new FileReader();
-      r.onload = () => { img.src = String(r.result); };
-      r.onerror = () => reject(new Error('Gagal membaca file'));
-      r.readAsDataURL(file);
+      image.onerror = () => reject(new Error('Gagal memuat gambar'));
+      const reader = new FileReader();
+      reader.onload = () => {
+        image.src = String(reader.result);
+      };
+      reader.onerror = () => reject(new Error('Gagal membaca file'));
+      reader.readAsDataURL(file);
     });
   }
 
-  async function onAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
+  async function onAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
     if (!file) return;
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
       toast.error('Format foto harus JPG, PNG, atau WebP.');
@@ -92,309 +198,420 @@ export function PatientProfileTabs({ initialValues, email, initialAvatarUrl, use
       try {
         await updateCurrentPatientProfile(data);
         toast.success('Profil berhasil diperbarui.');
-        const nextAvatar = (data.avatarKey as string) || avatarPreview || null;
+        const nextAvatar = data.avatarKey || avatarPreview || null;
         reset(data);
         setAvatarPreview(nextAvatar);
         window.dispatchEvent(new CustomEvent('hafta:avatar', { detail: { avatarUrl: nextAvatar } }));
         router.refresh();
-      } catch (err) {
-        const msg = err instanceof Error ? err.message : 'Data profil tidak dapat disimpan. Periksa isian lalu coba lagi.';
-        toast.error(msg);
+      } catch (error) {
+        const message =
+          error instanceof Error
+            ? error.message
+            : 'Data profil tidak dapat disimpan. Periksa isian lalu coba lagi.';
+        toast.error(message);
       }
     });
   }
 
+  function resetForm() {
+    reset({
+      ...initialValues,
+      avatarKey: (initialValues as { avatarKey?: string })?.avatarKey ?? initialAvatarUrl ?? '',
+    });
+    setAvatarPreview(initialAvatarUrl ?? null);
+    const initialProvince = provinces.find((province) => province.name === initialValues.addressProvince);
+    setSelectedProvinceId(initialProvince?.id ?? '');
+    toast.success('Perubahan dibatalkan.');
+  }
+
+  const activeSectionMeta = SECTIONS.find((section) => section.id === activeSection) ?? SECTIONS[0];
+  const ActiveSectionIcon = activeSectionMeta.icon;
+
   return (
-    <div className="space-y-6">
-      <div className="overflow-hidden rounded-2xl border border-border bg-white">
-        <div className="h-28 sm:h-36 bg-gradient-to-r from-accent/20 via-accent/10 to-accent/5 relative">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(251,191,36,0.15),transparent_50%)]" />
-        </div>
-        <div className="px-5 sm:px-8 pb-6">
-          <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12 sm:-mt-10">
-            <div className="relative mx-auto sm:mx-0 shrink-0">
-              <div className="flex h-[96px] w-[96px] sm:h-[112px] sm:w-[112px] items-center justify-center overflow-hidden rounded-2xl border-4 border-white bg-white shadow-md">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <aside className="min-w-0 space-y-4 lg:col-span-4 lg:sticky lg:top-[88px] lg:self-start">
+        <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
+          <div className="flex items-start gap-4">
+            <div className="relative h-24 w-24 shrink-0">
+              <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-[#FAFAF8] text-2xl font-bold text-[#181700] ring-1 ring-stone-200">
                 {avatarPreview ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img src={avatarPreview} alt="Foto profil" className="h-full w-full object-cover" />
                 ) : (
-                  <span className="flex h-full w-full items-center justify-center bg-accent/15 text-2xl font-bold text-[#92400e]">
-                    {(fullNameWatch as string)?.[0]?.toUpperCase() || email?.[0]?.toUpperCase() || <User className="h-8 w-8" />}
-                  </span>
+                  fullName[0]?.toUpperCase() ?? 'P'
                 )}
               </div>
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border border-border bg-white text-[#92400e] shadow-sm hover:bg-accent hover:text-accent-foreground"
+                className="absolute -bottom-0.5 -right-0.5 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#181700] text-[var(--hafta-ylw-100)] ring-4 ring-white transition-colors hover:bg-[var(--hafta-ylw-100)] hover:text-[#181700]"
                 aria-label="Ubah foto profil"
               >
                 <Camera className="h-4 w-4" />
               </button>
-              <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={onAvatarChange} />
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={onAvatarChange}
+              />
               <input type="hidden" {...register('avatarKey')} />
             </div>
-            <div className="flex-1 text-center sm:text-left min-w-0 pb-1">
-              <h2 className="text-lg sm:text-xl font-bold text-foreground truncate">{fullNameWatch || 'Nama Pasien'}</h2>
-              <p className="mt-0.5 text-xs sm:text-sm text-muted-foreground flex items-center justify-center sm:justify-start gap-1.5">
-                <Mail className="h-3.5 w-3.5 shrink-0" /> <span className="truncate">{email}</span>
+
+            <div className="min-w-0 pt-1">
+              <h2 className="truncate text-lg font-bold text-[#181700]">{fullName}</h2>
+              <p className="mt-1 flex items-center gap-1.5 truncate text-xs text-stone-500">
+                <Mail className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{email}</span>
               </p>
-              {initialValues.medicalRecordNumber ? (
-                <p className="mt-1 inline-flex items-center gap-1 rounded-full bg-accent/15 px-2.5 py-0.5 text-[11px] font-semibold text-[#92400e]">
-                  RM: {initialValues.medicalRecordNumber}
-                </p>
+              <span
+                className={cn(
+                  'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold',
+                  emailVerified
+                    ? 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]'
+                    : 'bg-[var(--hafta-org-50)] text-[var(--hafta-org-700)]',
+                )}
+              >
+                <ShieldCheck className="h-3 w-3" />
+                {emailVerified ? 'Akun terverifikasi' : 'Email belum diverifikasi'}
+              </span>
+            </div>
+          </div>
+
+          <dl className="mt-5 grid grid-cols-2 gap-3 rounded-2xl bg-[#FAFAF8] p-4">
+            <div>
+              <dt className="text-[10px] font-medium uppercase tracking-wide text-stone-400">No. RM</dt>
+              <dd className="mt-1 font-mono text-xs font-bold text-[#181700]">
+                {initialValues.medicalRecordNumber || 'Belum tersedia'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[10px] font-medium uppercase tracking-wide text-stone-400">Usia</dt>
+              <dd className="mt-1 text-xs font-bold text-[#181700]">{calculateAge(dateOfBirth)}</dd>
+            </div>
+          </dl>
+
+          <div className="mt-5">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-xs font-semibold text-stone-600">Kelengkapan profil</span>
+              <span className="font-mono text-xs font-bold text-[#181700]">{completion}%</span>
+            </div>
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-100">
+              <div
+                className="h-full rounded-full bg-[var(--hafta-ylw-100)] transition-all duration-300"
+                style={{ width: `${completion}%` }}
+              />
+            </div>
+            <p className="mt-2 text-[11px] leading-relaxed text-stone-400">
+              Data lengkap membantu fisioterapis menyiapkan asesmen yang tepat.
+            </p>
+          </div>
+
+          <nav className="mt-5 hidden gap-1.5 lg:flex lg:flex-col" aria-label="Bagian profil">
+            {SECTIONS.map(({ id, label, description, icon: Icon }) => {
+              const isActive = activeSection === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setActiveSection(id)}
+                  className={cn(
+                    'flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-colors',
+                    isActive
+                      ? 'bg-[#181700] text-white'
+                      : 'text-stone-600 hover:bg-[#FAFAF8] hover:text-[#181700]',
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
+                      isActive
+                        ? 'bg-white/10 text-[var(--hafta-ylw-100)]'
+                        : 'bg-stone-100 text-stone-500',
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs font-bold">{label}</span>
+                    <span
+                      className={cn(
+                        'mt-0.5 block truncate text-[10px]',
+                        isActive ? 'text-stone-400' : 'text-stone-400',
+                      )}
+                    >
+                      {description}
+                    </span>
+                  </span>
+                  <ChevronRight
+                    className={cn('h-4 w-4 shrink-0', isActive ? 'text-[var(--hafta-ylw-100)]' : 'text-stone-300')}
+                  />
+                </button>
+              );
+            })}
+          </nav>
+        </section>
+      </aside>
+
+      <section className="flex min-w-0 flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white lg:col-span-8">
+        <div className="border-b border-stone-200 p-5 sm:p-6">
+          <div className="grid grid-cols-2 gap-1.5 rounded-2xl bg-stone-100 p-1.5 lg:hidden" role="tablist" aria-label="Bagian profil">
+            {SECTIONS.map(({ id, label, icon: Icon }) => {
+              const isActive = activeSection === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setActiveSection(id)}
+                  className={cn(
+                    'flex min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-[11px] font-semibold transition-colors',
+                    isActive
+                      ? 'bg-[#181700] text-white'
+                      : 'bg-white text-stone-500 hover:text-[#181700]',
+                  )}
+                >
+                  <Icon className={cn('h-3.5 w-3.5 shrink-0', isActive && 'text-[var(--hafta-ylw-100)]')} />
+                  <span className="truncate">{label}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 flex items-start gap-3 lg:mt-0">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
+              <ActiveSectionIcon className="h-4 w-4" />
+            </span>
+            <div className="min-w-0">
+              <h3 className="text-base font-bold text-[#181700]">{activeSectionMeta.label}</h3>
+              <p className="mt-1 text-xs leading-relaxed text-stone-500">
+                {activeSectionMeta.description}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {activeSection === 'keamanan' ? (
+          <div className="p-5 sm:p-8">
+            <ChangePasswordForm />
+          </div>
+        ) : (
+          <form className="flex flex-1 flex-col" onSubmit={handleSubmit(onSubmit)}>
+            <div className="flex-1 p-5 sm:p-8">
+              {activeSection === 'identitas' ? (
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <Field label="Nama lengkap" error={errors.fullName?.message}>
+                    <Input
+                      disabled={pending}
+                      className={fieldClass}
+                      {...register('fullName', { required: 'Nama lengkap wajib diisi.' })}
+                    />
+                  </Field>
+                  <Field label="Nama panggilan">
+                    <Input disabled={pending} className={fieldClass} {...register('preferredName')} />
+                  </Field>
+                  <Field label="Email akun" hint="Email tidak dapat diubah di halaman ini.">
+                    <Input value={email} disabled className={cn(fieldClass, 'bg-stone-50 text-stone-500')} />
+                  </Field>
+                  <Field label="Nomor rekam medis" hint="Dibuat otomatis oleh sistem.">
+                    <Input
+                      value={initialValues.medicalRecordNumber ?? ''}
+                      disabled
+                      placeholder="Belum tersedia"
+                      className={cn(fieldClass, 'bg-stone-50 font-mono text-stone-500')}
+                    />
+                  </Field>
+                  <Field label="Jenis kelamin">
+                    <Select
+                      disabled={pending}
+                      className="w-full"
+                      selectClassName={cn(fieldClass, 'pr-10')}
+                      {...register('gender')}
+                    >
+                      <option value="MALE">Laki-laki</option>
+                      <option value="FEMALE">Perempuan</option>
+                      <option value="OTHER">Lainnya</option>
+                    </Select>
+                  </Field>
+                  <Field label="Tanggal lahir">
+                    <Controller
+                      control={control}
+                      name="dateOfBirth"
+                      render={({ field }) => (
+                        <DatePicker
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          disabled={pending}
+                          className={fieldClass}
+                        />
+                      )}
+                    />
+                  </Field>
+                  <Field label="Usia" hint="Dihitung otomatis dari tanggal lahir.">
+                    <Input value={calculateAge(dateOfBirth)} disabled className={cn(fieldClass, 'bg-stone-50 text-stone-500')} />
+                  </Field>
+                  <Field label="Pekerjaan">
+                    <Input disabled={pending} className={fieldClass} {...register('occupation')} />
+                  </Field>
+                  <Field label="Nomor telepon" className="sm:col-span-2">
+                    <div className="relative">
+                      <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                      <Input
+                        type="tel"
+                        inputMode="numeric"
+                        maxLength={13}
+                        disabled={pending}
+                        className={cn(fieldClass, 'pl-9')}
+                        {...register('phone')}
+                        onChange={(event) => {
+                          const digits = event.target.value.replace(/\D/g, '').slice(0, 13);
+                          setValue('phone', digits, { shouldDirty: true });
+                        }}
+                      />
+                    </div>
+                  </Field>
+                </div>
+              ) : null}
+
+              {activeSection === 'alamat' ? (
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <Field label="Provinsi">
+                    <Controller
+                      control={control}
+                      name="addressProvince"
+                      render={({ field }) => {
+                        const selectedProvince =
+                          provinces.find((province) => province.name === field.value)?.id ??
+                          selectedProvinceId;
+                        return (
+                          <Select
+                            value={selectedProvince}
+                            disabled={pending || loadingProvinces}
+                            className="w-full"
+                            selectClassName={cn(fieldClass, 'pr-10')}
+                            onChange={(event) => {
+                              const provinceId = event.target.value;
+                              const province = provinces.find((item) => item.id === provinceId);
+                              setSelectedProvinceId(provinceId);
+                              field.onChange(province?.name ?? '');
+                              setValue('addressCity', '', { shouldDirty: true });
+                            }}
+                          >
+                            <option value="">
+                              {loadingProvinces ? 'Memuat provinsi...' : 'Pilih provinsi'}
+                            </option>
+                            {provinces.map((province) => (
+                              <option key={province.id} value={province.id}>
+                                {province.name}
+                              </option>
+                            ))}
+                          </Select>
+                        );
+                      }}
+                    />
+                  </Field>
+                  <Field label="Kabupaten / Kota">
+                    <Controller
+                      control={control}
+                      name="addressCity"
+                      render={({ field }) => (
+                        <Select
+                          value={field.value ?? ''}
+                          disabled={pending || !regencies.length || loadingRegencies}
+                          className="w-full"
+                          selectClassName={cn(fieldClass, 'pr-10')}
+                          onChange={(event) => field.onChange(event.target.value)}
+                        >
+                          <option value="">
+                            {loadingRegencies ? 'Memuat kabupaten/kota...' : 'Pilih kabupaten / kota'}
+                          </option>
+                          {regencies.map((regency) => (
+                            <option key={regency.id} value={regency.name}>
+                              {regency.name}
+                            </option>
+                          ))}
+                        </Select>
+                      )}
+                    />
+                  </Field>
+                  <Field
+                    label="Alamat lengkap"
+                    hint="Sertakan nama jalan, nomor, RT/RW, kelurahan, dan kecamatan."
+                    className="sm:col-span-2"
+                  >
+                    <textarea
+                      disabled={pending}
+                      className="flex min-h-28 w-full resize-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm leading-relaxed outline-none transition-colors placeholder:text-stone-400 focus-visible:border-[var(--hafta-ylw-300)] focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-100)] disabled:cursor-not-allowed disabled:bg-stone-50 disabled:text-stone-500"
+                      placeholder="Jl. Nama Jalan No. RT/RW, Kelurahan, Kecamatan"
+                      {...register('addressLine')}
+                    />
+                  </Field>
+                </div>
+              ) : null}
+
+              {activeSection === 'darurat' ? (
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <Field label="Nama kontak">
+                    <Input
+                      disabled={pending}
+                      className={fieldClass}
+                      placeholder="Nama lengkap"
+                      {...register('emergencyContactName')}
+                    />
+                  </Field>
+                  <Field label="Hubungan">
+                    <Input
+                      disabled={pending}
+                      className={fieldClass}
+                      placeholder="Orang tua / Pasangan / Saudara"
+                      {...register('emergencyContactRelationship')}
+                    />
+                  </Field>
+                  <Field label="Nomor telepon kontak" className="sm:col-span-2">
+                    <div className="relative">
+                      <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                      <Input
+                        type="tel"
+                        disabled={pending}
+                        className={cn(fieldClass, 'pl-9')}
+                        placeholder="08xxxxxxxxxx"
+                        {...register('emergencyContactPhone')}
+                      />
+                    </div>
+                  </Field>
+                </div>
               ) : null}
             </div>
-            <div className="flex justify-center sm:justify-end gap-2 shrink-0">
-              <Button type="button" size="sm" className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-full px-5" onClick={() => fileRef.current?.click()}>
-                Ganti Foto
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <Tabs defaultValue="profil" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="overflow-x-auto -mx-5 px-5 sm:mx-0 sm:px-0 scrollbar-none">
-            <TabsList className="inline-flex h-11 w-auto items-center justify-start rounded-full border border-accent/20 bg-accent/10 p-1.5 gap-1">
-              <TabsTrigger value="profil" className="rounded-full px-4 sm:px-5 text-xs sm:text-sm font-semibold text-[#92400e]/70 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm">
-                Profil
-              </TabsTrigger>
-              <TabsTrigger value="alamat" className="rounded-full px-4 sm:px-5 text-xs sm:text-sm font-semibold text-[#92400e]/70 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm">
-                Alamat
-              </TabsTrigger>
-              <TabsTrigger value="darurat" className="rounded-full px-4 sm:px-5 text-xs sm:text-sm font-semibold text-[#92400e]/70 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm">
-                Kontak Darurat
-              </TabsTrigger>
-              <TabsTrigger value="keamanan" className="rounded-full px-4 sm:px-5 text-xs sm:text-sm font-semibold text-[#92400e]/70 data-[state=active]:bg-accent data-[state=active]:text-accent-foreground data-[state=active]:shadow-sm">
-                Keamanan
-              </TabsTrigger>
-            </TabsList>
-          </div>
-          {activeTab !== 'keamanan' && isDirty ? (
-            <Button
-              type="button"
-              onClick={handleSubmit(onSubmit)}
-              disabled={pending}
-              className="w-full sm:w-auto shrink-0 bg-accent text-accent-foreground hover:bg-accent/90 rounded-full px-6 shadow-sm"
-            >
-              {pending ? 'Menyimpan...' : 'Simpan Perubahan'}
-            </Button>
-          ) : null}
-        </div>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-6">
-          {errors.fullName ? (
-            <p className="text-xs text-destructive">{errors.fullName.message}</p>
-          ) : null}
-
-          <TabsContent value="profil" className="mt-0 space-y-6 focus-visible:outline-none">
-            <div className="grid gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2 space-y-6">
-                <Card className="rounded-2xl border-border/20">
-                  <CardHeader className="pb-4 border-b border-border/60">
-                    <CardTitle className="text-base font-bold">
-                      Identitas Diri
-                    </CardTitle>
-                    <CardDescription className="text-xs">Informasi dasar yang digunakan untuk layanan klinik.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-5">
-                    <div className="grid gap-5 sm:grid-cols-2">
-                      <div className="flex flex-col gap-2">
-                        <span className="text-sm font-medium">Nama lengkap *</span>
-                        <Input disabled={pending} {...register('fullName', { required: 'Nama lengkap wajib diisi.' })} />
-                        {errors.fullName ? <p className="text-xs text-destructive">{errors.fullName.message}</p> : null}
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <span className="text-sm font-medium">Email akun</span>
-                        <Input value={email} disabled />
-                        <p className="text-[11px] text-muted-foreground">Email tidak dapat diubah di sini.</p>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <span className="text-sm font-medium">Nama panggilan</span>
-                        <Input disabled={pending} {...register('preferredName')} />
-                      </div>
-<div className="flex flex-col gap-2">
-                        <span className="text-sm font-medium">Jenis Kelamin</span>
-                        <Select disabled={pending} {...register('gender')}>
-                          <option value="MALE">Laki-laki</option>
-                          <option value="FEMALE">Perempuan</option>
-                          <option value="OTHER">Lainnya</option>
-                        </Select>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <span className="text-sm font-medium">Tanggal lahir</span>
-                        <Controller
-                          control={control}
-                          name="dateOfBirth"
-                          render={({ field }) => (
-                            <DatePicker
-                              value={field.value ?? ''}
-                              onChange={field.onChange}
-                              disabled={pending}
-                            />
-                          )}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <span className="text-sm font-medium">Usia</span>
-                        <Input
-                          disabled
-                          value={(watch('dateOfBirth') ? new Date().getFullYear() - new Date(String(watch('dateOfBirth'))).getFullYear() : '-') + ' tahun'}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <span className="text-sm font-medium">Pekerjaan</span>
-                        <Input disabled={pending} {...register('occupation')} />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <span className="text-sm font-medium">Nomor telepon</span>
-                        <Input
-                          type="tel"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          maxLength={13}
-                          disabled={pending}
-                          {...register('phone')}
-                          onChange={(e) => {
-                            const digits = e.target.value.replace(/\D/g, '').slice(0, 13);
-                            e.target.value = digits;
-                            e.nativeEvent.stopImmediatePropagation();
-                            // @ts-ignore - react-hook-form internal
-                            register('phone').onChange({ target: { value: digits, name: 'phone' } });
-                          }}
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+            <footer className="flex flex-col-reverse gap-3 border-t border-stone-100 bg-[#FAFAF8] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+              <p className="text-[11px] text-stone-400">
+                {isDirty ? 'Ada perubahan yang belum disimpan.' : 'Data profil Anda tersimpan dengan aman.'}
+              </p>
+              <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={pending || !isDirty}
+                  onClick={resetForm}
+                  className="h-10 w-full whitespace-nowrap rounded-full border-stone-200 px-5 text-xs font-semibold sm:w-auto"
+                >
+                  Reset
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={pending || !isDirty}
+                  className="h-10 w-full gap-2 whitespace-nowrap rounded-full bg-[#181700] px-5 text-xs font-bold text-white hover:bg-[var(--hafta-ylw-100)] hover:text-[#181700] sm:w-auto"
+                >
+                  {pending ? <CalendarDays className="h-4 w-4 animate-pulse" /> : <Save className="h-4 w-4" />}
+                  {pending ? 'Menyimpan...' : 'Simpan Perubahan'}
+                </Button>
               </div>
-
-              <div className="space-y-6">
-                <Card className="rounded-2xl border-accent/20 bg-accent/[0.03]">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-bold">Ringkasan</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3 text-xs leading-relaxed">
-                    <div className="flex justify-between border-b border-border/40 pb-2"><span className="text-muted-foreground">Email</span><span className="font-medium truncate ml-2">{email}</span></div>
-                    <div className="flex justify-between border-b border-border/40 pb-2"><span className="text-muted-foreground">Telepon</span><span className="font-medium">{watch('phone') || '-'}</span></div>
-                    <div className="flex justify-between"><span className="text-muted-foreground">Tgl Lahir</span><span className="font-medium">{watch('dateOfBirth') || '-'}</span></div>
-                  </CardContent>
-                </Card>
-                <Card className="rounded-2xl border-border/60">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-bold">Kontak Darurat</CardTitle>
-                    <CardDescription className="text-xs">Ringkasan singkat.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="text-xs text-muted-foreground leading-relaxed">
-                    {watch('emergencyContactName') || watch('emergencyContactPhone') ? (
-                      <div className="space-y-1">
-                        <p className="font-semibold text-foreground">{watch('emergencyContactName') || '-'}</p>
-                        <p>{watch('emergencyContactRelationship') || '-'}</p>
-                        <p>{watch('emergencyContactPhone') || '-'}</p>
-                      </div>
-                    ) : (
-                      <p>Belum ada kontak darurat.</p>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="alamat" className="mt-0 space-y-6 focus-visible:outline-none">
-            <Card className="rounded-2xl border-border/20">
-              <CardHeader className="border-b border-border/60">
-                <CardTitle className="text-base font-bold">Alamat Domisili</CardTitle>
-                <CardDescription className="text-xs">Lengkapi alamat untuk keperluan administrasi & kunjungan.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-5">
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm font-medium">Provinsi</span>
-                    <Select
-                      disabled={pending || loadingProvinces}
-                      defaultValue={initialValues.addressProvince ?? ''}
-                      {...register('addressProvince')}
-                      onChange={(e) => {
-                        const provinceId = e.target.value;
-                        setSelectedProvinceId(provinceId);
-                        setValue('addressCity', '');
-                      }}
-                    >
-                      <option value="">{loadingProvinces ? 'Memuat provinsi...' : 'Pilih provinsi'}</option>
-                      {provinces.map((p) => (
-                        <option key={p.id} value={p.id}>{p.name}</option>
-                      ))}
-                    </Select>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm font-medium">Kabupaten / Kota</span>
-                    <Select
-                      disabled={pending || !regencies.length || loadingRegencies}
-                      defaultValue={initialValues.addressCity ?? ''}
-                      {...register('addressCity')}
-                      onChange={(e) => setValue('addressCity', e.target.value)}
-                    >
-                      <option value="">{loadingRegencies ? 'Memuat kabupaten/kota...' : 'Pilih kabupaten / kota'}</option>
-                      {regencies.map((r) => (
-                        <option key={r.id} value={r.name}>{r.name}</option>
-                      ))}
-                    </Select>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <span className="text-sm font-medium">Alamat lengkap</span>
-                  <textarea
-                    disabled={pending}
-                    className="flex min-h-28 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:border-accent disabled:cursor-not-allowed disabled:opacity-60"
-                    {...register('addressLine')}
-                    placeholder="Jl. Nama Jalan No. RT/RW, Kelurahan, Kecamatan"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="darurat" className="mt-0 space-y-6 focus-visible:outline-none">
-            <Card className="rounded-2xl border-border/20">
-              <CardHeader className="border-b border-border/60">
-                <CardTitle className="text-base font-bold">Kontak Darurat</CardTitle>
-                <CardDescription className="text-xs">Isi bila diperlukan untuk kelancaran layanan.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-5 sm:grid-cols-2">
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm font-medium">Nama kontak</span>
-                    <Input disabled={pending} {...register('emergencyContactName')} />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm font-medium">Hubungan</span>
-                    <Input disabled={pending} {...register('emergencyContactRelationship')} placeholder="Orang tua / Pasangan / Saudara" />
-                  </div>
-                  <div className="flex flex-col gap-2 sm:col-span-2">
-                    <span className="text-sm font-medium">Nomor telepon kontak</span>
-                    <Input type="tel" disabled={pending} {...register('emergencyContactPhone')} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-        </form>
-
-        <TabsContent value="keamanan" className="space-y-6 focus-visible:outline-none">
-          <Card className="rounded-2xl border-accent/20">
-            <CardHeader className="border-b border-border/60">
-              <CardTitle className="text-base font-bold">Ubah Kata Sandi</CardTitle>
-              <CardDescription className="text-xs">Ganti kata sandi anda untuk keamanan akun.</CardDescription>
-            </CardHeader>
-            <CardContent className="p-5">
-              <ChangePasswordForm />
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </footer>
+          </form>
+        )}
+      </section>
     </div>
   );
 }

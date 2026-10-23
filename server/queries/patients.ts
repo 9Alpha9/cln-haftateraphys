@@ -57,3 +57,14 @@ export async function getUnlinkedUserPatients() {
     .where(and(or(eq(profiles.accountType, 'USER'), isNull(profiles.id)), isNull(patients.id)))
     .orderBy(asc(users.name));
 }
+
+export async function getPatientSelectOptions() {
+  const { role } = await requireSession({ redirectToLogin: true });
+  if (!hasPermission(role, PERMISSIONS.PATIENT_LIST)) throw new ForbiddenError();
+
+  return getDb()
+    .select({ id: patients.id, label: patients.fullName })
+    .from(patients)
+    .where(isNull(patients.archivedAt))
+    .orderBy(asc(patients.fullName));
+}

@@ -1,7 +1,5 @@
 'use client';
 
-import { Container } from '@/components/container';
-import { Section } from '@/components/section';
 import { ScrollAnimation } from '@/components/ui/scroll-animation';
 import { MapPin, Clock, Shield, Users } from 'lucide-react';
 
@@ -19,7 +17,7 @@ const trustItems = [
   {
     icon: Shield,
     title: 'Pendekatan Berbasis Bukti',
-    description: 'Program terapi mengikuti standar evidance-based practice',
+    description: 'Program terapi mengikuti standar evidence-based practice',
   },
   {
     icon: Users,
@@ -30,24 +28,22 @@ const trustItems = [
 
 export function TrustContext() {
   return (
-    <Section className="bg-white">
-      <Container>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {trustItems.map((item, index) => (
-            <ScrollAnimation key={item.title} delay={index * 0.1} className="h-full">
-              <div className="flex h-full items-start gap-4 rounded-xl border border-border p-5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                  <item.icon className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground">{item.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
-                </div>
+    <div className="relative z-20 mx-auto -mt-10 max-w-7xl px-4 sm:-mt-20 sm:px-6 lg:-mt-24 lg:px-8">
+      <ScrollAnimation>
+        <div className="grid grid-cols-1 divide-y divide-stone-100 rounded-2xl border border-stone-200/80 bg-white p-4 shadow-[0_20px_50px_rgba(24,23,0,0.08)] sm:grid-cols-2 sm:gap-6 sm:divide-y-0 lg:grid-cols-4 lg:divide-x lg:gap-0 lg:p-8">
+          {trustItems.map((item) => (
+            <div key={item.title} className="flex items-start gap-4 pt-4 first:pt-0 sm:pt-0 lg:px-5 lg:first:pl-0 lg:last:pr-0">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--hafta-ylw-950)] text-[var(--hafta-ylw-100)] sm:h-12 sm:w-12 sm:rounded-xl">
+                <item.icon className="h-5 w-5" />
               </div>
-            </ScrollAnimation>
+              <div>
+                <h3 className="text-sm font-bold text-[var(--hafta-ylw-950)]">{item.title}</h3>
+                <p className="mt-1 text-xs leading-relaxed text-stone-600 sm:text-sm">{item.description}</p>
+              </div>
+            </div>
           ))}
         </div>
-      </Container>
-    </Section>
+      </ScrollAnimation>
+    </div>
   );
 }

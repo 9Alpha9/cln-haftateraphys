@@ -3,13 +3,14 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { savePatientIntake, startNewPatientIntake } from '@/server/actions/patient-intakes';
 import type { IntakeDraftInput } from '@/lib/validators/patient-intake';
+import { AlertCircle, Info, ExternalLink } from 'lucide-react';
 
 type IntakeStatus = 'DRAFT' | 'NEEDS_REVISION' | 'SUBMITTED' | 'UNDER_REVIEW' | 'ACCEPTED' | 'ARCHIVED';
 type FieldName = keyof IntakeDraftInput;
@@ -17,6 +18,8 @@ type FieldName = keyof IntakeDraftInput;
 type IntakeFormProps = {
   initialValues: Partial<IntakeDraftInput> | null;
   status: IntakeStatus | null;
+  onSaved?: (mode: 'draft' | 'submit') => void;
+  showStartNewAction?: boolean;
 };
 
 const steps = [
@@ -91,13 +94,13 @@ function TextField({
   );
 }
 
-export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
+export function PatientIntakeForm({ initialValues, status, onSaved, showStartNewAction = true }: IntakeFormProps) {
   const [step, setStep] = useState(0);
   const [showConfirm, setShowConfirm] = useState(false);
   const [pending, startTransition] = useTransition();
   const router = useRouter();
-  const locked = status === 'SUBMITTED' || status === 'UNDER_REVIEW' || status === 'ACCEPTED' || status === 'ARCHIVED';
-  const canStartNewVersion = status === 'ACCEPTED' || status === 'ARCHIVED';
+  const locked = status === 'ACCEPTED' || status === 'ARCHIVED';
+  const canStartNewVersion = showStartNewAction && (status === 'ACCEPTED' || status === 'ARCHIVED');
   const {
     register,
     handleSubmit,
@@ -132,6 +135,13 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
     ['dataAccuracyAcknowledged'],
   ];
 
+  const [rootErrorDetail, setRootErrorDetail] = useState<{
+    title: string;
+    description: string;
+    actionText?: string;
+    actionHref?: string;
+  } | null>(null);
+
   async function next() {
     const valid = await trigger(stepFields[step]);
     if (valid) setStep((current) => Math.min(current + 1, steps.length - 1));
@@ -140,11 +150,51 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
   function handleConfirmNewVersion() {
     startTransition(async () => {
       try {
-        await startNewPatientIntake();
-        router.refresh();
+        const res = await startNewPatientIntake();
+        if (res.success) {
+          setRootErrorDetail(null);
+          router.refresh();
+        } else {
+          setShowConfirm(false);
+          if (res.reason === 'ROLE_NOT_ALLOWED') {
+            setRootErrorDetail({
+              title: 'Akun Anda Saat Ini Bukan Sebagai Pasien',
+              description:
+                'Anda saat ini sedang login dengan akun Terapis/Staf. Pembuatan form awal baru hanya dapat dilakukan oleh akun dengan hak akses Pasien.',
+              actionText: 'Keluar dan masuk dengan akun pasien',
+              actionHref: '/login',
+            });
+          } else if (res.reason === 'STILL_IN_REVIEW') {
+            setRootErrorDetail({
+              title: 'Form Awal Sebelumnya Masih Ditinjau',
+              description:
+                'Form awal Anda saat ini masih dalam proses peninjauan oleh tim fisioterapis Hafta. Anda dapat mengisi form baru setelah form saat ini selesai ditinjau dan diterima.',
+              actionText: 'Lihat status di riwayat form',
+              actionHref: '/dashboard/history',
+            });
+          } else if (res.reason === 'HAS_ACTIVE_DRAFT') {
+            setRootErrorDetail({
+              title: 'Anda Masih Memiliki Form yang Belum Selesai',
+              description:
+                'Terdapat draf form awal yang belum dikirim. Silakan lengkapi dan kirimkan draf tersebut terlebih dahulu sebelum membuat versi baru.',
+            });
+          } else {
+            setRootErrorDetail({
+              title: 'Form Awal Baru Belum Dapat Dibuat',
+              description:
+                'Sistem sedang memproses data klinis Anda. Silakan muat ulang halaman atau hubungi admin klinik kami jika kendala berlanjut.',
+              actionText: 'Hubungi WhatsApp Hafta Fisioterapi',
+              actionHref: 'https://wa.me/6281232932872',
+            });
+          }
+        }
       } catch {
-        setError('root', { message: 'Form Awal baru belum dapat dibuat.' });
         setShowConfirm(false);
+        setRootErrorDetail({
+          title: 'Kendala Koneksi atau Izin Akses',
+          description:
+            'Permintaan pembuatan form awal baru tidak dapat diproses saat ini. Pastikan Anda masuk sebagai akun pasien dan memiliki koneksi internet yang stabil.',
+        });
       }
     });
   }
@@ -158,16 +208,22 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
       startTransition(async () => {
         try {
           await savePatientIntake(data, mode);
+          setRootErrorDetail(null);
           router.refresh();
+          onSaved?.(mode);
         } catch {
-          setError('root', { message: 'Form tidak dapat disimpan. Periksa seluruh isian lalu coba lagi.' });
+          setRootErrorDetail({
+            title: 'Form Tidak Dapat Disimpan',
+            description:
+              'Terdapat isian yang belum lengkap atau sesi login Anda telah berakhir. Silakan periksa seluruh bagian bertanda bintang dan coba kembali.',
+          });
         }
       }),
     );
   }
 
   return (
-    <form className="space-y-6" onSubmit={save('submit')}>
+    <form className="flex min-h-full flex-col gap-6" onSubmit={save('submit')}>
       {status ? (
         <Alert className="border-[#E9E2D8] bg-[#FBF9F6] text-[#4B5563]">
           <AlertDescription className="flex items-center gap-2 text-sm">
@@ -177,10 +233,35 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
           </AlertDescription>
         </Alert>
       ) : null}
-      {errors.root ? (
-        <Alert variant="destructive">
-          <AlertDescription>{errors.root.message}</AlertDescription>
-        </Alert>
+
+      {/* Humanized Error Handle Box dengan Penjelasan & Tindakan Jelas */}
+      {rootErrorDetail ? (
+        <div className="rounded-2xl border border-red-200 bg-red-50/70 p-4.5 sm:p-5 text-red-950 transition-all duration-200">
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 shrink-0 text-red-600 mt-0.5" aria-hidden="true" />
+            <div className="flex-1 space-y-1.5 text-sm">
+              <h4 className="font-bold text-red-900 leading-snug">
+                {rootErrorDetail.title}
+              </h4>
+              <p className="text-xs sm:text-sm leading-relaxed text-red-800/90">
+                {rootErrorDetail.description}
+              </p>
+              {rootErrorDetail.actionHref && (
+                <div className="pt-2">
+                  <a
+                    href={rootErrorDetail.actionHref}
+                    target={rootErrorDetail.actionHref.startsWith('http') ? '_blank' : undefined}
+                    rel={rootErrorDetail.actionHref.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-red-900 border border-red-200 shadow-2xs transition-colors hover:bg-red-100/50"
+                  >
+                    <span>{rootErrorDetail.actionText}</span>
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       ) : null}
       {canStartNewVersion ? (
         <div className="flex justify-end">
@@ -188,7 +269,7 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
             type="button"
             disabled={pending}
             onClick={startNewVersion}
-            className="rounded-xl bg-[var(--hafta-ylw-400)] hover:bg-[var(--hafta-ylw-300)] text-white font-semibold"
+            className="rounded-xl bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-semibold"
           >
             {pending ? 'Membuat...' : 'Isi Form Awal Baru'}
           </Button>
@@ -223,7 +304,7 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
                       onClick={() => index <= step && setStep(index)}
                       className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all ${
                         isPassed
-                          ? 'bg-[var(--hafta-ylw-400)] text-white shadow-sm'
+                          ? 'bg-[var(--hafta-ylw-100)] text-[#181700] shadow-sm'
                           : 'border border-[#E9E2D8] bg-white text-[#9CA3AF]'
                       } ${index <= step && !locked ? 'cursor-pointer hover:opacity-90' : 'cursor-default'}`}
                       aria-current={isCurrent ? 'step' : undefined}
@@ -234,7 +315,7 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
                     {index < steps.length - 1 && (
                       <div className="relative mx-1 h-0.5 flex-1 overflow-hidden rounded-full bg-[#E9E2D8]">
                         <div
-                          className={`absolute inset-0 bg-[var(--hafta-ylw-400)] transition-all duration-500 ease-out ${
+                          className={`absolute inset-0 bg-[var(--hafta-ylw-300)] transition-all duration-500 ease-out ${
                             isCompleted ? 'w-full' : 'w-0'
                           }`}
                         />
@@ -244,7 +325,7 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
                   {/* Label below the circle */}
                   <span
                     className={`mt-2 text-center text-xs font-medium ${
-                      isCurrent ? 'text-[var(--hafta-ylw-400)]' : isCompleted ? 'text-[#1F2937]' : 'text-[#9CA3AF]'
+                      isCurrent ? 'text-[#181700]' : isCompleted ? 'text-[#1F2937]' : 'text-[#9CA3AF]'
                     }`}
                   >
                     {item.title}
@@ -261,7 +342,7 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
         <div className="rounded-xl border border-[#E9E2D8] bg-white divide-y divide-[#E9E2D8] overflow-hidden">
           {/* Section: Keluhan Utama */}
           <div className="px-5 py-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] mb-3">Keluhan Utama</p>
+            <p className="text-xs font-semibold text-stone-500 mb-3">Keluhan Utama</p>
             <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <div>
                 <p className="text-xs text-[#9CA3AF] mb-0.5">Keluhan utama</p>
@@ -284,7 +365,7 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
 
           {/* Section: Aktivitas & Target */}
           <div className="px-5 py-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] mb-3">Aktivitas & Target</p>
+            <p className="text-xs font-semibold text-stone-500 mb-3">Aktivitas & Target</p>
             <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <div>
                 <p className="text-xs text-[#9CA3AF] mb-0.5">Keterbatasan aktivitas</p>
@@ -307,7 +388,7 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
 
           {/* Section: Riwayat */}
           <div className="px-5 py-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF] mb-3">Riwayat Relevan</p>
+            <p className="text-xs font-semibold text-stone-500 mb-3">Riwayat Relevan</p>
             <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <div>
                 <p className="text-xs text-[#9CA3AF] mb-0.5">Riwayat cedera</p>
@@ -495,7 +576,7 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
           <div className="space-y-1">
             <h2 className="text-base font-bold text-[#1F2937]">Review & Kirim</h2>
             <p className="text-sm text-[#6B7280]">
-              Setelah dikirim, Form Awal akan ditinjau tim Hafta dan tidak dapat diubah sampai diminta perbaikan.
+              Setelah dikirim, Form Awal akan ditinjau tim Hafta. Anda masih dapat memperbarui jawaban selama proses peninjauan.
             </p>
           </div>
           <div className="rounded-xl border border-[#E9E2D8] bg-[#FBF9F6] p-4 text-sm text-[#4B5563] space-y-2">
@@ -513,7 +594,7 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
             <input
               id="dataAccuracyAcknowledged"
               type="checkbox"
-              className="mt-1 h-4 w-4 shrink-0 accent-[var(--hafta-ylw-400)] cursor-pointer"
+              className="mt-1 h-4 w-4 shrink-0 accent-[var(--hafta-ylw-200)] cursor-pointer"
               disabled={pending}
               {...register('dataAccuracyAcknowledged', { required: 'Konfirmasi ketepatan data diperlukan.' })}
             />
@@ -522,14 +603,14 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
             </label>
           </div>
           {errors.dataAccuracyAcknowledged ? (
-            <p className="text-xs text-yellow-600 font-medium">{errors.dataAccuracyAcknowledged.message}</p>
+            <p className="text-xs text-[var(--hafta-red-600)] font-medium">{errors.dataAccuracyAcknowledged.message}</p>
           ) : null}
         </section>
       ) : null}
 
       {/* Action Buttons */}
       {!locked ? (
-        <div className="flex flex-col-reverse gap-3 border-t border-[#E9E2D8] pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <div className="sticky bottom-0 z-10 mt-auto -mx-5 flex flex-col-reverse gap-3 border-t border-[#E9E2D8] bg-white px-5 pb-1 pt-4 sm:-mx-6 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div>
             {step > 0 ? (
               <Button
@@ -537,7 +618,7 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
                 variant="outline"
                 disabled={pending}
                 onClick={() => setStep((current) => current - 1)}
-                className="rounded-xl border border-[#E9E2D8] bg-white text-[#1F2937] hover:bg-[#FFF7ED]/50 hover:text-[var(--hafta-ylw-400)]"
+                className="rounded-xl border border-[#E9E2D8] bg-white text-[#1F2937] hover:bg-[var(--hafta-ylw-50)]/50 hover:text-[#181700]"
               >
                 Kembali
               </Button>
@@ -549,7 +630,7 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
               variant="outline"
               disabled={pending}
               onClick={save('draft')}
-              className="rounded-xl border border-[#E9E2D8] bg-white text-[#1F2937] hover:bg-[#FFF7ED]/50 hover:text-[var(--hafta-ylw-400)]"
+              className="rounded-xl border border-[#E9E2D8] bg-white text-[#1F2937] hover:bg-[var(--hafta-ylw-50)]/50 hover:text-[#181700]"
             >
               Simpan Draft
             </Button>
@@ -558,7 +639,7 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
                 type="button"
                 disabled={pending}
                 onClick={next}
-                className="rounded-xl bg-[var(--hafta-ylw-400)] hover:bg-[var(--hafta-ylw-300)] text-white font-semibold shadow-xs"
+                className="rounded-xl bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-semibold shadow-xs"
               >
                 Lanjut
               </Button>
@@ -566,7 +647,7 @@ export function PatientIntakeForm({ initialValues, status }: IntakeFormProps) {
               <Button
                 type="submit"
                 disabled={pending}
-                className="rounded-xl bg-[var(--hafta-ylw-400)] hover:bg-[var(--hafta-ylw-300)] text-white font-semibold shadow-xs"
+                className="rounded-xl bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-semibold shadow-xs"
               >
                 {pending ? 'Mengirim...' : 'Kirim untuk Ditinjau'}
               </Button>

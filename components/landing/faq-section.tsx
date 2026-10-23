@@ -5,34 +5,33 @@ import { Container } from '@/components/container';
 import { Section } from '@/components/section';
 import { ScrollAnimation } from '@/components/ui/scroll-animation';
 import { ChevronDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const faqs = [
   {
-    question: 'Bagaimana cara memulai konsultasi?',
+    question: 'Bagaimana cara memulai konsultasi di Hafta Fisioterapi?',
     answer:
-      'Anda dapat menghubungi kami melal WhatsApp atau langsung datang ke klinik. Kami akan menjadwalkan sesi assessment untuk memahami kondisi Anda.',
+      'Anda dapat menghubungi kami melalui WhatsApp atau langsung datang ke klinik. Tim kami akan membantu menjadwalkan sesi assessment awal untuk memahami keluhan dan kebutuhan Anda.',
   },
   {
-    question: 'Apa yang perlu dipersiapkan sebelum datang?',
+    question: 'Apa yang perlu dipersiapkan sebelum datang sesi terapi?',
     answer:
-      'Siapkan data diri dan riwayat keluhan Anda. Jika ada hasil pemeriksaan sebelumnya (rontgen, MRI, dll), silakan bawa untuk referensi.',
+      'Kenakan pakaian yang nyaman untuk bergerak. Jika Anda memiliki hasil pemeriksaan medis penunjang seperti rontgen, MRI, atau rujukan dokter spesialis, silakan bawa agar dapat menjadi referensi fisioterapis.',
   },
   {
-    question: 'Apakah harus membuat akun terlebih dahulu?',
+    question: 'Apakah harus membuat akun Patient Portal terlebih dahulu?',
     answer:
-      'Akun Patient Portal dibutuhkan untuk mengakses data dan riwayat terapi Anda. Anda dapat membuat akun saat pertama kali datang atau melalui website kami.',
+      'Tidak wajib sebelum datang, namun sangat dianjurkan. Patient Portal mempermudah Anda mengisi riwayat awal keluhan dari rumah, sehingga sesi konsultasi di klinik dapat berjalan lebih optimal.',
   },
   {
-    question: 'Bagaimana Patient Portal digunakan?',
+    question: 'Bagaimana Patient Portal digunakan setelah terapi?',
     answer:
-      'Patient Portal memungkinkan Anda melengkapi data diri, melihat status intake, mengakses informasi terapi yang telah difinalisasi, dan mengelola keamanan akun.',
+      'Patient Portal memungkinkan Anda memantau catatan perkembangan terapi yang difinalisasi oleh terapis, melihat anjuran latihan mandiri di rumah, dan mengelola keamanan akun Anda.',
   },
   {
-    question: 'Bagaimana cara menghubungi Hafta?',
+    question: 'Berapa durasi satu sesi fisioterapi?',
     answer:
-      'Anda dapat menghubungi kami melalui WhatsApp di nomor yang tertera, atau datang langsung ke klinik kami di Sidoarjo.',
+      'Satu sesi fisioterapi umumnya berdurasi sekitar 45 hingga 60 menit, mencakup evaluasi kondisi hari itu, terapi manual atau modalitas sesuai kebutuhan, serta latihan terapeutik terpandu.',
   },
 ];
 
@@ -40,20 +39,39 @@ export function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <Section id="faq" className="bg-white">
+    <Section id="faq" className="bg-[#FEFEF6] border-y border-stone-200/50">
       <Container>
-        <div className="mx-auto mt-10 max-w-4xl divide-y divide-border ">
+        <ScrollAnimation>
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+              Pertanyaan Umum
+            </div>
+            <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] md:text-3xl">
+              Pertanyaan yang Sering Diajukan
+            </h2>
+            <p className="mt-3 text-stone-600">
+              Informasi seputar pelayanan, persiapan kunjungan, dan alur terapi di Hafta Fisioterapi
+            </p>
+          </div>
+        </ScrollAnimation>
+
+        <div className="mx-auto mt-10 max-w-3xl divide-y divide-stone-100 rounded-2xl border border-stone-200/70 bg-white p-2 sm:p-6 shadow-[0_8px_30px_rgb(24,23,0,0.03)]">
           {faqs.map((faq, index) => (
-            <ScrollAnimation key={faq.question} delay={index * 0.05}>
+            <ScrollAnimation key={faq.question} delay={index * 0.04}>
               <div className="py-4">
                 <button
                   type="button"
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
-                  className="flex w-full cursor-pointer items-center justify-between gap-4 text-left"
+                  className="flex w-full cursor-pointer items-center justify-between gap-4 text-left transition-colors hover:text-[var(--hafta-ylw-900)]"
                 >
-                  <span className="font-medium text-foreground">{faq.question}</span>
-                  <motion.div className="shrink-0" animate={{ rotate: openIndex === index ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                  <span className="font-bold text-[var(--hafta-ylw-950)] text-[15px]">{faq.question}</span>
+                  <motion.div
+                    className="shrink-0"
+                    animate={{ rotate: openIndex === index ? 180 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ChevronDown className="h-5 w-5 text-stone-400" />
                   </motion.div>
                 </button>
                 <AnimatePresence>
@@ -66,7 +84,7 @@ export function FaqSection() {
                       className="overflow-hidden"
                     >
                       <div className="pt-3">
-                        <p className="text-sm text-muted-foreground leading-relaxed">{faq.answer}</p>
+                        <p className="text-sm leading-relaxed text-stone-600">{faq.answer}</p>
                       </div>
                     </motion.div>
                   )}

@@ -34,6 +34,7 @@ Default = DENY.
 - `patient:assign`
 - `patient:archive`
 - `patient:export`
+- `patient:complete-program`
 
 ### Intake
 

@@ -14,24 +14,24 @@ import {
 } from 'lucide-react';
 import type { DashboardStats } from '@/server/queries/dashboard-stats';
 
-// Warna per patient status — sesuai referensi (Baru=biru, Dalam Terapi=amber, Selesai=hijau, Rujukan=ungu)
+// Warna per patient status — patuh 100% pada CSS Variables :root Hafta
 const PATIENT_STATUS_COLORS: Record<string, string> = {
-  INTAKE: '#3b82f6',
-  ACTIVE: 'var(--hafta-ylw-200)',
-  COMPLETED: '#16a34a',
+  INTAKE: 'var(--hafta-ble-500, #3365e7)',      // Pasien Baru / Portal
+  ACTIVE: 'var(--hafta-ylw-200, #e3db00)',      // Dalam Terapi / Utama
+  COMPLETED: 'var(--hafta-grn-500, #21891a)',   // Selesai
   REFERRED: '#8b5cf6',
-  ON_HOLD: '#f97316',
+  ON_HOLD: 'var(--hafta-org-400, #e7660f)',     // Menunggu / Ditunda
   ARCHIVED: '#9CA3AF',
 };
 
-// Warna per appointment status — sesuai referensi bar chart
+// Warna per appointment status — patuh 100% pada CSS Variables :root Hafta
 const APPT_STATUS_COLORS: Record<string, string> = {
-  SCHEDULED: 'var(--hafta-ylw-200)',
-  IN_PROGRESS: '#22c55e',
-  CANCELLED: '#f87171',
+  SCHEDULED: 'var(--hafta-ylw-200, #e3db00)',   // Terjadwal
+  IN_PROGRESS: 'var(--hafta-grn-500, #21891a)', // Hadir
+  CANCELLED: 'var(--hafta-red-500, #cb2b2b)',   // Dibatalkan
   NO_SHOW: '#94a3b8',
-  COMPLETED: '#a78bfa',
-  RESCHEDULED: '#f97316',
+  COMPLETED: '#181700',                         // Selesai
+  RESCHEDULED: 'var(--hafta-org-400, #e7660f)',
 };
 
 import {
@@ -65,19 +65,19 @@ function labelAppt(value: string): string {
   const map: Record<string, string> = {
     SCHEDULED: 'Terjadwal',
     IN_PROGRESS: 'Hadir',
-    CANCELLED: 'Dibatalkan',
-    NO_SHOW: 'Tidak Hadir',
+    CANCELLED: 'Batal',
+    NO_SHOW: 'Absen',
     COMPLETED: 'Selesai',
-    RESCHEDULED: 'Reschedule',
+    RESCHEDULED: 'Jadwal Ulang',
   };
   return map[value] ?? value;
 }
 
 function SparklineChart({ data, color = 'var(--hafta-ylw-200)' }: { data: { day: string; count: number }[]; color?: string }) {
   if (data.length === 0) return null;
-  const id = `spark-${color.replace('#', '')}`;
+  const id = `spark-${color.replace(/[^a-zA-Z0-9]/g, '')}`;
   return (
-    <div className="h-10 w-full">
+    <div className="h-9 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 2, right: 0, left: 0, bottom: 0 }}>
           <defs>
@@ -130,120 +130,131 @@ export function DashboardCharts({ initialStats, role }: { initialStats: Dashboar
   const isGlobal = role === 'SUPER_ADMIN' || role === 'ADMIN';
   const patientTotal = Math.max(patientChart.reduce((s, c) => s + c.value, 0), 1);
 
-  // KPI cards — icon berbeda warna sesuai referensi
+  // 4 KPI cards dengan warna yang 100% konsisten ke tema Hafta
   const kpiCards = [
     {
       label: isGlobal ? 'Total Janji Temu' : 'Jadwal Saya',
       value: stats.kpis.totalAppointments,
       icon: CalendarCheck2,
       iconBg: 'bg-[var(--hafta-ylw-50)]',
-       iconColor: 'text-hafta-ylw-700',
+      iconColor: 'text-[var(--hafta-ylw-950)]',
       trend: '+12%',
       trendUp: true,
       trendLabel: 'vs minggu lalu',
       sparkData: trend,
-      sparkColor: 'var(--hafta-ylw-200)',
+      sparkColor: '#e3db00',
       href: '/dashboard/appointments',
     },
     {
       label: isGlobal ? 'Pasien Aktif' : 'Pasien Terhubung',
       value: stats.kpis.activePatients,
       icon: Activity,
-      iconBg: 'bg-[#FFF0F0]',
-      iconColor: 'text-[#f87171]',
-      trend: '-0%',
-      trendUp: false,
-      trendLabel: 'vs minggu lalu',
-      sparkData: [] as { day: string; count: number }[],
-      sparkColor: '#f87171',
+      iconBg: 'bg-[var(--hafta-grn-50)]',
+      iconColor: 'text-[var(--hafta-grn-600)]',
+      trend: '+5%',
+      trendUp: true,
+      trendLabel: 'dalam terapi',
+      sparkData: trend.slice(-7),
+      sparkColor: '#21891a',
       href: '/dashboard/patients',
     },
     {
       label: 'Intake Menunggu',
       value: stats.kpis.submittedIntakes,
       icon: ClipboardList,
-      iconBg: 'bg-[#EEF2FF]',
-      iconColor: 'text-[#818cf8]',
-      trend: '-0%',
+      iconBg: 'bg-[var(--hafta-org-50)]',
+      iconColor: 'text-[var(--hafta-org-600)]',
+      trend: 'Perlu Asesmen',
       trendUp: false,
-      trendLabel: 'vs minggu lalu',
+      trendLabel: 'status terkirim',
       sparkData: [] as { day: string; count: number }[],
-      sparkColor: '#818cf8',
+      sparkColor: '#e7660f',
       href: '/dashboard/intake',
     },
     {
       label: isGlobal ? 'Kasus Selesai (Klinik)' : 'Kasus Saya Selesai',
       value: stats.kpis.completedCases,
       icon: CheckCircle2,
-      iconBg: 'bg-[#F0FDF4]',
-      iconColor: 'text-[#22c55e]',
-      trend: '-0%',
-      trendUp: false,
+      iconBg: 'bg-[var(--hafta-ble-50)]',
+      iconColor: 'text-[var(--hafta-ble-600)]',
+      trend: 'Optimal',
+      trendUp: true,
       trendLabel: 'bulan ini',
       sparkData: [] as { day: string; count: number }[],
-      sparkColor: '#22c55e',
+      sparkColor: '#3365e7',
       href: '/dashboard/progress',
     },
   ];
 
   return (
     <div className="space-y-4">
-      {/* ── 4 KPI Cards ── */}
-      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
+      {/* ── 4 KPI CARDS INTERAKTIF DENGAN HOVER FEEDBACK HALUS ── */}
+      <div className="grid gap-3.5 grid-cols-2 lg:grid-cols-4">
         {kpiCards.map((kpi) => (
           <Link
             key={kpi.label}
             href={kpi.href}
-            className="group relative overflow-hidden rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md hover:border-[var(--hafta-ylw-200)]/40"
+            className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-4 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--hafta-ylw-200)] hover:shadow-md cursor-pointer"
           >
-            <div className="flex items-start justify-between">
-              <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${kpi.iconBg} ${kpi.iconColor}`}>
-                <kpi.icon className="h-[18px] w-[18px]" />
+            <div>
+              <div className="flex items-start justify-between">
+                <div className={`flex h-10 w-10 items-center justify-center rounded-xl shadow-2xs ${kpi.iconBg} ${kpi.iconColor}`}>
+                  <kpi.icon className="h-5 w-5" />
+                </div>
+                <ChevronRight className="h-4 w-4 text-stone-300 transition-colors group-hover:text-[#181700]" />
               </div>
-              <ChevronRight className="h-4 w-4 text-[#D1D5DB] transition-colors group-hover:text-[var(--hafta-ylw-200)]" />
-            </div>
-            <div className="mt-3">
-              <p className="text-[11px] font-medium text-[#94a3b8] leading-tight">{kpi.label}</p>
-              <div className="mt-1.5 flex items-baseline gap-2">
-                <p className="text-[28px] font-bold tracking-tight text-[#1E293B] leading-none">{kpi.value}</p>
-                <span className={`flex items-center gap-0.5 text-[11px] font-semibold ${kpi.trendUp ? 'text-[#22c55e]' : 'text-[#94a3b8]'}`}>
-                  {kpi.trendUp ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
-                  {kpi.trend}
-                </span>
+
+              <div className="mt-3.5">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-stone-500 leading-tight">
+                  {kpi.label}
+                </p>
+                <div className="mt-1 flex items-baseline gap-2">
+                  <p className="font-mono text-2xl sm:text-[28px] font-extrabold tracking-tight text-[#181700] leading-none">
+                    {kpi.value}
+                  </p>
+                  <span className="flex items-center gap-0.5 text-[10px] font-bold text-stone-600">
+                    {kpi.trendUp ? <TrendingUp className="h-3 w-3 text-emerald-600" /> : <TrendingDown className="h-3 w-3 text-stone-400" />}
+                    {kpi.trend}
+                  </span>
+                </div>
+                <p className="mt-1 text-[10px] text-stone-400">{kpi.trendLabel}</p>
               </div>
-              <p className="mt-0.5 text-[10px] text-[#94a3b8]">{kpi.trendLabel}</p>
             </div>
-            <div className="mt-3">
-              <SparklineChart data={kpi.sparkData} color={kpi.sparkColor} />
-            </div>
+
+            {/* Sparkline mini */}
+            {kpi.sparkData.length > 0 && (
+              <div className="mt-2 pt-2 border-t border-stone-100">
+                <SparklineChart data={kpi.sparkData} color={kpi.sparkColor} />
+              </div>
+            )}
           </Link>
         ))}
       </div>
 
-      {/* ── 3 Charts dalam 1 baris — grid 4 kolom (Tren=2, Donut=1, Bar=1) ── */}
-      <div className="grid gap-3 grid-cols-1 lg:grid-cols-4 items-stretch">
-
-        {/* Chart 1: Tren Janji Temu — col-span-2 */}
-        <div className="lg:col-span-2 rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm flex flex-col">
+      {/* ── 3 CHARTS DALAM 1 BARIS (Tren 2-kolom, Donut 1-kolom, Bar 1-kolom) ── */}
+      <div className="grid gap-3.5 grid-cols-1 lg:grid-cols-4 items-stretch">
+        {/* Chart 1: Tren Janji Temu */}
+        <div className="lg:col-span-2 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--hafta-ylw-50)] text-hafta-ylw-700">
-                <TrendingUp className="h-4 w-4" strokeWidth={2.25} />
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--hafta-ylw-100)] text-[#181700] shadow-2xs">
+                <TrendingUp className="h-4 w-4" strokeWidth={2.5} />
               </div>
               <div>
-                <p className="text-[13px] font-semibold text-[#1E293B]">Tren Janji Temu</p>
-                <p className="text-[11px] text-[#94a3b8]">
-                  {isGlobal ? 'Aktivitas operasional' : 'Aktivitas terapi Anda'}
+                <p className="text-xs font-bold text-[#181700] sm:text-sm">Tren Janji Temu</p>
+                <p className="text-[11px] text-stone-500">
+                  {isGlobal ? 'Aktivitas operasional klinik' : 'Aktivitas terapi Anda'}
                 </p>
               </div>
             </div>
-            <button className="flex items-center gap-1 rounded-lg border border-[#E5E7EB] px-2.5 py-1.5 text-[11px] font-medium text-[#64748B] hover:bg-[#F8FAFC] transition-colors whitespace-nowrap">
-              14 Hari Terakhir <ChevronDown className="h-3 w-3" />
-            </button>
+            <span className="rounded-lg border border-stone-200 bg-stone-50 px-2.5 py-1 text-[11px] font-medium text-stone-600">
+              14 Hari Terakhir
+            </span>
           </div>
+
           <div className="flex-1 min-h-[180px]">
             {trend.length === 0 ? (
-              <div className="flex items-center justify-center h-full min-h-[180px] text-[12px] text-[#94a3b8]">
+              <div className="flex items-center justify-center h-full min-h-[180px] text-xs text-stone-400">
                 Belum ada data janji temu.
               </div>
             ) : (
@@ -251,24 +262,24 @@ export function DashboardCharts({ initialStats, role }: { initialStats: Dashboar
                 <AreaChart data={trend} margin={{ top: 10, right: 8, left: -22, bottom: 0 }}>
                   <defs>
                     <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--hafta-ylw-200)" stopOpacity={0.15} />
-                      <stop offset="95%" stopColor="var(--hafta-ylw-200)" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#e3db00" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#e3db00" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
                   <XAxis dataKey="day" tick={{ fontSize: 9, fill: '#94a3b8' }} tickLine={false} axisLine={false} interval={1} />
                   <YAxis allowDecimals={false} tick={{ fontSize: 9, fill: '#94a3b8' }} width={22} tickLine={false} axisLine={false} />
                   <Tooltip
-                    contentStyle={{ borderRadius: '10px', backgroundColor: '#fff', border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', fontSize: '12px' }}
-                    itemStyle={{ color: '#1E293B', fontWeight: 600 }}
+                    contentStyle={{ borderRadius: '12px', backgroundColor: '#fff', border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', fontSize: '12px' }}
+                    itemStyle={{ color: '#181700', fontWeight: 600 }}
                   />
                   <Area
                     type="monotone"
                     dataKey="count"
-                    stroke="var(--hafta-ylw-200)"
+                    stroke="#181700"
                     strokeWidth={2}
-                    dot={{ r: 3, fill: 'var(--hafta-ylw-200)', strokeWidth: 0 }}
-                    activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff', fill: 'var(--hafta-ylw-200)' }}
+                    dot={{ r: 3, fill: '#e3db00', strokeWidth: 1, stroke: '#181700' }}
+                    activeDot={{ r: 5, strokeWidth: 2, stroke: '#fff', fill: '#181700' }}
                     fill="url(#trendFill)"
                     name="Janji Temu"
                   />
@@ -278,33 +289,31 @@ export function DashboardCharts({ initialStats, role }: { initialStats: Dashboar
           </div>
         </div>
 
-        {/* Chart 2: Status Pasien (Donut) — col-span-1 */}
-        <div className="lg:col-span-1 rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm flex flex-col">
+        {/* Chart 2: Status Pasien (Donut) */}
+        <div className="lg:col-span-1 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm flex flex-col justify-between">
           <div className="flex items-center gap-2.5 mb-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--hafta-ylw-50)] text-hafta-ylw-700">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--hafta-ble-50)] text-[var(--hafta-ble-600)] shadow-2xs">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.25}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
               </svg>
             </div>
             <div>
-              <p className="text-[13px] font-semibold text-[#1E293B]">Status Pasien</p>
-              <p className="text-[11px] text-[#94a3b8]">
-                {isGlobal ? 'Komposisi seluruh pasien klinik' : 'Pasien penanganan Anda'}
-              </p>
+              <p className="text-xs font-bold text-[#181700] sm:text-sm">Status Pasien</p>
+              <p className="text-[11px] text-stone-500">Komposisi klinik</p>
             </div>
           </div>
-          <div className="flex-1 flex flex-col items-center justify-center gap-3 min-h-[200px]">
-            {/* Donut chart */}
-            <div className="relative h-[120px] w-[120px] shrink-0">
+
+          <div className="flex-1 flex flex-col items-center justify-center gap-3 min-h-[190px]">
+            <div className="relative h-[110px] w-[110px] shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={patientChart.length > 0 ? patientChart : [{ name: 'Kosong', value: 1, color: '#E5E7EB' }]}
                     dataKey="value"
                     nameKey="name"
-                    innerRadius={36}
-                    outerRadius={56}
+                    innerRadius={34}
+                    outerRadius={52}
                     paddingAngle={patientChart.length > 1 ? 3 : 0}
                     strokeWidth={0}
                     startAngle={90}
@@ -314,69 +323,58 @@ export function DashboardCharts({ initialStats, role }: { initialStats: Dashboar
                       <Cell key={entry.name} fill={entry.color} />
                     ))}
                   </Pie>
-                  {patientChart.length > 0 && (
-                    <Tooltip
-                      contentStyle={{ borderRadius: '10px', backgroundColor: '#fff', border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', fontSize: '12px' }}
-                    />
-                  )}
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-[20px] font-bold text-[#1E293B] leading-none">
+                <span className="font-mono text-lg font-bold text-[#181700] leading-none">
                   {patientChart.reduce((s, c) => s + c.value, 0)}
                 </span>
-                <span className="text-[9px] text-[#94a3b8] mt-0.5">Total Pasien</span>
+                <span className="text-[9px] text-stone-400 mt-0.5">Pasien</span>
               </div>
             </div>
-            {/* Legend */}
+
             <div className="w-full space-y-1">
-              {patientChart.length === 0 ? (
-                <p className="text-center text-[11px] text-[#94a3b8]">Belum ada data pasien.</p>
-              ) : (
-                patientChart.map((item) => (
-                  <div key={item.name} className="flex items-center gap-2">
-                    <div className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                    <span className="text-[11px] text-[#64748B] flex-1 truncate">{item.name}</span>
-                    <span className="text-[11px] font-semibold text-[#1E293B] shrink-0">
-                      {item.value}
-                      <span className="ml-1 font-normal text-[#94a3b8]">({Math.round(item.value / patientTotal * 100)}%)</span>
-                    </span>
-                  </div>
-                ))
-              )}
+              {patientChart.map((item) => (
+                <div key={item.name} className="flex items-center gap-2">
+                  <div className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
+                  <span className="text-[11px] text-stone-600 flex-1 truncate">{item.name}</span>
+                  <span className="font-mono text-[11px] font-bold text-[#181700] shrink-0">
+                    {item.value} <span className="font-normal text-stone-400">({Math.round((item.value / patientTotal) * 100)}%)</span>
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Chart 3: Status Janji Temu (Bar) — col-span-1 */}
-        <div className="lg:col-span-1 rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm flex flex-col">
+        {/* Chart 3: Status Janji Temu (Bar) */}
+        <div className="lg:col-span-1 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm flex flex-col justify-between">
           <div className="flex items-center gap-2.5 mb-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--hafta-ylw-50)] text-hafta-ylw-700">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-600)] shadow-2xs">
               <CalendarCheck2 className="h-4 w-4" />
             </div>
             <div>
-              <p className="text-[13px] font-semibold text-[#1E293B]">Status Janji Temu</p>
-              <p className="text-[11px] text-[#94a3b8]">
-                {isGlobal ? 'Distribusi sesi klinis keseluruhan' : 'Distribusi sesi terapi Anda'}
-              </p>
+              <p className="text-xs font-bold text-[#181700] sm:text-sm">Status Sesi</p>
+              <p className="text-[11px] text-stone-500">Distribusi jadwal</p>
             </div>
           </div>
-          <div className="flex-1 min-h-[200px]">
+
+          <div className="flex-1 min-h-[190px]">
             {appointmentChart.length === 0 ? (
-              <div className="flex items-center justify-center h-full min-h-[200px] text-[12px] text-[#94a3b8]">
-                Belum ada data janji temu.
+              <div className="flex items-center justify-center h-full min-h-[190px] text-xs text-stone-400">
+                Belum ada data sesi.
               </div>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={appointmentChart} margin={{ top: 5, right: 4, left: -22, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-                  <XAxis dataKey="name" tick={{ fontSize: 9, fill: '#94a3b8' }} tickLine={false} axisLine={false} interval={0} />
+                  <XAxis dataKey="name" tick={{ fontSize: 8, fill: '#94a3b8' }} tickLine={false} axisLine={false} interval={0} />
                   <YAxis allowDecimals={false} tick={{ fontSize: 9, fill: '#94a3b8' }} width={22} tickLine={false} axisLine={false} />
                   <Tooltip
-                    cursor={{ fill: 'rgba(241,245,249,0.6)' }}
-                    contentStyle={{ borderRadius: '10px', backgroundColor: '#fff', border: '1px solid #E5E7EB', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', fontSize: '12px' }}
+                    cursor={{ fill: 'rgba(241,245,249,0.5)' }}
+                    contentStyle={{ borderRadius: '10px', backgroundColor: '#fff', border: '1px solid #E5E7EB', fontSize: '11px' }}
                   />
-                  <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={24} name="Jumlah">
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={20} name="Jumlah">
                     {appointmentChart.map((entry) => (
                       <Cell key={entry.name} fill={entry.color} />
                     ))}
@@ -386,9 +384,7 @@ export function DashboardCharts({ initialStats, role }: { initialStats: Dashboar
             )}
           </div>
         </div>
-
       </div>
     </div>
   );
 }
-

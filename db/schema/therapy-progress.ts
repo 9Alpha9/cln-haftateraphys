@@ -1,5 +1,6 @@
 import { index, integer, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { patients } from './patients';
+import { appointments } from './appointments';
 import { users } from './auth';
 
 export const therapyProgressStatusEnum = pgEnum('therapy_progress_status', ['DRAFT', 'FINALIZED']);
@@ -12,6 +13,7 @@ export const therapyProgressRecords = pgTable(
       .notNull()
       .references(() => patients.id, { onDelete: 'restrict' }),
     therapistId: uuid('therapist_id').references(() => users.id, { onDelete: 'set null' }),
+    appointmentId: uuid('appointment_id').references(() => appointments.id, { onDelete: 'set null' }),
     recordedAt: timestamp('recorded_at', { withTimezone: true }).defaultNow().notNull(),
     painScore: integer('pain_score').notNull(),
     rangeOfMotionScore: integer('range_of_motion_score').notNull(),
@@ -33,5 +35,6 @@ export const therapyProgressRecords = pgTable(
   (table) => [
     index('therapy_progress_records_patient_recorded_at_idx').on(table.patientId, table.recordedAt),
     index('therapy_progress_records_therapist_idx').on(table.therapistId),
+    index('therapy_progress_records_appointment_idx').on(table.appointmentId),
   ],
 );

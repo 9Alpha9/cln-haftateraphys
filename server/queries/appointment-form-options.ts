@@ -1,4 +1,4 @@
-import { asc, eq, isNull } from 'drizzle-orm';
+import { and, asc, eq, isNull } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { patients, profiles, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
@@ -6,7 +6,7 @@ import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 
 export type AppointmentSelectOption = { id: string; label: string };
 
-export async function getAppointmentFormOptions() {
+export async function getAppointmentFormOptions({ patientId }: { patientId?: string } = {}) {
   const { session, role } = await requireSession({ redirectToLogin: true });
   if (!hasPermission(role, PERMISSIONS.APPOINTMENT_CREATE) || role === 'USER') {
     throw new ForbiddenError();
@@ -16,7 +16,11 @@ export async function getAppointmentFormOptions() {
   const patientOptions = await db
     .select({ id: patients.id, label: patients.fullName })
     .from(patients)
-    .where(isNull(patients.archivedAt))
+    .where(
+      patientId
+        ? and(isNull(patients.archivedAt), eq(patients.id, patientId))
+        : isNull(patients.archivedAt)
+    )
     .orderBy(asc(patients.fullName));
 
   const therapistOptions =

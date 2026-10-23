@@ -91,9 +91,9 @@ const adminNavigation: DashboardNavGroup[] = [
 
 const patientNavigation: DashboardNavGroup[] = [
   {
-    label: 'Ringkasan',
+    label: 'Main',
     items: [
-      { label: 'Ringkasan', href: '/dashboard', icon: ClipboardList },
+      { label: 'Dashboard', href: '/dashboard', icon: ClipboardList },
       { label: 'Jadwal', href: '/dashboard/appointments', icon: CalendarDays },
       {
         label: 'Rekam Medis',

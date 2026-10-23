@@ -35,6 +35,9 @@ export const appointments = pgTable(
     type: appointmentTypeEnum('type').default('THERAPY_SESSION').notNull(),
     status: appointmentStatusEnum('status').default('SCHEDULED').notNull(),
     administrativeNote: text('administrative_note'),
+    completionNote: text('completion_note'),
+    completedAt: timestamp('completed_at', { withTimezone: true }),
+    completedBy: uuid('completed_by').references(() => users.id, { onDelete: 'set null' }),
     cancellationReason: text('cancellation_reason'),
     rescheduledFromId: uuid('rescheduled_from_id'),
     createdBy: uuid('created_by')
@@ -64,6 +67,11 @@ export const appointmentsRelations = relations(appointments, ({ one }) => ({
     fields: [appointments.createdBy],
     references: [users.id],
     relationName: 'createdAppointments',
+  }),
+  completedByUser: one(users, {
+    fields: [appointments.completedBy],
+    references: [users.id],
+    relationName: 'completedAppointments',
   }),
   rescheduledFrom: one(appointments, {
     fields: [appointments.rescheduledFromId],

@@ -10,7 +10,10 @@ export function proxy(request: NextRequest) {
     return new NextResponse('Not Found', { status: 404 });
   }
 
-  return NextResponse.next();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-pathname', pathname);
+
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {

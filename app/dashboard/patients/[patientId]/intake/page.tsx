@@ -3,8 +3,9 @@ import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-heade
 import { IntakeReviewActions } from '@/components/dashboard/intake-review-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { requireSession } from '@/lib/auth/require-session';
-import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { hasPermission, PERMISSIONS, requirePermission } from '@/lib/permissions';
 import { getScopedIntakeForReview } from '@/server/queries/intake-review';
+import { redirect } from 'next/navigation';
 
 const statusConfig: Record<
   string,
@@ -16,6 +17,15 @@ const statusConfig: Record<
   NEEDS_REVISION:  { label: 'Perlu Perbaikan', color: 'text-[#DC2626]',  bg: 'bg-[#FEF2F2]',    border: 'border-[#FECACA]' },
   ACCEPTED:        { label: 'Diterima',        color: 'text-[#15803D]',  bg: 'bg-[#F0FDF4]',    border: 'border-[#BBF7D0]' },
   ARCHIVED:        { label: 'Diarsipkan',      color: 'text-[#6B7280]',  bg: 'bg-[#F9FAFB]',    border: 'border-[#E5E7EB]' },
+};
+
+const dotColorMap: Record<string, string> = {
+  DRAFT:          'bg-[#9CA3AF]',
+  SUBMITTED:      'bg-[#3B82F6]',
+  UNDER_REVIEW:   'bg-[var(--hafta-ylw-400)]',
+  NEEDS_REVISION: 'bg-[#EF4444]',
+  ACCEPTED:       'bg-[#22C55E]',
+  ARCHIVED:       'bg-[#9CA3AF]',
 };
 
 const fields = [
@@ -32,12 +42,29 @@ const fields = [
   ['Alergi', 'allergies'],
 ] as const;
 
-export default async function PatientIntakeReviewPage({ params }: { params: Promise<{ patientId: string }> }) {
+function StatusBadge({ status }: { status: string }) {
+  const cfg = statusConfig[status] ?? statusConfig['DRAFT'];
+  const dot = dotColorMap[status] ?? dotColorMap['DRAFT'];
+  return (
+    <div className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium ${cfg.bg} ${cfg.border} ${cfg.color}`}>
+      <span className={`h-2 w-2 shrink-0 rounded-full ${dot}`} />
+      <span>Status: <strong>{cfg.label}</strong></span>
+    </div>
+  );
+}
+
+export default async function IntakeReviewDetailPage({ params }: { params: Promise<{ patientId: string }> }) {
   const { patientId } = await params;
   const { role } = await requireSession({ redirectToLogin: true });
+
+  if (role === 'USER') {
+    redirect('/dashboard/intake');
+  }
+
+  await requirePermission(PERMISSIONS.INTAKE_READ);
   const intake = await getScopedIntakeForReview(patientId);
 
-  if (!intake)
+  if (!intake) {
     return (
       <div className="mx-auto max-w-7xl space-y-6">
         <DashboardPageHeader
@@ -52,70 +79,57 @@ export default async function PatientIntakeReviewPage({ params }: { params: Prom
         />
       </div>
     );
+  }
+
   return (
-    <>
-      <div className="mx-auto max-w-7xl space-y-6">
-        <DashboardPageHeader
-          title={`Form Awal · ${intake.patientName}`}
-          description=""
-          breadcrumbs={[
-            { label: 'Dashboard', href: '/dashboard' },
-            { label: 'Pasien', href: '/dashboard/patients' },
-            { label: 'Form Awal' },
-          ]}
-          icon={<ClipboardList className="h-7 w-7 text-white" />}
-        />
-        {/* Status badge */}
-        {(function StatusBadge() {
-          const cfg = statusConfig[intake.status] ?? statusConfig['DRAFT'];
-          const dotColor: Record<string, string> = {
-            DRAFT:          'bg-[#9CA3AF]',
-            SUBMITTED:      'bg-[#3B82F6]',
-            UNDER_REVIEW:   'bg-[var(--hafta-ylw-400)]',
-            NEEDS_REVISION: 'bg-[#EF4444]',
-            ACCEPTED:       'bg-[#22C55E]',
-            ARCHIVED:       'bg-[#9CA3AF]',
-          };
-          return (
-            <div className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium ${cfg.bg} ${cfg.border} ${cfg.color}`}>
-              <span className={`h-2 w-2 shrink-0 rounded-full ${dotColor[intake.status] ?? dotColor['DRAFT']}`} />
-              <span>Status: <strong>{cfg.label}</strong></span>
+    <div className="mx-auto max-w-7xl space-y-6">
+      <DashboardPageHeader
+        title={`Form Awal · ${intake.patientName}`}
+        description=""
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Pasien', href: '/dashboard/patients' },
+          { label: 'Form Awal' },
+        ]}
+        icon={<ClipboardList className="h-7 w-7 text-white" />}
+      />
+
+      <StatusBadge status={intake.status} />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Informasi Pasien</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-5 sm:grid-cols-2">
+          {fields.map(([label, key]) => (
+            <div key={key} className="space-y-1">
+              <p className="text-sm font-semibold text-foreground">{label}</p>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+                {intake[key] || 'Tidak diisi'}
+              </p>
             </div>
-          );
-        })()}
+          ))}
+        </CardContent>
+      </Card>
+
+      {intake.reviewMessage ? (
         <Card>
           <CardHeader>
-            <CardTitle>Informasi Pasien</CardTitle>
+            <CardTitle>Pesan untuk pasien</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-5 sm:grid-cols-2">
-            {fields.map(([label, key]) => (
-              <div key={key} className="space-y-1">
-                <p className="text-sm font-semibold text-foreground">{label}</p>
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-                  {intake[key] || 'Tidak diisi'}
-                </p>
-              </div>
-            ))}
+          <CardContent>
+            <p className="whitespace-pre-wrap text-sm text-muted-foreground">{intake.reviewMessage}</p>
           </CardContent>
         </Card>
-        {intake.reviewMessage ? (
-          <Card>
-            <CardHeader>
-              <CardTitle>Pesan untuk pasien</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="whitespace-pre-wrap text-sm text-muted-foreground">{intake.reviewMessage}</p>
-            </CardContent>
-          </Card>
-        ) : null}
-        <IntakeReviewActions
-          patientId={patientId}
-          status={intake.status}
-          canReview={hasPermission(role, PERMISSIONS.INTAKE_REVIEW)}
-          canRequestRevision={hasPermission(role, PERMISSIONS.INTAKE_REQUEST_REVISION)}
-          canAccept={hasPermission(role, PERMISSIONS.INTAKE_ACCEPT)}
-        />
-      </div>
-    </>
+      ) : null}
+
+      <IntakeReviewActions
+        patientId={patientId}
+        status={intake.status}
+        canReview={hasPermission(role, PERMISSIONS.INTAKE_REVIEW)}
+        canRequestRevision={hasPermission(role, PERMISSIONS.INTAKE_REQUEST_REVISION)}
+        canAccept={hasPermission(role, PERMISSIONS.INTAKE_ACCEPT)}
+      />
+    </div>
   );
 }

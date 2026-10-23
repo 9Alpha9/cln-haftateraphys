@@ -25,6 +25,7 @@ function formatAction(action: string): string {
     'patient.create': 'PATIENT_CREATE',
     'patient.update': 'PATIENT_UPDATE',
     'patient.archive': 'PATIENT_ARCHIVE',
+    'patient.program.complete': 'PATIENT_PROGRAM_COMPLETE',
     'intake.submit': 'INTAKE_SUBMIT',
     'intake.review': 'INTAKE_REVIEW',
     'intake.accept': 'INTAKE_ACCEPT',

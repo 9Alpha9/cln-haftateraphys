@@ -2,7 +2,6 @@
 
 import { useRef, useState } from 'react';
 import { FileDown, Printer, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { pdf } from '@react-pdf/renderer';
 import { MedicalRecordDocument, type MedicalRecordPdfData } from '@/components/pdf/medical-record-document';
@@ -66,29 +65,32 @@ export function MedicalRecordActions({ record }: { record: MedicalRecordPdfData 
   return (
     <div className="flex items-center gap-2">
       <iframe ref={iframeRef} className="hidden" title="Print Frame" />
-      <Button type="button" variant="outline" size="sm" disabled={printing} className="h-9 gap-1.5 rounded-xl border-[#E9E2D8] bg-white px-3 text-[12px] font-semibold text-[#1F2937] hover:bg-[#FFF7ED]" onClick={() => void openPrintPage()}>
+      <button
+        type="button"
+        disabled={printing}
+        onClick={() => void openPrintPage()}
+        className="h-9 px-3.5 rounded-full text-xs font-semibold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 shrink-0 bg-white hover:bg-[var(--hafta-ylw-100)] text-[#181700] border border-stone-200/90 hover:border-[var(--hafta-ylw-200)] disabled:cursor-not-allowed disabled:opacity-60"
+      >
         {printing ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--hafta-ylw-400)]" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
         ) : (
-          <Printer className="h-3.5 w-3.5 text-[var(--hafta-ylw-400)]" />
+          <Printer className="h-3.5 w-3.5" />
         )}
         {printing ? 'Mencetak...' : 'Print'}
-      </Button>
-      <Button
+      </button>
+      <button
         type="button"
-        variant="outline"
-        size="sm"
         disabled={loading}
-        className="h-9 gap-1.5 rounded-xl border-[#F28C28]/20 bg-[#FFF7ED] px-3 text-[12px] font-semibold text-[var(--hafta-ylw-400)] hover:bg-[#FFF0DB]"
         onClick={() => void downloadPdf()}
+        className="h-9 px-3.5 rounded-full text-xs font-semibold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 shrink-0 bg-[var(--hafta-ylw-50)]/70 hover:bg-[var(--hafta-ylw-100)] text-[#181700] border border-[var(--hafta-ylw-200)] disabled:cursor-not-allowed disabled:opacity-60"
       >
         {loading ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--hafta-ylw-400)]" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
         ) : (
-          <FileDown className="h-3.5 w-3.5 text-[var(--hafta-ylw-400)]" />
+          <FileDown className="h-3.5 w-3.5" />
         )}
         {loading ? 'Memproses...' : 'Unduh PDF'}
-      </Button>
+      </button>
     </div>
   );
 }

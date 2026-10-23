@@ -17,7 +17,9 @@ import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS, requirePermission, type Role } from '@/lib/permissions';
 import { getRoleColor, getRoleLabel } from '@/lib/role-utils';
 import { getUsersList } from '@/server/queries/users';
+import { getTherapistScheduleOverview } from '@/server/queries/therapist-schedules';
 import { DeleteUserButton } from '@/components/dashboard/delete-user-button';
+import { TherapistSchedulePanel } from '@/components/dashboard/therapist-schedule-panel';
 import { cn } from '@/lib/utils';
 
 export default async function UsersPage({
@@ -33,6 +35,14 @@ export default async function UsersPage({
   const canManageRole = role === 'SUPER_ADMIN' && hasPermission(role, PERMISSIONS.ROLE_ASSIGN);
   const canDeleteUser = role === 'SUPER_ADMIN' && hasPermission(role, PERMISSIONS.USER_SUSPEND);
   const canCreateUser = hasPermission(role, PERMISSIONS.USER_CREATE);
+  const canManageSchedules =
+    role !== 'USER' &&
+    (hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE) ||
+      hasPermission(role, PERMISSIONS.SETTINGS_MANAGE));
+  const scheduleOverview = canManageSchedules ? await getTherapistScheduleOverview() : [];
+  const schedulesByTherapist = new Map(
+    scheduleOverview.map((therapist) => [therapist.therapistId, therapist])
+  );
 
   const hrefFor = (pageNumber: number) =>
     `/dashboard/users?${new URLSearchParams({ page: String(pageNumber) }).toString()}`;
@@ -80,6 +90,7 @@ export default async function UsersPage({
                     <TableHead>Role</TableHead>
                     <TableHead>Telepon</TableHead>
                     <TableHead className="text-right">Terdaftar</TableHead>
+                    {canManageSchedules && <TableHead className="text-right">Jadwal</TableHead>}
                     {canDeleteUser && <TableHead className="text-right">Aksi</TableHead>}
                   </TableRow>
                 </TableHeader>
@@ -120,6 +131,18 @@ export default async function UsersPage({
                             year: 'numeric',
                           })}
                         </TableCell>
+                        {canManageSchedules && (
+                          <TableCell className="text-right">
+                            {(() => {
+                              const schedule = schedulesByTherapist.get(user.id);
+                              return schedule ? (
+                                <TherapistSchedulePanel therapists={[schedule]} label="Atur Jadwal" />
+                              ) : (
+                                <span className="text-xs text-muted-foreground">-</span>
+                              );
+                            })()}
+                          </TableCell>
+                        )}
                         {canDeleteUser && (
                           <TableCell className="text-right">
                             <DeleteUserButton

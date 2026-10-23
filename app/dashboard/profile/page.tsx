@@ -3,6 +3,7 @@ import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-heade
 import { requireSession } from '@/lib/auth/require-session';
 import { PERMISSIONS, requirePermission } from '@/lib/permissions';
 import { getCurrentPatientProfile } from '@/server/queries/patient-profile';
+import { UserRound } from 'lucide-react';
 
 function formatDateForInput(value: Date | null | undefined) {
   return value ? value.toISOString().slice(0, 10) : '';
@@ -20,6 +21,7 @@ export default async function ProfilePage() {
           : 'Halaman ini hanya tersedia untuk pasien.'
       }
       breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Data Saya' }]}
+      icon={<UserRound />}
     />
   );
   if (role !== 'USER') return <div className="mx-auto max-w-7xl space-y-6">{header}</div>;
@@ -30,6 +32,7 @@ export default async function ProfilePage() {
       <PatientProfileTabs
         email={session.user.email}
         userName={session.user.name ?? ''}
+        emailVerified={Boolean(session.user.emailVerified)}
         initialAvatarUrl={profile?.avatarKey ?? null}
         initialValues={{
           fullName: profile?.fullName ?? session.user.name ?? '',

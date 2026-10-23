@@ -43,7 +43,6 @@ export async function updateCurrentPatientProfile(input: PatientProfileInput) {
       .set({
         fullName: data.fullName,
         gender: data.gender ?? 'MALE',
-        medicalRecordNumber: toNullable(data.medicalRecordNumber),
         dateOfBirth: data.dateOfBirth ? new Date(`${data.dateOfBirth}T00:00:00.000Z`) : null,
         occupation: toNullable(data.occupation),
         addressLine: toNullable(data.addressLine),
@@ -60,7 +59,6 @@ export async function updateCurrentPatientProfile(input: PatientProfileInput) {
       userId: session.user.id,
       fullName: data.fullName,
       gender: data.gender ?? 'MALE',
-      medicalRecordNumber: toNullable(data.medicalRecordNumber),
       dateOfBirth: data.dateOfBirth ? new Date(`${data.dateOfBirth}T00:00:00.000Z`) : null,
       occupation: toNullable(data.occupation),
       addressLine: toNullable(data.addressLine),

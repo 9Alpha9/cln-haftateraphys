@@ -13,18 +13,18 @@ interface BackToTopProps {
 }
 
 export function BackToTop({ showAfter = 400, label = 'Kembali ke atas', position = 'fixed', className }: BackToTopProps) {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(position === 'static');
 
   useEffect(() => {
-    if (position === 'static') {
-      setVisible(true);
-      return;
-    }
+    if (position === 'static') return;
     const onScroll = () => setVisible(window.scrollY > showAfter);
+    const frame = window.requestAnimationFrame(onScroll);
 
-    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+    };
   }, [showAfter, position]);
 
   const scrollToTop = () => {

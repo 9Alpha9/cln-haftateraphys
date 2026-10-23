@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
 import { Select } from '@/components/ui/select';
 import { getRoleLabel } from '@/lib/role-utils';
-import type { Role } from '@/lib/permissions';
+import type { Role } from '@/lib/permissions/roles';
 import { assignRole } from '@/server/actions/user-roles';
 
 const ROLES: Role[] = ['SUPER_ADMIN', 'ADMIN', 'THERAPIST', 'STAFF', 'USER'];

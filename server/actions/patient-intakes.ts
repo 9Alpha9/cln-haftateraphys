@@ -11,6 +11,10 @@ import { notifyUser } from '@/server/notify';
 
 type IntakeSubmissionMode = 'draft' | 'submit';
 
+export type StartIntakeResult =
+  | { success: true }
+  | { success: false; reason: 'ROLE_NOT_ALLOWED' | 'STILL_IN_REVIEW' | 'HAS_ACTIVE_DRAFT' | 'ERROR' };
+
 async function getOrCreateCurrentPatient(userId: string, fullName: string | null | undefined) {
   const db = getDb();
   const [existingPatient] = await db
@@ -36,9 +40,11 @@ function toNullable(value: string | undefined) {
   return trimmed || null;
 }
 
-export async function startNewPatientIntake() {
+export async function startNewPatientIntake(): Promise<StartIntakeResult> {
   const { session, role } = await requireSession({ redirectToLogin: false });
-  if (role !== 'USER' || !hasPermission(role, PERMISSIONS.INTAKE_CREATE_OWN)) throw new ForbiddenError();
+  if (role !== 'USER' || !hasPermission(role, PERMISSIONS.INTAKE_CREATE_OWN)) {
+    return { success: false, reason: 'ROLE_NOT_ALLOWED' };
+  }
 
   const patient = await getOrCreateCurrentPatient(session.user.id, session.user.name);
   const db = getDb();
@@ -49,29 +55,67 @@ export async function startNewPatientIntake() {
     .orderBy(desc(patientIntakes.version))
     .limit(1);
 
-  if (!latestIntake || (latestIntake.status !== 'ACCEPTED' && latestIntake.status !== 'ARCHIVED'))
-    throw new ForbiddenError();
+  if (!latestIntake) {
+    try {
+      await db.insert(patientIntakes).values({
+        patientId: patient.id,
+        version: 1,
+        status: 'DRAFT',
+        dataAccuracyAcknowledged: 0,
+      });
+      revalidatePath('/dashboard');
+      revalidatePath('/dashboard/intake');
+      revalidatePath('/dashboard/history');
+      return { success: true };
+    } catch (error) {
+      console.error('[startNewPatientIntake error]:', error);
+      return { success: false, reason: 'ERROR' };
+    }
+  }
 
-  await db.transaction(async (tx) => {
-    await tx
-      .update(patientIntakes)
-      .set({ status: 'ARCHIVED', updatedAt: new Date() })
-      .where(eq(patientIntakes.id, latestIntake.id));
-    await tx
-      .insert(patientIntakes)
-      .values({ patientId: patient.id, version: latestIntake.version + 1, status: 'DRAFT' });
-  });
+  if (latestIntake.status === 'SUBMITTED' || latestIntake.status === 'UNDER_REVIEW') {
+    return { success: false, reason: 'STILL_IN_REVIEW' };
+  }
 
-  revalidatePath('/dashboard');
-  revalidatePath('/dashboard/intake');
-  revalidatePath('/dashboard/history');
+  if (latestIntake.status === 'DRAFT' || latestIntake.status === 'NEEDS_REVISION') {
+    return { success: false, reason: 'HAS_ACTIVE_DRAFT' };
+  }
 
-  await notifyUser({
-    userId: session.user.id,
-    title: 'Versi Form Awal baru',
-    message: 'Form Awal versi baru telah dibuat dan siap diisi.',
-    actionUrl: '/dashboard/intake',
-  });
+  if (latestIntake.status !== 'ACCEPTED' && latestIntake.status !== 'ARCHIVED') {
+    return { success: false, reason: 'ERROR' };
+  }
+
+  try {
+    const nextVersion = (latestIntake.version ?? 0) + 1;
+    await db.batch([
+      db
+        .update(patientIntakes)
+        .set({ status: 'ARCHIVED', updatedAt: new Date() })
+        .where(eq(patientIntakes.id, latestIntake.id)),
+      db.insert(patientIntakes).values({
+        patientId: patient.id,
+        version: nextVersion,
+        status: 'DRAFT',
+        dataAccuracyAcknowledged: 0,
+      }),
+    ]);
+
+    revalidatePath('/dashboard');
+    revalidatePath('/dashboard/intake');
+    revalidatePath('/dashboard/history');
+
+    await notifyUser({
+      userId: session.user.id,
+      title: 'Versi Form Awal baru',
+      message: 'Form Awal versi baru telah dibuat dan siap diisi.',
+      actionUrl: '/dashboard/intake',
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('[startNewPatientIntake error]:', error);
+    return { success: false, reason: 'ERROR' };
+  }
 }
 
 export async function savePatientIntake(input: IntakeDraftInput, mode: IntakeSubmissionMode) {
@@ -83,62 +127,87 @@ export async function savePatientIntake(input: IntakeDraftInput, mode: IntakeSub
     throw new ForbiddenError();
   }
 
-  if (mode === 'submit' && !data.dataAccuracyAcknowledged) {
-    throw new Error('Konfirmasi ketepatan data diperlukan sebelum mengirim Form Awal.');
-  }
-
   const patient = await getOrCreateCurrentPatient(session.user.id, session.user.name);
   const db = getDb();
+
   const [latestIntake] = await db
-    .select({ id: patientIntakes.id, status: patientIntakes.status })
+    .select({
+      id: patientIntakes.id,
+      status: patientIntakes.status,
+      version: patientIntakes.version,
+      submittedAt: patientIntakes.submittedAt,
+    })
     .from(patientIntakes)
     .where(eq(patientIntakes.patientId, patient.id))
     .orderBy(desc(patientIntakes.version))
     .limit(1);
 
-  if (latestIntake && latestIntake.status !== 'DRAFT' && latestIntake.status !== 'NEEDS_REVISION') {
-    throw new ForbiddenError();
+  if (latestIntake) {
+    const isLocked = latestIntake.status === 'ACCEPTED' || latestIntake.status === 'ARCHIVED';
+
+    if (isLocked) {
+      throw new ForbiddenError('Form intake yang sudah diterima bersifat referensi dan tidak dapat diubah.');
+    }
   }
 
-  const values = {
-    chiefComplaint: data.chiefComplaint,
-    affectedArea: data.affectedArea,
+  const targetVersion = latestIntake ? latestIntake.version : 1;
+  const keepReviewStatus =
+    latestIntake?.status === 'SUBMITTED' || latestIntake?.status === 'UNDER_REVIEW';
+  const targetStatus =
+    mode === 'submit'
+      ? 'SUBMITTED'
+      : keepReviewStatus
+        ? latestIntake.status
+        : 'DRAFT';
+
+  const payload = {
+    chiefComplaint: toNullable(data.chiefComplaint),
+    affectedArea: toNullable(data.affectedArea),
     onsetDescription: toNullable(data.onsetDescription),
     triggeringEvent: toNullable(data.triggeringEvent),
     aggravatingFactors: toNullable(data.aggravatingFactors),
     relievingFactors: toNullable(data.relievingFactors),
-    dailyLimitations: data.dailyLimitations,
+    dailyLimitations: toNullable(data.dailyLimitations),
     previousInjuryHistory: toNullable(data.previousInjuryHistory),
     surgeryHistory: toNullable(data.surgeryHistory),
     relevantMedicalHistory: toNullable(data.relevantMedicalHistory),
     currentMedication: toNullable(data.currentMedication),
     allergies: toNullable(data.allergies),
-    patientGoal: data.patientGoal,
+    patientGoal: toNullable(data.patientGoal),
     dataAccuracyAcknowledged: data.dataAccuracyAcknowledged ? 1 : 0,
-    status: mode === 'submit' ? ('SUBMITTED' as const) : ('DRAFT' as const),
-    submittedAt: mode === 'submit' ? new Date() : null,
+    status: targetStatus as 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW',
+    submittedAt:
+      mode === 'submit'
+        ? new Date()
+        : keepReviewStatus
+          ? latestIntake.submittedAt
+          : null,
     updatedAt: new Date(),
   };
 
   if (latestIntake) {
     await db
       .update(patientIntakes)
-      .set(values)
+      .set(payload)
       .where(and(eq(patientIntakes.id, latestIntake.id), eq(patientIntakes.patientId, patient.id)));
   } else {
-    await db.insert(patientIntakes).values({ patientId: patient.id, version: 1, ...values });
+    await db.insert(patientIntakes).values({
+      ...payload,
+      patientId: patient.id,
+      version: targetVersion,
+    });
   }
 
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/intake');
+  revalidatePath('/dashboard/history');
 
-  await notifyUser({
-    userId: session.user.id,
-    title: mode === 'submit' ? 'Form Awal dikirim' : 'Draft Form Awal disimpan',
-    message:
-      mode === 'submit'
-        ? 'Form Awal Anda telah dikirim untuk ditinjau oleh tim klinis.'
-        : 'Perubahan draft Form Awal Anda telah disimpan.',
-    actionUrl: '/dashboard/intake',
-  });
+  if (mode === 'submit') {
+    await notifyUser({
+      userId: session.user.id,
+      title: 'Form Awal Terkirim',
+      message: 'Form Awal Anda telah berhasil dikirim dan sedang menunggu tinjauan dari tim fisioterapis Hafta.',
+      actionUrl: '/dashboard/intake',
+    });
+  }
 }

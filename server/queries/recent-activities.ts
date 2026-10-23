@@ -24,10 +24,13 @@ function getActionDescription(action: string, targetType: string | null): string
     'patient.create': 'Mendaftarkan pasien baru',
     'patient.update': 'Memperbarui data pasien',
     'patient.archive': 'Mengarsipkan data pasien',
+    'patient.program.complete': 'Menyelesaikan program terapi pasien',
     'intake.submit': 'Mengirim formulir intake',
     'intake.review': 'Meninjau formulir intake',
     'intake.accept': 'Menerima formulir intake',
     'intake.reject': 'Menolak formulir intake',
+    'intake.archive': 'Mengarsipkan form awal',
+    'intake.request-revision': 'Meminta revisi form awal',
     'appointment.create': 'Membuat janji temu baru',
     'appointment.update': 'Memperbarui janji temu',
     'appointment.cancel': 'Membatalkan janji temu',
@@ -35,6 +38,9 @@ function getActionDescription(action: string, targetType: string | null): string
     'assessment.create': 'Membuat asesmen baru',
     'assessment.update': 'Memperbarui asesmen',
     'assessment.finalize': 'Memfinalisasi asesmen',
+    'progress.create': 'Mencatat evaluasi rekam medis',
+    'progress.update': 'Memperbarui rekam medis',
+    'progress.finalize': 'Memfinalisasi rekam medis',
     'session.create': 'Mencatat sesi terapi',
     'session.update': 'Memperbarui sesi terapi',
     'session.finalize': 'Memfinalisasi sesi terapi',
@@ -43,7 +49,16 @@ function getActionDescription(action: string, targetType: string | null): string
     'document.upload': 'Mengunggah dokumen',
     'document.archive': 'Mengarsipkan dokumen',
   };
-  return descriptions[action] ?? `Aktivitas: ${action}`;
+
+  if (descriptions[action]) return descriptions[action];
+
+  // Humanize generic action names if not in dictionary
+  if (action.startsWith('progress.')) return 'Pembaruan rekam medis';
+  if (action.startsWith('appointment.')) return 'Pembaruan janji temu';
+  if (action.startsWith('intake.')) return 'Pembaruan form awal';
+  if (action.startsWith('patient.')) return 'Pembaruan data pasien';
+
+  return 'Aktivitas terrekam';
 }
 
 export async function getRecentActivities(limit = 10): Promise<ActivityView[]> {
@@ -61,8 +76,34 @@ export async function getRecentActivities(limit = 10): Promise<ActivityView[]> {
     .from(auditLogs)
     .leftJoin(users, eq(auditLogs.actorUserId, users.id));
 
-  // Filter out administrative actions for clinical/staff roles
-  if (role !== 'SUPER_ADMIN' && role !== 'ADMIN') {
+  // Terapis hanya melihat aktivitas klinis (jadwal, rekam medis, intake, asesmen)
+  if (role === 'THERAPIST') {
+    query = query.where(
+      inArray(auditLogs.action, [
+        'appointment.create',
+        'appointment.update',
+        'appointment.cancel',
+        'appointment.complete',
+        'intake.submit',
+        'intake.review',
+        'intake.accept',
+        'intake.request-revision',
+        'assessment.create',
+        'assessment.update',
+        'assessment.finalize',
+        'progress.create',
+        'progress.update',
+        'progress.finalize',
+        'session.create',
+        'session.update',
+        'session.finalize',
+        'patient.create',
+        'patient.update',
+        'patient.program.complete',
+      ])
+    ) as any;
+  } else if (role !== 'SUPER_ADMIN' && role !== 'ADMIN') {
+    // Non-admin lainnya tidak boleh melihat log administrasi sistem/user/role
     query = query.where(
       notInArray(auditLogs.action, [
         'user.create',

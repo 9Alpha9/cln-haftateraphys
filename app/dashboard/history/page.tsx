@@ -1,96 +1,151 @@
-import { ClipboardList, FileText, Calendar } from 'lucide-react';
-import { Breadcrumb } from '@/components/ui/breadcrumb';
+import Link from 'next/link';
+import { ArrowUpRight, CalendarDays, ClipboardList, FileText } from 'lucide-react';
+import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
+import { IntakeHistoryActions } from '@/components/dashboard/intake-history-actions';
 import { requireSession } from '@/lib/auth/require-session';
 import { PERMISSIONS, requirePermission } from '@/lib/permissions';
 import { getPatientVisibleIntakeHistory } from '@/server/queries/patient-intakes';
-import { IntakeHistoryActions } from '@/components/dashboard/intake-history-actions';
 
-const statusConfig = {
-  SUBMITTED: { label: 'Terkirim', color: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20' },
-  UNDER_REVIEW: { label: 'Ditinjau', color: 'bg-amber-50 text-amber-700 ring-amber-600/20' },
-  NEEDS_REVISION: { label: 'Perlu Revisi', color: 'bg-red-50 text-red-700 ring-red-600/20' },
-  ACCEPTED: { label: 'Diterima', color: 'bg-blue-50 text-blue-700 ring-blue-600/20' },
-  ARCHIVED: { label: 'Diarsipkan', color: 'bg-slate-50 text-slate-500 ring-slate-500/20' },
-} as const;
+const STATUS_META: Record<
+  string,
+  { label: string; tone: string }
+> = {
+  DRAFT: { label: 'Draft', tone: 'bg-white text-stone-600 border-stone-200' },
+  SUBMITTED: { label: 'Terkirim', tone: 'bg-[var(--hafta-ylw-50)]/70 text-[#181700] border-[var(--hafta-ylw-200)]' },
+  UNDER_REVIEW: { label: 'Sedang ditinjau', tone: 'bg-[var(--hafta-ylw-50)]/70 text-[#181700] border-[var(--hafta-ylw-200)]' },
+  NEEDS_REVISION: { label: 'Perlu perbaikan', tone: 'bg-[var(--hafta-red-50)] text-[var(--hafta-red-700)] border-[var(--hafta-red-200)]' },
+  ACCEPTED: { label: 'Diterima', tone: 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)] border-[var(--hafta-grn-200)]' },
+  ARCHIVED: { label: 'Diarsipkan', tone: 'bg-stone-100 text-stone-500 border-stone-200' },
+};
+
+function formatDate(value: Date | null) {
+  if (!value) return '-';
+  return new Date(value).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
 
 export default async function HistoryPage() {
   const { session, role } = await requireSession({ redirectToLogin: true });
   await requirePermission(PERMISSIONS.INTAKE_READ);
-  if (role !== 'USER')
+
+  if (role !== 'USER') {
     return (
-      <div className="mx-auto max-w-7xl space-y-6">
-        <Breadcrumb items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Riwayat' }]} />
-        <h1 className="text-2xl font-bold text-foreground md:text-3xl">Riwayat Terapi</h1>
-        <p className="text-muted-foreground">Pilih pasien dari daftar pasien untuk melihat riwayat.</p>
+      <div className="space-y-6">
+        <DashboardPageHeader
+          title="Riwayat Terapi"
+          description="Pilih pasien dari daftar pasien untuk melihat riwayat."
+          breadcrumbs={[
+            { label: 'Dashboard', href: '/dashboard' },
+            { label: 'Riwayat' },
+          ]}
+        />
       </div>
     );
+  }
 
   const history = await getPatientVisibleIntakeHistory(session.user.id);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-5">
-      <div>
-        <Breadcrumb items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Riwayat' }]} />
-        <h1 className="mt-3 text-2xl font-bold tracking-tight text-foreground md:text-3xl">Riwayat Terapi</h1>
-        <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">
-          Daftar Form Awal pemeriksaan yang telah Anda kirim.
-        </p>
-      </div>
+    <div className="space-y-6">
+      <DashboardPageHeader
+        title="Riwayat Terapi"
+        description="Semua Form Awal yang pernah Anda buat, termasuk episode keluhan sebelumnya."
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Riwayat' },
+        ]}
+      />
 
       {history.length === 0 ? (
-        <div className="flex min-h-56 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-muted/30 text-center">
-          <ClipboardList className="h-10 w-10 text-muted-foreground/50" />
-          <p className="mt-4 text-sm font-medium text-muted-foreground">Belum ada riwayat yang dapat ditampilkan.</p>
-        </div>
+        <section className="flex flex-col items-center rounded-3xl border border-stone-200 bg-white px-6 py-16 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
+            <ClipboardList className="h-5 w-5" />
+          </span>
+          <h2 className="mt-4 text-sm font-bold text-[#181700]">Belum ada riwayat form</h2>
+          <p className="mt-1 max-w-sm text-xs leading-relaxed text-stone-500">
+            Form keluhan awal yang Anda kirim akan tercatat di sini sebagai riwayat episode terapi.
+          </p>
+          <Link
+            href="/dashboard/intake"
+            className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-5 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-ylw-200)]"
+          >
+            Isi Form Awal
+            <ArrowUpRight className="h-4 w-4" />
+          </Link>
+        </section>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {history.map((item) => {
-            const status = statusConfig[item.status as keyof typeof statusConfig] ?? statusConfig.SUBMITTED;
-            const date = item.submittedAt ?? item.updatedAt;
-
-            return (
-              <div
-                key={item.id}
-                className="group flex flex-col rounded-xl border border-border bg-white p-4 shadow-xs transition-shadow hover:shadow-md"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/10">
-                    <FileText className="h-4 w-4 text-accent-foreground" />
-                  </div>
-                  <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset ${status.color}`}>
-                    {status.label}
-                  </span>
-                </div>
-
-                <div className="mt-3 min-w-0 flex-1">
-                  <h3 className="truncate text-sm font-semibold text-foreground">
-                    Form Awal
-                  </h3>
-                  {item.affectedArea && (
-                    <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.affectedArea}</p>
-                  )}
-                </div>
-
-                <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Calendar className="h-3 w-3 shrink-0" />
-                  <span>
-                    {date
-                      ? new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
-                      : '-'}
-                  </span>
-                </div>
-
-                <div className="mt-3 border-t border-border pt-3">
-                  <IntakeHistoryActions
-                    intakeId={item.id}
-                    patientName={item.patientName}
-                    submittedAt={item.submittedAt}
-                  />
-                </div>
+        <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
+          <div className="flex items-center justify-between gap-3 border-b border-stone-200 pb-4">
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
+                <FileText className="h-4 w-4" />
+              </span>
+              <div>
+                <h2 className="text-sm font-bold text-[#181700]">Riwayat Form Awal</h2>
+                <p className="text-xs text-stone-500">Satu form untuk setiap episode keluhan.</p>
               </div>
-            );
-          })}
-        </div>
+            </div>
+            <span className="rounded-full bg-stone-100 px-3 py-1 text-[11px] font-semibold text-stone-600">
+              {history.length} form
+            </span>
+          </div>
+
+          <div className="divide-y divide-stone-100">
+            {history.map((item) => {
+              const status = STATUS_META[item.status] ?? STATUS_META.SUBMITTED;
+              const date = item.submittedAt ?? item.updatedAt;
+              const isEditable = ['DRAFT', 'NEEDS_REVISION', 'SUBMITTED', 'UNDER_REVIEW'].includes(item.status);
+
+              return (
+                <article key={item.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center">
+                  <span className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
+                    <span className="text-sm font-extrabold leading-none">{new Date(date).getDate()}</span>
+                    <span className="mt-0.5 text-[9px] font-semibold uppercase">
+                      {new Date(date).toLocaleDateString('id-ID', { month: 'short' })}
+                    </span>
+                  </span>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-sm font-bold text-[#181700]">
+                        {item.affectedArea || `Form Awal versi ${item.version}`}
+                      </h3>
+                      <span className={`inline-flex rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${status.tone}`}>
+                        {status.label}
+                      </span>
+                    </div>
+                    <p className="mt-0.5 truncate text-xs text-stone-500">
+                      {item.chiefComplaint || 'Tidak ada ringkasan keluhan.'}
+                    </p>
+                    <p className="mt-1 flex items-center gap-1.5 text-[11px] text-stone-400">
+                      <CalendarDays className="h-3 w-3" />
+                      {formatDate(date)} · Versi {item.version}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                    {isEditable ? (
+                      <Link
+                        href="/dashboard/intake"
+                        className="inline-flex h-8 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] px-3.5 text-[11px] font-bold text-[#181700] hover:bg-[var(--hafta-ylw-200)]"
+                      >
+                        Buka Form
+                      </Link>
+                    ) : null}
+                    <IntakeHistoryActions
+                      intakeId={item.id}
+                      patientName={item.patientName}
+                      submittedAt={item.submittedAt}
+                    />
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
       )}
     </div>
   );

@@ -1,7 +1,9 @@
 import { CalendarDays } from 'lucide-react';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
-import { FullWeeklyCalendar } from '@/components/dashboard/full-weekly-calendar';
-import { getCalendarAppointments } from '@/server/queries/appointment-calendar';
+import { TherapyCalendarView } from '@/components/dashboard/appointments/therapy-calendar-view';
+import { getCalendarAppointmentsRange } from '@/server/queries/appointment-calendar';
+import { getAppointmentFormOptions } from '@/server/queries/appointment-form-options';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { requireSession } from '@/lib/auth/require-session';
 
 export default async function CalendarPage({
@@ -9,15 +11,21 @@ export default async function CalendarPage({
 }: {
   searchParams: Promise<{ month?: string }>;
 }) {
-  await requireSession({ redirectToLogin: true });
+  const { role } = await requireSession({ redirectToLogin: true });
   const params = await searchParams;
   const now = new Date();
-  // For the initial load we still fetch by month to get enough data for the weekly view
-  const month = /^\d{4}-(0[1-9]|1[0-2])$/.test(params.month ?? '')
-    ? params.month!
-    : `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const year = /^\d{4}$/.test(params.month ?? '') ? Number(params.month) : now.getFullYear();
+  const start = `${year - 1}-01-01`;
+  const end = `${year + 2}-12-31`;
+  const canCreate = role !== 'USER' && hasPermission(role, PERMISSIONS.APPOINTMENT_CREATE);
+  const canComplete = role !== 'USER' && hasPermission(role, PERMISSIONS.APPOINTMENT_COMPLETE);
 
-  const appointments = await getCalendarAppointments(month);
+  const [appointments, formOptions] = await Promise.all([
+    getCalendarAppointmentsRange(start, end),
+    canCreate
+      ? getAppointmentFormOptions().catch(() => ({ patientOptions: [], therapistOptions: [] }))
+      : Promise.resolve({ patientOptions: [], therapistOptions: [] }),
+  ]);
 
   return (
     <div className="flex min-h-[calc(100vh-64px)] flex-col gap-6">
@@ -33,7 +41,13 @@ export default async function CalendarPage({
       />
 
       <div className="flex flex-1 min-h-0 flex-col">
-        <FullWeeklyCalendar appointments={appointments} />
+        <TherapyCalendarView
+          appointments={appointments}
+          patientOptions={formOptions.patientOptions}
+          therapistOptions={formOptions.therapistOptions}
+          canCreate={canCreate}
+          canComplete={canComplete}
+        />
       </div>
     </div>
   );

@@ -56,7 +56,7 @@ Candidate fields:
 
 - `id`
 - `user_id` nullable if staff-created pre-account record is later required
-- `medical_record_number` optional internal unique identifier
+- `medical_record_number` auto-generated unique identifier (2 initials + tanggal + 2 digit akhir tahun, suffix `-N` jika bentrok)
 - `full_name`
 - `date_of_birth`
 - `phone`

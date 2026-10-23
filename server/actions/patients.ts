@@ -18,7 +18,7 @@ export async function archivePatient(patientId: string) {
     .returning({ id: patients.id });
   if (result.length === 0) throw new Error('Pasien tidak ditemukan atau sudah diarsipkan.');
   revalidatePath('/dashboard/patients');
-  revalidatePath('/dashboard/appointments/new');
+  revalidatePath('/dashboard/appointments');
 }
 
 export async function createPatientFromUser(userId: string) {
@@ -35,10 +35,18 @@ export async function createPatientFromUser(userId: string) {
     .limit(1);
 
   if (!user) throw new Error('Akun pasien tidak tersedia.');
-  await db.transaction(async (tx) => {
-    if (!user.profileId) await tx.insert(profiles).values({ userId: user.id, accountType: 'USER' });
-    await tx.insert(patients).values({ userId: user.id, fullName: user.name?.trim() || 'Pasien' });
-  });
+  const createPatient = db
+    .insert(patients)
+    .values({ userId: user.id, fullName: user.name?.trim() || 'Pasien' });
+
+  if (!user.profileId) {
+    await db.batch([
+      db.insert(profiles).values({ userId: user.id, accountType: 'USER' }),
+      createPatient,
+    ]);
+  } else {
+    await createPatient;
+  }
   revalidatePath('/dashboard/patients');
-  revalidatePath('/dashboard/appointments/new');
+  revalidatePath('/dashboard/appointments');
 }

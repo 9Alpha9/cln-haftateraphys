@@ -7,6 +7,7 @@ export const PERMISSIONS = {
   PATIENT_ASSIGN: 'patient:assign',
   PATIENT_ARCHIVE: 'patient:archive',
   PATIENT_EXPORT: 'patient:export',
+  PATIENT_COMPLETE_PROGRAM: 'patient:complete-program',
 
   // Intake
   INTAKE_READ: 'intake:read',

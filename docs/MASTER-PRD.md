@@ -435,6 +435,19 @@ Final terminology harus divalidasi bersama Hafta.
 - `AMENDED`
 - `ARCHIVED`
 
+### Medical record number
+
+- Nomor rekam medis dibuat otomatis saat record pasien dibuat.
+- Format: inisial huruf depan dan belakang nama + tanggal + dua digit akhir tahun. Contoh `Gilang Ramadhan` pada 23 Oktober 2026 menjadi `GR2326`; nama satu kata `Gilang` menjadi `GG2326`.
+- Nomor bersifat immutable dari sisi pasien. Jika terjadi bentrok, sistem menambahkan suffix `-2`, `-3`, dan seterusnya.
+
+### Therapy completion
+
+- Sesi terapi diselesaikan dari appointment (`COMPLETED`) oleh ADMIN/THERAPIST/STAFF yang memiliki `appointment:complete`.
+- Program terapi pasien diselesaikan dari status `ACTIVE`/`ON_HOLD` menjadi `COMPLETED` oleh ADMIN/THERAPIST dengan `patient:complete-program`, disertai ringkasan penutupan.
+- Program tidak dapat ditutup selama masih ada appointment `SCHEDULED`/`CONFIRMED` pada tanggal hari ini atau setelahnya.
+- Penyelesaian sesi dan program wajib membuat audit event dan notifikasi pasien.
+
 ## 12. Search and filtering
 
 Search harus server-side untuk dataset yang dapat berkembang.

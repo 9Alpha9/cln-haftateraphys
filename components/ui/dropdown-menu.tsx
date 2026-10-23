@@ -94,8 +94,10 @@ function DropdownMenuContent({ className, children, align = "end", side = "botto
   const [resolvedSide, setResolvedSide] = React.useState<"bottom" | "right" | "top">(side);
 
   React.useEffect(() => {
-    if (open && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
+    if (!open || !triggerRef.current) return;
+    const trigger = triggerRef.current;
+    const frame = window.requestAnimationFrame(() => {
+      const rect = trigger.getBoundingClientRect();
       const isDesktopSide = side === "right" && window.innerWidth >= 1024;
       if (isDesktopSide) {
         setResolvedSide("right");
@@ -122,7 +124,8 @@ function DropdownMenuContent({ className, children, align = "end", side = "botto
           right: Math.max(8, window.innerWidth - rect.right),
         });
       }
-    }
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, [open, triggerRef, side]);
 
   const getInitialPosition = () => {

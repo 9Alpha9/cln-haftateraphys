@@ -5,11 +5,17 @@ import { getCurrentPatientProfile } from "@/server/queries/patient-profile";
 import { getDb } from "@/db";
 import { profiles } from "@/db/schema";
 import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
+import { notFound } from "next/navigation";
+import { canAccessDashboardPath } from "@/lib/permissions/dashboard-routes";
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { role, session } = await requireSession({ redirectToLogin: true });
+  const pathname = (await headers()).get('x-pathname');
+  if (!pathname || !canAccessDashboardPath(role, pathname)) notFound();
+
   const unreadCount = await getUnreadNotificationsCount();
   const recentNotifications = await getRecentNotifications();
   let avatarUrl: string | null = null;

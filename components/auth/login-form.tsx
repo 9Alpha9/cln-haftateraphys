@@ -2,27 +2,28 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { PasswordField } from '@/components/auth/password-field';
 import { AuthAlert } from '@/components/auth/auth-alert';
 import { signIn } from '@/lib/auth/client';
-import Image from 'next/image';
+import { cn } from '@/lib/utils';
 
-type LoginError = {
-  message: string;
-  type: 'error' | 'success';
+type FieldErrors = {
+  email?: string;
+  password?: string;
 };
 
 const REMEMBER_EMAIL_KEY = 'hafta_remembered_email';
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function LoginForm() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<LoginError | null>(null);
+  const [generalError, setGeneralError] = useState<string | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [remember, setRemember] = useState(
     () => typeof window !== 'undefined' && Boolean(window.localStorage.getItem(REMEMBER_EMAIL_KEY)),
   );
@@ -41,23 +42,42 @@ export function LoginForm() {
     }
   };
 
+  const clearFieldError = (field: keyof FieldErrors) => {
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError(null);
+    setGeneralError(null);
 
     const formData = new FormData(e.currentTarget);
     const email = String(formData.get('email') ?? '').trim();
     const password = String(formData.get('password') ?? '');
 
+    const errors: FieldErrors = {};
+
     if (!email) {
-      setError({ message: 'Email wajib diisi.', type: 'error' });
-      return;
+      errors.email = 'Alamat email wajib diisi.';
+    } else if (!EMAIL_REGEX.test(email)) {
+      errors.email = 'Format alamat email tidak valid (contoh: nama@email.com).';
     }
 
     if (!password) {
-      setError({ message: 'Kata sandi wajib diisi.', type: 'error' });
+      errors.password = 'Kata sandi wajib diisi.';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
       return;
     }
+
+    setFieldErrors({});
 
     startTransition(async () => {
       try {
@@ -71,16 +91,16 @@ export function LoginForm() {
           const errData = result.error as { message?: string; code?: string };
 
           if (errData?.code === 'EMAIL_NOT_VERIFIED') {
-            setError({
-              message: 'Email belum diverifikasi. Silakan cek inbox Anda untuk link verifikasi.',
-              type: 'error',
-            });
+            setGeneralError(
+              'Email Anda belum diverifikasi. Silakan periksa inbox atau spam untuk tautan verifikasi.'
+            );
             return;
           }
 
-          setError({
-            message: 'Email atau kata sandi tidak sesuai.',
-            type: 'error',
+          // Kredensial tidak cocok: tandai field email dan password sebagai error spesifik
+          setFieldErrors({
+            email: 'Periksa kembali email Anda.',
+            password: 'Kata sandi tidak sesuai dengan email yang dimasukkan.',
           });
           return;
         }
@@ -89,34 +109,54 @@ export function LoginForm() {
         router.refresh();
         persistEmail(email);
       } catch {
-        setError({
-          message: 'Terjadi kesalahan server. Silakan coba lagi.',
-          type: 'error',
+        setFieldErrors({
+          email: 'Terjadi kendala pada server.',
+          password: 'Silakan coba beberapa saat lagi.',
         });
       }
     });
   }
 
   return (
-    <>
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-        <div>
-          <span className="text-2xl font-semibold py-6 items-start block">Masuk Ke Akun Anda.</span>
-        </div>
-        <div className="flex flex-col justify-center items-center gap-6">
+    <div>
+      {/* ── LOGO HANYA DI MOBILE/TABLET (DI DESKTOP SUDAH ADA DI PANEL KIRI) ── */}
+      <div className="mb-6 lg:hidden">
+        <Link href="/" className="inline-block">
           <Image
             src="/images/logos/logos-text.png"
             alt="Hafta Fisioterapi"
-            width={192}
-            height={128}
+            width={140}
+            height={93}
             priority
-            className="h-32 w-auto"
+            className="h-12 w-auto"
           />
+        </Link>
+      </div>
+
+      {/* ── HEADER FORM RATA KIRI (BERSIH & HUMANIZE) ── */}
+      <div className="mb-7">
+        <h1 className="text-2xl font-bold tracking-tight text-[#181700] sm:text-3xl">
+          Masuk ke Akun Anda
+        </h1>
+        <p className="mt-2 text-sm leading-relaxed text-stone-600">
+          Pantau jadwal sesi, catatan perkembangan terapi, dan program latihan mandiri Anda.
+        </p>
+      </div>
+
+      {generalError && (
+        <div className="mb-5">
+          <AuthAlert type="error" message={generalError} />
         </div>
-        {error && <AuthAlert type={error.type} message={error.message} />}
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
+      )}
+
+      {/* ── FORM INPUT ── */}
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        {/* Email */}
+        <div className="space-y-1.5">
+          <Label htmlFor="email" className="text-xs font-semibold text-stone-700">
+            Email
+          </Label>
+          <input
             id="email"
             name="email"
             type="email"
@@ -124,48 +164,89 @@ export function LoginForm() {
             required
             autoComplete="email"
             disabled={isPending}
-            className="h-10"
+            onChange={() => clearFieldError('email')}
+            aria-invalid={Boolean(fieldErrors.email)}
+            aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+            className={cn(
+              'h-12 w-full rounded-xl border bg-white px-4 text-sm text-[#181700] placeholder:text-stone-400 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50',
+              fieldErrors.email
+                ? 'border-red-500 bg-red-50/30 text-red-950 focus:border-red-600 focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-red-500/20'
+                : 'border-stone-300 hover:border-stone-400 focus:border-[#181700] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[#f7f000]/30'
+            )}
           />
-        </div>
-
-        <PasswordField
-          id="password"
-          name="password"
-          label="Kata Sandi"
-          placeholder="Masukkan kata sandi"
-          autoComplete="current-password"
-          disabled={isPending}
-        />
-
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <input
-            id="rememberLogin"
-            type="checkbox"
-            checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
-            className="h-4 w-4 shrink-0 rounded border-border accent-[var(--accent)] cursor-pointer"
-          />
-          <span className="select-none">Simpan data login</span>
-        </div>
-
-        <Button type="submit" className="h-10 w-full" disabled={isPending}>
-          {isPending ? (
-            <>
-              <Loader2 className="size-4 animate-spin" aria-hidden="true" />
-              Memproses...
-            </>
-          ) : (
-            'Masuk'
+          {fieldErrors.email && (
+            <p id="email-error" className="flex items-center gap-1.5 pt-0.5 text-xs font-medium text-red-600 animate-in fade-in-50 duration-200">
+              <AlertCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              <span>{fieldErrors.email}</span>
+            </p>
           )}
-        </Button>
+        </div>
 
-        <p className="text-center text-sm text-muted-foreground">
+        {/* Password */}
+        <div className="space-y-1.5">
+          <PasswordField
+            id="password"
+            name="password"
+            label="Kata Sandi"
+            placeholder="Masukkan kata sandi"
+            autoComplete="current-password"
+            disabled={isPending}
+            error={fieldErrors.password}
+          />
+        </div>
+
+        {/* Baris Checkbox Simpan & Lupa Kata Sandi */}
+        <div className="flex items-center justify-between pt-1 text-xs">
+          <label htmlFor="rememberLogin" className="flex items-center gap-2 text-stone-600 cursor-pointer select-none">
+            <input
+              id="rememberLogin"
+              type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
+              className="h-4 w-4 shrink-0 rounded border-stone-300 accent-[#181700] cursor-pointer"
+            />
+            <span>Simpan data login</span>
+          </label>
+
+          <a
+            href="https://wa.me/6281232932872?text=Halo%20Admin%20Hafta%20Fisioterapi,%20saya%20butuh%20bantuan%20reset%20kata%20sandi%20akun%20pasien."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-semibold text-stone-600 hover:text-[#181700] transition-colors"
+          >
+            Lupa kata sandi?
+          </a>
+        </div>
+
+        {/* Tombol Masuk Utama */}
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={isPending}
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] text-sm font-bold text-[#181700] shadow-xs transition-all duration-200 hover:bg-[var(--hafta-ylw-200)] hover:shadow-md active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 cursor-pointer"
+          >
+            {isPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                <span>Memproses...</span>
+              </>
+            ) : (
+              'Masuk'
+            )}
+          </button>
+        </div>
+
+        {/* Link Buat Akun Berkontras Jelas */}
+        <p className="pt-2 text-center text-xs text-stone-600 sm:text-sm">
           Belum punya akun?{' '}
-          <Link href="/register" className="font-medium text-primary hover:underline">
+          <Link
+            href="/register"
+            className="rounded px-1.5 py-0.5 font-bold text-[#181700] underline decoration-[var(--hafta-ylw-100)] decoration-2 underline-offset-4 transition-all hover:bg-[var(--hafta-ylw-100)]/40"
+          >
             Buat akun
           </Link>
         </p>
       </form>
-    </>
+    </div>
   );
 }

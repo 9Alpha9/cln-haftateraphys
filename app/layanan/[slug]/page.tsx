@@ -6,8 +6,9 @@ import { PublicHeader } from '@/components/landing/navbar';
 import { Footer } from '@/components/landing/footer';
 import { Container } from '@/components/container';
 import { Section } from '@/components/section';
+import { ScrollReveal } from '@/components/ui/scroll-reveal';
+import { NotchedCard, type NotchedCardVariant } from '@/components/ui/notched-card';
 import { ContactSection } from '@/components/landing/contact-section';
-import { Breadcrumb } from '@/components/ui/breadcrumb';
 import { services } from '@/components/landing/services-data';
 import { Check, ArrowRight } from 'lucide-react';
 
@@ -44,83 +45,92 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
       <PublicHeader />
 
       <main className="flex-1">
-        <section className="relative isolate overflow-hidden bg-emerald-900 text-white">
+        {/* Hero Section Detail Layanan */}
+        <section className="relative isolate min-h-[480px] overflow-hidden bg-[var(--hafta-ylw-950)] pb-16 pt-8 text-white md:pb-24 lg:pb-28">
           <Image
             src={service.backgroundImage}
             alt=""
             fill
             sizes="100vw"
-            className="-z-20 object-cover object-center"
+            className="-z-20 object-cover object-[center_20%] lg:object-[center_15%]"
             quality={100}
             priority
           />
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-gradient-to-r from-emerald-950/95 via-emerald-900/85 to-emerald-950/35"
+            className="absolute inset-0 -z-10 bg-gradient-to-t from-[#181700]/95 via-[#181700]/75 to-[#181700]/40 lg:bg-gradient-to-r lg:from-[#181700]/90 lg:via-[#181700]/65 lg:to-transparent"
           />
           <Container>
-            <Breadcrumb
-              className="pt-6"
-              items={[
-                { label: 'Beranda', href: '/' },
-                { label: 'Layanan', href: '/layanan' },
-                { label: service.title },
-              ]}
-            />
-
             <div className="py-12 md:py-16 lg:py-20">
-              <div className="max-w-xl">
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-white/20 bg-emerald-950/35 backdrop-blur-sm">
+              <ScrollReveal direction="left" className="max-w-xl">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 bg-white/10 text-[var(--hafta-ylw-100)] backdrop-blur-sm shadow-sm">
                   <service.icon className="h-5 w-5" />
                 </div>
-                <h1 className="mt-5 text-[28px] font-bold leading-9 tracking-tight md:text-4xl md:leading-[44px]">
+                <h1 className="mt-5 text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
                   {service.title}
                 </h1>
-                <p className="mt-4 text-base leading-[26px] text-white/95 md:text-lg md:leading-[30px]">
+                <p className="mt-4 text-base leading-relaxed text-stone-200 sm:text-lg">
                   {service.description}
                 </p>
                 <a
                   href="https://wa.me/6281232932872"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-7 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-white px-5 text-sm font-semibold text-emerald-900 shadow-sm transition-colors hover:bg-sage-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-emerald-900"
+                  className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-6 text-sm font-bold text-[var(--hafta-ylw-950)] shadow-sm transition-colors hover:bg-[var(--hafta-ylw-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-100)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#181700]"
                 >
-                  Konsultasikan kondisi ini
+                  Konsultasikan Kondisi Ini
                   <ArrowRight className="h-4 w-4" />
                 </a>
-              </div>
+              </ScrollReveal>
             </div>
           </Container>
         </section>
 
-        <Section className="bg-white">
+        {/* Detail Kondisi & Pendekatan */}
+        <Section className="bg-white py-16 md:py-20">
           <Container>
-            <div className="grid gap-8 lg:grid-cols-2 lg:gap-12">
+            <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
               <div>
-                <h2 className="text-xl font-bold tracking-tight text-foreground">Kondisi yang dapat ditangani</h2>
-                <ul className="mt-5 space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+                  Keluhan Pasien
+                </div>
+                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl">
+                  Keluhan yang Sering Kami Bantu
+                </h2>
+                <ul className="mt-6 space-y-3">
                   {service.conditions.map((item) => (
                     <li
                       key={item}
-                      className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 text-sm text-muted-foreground"
+                      className="flex items-start gap-3 rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-4 text-sm text-stone-700 shadow-xs"
                     >
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      {item}
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)]">
+                        <Check className="h-2.5 w-2.5 stroke-[3]" />
+                      </span>
+                      <span>{item}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
               <div>
-                <h2 className="text-xl font-bold tracking-tight text-foreground">Pendekatan kami</h2>
-                <ul className="mt-5 space-y-3">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+                  Pendampingan
+                </div>
+                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl">
+                  Cara Kami Mendampingi Anda
+                </h2>
+                <ul className="mt-6 space-y-3">
                   {service.benefits.map((item) => (
                     <li
                       key={item}
-                      className="flex items-start gap-3 rounded-xl border border-border bg-surface p-4 text-sm text-muted-foreground"
+                      className="flex items-start gap-3 rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-4 text-sm text-stone-700 shadow-xs"
                     >
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      {item}
+                      <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)]">
+                        <Check className="h-2.5 w-2.5 stroke-[3]" />
+                      </span>
+                      <span>{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -129,35 +139,43 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
           </Container>
         </Section>
 
+        {/* Layanan Terkait */}
         {related.length > 0 && (
-          <Section className="bg-surface">
+          <Section className="border-t border-stone-200/60 bg-[#FEFEF6] py-16 md:py-20">
             <Container>
-              <h2 className="text-xl font-bold tracking-tight text-foreground md:text-2xl">Layanan lainnya</h2>
-              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {related.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={`/layanan/${item.id}`}
-                    className="group rounded-2xl border border-border bg-white p-5 transition-colors hover:border-primary/40"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <item.icon className="h-5 w-5 text-primary" />
-                      </div>
-                      <h3 className="font-semibold text-foreground">{item.title}</h3>
-                    </div>
-                    <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{item.description}</p>
-                    <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary">
-                      Lihat layanan
-                      <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                    </span>
-                  </Link>
-                ))}
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+                Eksplorasi Layanan
+              </div>
+              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl">
+                Layanan Fisioterapi Lainnya
+              </h2>
+              <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {related.map((item, idx) => {
+                  const variants: NotchedCardVariant[] = ['white', 'accent', 'dark'];
+                  const variant = variants[idx % variants.length];
+
+                  return (
+                    <ScrollReveal key={item.id} delay={idx * 0.08} className="h-full">
+                      <NotchedCard
+                        variant={variant}
+                        icon={<item.icon className="h-6 w-6" />}
+                        title={item.title}
+                        description={item.description}
+                        href={`/layanan/${item.id}`}
+                        buttonText="Lihat Layanan"
+                        showRings={variant === 'accent' || variant === 'dark'}
+                        className="h-full min-h-[280px]"
+                      />
+                    </ScrollReveal>
+                  );
+                })}
               </div>
             </Container>
           </Section>
         )}
 
+        {/* Section Kontak */}
         <ContactSection />
       </main>
 

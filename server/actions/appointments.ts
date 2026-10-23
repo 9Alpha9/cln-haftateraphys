@@ -6,7 +6,8 @@ import { getDb } from '@/db';
 import { appointments, appointmentNotificationReads, patients } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
-import { assertPatientSchedulingScope } from '@/server/queries/appointments';
+import { assertPatientSchedulingScope, getAppointmentById } from '@/server/queries/appointments';
+import { getAppointmentFormOptions } from '@/server/queries/appointment-form-options';
 import { notifyUser } from '@/server/notify';
 import { createAuditLog } from '@/lib/audit';
 
@@ -48,7 +49,20 @@ function minutesSinceMidnight(value: string) {
   return hours * 60 + minutes;
 }
 
-export async function createAppointment(input: CreateAppointmentInput) {
+function formatDateLabel(value: string) {
+  const [year, month, day] = value.slice(0, 10).split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+export async function createAppointment(
+  input: CreateAppointmentInput,
+  options?: { notifyPatient?: boolean },
+) {
   requireCreateAppointmentInput(input);
 
   const { session, role } = await requireSession({ redirectToLogin: false });
@@ -120,16 +134,18 @@ export async function createAppointment(input: CreateAppointmentInput) {
     userId: session.user.id,
   });
 
-  if (patient?.userId) {
+  if (patient?.userId && options?.notifyPatient !== false) {
     await notifyUser({
       userId: patient.userId,
       title: 'Jadwal terapi baru',
-      message: `Anda memiliki jadwal terapi pada ${input.scheduledDate} pukul ${input.startTime}.`,
+      message: `Anda memiliki jadwal terapi pada ${formatDateLabel(input.scheduledDate)} pukul ${input.startTime}.`,
       actionUrl: '/dashboard/appointments',
     });
   }
 
+  revalidatePath('/dashboard');
   revalidatePath('/dashboard/appointments');
+  revalidatePath('/dashboard/notifications');
 }
 
 export type UpdateAppointmentInput = {
@@ -142,6 +158,22 @@ export type UpdateAppointmentInput = {
   type: AppointmentType;
   administrativeNote?: string;
 };
+
+
+export async function getAppointmentEditData(appointmentId: string) {
+  const { role } = await requireSession({ redirectToLogin: false });
+  if (!hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE)) {
+    throw new ForbiddenError();
+  }
+
+  const [appointment, { therapistOptions }] = await Promise.all([
+    getAppointmentById(appointmentId),
+    getAppointmentFormOptions(),
+  ]);
+
+  if (!appointment) return null;
+  return { appointment, therapistOptions };
+}
 
 export async function updateAppointment(input: UpdateAppointmentInput) {
   requireCreateAppointmentInput(input);

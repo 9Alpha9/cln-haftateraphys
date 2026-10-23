@@ -1,58 +1,26 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { motion } from 'framer-motion';
-
 interface MarqueeProps {
   children: React.ReactNode;
-  speed?: number;
-  pauseOnHover?: boolean;
   className?: string;
 }
 
-export function Marquee({ children, speed = 30, pauseOnHover = true, className }: MarqueeProps) {
-  const [isPaused, setIsPaused] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const [contentWidth, setContentWidth] = useState(0);
-
-  useEffect(() => {
-    if (contentRef.current) {
-      setContentWidth(contentRef.current.scrollWidth / 2);
-    }
-  }, [children]);
-
-  const duration = contentWidth / speed;
-
+export function Marquee({ children, className }: MarqueeProps) {
   return (
     <div
-      ref={containerRef}
-      className={`overflow-hidden ${className}`}
-      onMouseEnter={() => pauseOnHover && setIsPaused(true)}
-      onMouseLeave={() => pauseOnHover && setIsPaused(false)}
+      className={`group relative w-full overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] ${className ?? ''}`}
     >
-      <motion.div
-        className="flex w-max gap-4"
-        animate={{
-          x: [0, -contentWidth],
-        }}
-        transition={{
-          x: {
-            duration,
-            repeat: Infinity,
-            ease: 'linear',
-            repeatType: 'loop',
-          },
-        }}
-        style={{ x: 0 }}
-      >
-        <div ref={contentRef} className="flex shrink-0">
+      <div className="flex w-max overflow-hidden">
+        <div className="flex shrink-0 gap-3 pr-6 animate-marquee group-hover:[animation-play-state:paused] motion-reduce:animate-none">
           {children}
         </div>
-        <div className="flex shrink-0" aria-hidden>
+        <div
+          className="flex shrink-0 gap-3 pr-6 animate-marquee group-hover:[animation-play-state:paused] motion-reduce:animate-none"
+          aria-hidden="true"
+        >
           {children}
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

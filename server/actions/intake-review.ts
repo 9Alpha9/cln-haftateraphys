@@ -4,12 +4,13 @@ import { and, desc, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/db';
 import { notifications, patientIntakes, patients } from '@/db/schema';
+import { createAuditLog } from '@/lib/audit';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { intakeReviewSchema, type IntakeReviewInput } from '@/lib/validators/intake-review';
 
 export async function archivePatientIntake(patientId: string) {
-  const { role } = await requireSession({ redirectToLogin: false });
+  const { session, role } = await requireSession({ redirectToLogin: false });
   if (!hasPermission(role, PERMISSIONS.INTAKE_ARCHIVE)) throw new ForbiddenError();
 
   const db = getDb();
@@ -24,7 +25,18 @@ export async function archivePatientIntake(patientId: string) {
     .update(patientIntakes)
     .set({ status: 'ARCHIVED', updatedAt: new Date() })
     .where(eq(patientIntakes.id, intake.id));
+
+  await createAuditLog({
+    action: 'intake.archive',
+    targetType: 'patient_intake',
+    targetId: intake.id,
+    meta: { patientId, previousStatus: intake.status },
+    userId: session.user.id,
+  });
+
+  revalidatePath('/dashboard');
   revalidatePath('/dashboard/intake');
+  revalidatePath('/dashboard/history');
   revalidatePath(`/dashboard/patients/${patientId}/intake`);
 }
 
@@ -58,21 +70,35 @@ export async function reviewPatientIntake(input: IntakeReviewInput) {
     (data.action === 'accept' && intake.status === 'UNDER_REVIEW');
   if (!validTransition) throw new ForbiddenError();
 
+  const nextStatus =
+    data.action === 'start-review'
+      ? 'UNDER_REVIEW'
+      : data.action === 'request-revision'
+        ? 'NEEDS_REVISION'
+        : 'ACCEPTED';
+
   await db
     .update(patientIntakes)
     .set({
-      status:
-        data.action === 'start-review'
-          ? 'UNDER_REVIEW'
-          : data.action === 'request-revision'
-            ? 'NEEDS_REVISION'
-            : 'ACCEPTED',
+      status: nextStatus,
       reviewMessage: data.action === 'request-revision' ? data.reviewMessage?.trim() || null : null,
       reviewedBy: session.user.id,
       reviewedAt: new Date(),
       updatedAt: new Date(),
     })
     .where(and(eq(patientIntakes.id, intake.id), eq(patientIntakes.patientId, data.patientId)));
+
+  await createAuditLog({
+    action: `intake.${data.action}`,
+    targetType: 'patient_intake',
+    targetId: intake.id,
+    meta: {
+      patientId: data.patientId,
+      previousStatus: intake.status,
+      nextStatus,
+    },
+    userId: session.user.id,
+  });
 
   if (data.action === 'request-revision' || data.action === 'accept') {
     const [patient] = await db
@@ -90,7 +116,9 @@ export async function reviewPatientIntake(input: IntakeReviewInput) {
     }
   }
 
+  revalidatePath('/dashboard');
   revalidatePath('/dashboard/intake');
+  revalidatePath('/dashboard/profile');
   revalidatePath(`/dashboard/patients/${data.patientId}/intake`);
   revalidatePath('/dashboard/history');
 }

@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { PatientDashboardShell } from '@/components/patient/patient-dashboard-shell';
 import { AdminDashboardShell } from '@/components/dashboard/dashboard-shell';
 import type { NotificationView } from "@/components/dashboard/notification-bell";
-import type { Role } from '@/lib/permissions';
+import type { Role } from '@/lib/permissions/roles';
 
 const ADMIN_ROLES = ['SUPER_ADMIN', 'ADMIN', 'THERAPIST', 'STAFF'];
 

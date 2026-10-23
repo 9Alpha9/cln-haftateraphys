@@ -2,7 +2,6 @@
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
 import {
   Bell,
   ChevronRight,
@@ -17,10 +16,11 @@ import {
   ShieldCheck,
   Activity,
   LucideIcon,
+  CheckCheck,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { SlideDrawer } from '@/components/ui/slide-drawer';
+import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import { markAllNotificationsAsRead, markNotificationAsRead } from '@/server/actions/notifications';
 import { cn } from '@/lib/utils';
 
@@ -41,9 +41,9 @@ function timeAgo(date: Date): string {
   const days = Math.floor(diffMs / 86400000);
 
   if (mins < 1) return 'Baru saja';
-  if (mins < 60) return `${mins} menit lalu`;
-  if (hours < 24) return `${hours} jam lalu`;
-  if (days < 7) return `${days} hari lalu`;
+  if (mins < 60) return `${mins}m lalu`;
+  if (hours < 24) return `${hours}j lalu`;
+  if (days < 7) return `${days}h lalu`;
   return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
 }
 
@@ -58,46 +58,37 @@ function getNotificationIcon(title: string, message?: string | null): LucideIcon
   if (t.includes('file') || t.includes('laporan') || t.includes('report') || t.includes('dokumen')) return FileText;
   if (t.includes('pesan') || t.includes('email') || t.includes('surat') || t.includes('notifikasi')) return Mail;
   if (t.includes('komentar') || t.includes('comment') || t.includes('catatan') || t.includes('pesan perbaikan')) return MessageSquareQuote;
-  if (t.includes('system') || t.includes('alert') || t.includes('peringatan') || t.includes('error')) return AlertCircle;
-  return Bell;
-}
-
-async function fetchNotifications(): Promise<{ notifications: NotificationView[]; unreadCount: number } | null> {
-  try {
-    const res = await fetch('/api/notifications', { cache: 'no-store' });
-    if (!res.ok) return null;
-    const data = await res.json();
-    return {
-      notifications: data.notifications.map((n: Record<string, unknown>) => ({
-        ...n,
-        createdAt: new Date(n.createdAt as string),
-      })),
-      unreadCount: data.unreadCount as number,
-    };
-  } catch {
-    return null;
-  }
+  return AlertCircle;
 }
 
 export function NotificationBell({
-  unreadCount,
-  initialNotifications,
+  unreadCount = 0,
+  initialNotifications = [],
 }: {
-  unreadCount: number;
-  initialNotifications: NotificationView[];
+  unreadCount?: number;
+  initialNotifications?: NotificationView[];
 }) {
   const pathname = usePathname();
-  const [pending, startTransition] = useTransition();
-  const [notifications, setNotifications] = useState(initialNotifications);
-  const [count, setCount] = useState(unreadCount);
-  const [tab, setTab] = useState<'all' | 'unread'>('all');
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState<'all' | 'unread'>('all');
+  const [notifications, setNotifications] = useState<NotificationView[]>(initialNotifications);
+  const [count, setCount] = useState(unreadCount);
+  const [pending, startTransition] = useTransition();
 
   const refreshNotifications = useCallback(async () => {
-    const data = await fetchNotifications();
-    if (data) {
-      setNotifications(data.notifications);
+    try {
+      const res = await fetch('/api/notifications', { cache: 'no-store' });
+      if (!res.ok) return;
+      const data = await res.json();
+      setNotifications(
+        data.notifications.map((n: any) => ({
+          ...n,
+          createdAt: new Date(n.createdAt),
+        }))
+      );
       setCount(data.unreadCount);
+    } catch {
+      // ignore
     }
   }, []);
 
@@ -106,11 +97,8 @@ export function NotificationBell({
     return () => window.clearInterval(id);
   }, [refreshNotifications]);
 
-  useEffect(() => {
-    if (pathname === '/dashboard/notifications') {
-      setOpen(false);
-    }
-  }, [pathname]);
+  const isNotificationPage = pathname === '/dashboard/notifications';
+  const isDrawerOpen = open && !isNotificationPage;
 
   function markAll() {
     startTransition(async () => {
@@ -140,173 +128,165 @@ export function NotificationBell({
 
   return (
     <>
+      {/* Topbar Bell Icon Button */}
       <Button
         size="icon"
         onClick={() => {
           if (pathname !== '/dashboard/notifications') setOpen(true);
         }}
-        className="group relative h-10 w-10 rounded-full bg-hafta-ylw-100 transition-all hover:bg-hafta-ylw-200"
-        aria-label="Open notifications"
+        className="group relative h-10 w-10 rounded-full bg-stone-100 text-[#181700] hover:bg-stone-200/80 transition-colors cursor-pointer"
+        aria-label="Buka notifikasi"
       >
-        <Bell
-          size={20}
-          strokeWidth={2.28}
-          aria-hidden="true"
-          className="text-hafta-red-800 transition-colors group-hover:text-hafta-red-800"
-        />
+        <Bell size={18} strokeWidth={2} aria-hidden="true" className="text-[#181700]" />
         {count > 0 && (
-          <span className="absolute -top-1.5 left-full flex h-6 w-6 -translate-x-1/2 items-center justify-center rounded-full bg-hafta-red-800 px-1 text-[10px] font-bold leading-none text-white">
+          <span className="absolute -top-1 -right-1 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-[var(--hafta-red-500)] px-1 font-mono text-[10px] font-bold leading-none text-white shadow-xs">
             {count > 99 ? '99+' : count}
           </span>
         )}
       </Button>
 
-      <SlideDrawer
-        open={open && pathname !== '/dashboard/notifications'}
+      {/* ── UNIFIED GLOBAL STATIC OVERLAY DRAWER ── */}
+      <GlobalSlideOver
+        isOpen={isDrawerOpen}
         onClose={() => setOpen(false)}
-        closeOnOutsideClick={false}
-        overlayClassName="bg-transparent backdrop-blur-none"
-        width="w-[min(100vw,24rem)] rounded-tl-2xl rounded-bl-2xl"
-        title={
-          <>
-            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-hafta-ylw-100 text-hafta-red-800">
-              <Bell className="h-4 w-4" strokeWidth={2.25} />
+        size="sm"
+        icon={<Bell className="h-5 w-5" />}
+        title="Notifikasi"
+        subtitle={`${count} pesan belum dibaca`}
+        headerTabs={
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setTab('all')}
+                className={cn(
+                  'rounded-full px-3.5 py-1 text-xs font-bold transition-all cursor-pointer',
+                  tab === 'all'
+                    ? 'bg-[var(--hafta-ylw-100)] text-[#181700] shadow-2xs'
+                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200/70'
+                )}
+              >
+                Semua
+              </button>
+              <button
+                type="button"
+                onClick={() => setTab('unread')}
+                className={cn(
+                  'rounded-full px-3.5 py-1 text-xs font-bold transition-all cursor-pointer',
+                  tab === 'unread'
+                    ? 'bg-[var(--hafta-ylw-100)] text-[#181700] shadow-2xs'
+                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200/70'
+                )}
+              >
+                Belum Dibaca
+              </button>
             </div>
-            <div>
-              <p className="text-[13px] font-bold text-hafta-ylw-900">Notifications</p>
-              <p className="text-[11px] text-gray-500">{count} belum dibaca</p>
-            </div>
-          </>
+
+            {count > 0 && (
+              <button
+                type="button"
+                onClick={markAll}
+                disabled={pending}
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-stone-600 hover:text-[#181700] transition-colors cursor-pointer disabled:opacity-50"
+              >
+                <CheckCheck className="h-3.5 w-3.5" />
+                <span>Tandai Semua</span>
+              </button>
+            )}
+          </div>
         }
-        headerRight={
-          count > 0 && (
-            <button
-              onClick={markAll}
-              disabled={pending}
-              className="text-[11px] cursor-pointer font-bold text-hafta-ylw-800 transition-colors hover:text-hafta-ylw-900"
+        footer={
+          <div className="flex items-center justify-between">
+            <Link
+              href="/dashboard/notifications"
+              onClick={() => setOpen(false)}
+              className="text-xs font-bold text-[#181700] hover:underline"
             >
-              Tandai Semua Dibaca
-            </button>
-          )
-        }
-      >
-        <div className="border-b border-[#E5E7EB] px-4 py-3 sm:px-5">
-          <div className="flex gap-2">
+              Buka Halaman Notifikasi Lengkap &rarr;
+            </Link>
             <button
               type="button"
-              onClick={() => setTab('all')}
-              className={cn(
-                'rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors',
-                tab === 'all'
-                  ? 'bg-hafta-ylw-100 text-hafta-ylw-900'
-                  : 'bg-[#F7FAF8] text-[#6B7280] hover:bg-[#EEF2F7] cursor-pointer'
-              )}
+              onClick={() => setOpen(false)}
+              className="rounded-xl px-3 py-1.5 text-xs font-semibold text-stone-500 hover:text-[#181700]"
             >
-              Semua
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab('unread')}
-              className={cn(
-                'rounded-full px-3 py-1.5 text-[12px] font-semibold transition-colors',
-                tab === 'unread'
-                  ? 'bg-hafta-ylw-100 text-hafta-ylw-900'
-                  : 'bg-[#F7FAF8] text-[#6B7280] hover:bg-[#EEF2F7] cursor-pointer'
-              )}
-            >
-              Belum Dibaca
+              Tutup
             </button>
           </div>
-        </div>
-
-        <div className="py-3" style={{ WebkitOverflowScrolling: 'touch' }}>
+        }
+      >
+        {/* Notification Items List */}
+        <div className="divide-y divide-stone-100 -mx-1">
           {filtered.length === 0 ? (
-            <div className="flex h-full min-h-[240px] flex-col items-center justify-center text-center">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-hafta-ylw-50 text-hafta-ylw-700">
+            <div className="flex min-h-[220px] flex-col items-center justify-center text-center px-4 py-8">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
                 <Bell className="h-6 w-6" />
               </div>
-              <p className="mt-3 text-[13px] font-bold text-[#111827]">Tidak ada notifikasi</p>
-              <p className="mt-1 max-w-xs text-[12px] text-[#9CA3AF]">Semua notifikasi akan muncul di sini ketika ada pembaruan.</p>
+              <p className="mt-3 text-xs font-bold text-[#181700]">Tidak ada notifikasi</p>
+              <p className="mt-1 max-w-xs text-[11px] text-stone-400">
+                Semua notifikasi pembaruan jadwal dan klinis Anda akan muncul di sini.
+              </p>
             </div>
           ) : (
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={{
-                hidden: {},
-                visible: { transition: { staggerChildren: 0.05 } },
-              }}
-              className="flex flex-col"
-            >
-              {filtered.map((n) => {
-                const Icon = getNotificationIcon(n.title, n.message);
-                return (
-                  <motion.div
-                    key={n.id}
-                    variants={{
-                      hidden: { opacity: 0, y: 10 },
-                      visible: { opacity: 1, y: 0 },
-                    }}
-                    transition={{ duration: 0.2, ease: 'easeOut' }}
-                  >
-                    <div
-                      onClick={() => {
-                        if (!n.isRead) markRead(n.id);
-                      }}
-                      className={cn(
-                        'flex w-full items-start gap-3 bg-white px-4 py-4 text-left transition-colors hover:bg-gray-100 cursor-pointer',
-                        !n.isRead && 'bg-white'
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          'mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full',
-                          !n.isRead ? 'bg-[#F8FAFC] text-[#64748B]' : 'bg-[#F8FAFC] text-[#9CA3AF]'
-                        )}
-                      >
-                        <Icon size={16} strokeWidth={2.25} />
-                      </div>
+            filtered.map((item) => {
+              const Icon = getNotificationIcon(item.title, item.message);
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => !item.isRead && markRead(item.id)}
+                  className={cn(
+                    'group relative flex items-start gap-3.5 p-3.5 rounded-2xl transition-colors cursor-pointer',
+                    item.isRead ? 'hover:bg-stone-50' : 'bg-[#FEFEF6] hover:bg-stone-50/90'
+                  )}
+                >
+                  {/* Icon */}
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-700 mt-0.5">
+                    <Icon className="h-4.5 w-4.5" />
+                  </div>
 
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0 flex-1">
-                            <p className={cn('text-[13px] leading-snug', !n.isRead ? 'font-bold text-[#111827]' : 'font-medium text-[#374151]')}>
-                              {n.title}
-                            </p>
-                            {n.message && (
-                              <p className="mt-0.5 text-[12px] leading-relaxed text-[#6B7280] whitespace-pre-line">
-                                {n.message}
-                              </p>
-                            )}
-                          </div>
-                          {!n.isRead && <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-hafta-grn-500" />}
-                        </div>
-
-                        <div className="mt-2 flex items-center justify-between gap-3">
-                          <time className="text-[11px] font-medium text-[#9CA3AF]" dateTime={n.createdAt.toISOString()}>
-                            {timeAgo(n.createdAt)}
-                          </time>
-                          {n.actionUrl && (
-                            <div className="flex items-center gap-2">
-                              <Link
-                                href={n.actionUrl}
-                                onClick={() => setOpen(false)}
-                                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#374151] transition-colors hover:text-[#111827]"
-                              >
-                                Lihat <ChevronRight className="h-3.5 w-3.5" />
-                              </Link>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                  {/* Text Content */}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className={cn('text-xs font-bold truncate', item.isRead ? 'text-stone-700' : 'text-[#181700]')}>
+                        {item.title}
+                      </p>
+                      <span className="font-mono text-[10px] text-stone-400 shrink-0">
+                        {timeAgo(item.createdAt)}
+                      </span>
                     </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
+
+                    {item.message && (
+                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-stone-600">
+                        {item.message}
+                      </p>
+                    )}
+
+                    {item.actionUrl && (
+                      <div className="mt-2.5">
+                        <Link
+                          href={item.actionUrl}
+                          onClick={() => {
+                            if (!item.isRead) markRead(item.id);
+                            setOpen(false);
+                          }}
+                          className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-[#181700] hover:underline"
+                        >
+                          <span>Lihat Rincian</span>
+                          <ChevronRight className="h-3 w-3" />
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Unread Dot Indicator */}
+                  {!item.isRead && (
+                    <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--hafta-ylw-400)] mt-1.5" />
+                  )}
+                </div>
+              );
+            })
           )}
         </div>
-      </SlideDrawer>
+      </GlobalSlideOver>
     </>
   );
 }

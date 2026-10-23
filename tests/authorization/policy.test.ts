@@ -43,3 +43,13 @@ describe('authorization policy', () => {
     expect(canAccessPatient(superAdmin, 'user-b', { hasExplicitClinicalScope: true })).toBe(true);
   });
 });
+
+describe('therapy completion permissions', () => {
+  it('grants program completion only to clinical roles', async () => {
+    const { ROLE_PERMISSIONS } = await import('@/lib/permissions/roles');
+    expect(ROLE_PERMISSIONS.ADMIN).toContain(PERMISSIONS.PATIENT_COMPLETE_PROGRAM);
+    expect(ROLE_PERMISSIONS.THERAPIST).toContain(PERMISSIONS.PATIENT_COMPLETE_PROGRAM);
+    expect(ROLE_PERMISSIONS.STAFF).not.toContain(PERMISSIONS.PATIENT_COMPLETE_PROGRAM);
+    expect(ROLE_PERMISSIONS.SUPER_ADMIN).not.toContain(PERMISSIONS.PATIENT_COMPLETE_PROGRAM);
+  });
+});

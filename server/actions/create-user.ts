@@ -1,5 +1,6 @@
 'use server';
 
+import { randomUUID } from 'node:crypto';
 import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
@@ -85,41 +86,47 @@ export async function createUser(input: unknown): Promise<CreateUserResult> {
         .where(eq(users.id, userId));
     }
 
-    await db.transaction(async (tx) => {
-      await tx
-        .insert(profiles)
-        .values({
-          userId,
-          displayName: name,
-          phone: phone ?? null,
+    const upsertProfile = db
+      .insert(profiles)
+      .values({
+        userId,
+        displayName: name,
+        phone: phone ?? null,
+        accountType: role as Role,
+      })
+      .onConflictDoUpdate({
+        target: profiles.userId,
+        set: {
           accountType: role as Role,
-        })
-        .onConflictDoUpdate({
-          target: profiles.userId,
-          set: {
-            accountType: role as Role,
-            displayName: name,
-            phone: phone ?? undefined,
-            updatedAt: new Date(),
-          },
-        });
+          displayName: name,
+          phone: phone ?? undefined,
+          updatedAt: new Date(),
+        },
+      });
 
-      if (role === 'USER') {
-        const [patient] = await tx
-          .insert(patients)
-          .values({ userId, fullName: name })
-          .returning({ id: patients.id });
+    if (role === 'USER') {
+      const patientId = randomUUID();
 
-        if (actorRole === 'THERAPIST') {
-          await tx.insert(patientAssignments).values({
-            patientId: patient.id,
+      if (actorRole === 'THERAPIST') {
+        await db.batch([
+          upsertProfile,
+          db.insert(patients).values({ id: patientId, userId, fullName: name }),
+          db.insert(patientAssignments).values({
+            patientId,
             staffUserId: session.user.id,
             assignmentType: 'PRIMARY_THERAPIST',
             createdBy: session.user.id,
-          });
-        }
+          }),
+        ]);
+      } else {
+        await db.batch([
+          upsertProfile,
+          db.insert(patients).values({ id: patientId, userId, fullName: name }),
+        ]);
       }
-    });
+    } else {
+      await upsertProfile;
+    }
 
     await recordAudit('user.create', {
       targetType: 'user',

@@ -7,7 +7,12 @@ export async function getCurrentPatientIntake(userId: string) {
   const db = getDb();
   const [intake] = await db
     .select({
+      id: patientIntakes.id,
+      version: patientIntakes.version,
       status: patientIntakes.status,
+      reviewMessage: patientIntakes.reviewMessage,
+      submittedAt: patientIntakes.submittedAt,
+      reviewedAt: patientIntakes.reviewedAt,
       chiefComplaint: patientIntakes.chiefComplaint,
       affectedArea: patientIntakes.affectedArea,
       onsetDescription: patientIntakes.onsetDescription,
@@ -37,9 +42,26 @@ export async function getPatientVisibleIntakeHistory(userId: string) {
   return db
     .select({
       id: patientIntakes.id,
+      version: patientIntakes.version,
       status: patientIntakes.status,
       affectedArea: patientIntakes.affectedArea,
+      chiefComplaint: patientIntakes.chiefComplaint,
+      onsetDescription: patientIntakes.onsetDescription,
+      triggeringEvent: patientIntakes.triggeringEvent,
+      aggravatingFactors: patientIntakes.aggravatingFactors,
+      relievingFactors: patientIntakes.relievingFactors,
+      dailyLimitations: patientIntakes.dailyLimitations,
+      previousInjuryHistory: patientIntakes.previousInjuryHistory,
+      surgeryHistory: patientIntakes.surgeryHistory,
+      relevantMedicalHistory: patientIntakes.relevantMedicalHistory,
+      currentMedication: patientIntakes.currentMedication,
+      allergies: patientIntakes.allergies,
+      patientGoal: patientIntakes.patientGoal,
+      reviewMessage: patientIntakes.reviewMessage,
+      reviewedAt: patientIntakes.reviewedAt,
+      dataAccuracyAcknowledged: patientIntakes.dataAccuracyAcknowledged,
       submittedAt: patientIntakes.submittedAt,
+      createdAt: patientIntakes.createdAt,
       updatedAt: patientIntakes.updatedAt,
       patientName: patients.fullName,
     })
@@ -48,7 +70,7 @@ export async function getPatientVisibleIntakeHistory(userId: string) {
     .where(
       and(
         eq(patients.userId, userId),
-        inArray(patientIntakes.status, ['SUBMITTED', 'UNDER_REVIEW', 'NEEDS_REVISION', 'ACCEPTED', 'ARCHIVED']),
+        inArray(patientIntakes.status, ['DRAFT', 'SUBMITTED', 'UNDER_REVIEW', 'NEEDS_REVISION', 'ACCEPTED', 'ARCHIVED']),
       ),
     )
     .orderBy(desc(patientIntakes.updatedAt));

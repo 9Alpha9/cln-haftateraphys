@@ -10,19 +10,22 @@ import { TestimonialSection } from '@/components/landing/testimonial-section';
 import { FaqSection } from '@/components/landing/faq-section';
 import { ContactSection } from '@/components/landing/contact-section';
 import { FinalCtaSection } from '@/components/landing/final-cta-section';
+import { getFeaturableReviews } from '@/lib/featurable';
 
-export default function Home() {
+export default async function Home() {
+  const reviewsData = await getFeaturableReviews();
+
   return (
     <div className="flex min-h-screen flex-col">
       <PublicHeader />
-      <main className="flex-1">
+      <main className="flex-1 bg-white">
         <HeroSection />
         <TrustContext />
         <ServicesSection />
         <TherapyProcessSection />
         <AboutSection />
         <PatientPortalSection />
-        <TestimonialSection />
+        <TestimonialSection initialData={reviewsData} />
         <FaqSection />
         <ContactSection />
         <FinalCtaSection />

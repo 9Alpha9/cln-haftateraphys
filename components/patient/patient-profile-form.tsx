@@ -159,7 +159,15 @@ export function PatientProfileForm({
           </div>
           <div className="space-y-2">
             <Label htmlFor="medicalRecordNumber">No. Rekam Medis</Label>
-            <Input id="medicalRecordNumber" disabled={pending} {...register('medicalRecordNumber')} />
+            <Input
+              id="medicalRecordNumber"
+              value={initialValues.medicalRecordNumber || 'Ditetapkan otomatis'}
+              disabled
+              readOnly
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Nomor rekam medis dibuat otomatis oleh sistem.
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="preferredName">Nama panggilan</Label>

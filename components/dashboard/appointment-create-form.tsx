@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
@@ -36,14 +35,32 @@ for (let hour = 8; hour <= 21; hour++) {
 export function AppointmentCreateForm({
   patientOptions,
   therapistOptions,
+  defaultPatientId,
+  defaultDate,
+  defaultTime,
+  onSuccess,
+  onCancel,
+  formId,
+  onPendingChange,
 }: {
   patientOptions: SelectOption[];
   therapistOptions: SelectOption[];
+  defaultPatientId?: string;
+  defaultDate?: string;
+  defaultTime?: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
+  formId?: string;
+  onPendingChange?: (pending: boolean) => void;
 }) {
   const [pending, startTransition] = useTransition();
-  const [scheduledDate, setScheduledDate] = useState('');
+  const [scheduledDate, setScheduledDate] = useState(defaultDate ?? '');
   const router = useRouter();
   const { showToast } = useToast();
+
+  useEffect(() => {
+    onPendingChange?.(pending);
+  }, [onPendingChange, pending]);
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -62,8 +79,12 @@ export function AppointmentCreateForm({
           administrativeNote: String(formData.get('administrativeNote') ?? ''),
         });
         showToast('success', 'Appointment berhasil dibuat.');
-        router.push('/dashboard/appointments');
         router.refresh();
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.push('/dashboard/appointments');
+        }
       } catch {
         showToast('error', 'Appointment tidak dapat dibuat. Periksa data, scope pasien, dan jadwal terapis.');
       }
@@ -71,11 +92,17 @@ export function AppointmentCreateForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
+    <form id={formId} onSubmit={onSubmit} className="space-y-5">
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="patientId">Pasien</Label>
-          <Select id="patientId" name="patientId" required disabled={pending || patientOptions.length === 0}>
+          <Select
+            id="patientId"
+            name="patientId"
+            required
+            defaultValue={defaultPatientId ?? ''}
+            disabled={pending || patientOptions.length === 0}
+          >
             <option value="">Pilih pasien</option>
             {patientOptions.map((patient) => (
               <option key={patient.id} value={patient.id}>
@@ -107,7 +134,7 @@ export function AppointmentCreateForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="startTime">Waktu Mulai</Label>
-          <Select id="startTime" name="startTime" required disabled={pending}>
+          <Select id="startTime" name="startTime" required disabled={pending} defaultValue={defaultTime ?? ''}>
             <option value="">Pilih jam</option>
             {(['pagi', 'siang', 'sore', 'malam'] as const).map((period) => (
               <optgroup key={period} label={PERIOD_LABEL[period]}>
@@ -149,14 +176,6 @@ export function AppointmentCreateForm({
           disabled={pending}
           className="flex min-h-28 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         />
-      </div>
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <Button type="button" variant="outline" onClick={() => router.back()} disabled={pending}>
-          Batal
-        </Button>
-        <Button type="submit" disabled={pending}>
-          {pending ? 'Menyimpan...' : 'Simpan Jadwal'}
-        </Button>
       </div>
     </form>
   );

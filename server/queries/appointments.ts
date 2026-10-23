@@ -52,7 +52,11 @@ export async function getAppointmentById(appointmentId: string): Promise<Appoint
     .from(appointments)
     .innerJoin(patients, eq(appointments.patientId, patients.id))
     .innerJoin(users, eq(appointments.therapistId, users.id))
-    .where(eq(appointments.id, appointmentId))
+    .where(
+      role === 'THERAPIST'
+        ? and(eq(appointments.id, appointmentId), eq(appointments.therapistId, session.user.id))
+        : eq(appointments.id, appointmentId),
+    )
     .limit(1);
 
   return appointment ?? null;

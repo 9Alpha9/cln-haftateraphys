@@ -5,53 +5,63 @@ import Image from 'next/image';
 import { Container } from '@/components/container';
 import { Section } from '@/components/section';
 import { ScrollAnimation } from '@/components/ui/scroll-animation';
-import { ClipboardCheck, Eye, History, Shield } from 'lucide-react';
+import { ClipboardCheck, Eye, History, Shield, ArrowRight } from 'lucide-react';
 
 const features = [
   {
     icon: ClipboardCheck,
     title: 'Lengkapi Data Diri',
-    description: 'Isi informasi pasien secara terstruktur sebelum sesi terapi',
+    description: 'Isi informasi pasien secara terstruktur sebelum sesi terapi dimulai',
   },
   {
     icon: Eye,
-    title: 'Lihat Status',
-    description: 'Pantau status intake dan data yang telah Anda submit',
+    title: 'Lihat Status Intake',
+    description: 'Pantau status verifikasi dan data yang telah Anda kirimkan',
   },
   {
     icon: History,
-    title: 'Riwayat Terapi',
-    description: 'Akses informasi terapi yang telah difinalisasi oleh therapist',
+    title: 'Riwayat & Progres Terapi',
+    description: 'Akses catatan terapi dan evaluasi resmi dari fisioterapis Anda',
   },
   {
     icon: Shield,
-    title: 'Keamanan Akun',
-    description: 'Kelola keamanan akun dan preferensi privasi Anda',
+    title: 'Keamanan Data Terjaga',
+    description: 'Privasi data medis dan keamanan akun Anda terproteksi standar ketat',
   },
 ];
 
 export function PatientPortalSection() {
   return (
-    <Section className="bg-emerald-900 text-white">
+    <Section className="bg-[#FEFEF6] border-y border-stone-200/50">
       <Container>
-        <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-12">
+        <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-14">
           <ScrollAnimation direction="left">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight md:text-3xl">Patient Portal</h2>
-              <p className="mt-3 text-white/80">
-                Akses informasi dan data terapi Anda secara online. Patient Portal memudahkan Anda untuk memantau
-                perkembangan pemulihan.
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+                Layanan Digital Pasien
+              </div>
+              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] md:text-3xl">
+                Pantau perkembangan terapi Anda melalui Patient Portal
+              </h2>
+              <p className="mt-4 text-base leading-relaxed text-stone-600">
+                Akses informasi dan riwayat terapi Anda secara online kapan saja. Patient Portal
+                memudahkan Anda mengisi formulir awal dari rumah, melihat perkembangan pemulihan, dan
+                mengakses rekomendasi latihan mandiri.
               </p>
 
-              <div className="mt-8 grid gap-4 sm:grid-cols-2 py-10">
+              <div className="mt-8 grid gap-4 sm:grid-cols-2">
                 {features.map((feature) => (
-                  <div key={feature.title} className="flex items-start gap-3">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/10">
-                      <feature.icon className="h-4 w-4" />
+                  <div
+                    key={feature.title}
+                    className="flex items-start gap-3 rounded-2xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgb(24,23,0,0.03)]"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)] shadow-sm">
+                      <feature.icon className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="font-medium">{feature.title}</h3>
-                      <p className="mt-1 text-sm text-white/70">{feature.description}</p>
+                      <h3 className="font-bold text-[var(--hafta-ylw-950)] text-sm">{feature.title}</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-stone-600">{feature.description}</p>
                     </div>
                   </div>
                 ))}
@@ -60,15 +70,16 @@ export function PatientPortalSection() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/login"
-                  className="inline-flex h-11 items-center justify-center rounded-lg bg-white px-6 text-sm font-medium text-emerald-900 transition-colors hover:bg-white/90"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-6 text-sm font-semibold text-[var(--hafta-ylw-950)] shadow-sm transition-colors hover:bg-[var(--hafta-ylw-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-100)]"
                 >
-                  Sudah menjadi pasien? Masuk Portal
+                  Masuk Patient Portal
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   href="/register"
-                  className="inline-flex h-11 items-center justify-center rounded-lg border border-white/30 px-6 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                  className="inline-flex h-11 items-center justify-center rounded-xl border border-stone-300 bg-white px-6 text-sm font-semibold text-stone-800 transition-colors hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
                 >
-                  Buat Akun
+                  Daftar Akun Baru
                 </Link>
               </div>
             </div>
@@ -76,10 +87,10 @@ export function PatientPortalSection() {
 
           <ScrollAnimation direction="right" delay={0.2}>
             <div className="relative mx-auto w-full max-w-xl lg:mx-0">
-              <div className="aspect-[3/3] overflow-hidden rounded-2xl bg-white/10 relative">
+              <div className="relative aspect-square overflow-hidden rounded-2xl border border-stone-200/70 bg-white p-6 shadow-[0_12px_40px_rgba(24,23,0,0.06)]">
                 <Image
                   src="/images/portals/portals.png"
-                  alt="Patient Portal"
+                  alt="Ilustrasi Patient Portal Hafta Fisioterapi"
                   fill
                   sizes="(max-width: 1024px) 100vw, 38rem"
                   className="object-contain p-4"

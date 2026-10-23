@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Plus, Users } from 'lucide-react';
-import { Breadcrumb } from '@/components/ui/breadcrumb';
+import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
 import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -11,9 +11,9 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import { Select } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PatientTableActions } from '@/components/dashboard/patient-table-actions';
+import { PatientListFilters } from '@/components/dashboard/patient-list-filters';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS, requirePermission } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
@@ -41,78 +41,47 @@ export default async function PatientsPage({
   const canArchive = hasPermission(role, PERMISSIONS.PATIENT_ARCHIVE);
 
   return (
-    <div className="space-y-4">
-      {/* Header - full width from sidebar to right edge, touching top bar */}
-      <div className="relative -ml-[calc(50vw-50%)] -mr-[calc(50vw-50%)] -mt-8 w-[100vw] overflow-hidden bg-gradient-to-r from-amber-50/15 via-orange-50/30 to-amber-100/60 px-4 pt-6 pb-6 sm:-mt-8 sm:px-6 lg:px-8 border-b border-gray-500/10">
-        {/* Decorative shapes */}
-        <div className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-gradient-to-br from-amber-300/40 to-orange-300/30 blur-md" />
-        <div className="pointer-events-none absolute -right-4 -top-4 h-28 w-28 rounded-full bg-gradient-to-br from-amber-400/30 to-orange-400/20 blur-sm" />
-        <div className="pointer-events-none absolute right-24 -top-10 h-20 w-20 rounded-full bg-gradient-to-br from-amber-200/50 to-orange-200/40 blur-xs" />
-
-        <div className="relative mx-auto max-w-7xl">
-          <Breadcrumb items={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Pasien' }]} />
-          <div className="mt-3 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-4">
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-400 shadow-lg shadow-amber-200/50">
-                <Users className="h-7 w-7 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                  Daftar Pasien
-                </h1>
-                <p className="mt-1 text-sm text-gray-500 sm:text-base">
-                  Pasien yang sudah terhubung dengan akun portal.
-                </p>
-              </div>
+    <div className="space-y-6">
+      <DashboardPageHeader
+        title="Daftar Pasien"
+        description="Pasien yang sudah terhubung dengan akun portal."
+        breadcrumbs={[
+          { label: 'Dashboard', href: '/dashboard' },
+          { label: 'Pasien' },
+        ]}
+        icon={<Users className="h-6 w-6 text-[var(--hafta-ylw-100)]" />}
+        action={
+          canCreate ? (
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center w-full sm:w-auto">
+              <Link
+                href="/dashboard/patients/new"
+                className={cn(
+                  buttonVariants({ variant: 'outline', size: 'default' }),
+                  'w-full sm:w-auto justify-center h-10 px-5 rounded-full border border-stone-200 bg-white text-[#181700] hover:bg-stone-50 cursor-pointer'
+                )}
+              >
+                Hubungkan Akun
+              </Link>
+              <Link
+                href="/dashboard/users/add"
+                className={cn(
+                  buttonVariants({ size: 'default' }),
+                  'w-full sm:w-auto justify-center h-10 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold cursor-pointer'
+                )}
+              >
+                <Plus className="h-4 w-4 mr-1.5" /> Daftarkan Pasien
+              </Link>
             </div>
-            {canCreate ? (
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center w-full sm:w-auto">
-                <Link
-                  href="/dashboard/patients/new"
-                  className={cn(
-                    buttonVariants({ variant: 'outline', size: 'lg' }),
-                    'w-full sm:w-auto justify-center border-gray-200'
-                  )}
-                >
-                  Hubungkan Akun
-                </Link>
-                <Link
-                  href="/dashboard/users/add"
-                  className={cn(
-                    buttonVariants({ size: 'lg' }),
-                    'shadow-md w-full sm:w-auto justify-center px-6'
-                  )}
-                >
-                  <Plus /> Daftarkan Pasien
-                </Link>
-              </div>
-            ) : null}
-          </div>
-        </div>
-      </div>
+          ) : null
+        }
+      />
 
       {/* Content */}
-      <div className="mx-auto max-w-7xl">
-        <Card>
+      <div>
+        <Card className="rounded-2xl border-stone-200/90 shadow-sm">
           <CardHeader className="gap-4">
             <CardTitle>Pasien Aktif</CardTitle>
-            <form className="grid gap-3 sm:grid-cols-[1fr_11rem_auto]">
-              <input
-                name="q"
-                defaultValue={search}
-                placeholder="Cari nama pasien"
-                className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              />
-              <Select name="status" defaultValue={status}>
-                <option value="">Semua status</option>
-                <option value="INTAKE">Intake</option>
-                <option value="ACTIVE">Aktif</option>
-                <option value="ON_HOLD">Ditunda</option>
-                <option value="COMPLETED">Selesai</option>
-                <option value="REFERRED">Rujuk</option>
-              </Select>
-              <button className={cn(buttonVariants({ variant: 'outline' }))}>Terapkan</button>
-            </form>
+            <PatientListFilters initialSearch={search} initialStatus={status} />
           </CardHeader>
           <CardContent>
             {result.items.length === 0 ? (
