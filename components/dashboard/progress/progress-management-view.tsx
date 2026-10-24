@@ -343,7 +343,7 @@ export function ProgressManagementView({
                     <button
                       type="button"
                       className="shrink-0 w-10 h-10 aspect-square rounded-full bg-white hover:bg-stone-100 border border-stone-200/90 text-[#181700] flex items-center justify-center cursor-pointer"
-                      onClick={() => setSelectedActionMenu(record)}
+                      onClick={() => setSelectedRecord(record)}
                     >
                       <MoreVertical className="h-4 w-4" />
                     </button>

@@ -23,6 +23,7 @@ import { markCalendarAppointmentsRead } from '@/server/actions/appointment-notif
 import { cn } from '@/lib/utils';
 import type { AppointmentView } from '@/server/queries/appointments';
 import { AppointmentEditButton } from '@/components/dashboard/appointments/appointment-edit-button';
+import { AppointmentEditDrawer, useAppointmentEditDrawer } from '@/components/dashboard/appointments/appointment-edit-drawer';
 import { CompleteSessionButton } from '@/components/dashboard/appointments/complete-session-button';
 
 function FloatingActionMenu({ items, onClose, buttonRef }: { items: { label: string; onClick: () => void }[]; onClose: () => void; buttonRef: React.RefObject<HTMLButtonElement | null> }) {
@@ -132,6 +133,7 @@ export function AppointmentCard({
   const [showActionMenu, setShowActionMenu] = useState(false);
   const actionMenuRef = useRef<HTMLDivElement>(null);
   const moreButtonRef = useRef<HTMLButtonElement>(null);
+  const editor = useAppointmentEditDrawer();
 
   const canEdit = hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE);
   const canComplete =
@@ -300,7 +302,10 @@ export function AppointmentCard({
             canEdit
               ? {
                   label: 'Edit',
-                  onClick: () => {},
+                  onClick: () => {
+                    editor.openEdit(appointment.id);
+                    setShowActionMenu(false);
+                  },
                 }
               : null,
             {
@@ -327,6 +332,12 @@ export function AppointmentCard({
         pending={deleting}
         onConfirm={handleDelete}
         onCancel={() => setShowDeleteDialog(false)}
+      />
+      <AppointmentEditDrawer
+        isOpen={editor.isOpen}
+        isLoading={editor.isLoading}
+        data={editor.data}
+        onClose={editor.closeEdit}
       />
     </>
   );
