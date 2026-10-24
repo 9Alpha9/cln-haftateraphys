@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 
 function getGreeting(date: Date): string {
   const hour = date.getHours();
+  if (hour < 5) return 'Selamat Malam';
   if (hour < 11) return 'Selamat Pagi';
   if (hour < 15) return 'Selamat Siang';
   if (hour < 18) return 'Selamat Sore';

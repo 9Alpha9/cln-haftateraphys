@@ -111,35 +111,37 @@ export default async function AppointmentsPage({
         ]}
         icon={<CalendarDays className="h-6 w-6 text-[var(--hafta-ylw-100)]" />}
         action={
-          <div className="flex flex-wrap items-center gap-3">
-            {scheduleOverview.length > 0 ? (
-              <TherapistSchedulePanel
-                therapists={scheduleOverview}
-                label={role === 'THERAPIST' ? 'Jadwal Kerja Saya' : 'Jadwal Kerja Terapis'}
-              />
-            ) : null}
+          <div className="flex flex-col gap-3 w-full">
+            <div className="flex items-center justify-between gap-2 w-full">
+              {scheduleOverview.length > 0 ? (
+                <TherapistSchedulePanel
+                  therapists={scheduleOverview}
+                  label={role === 'THERAPIST' ? 'Jadwal Kerja Saya' : 'Jadwal Kerja Terapis'}
+                />
+              ) : null}
 
-            {/* View Switcher */}
-            <div className="flex items-center rounded-xl border border-stone-200 bg-white p-1 shadow-2xs">
-              <Link
+              {/* View Switcher */}
+              <div className="flex items-center rounded-xl border border-stone-200 bg-white p-1 shadow-2xs">
+            <Link
                 href="/dashboard/appointments"
-                className="flex items-center gap-1.5 rounded-lg bg-[var(--hafta-ylw-100)] px-3 py-1.5 text-xs font-bold text-[#181700] shadow-2xs"
+                className="flex h-10 items-center gap-1.5 rounded-lg bg-[var(--hafta-ylw-100)] px-3.5 text-xs font-bold text-[#181700] shadow-2xs whitespace-nowrap"
               >
                 <LayoutList className="h-3.5 w-3.5" /> List
               </Link>
               <Link
                 href="/dashboard/calendar"
-                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-stone-500 hover:text-[#181700]"
+                className="flex h-10 items-center gap-1.5 rounded-lg px-3.5 text-xs font-semibold text-stone-500 hover:text-[#181700] whitespace-nowrap"
               >
                 <CalendarDays className="h-3.5 w-3.5" /> Kalender
               </Link>
+              </div>
             </div>
 
             {canCreate ? (
               <NewAppointmentButton
                 patientOptions={formOptions.patientOptions}
                 therapistOptions={formOptions.therapistOptions}
-                className="inline-flex items-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-4 py-2 text-xs font-bold text-[#181700] shadow-2xs transition-all hover:bg-[var(--hafta-ylw-200)]"
+                className="w-full justify-center inline-flex items-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-4 py-2 h-10 text-xs font-bold text-[#181700] shadow-2xs transition-all hover:bg-[var(--hafta-ylw-200)] whitespace-nowrap"
               >
                 <Plus className="h-4 w-4" /> Buat Appointment
               </NewAppointmentButton>
@@ -153,7 +155,7 @@ export default async function AppointmentsPage({
       {/* ── FILTER & CONTROL TOOLBAR ── */}
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
         {/* Status Filter Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
+        <div className="grid grid-cols-2 gap-2 w-full sm:flex sm:flex-wrap items-center gap-1.5">
           <Link
             href="/dashboard/appointments?status=ALL"
             className={cn(
@@ -221,7 +223,7 @@ export default async function AppointmentsPage({
         </Card>
       ) : (
         <>
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
             {filteredItems.map((appointment) => (
               <AppointmentCard key={appointment.id} appointment={appointment} role={role} />
             ))}

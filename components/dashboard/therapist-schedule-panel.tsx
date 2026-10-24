@@ -28,7 +28,7 @@ export function TherapistSchedulePanel({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 text-xs font-semibold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-50)]"
+        className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-3.5 text-xs font-semibold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-50)] whitespace-nowrap"
       >
         <CalendarClock className="h-4 w-4" />
         {label}
@@ -44,24 +44,15 @@ export function TherapistSchedulePanel({
           onlyTherapist ? onlyTherapist.therapistName : 'Atur jam kerja mingguan dan blokir tanggal'
         }
         footer={
-          <div className="flex items-center justify-between gap-3">
-            <button
-              type="submit"
-              form={formId}
-              disabled={isSaving}
-              className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-              Simpan Jam Kerja
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="h-9 cursor-pointer rounded-full px-3.5 text-xs font-semibold text-stone-500 transition-colors hover:text-[#181700]"
-            >
-              Tutup
-            </button>
-          </div>
+          <button
+            type="submit"
+            form={formId}
+            disabled={isSaving}
+            className="inline-flex w-full sm:w-auto h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-6 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Simpan Jam Kerja
+          </button>
         }
       >
         {onlyTherapist ? (

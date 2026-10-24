@@ -9,9 +9,10 @@ import {
   FileText,
   ChevronRight,
   Stethoscope,
+  MoreVertical,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
-import { MedicalRecordActions } from '@/components/dashboard/medical-record-actions';
+import { MedicalRecordPrintButton, MedicalRecordDownloadButton } from '@/components/dashboard/medical-record-actions';
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
 import { cn } from '@/lib/utils';
@@ -21,11 +22,6 @@ interface ProgressManagementViewProps {
   canEdit: boolean;
   patientOptions: { id: string; label: string }[];
 }
-
-const ACTION_BUTTON =
-  'h-9 px-3.5 rounded-full text-xs font-semibold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-200 shrink-0';
-const ACTION_SECONDARY =
-  'bg-white hover:bg-[var(--hafta-ylw-100)] text-[#181700] border border-stone-200/90 hover:border-[var(--hafta-ylw-200)]';
 
 function getScoreColor(type: 'pain' | 'rom' | 'strength' | 'function', value: number) {
   if (type === 'pain') {
@@ -72,87 +68,96 @@ export function ProgressManagementView({
 
   return (
     <div className="space-y-6">
-      {/* ── 1. REAL-TIME FILTER BAR (TANPA TOMBOL MANUAL) ── */}
-      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        {/* Status & Visibility Tabs */}
-        <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
-          <button
-            type="button"
-            onClick={() => setStatusFilter('ALL')}
-            className={cn(
-              'rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap',
-              statusFilter === 'ALL'
-                ? 'bg-[#181700] text-white shadow-2xs'
-                : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300'
-            )}
-          >
-            Semua ({initialRecords.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter('FINALIZED')}
-            className={cn(
-              'rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap',
-              statusFilter === 'FINALIZED'
-                ? 'bg-[#181700] text-white shadow-2xs'
-                : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300'
-            )}
-          >
-            Final Terkunci ({initialRecords.filter((r) => r.status === 'FINALIZED').length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter('DRAFT')}
-            className={cn(
-              'rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap',
-              statusFilter === 'DRAFT'
-                ? 'bg-[#181700] text-white shadow-2xs'
-                : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300'
-            )}
-          >
-            Draft ({initialRecords.filter((r) => r.status === 'DRAFT').length})
-          </button>
-
-          {/* Visibility Dropdown Pills */}
-          <div className="ml-1 pl-1 border-l border-stone-200 flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setVisibilityFilter(visibilityFilter === 'VISIBLE' ? 'ALL' : 'VISIBLE')}
-              className={cn(
-                'inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer',
-                visibilityFilter === 'VISIBLE'
-                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                  : 'bg-white border border-stone-200 text-stone-500 hover:border-stone-300'
-              )}
-            >
-              <Eye className="h-3.5 w-3.5" />
-              <span>Pasien</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setVisibilityFilter(visibilityFilter === 'INTERNAL' ? 'ALL' : 'INTERNAL')}
-              className={cn(
-                'inline-flex items-center gap-1 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer',
-                visibilityFilter === 'INTERNAL'
-                  ? 'bg-amber-100 text-amber-800 border border-amber-300'
-                  : 'bg-white border border-stone-200 text-stone-500 hover:border-stone-300'
-              )}
-            >
-              <EyeOff className="h-3.5 w-3.5" />
-              <span>Internal</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Real-Time Search Bar */}
-        <div className="relative w-full sm:w-72">
+    <div className="space-y-3">
+        {/* Baris 1: Search */}
+        <div className="relative w-full">
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Cari pasien, diagnosis, atau terapis..."
-            className="h-10 w-full rounded-xl border border-stone-200/90 bg-white px-3.5 text-xs text-[#181700] placeholder:text-stone-400 outline-none transition-all focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 shadow-2xs"
+            className="h-11 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-4 text-xs text-[#181700] placeholder:text-stone-400 outline-none transition-all focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 shadow-2xs"
           />
+          <svg
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none"
+            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          >
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+          </svg>
+        </div>
+
+        {/* Baris 2: Segmented Status Track + Visibility Switcher */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+          {/* Segmented Pill Track Status */}
+          <div className="grid grid-cols-3 sm:inline-flex items-center gap-0 bg-stone-100/90 p-1 rounded-full w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => setStatusFilter('ALL')}
+              className={cn(
+                'rounded-full py-2 px-3.5 text-xs text-center transition-all cursor-pointer',
+                statusFilter === 'ALL'
+                  ? 'bg-[#181700] text-white font-bold shadow-2xs'
+                  : 'text-stone-600 hover:text-[#181700] font-medium'
+              )}
+            >
+              Semua ({initialRecords.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter('FINALIZED')}
+              className={cn(
+                'rounded-full py-2 px-3.5 text-xs text-center transition-all cursor-pointer',
+                statusFilter === 'FINALIZED'
+                  ? 'bg-[#181700] text-white font-bold shadow-2xs'
+                  : 'text-stone-600 hover:text-[#181700] font-medium'
+              )}
+            >
+              Final ({initialRecords.filter((r) => r.status === 'FINALIZED').length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setStatusFilter('DRAFT')}
+              className={cn(
+                'rounded-full py-2 px-3.5 text-xs text-center transition-all cursor-pointer',
+                statusFilter === 'DRAFT'
+                  ? 'bg-[#181700] text-white font-bold shadow-2xs'
+                  : 'text-stone-600 hover:text-[#181700] font-medium'
+              )}
+            >
+              Draft ({initialRecords.filter((r) => r.status === 'DRAFT').length})
+            </button>
+          </div>
+
+          {/* Visibility Switcher */}
+          <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={() => setVisibilityFilter(visibilityFilter === 'VISIBLE' ? 'ALL' : 'VISIBLE')}
+              className={cn(
+                'h-9 rounded-full border px-4 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all',
+                visibilityFilter === 'VISIBLE'
+                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                  : 'bg-white border-stone-200/90 text-stone-500 hover:border-stone-300'
+              )}
+            >
+              <Eye className="h-3.5 w-3.5" />
+              <span>Akses Pasien</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setVisibilityFilter(visibilityFilter === 'INTERNAL' ? 'ALL' : 'INTERNAL')}
+              className={cn(
+                'h-9 rounded-full border px-4 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all',
+                visibilityFilter === 'INTERNAL'
+                  ? 'bg-amber-100 text-amber-800 border-amber-300'
+                  : 'bg-white border-stone-200/90 text-stone-500 hover:border-stone-300'
+              )}
+            >
+              <EyeOff className="h-3.5 w-3.5" />
+              <span>Internal Terapis</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -164,7 +169,7 @@ export function ProgressManagementView({
           <p className="mt-1 text-xs text-stone-500">Silakan ubah filter pencarian atau buat evaluasi baru.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
           {filtered.map((record) => {
             const isFinal = record.status === 'FINALIZED';
             const dateStr = new Date(record.recordedAt).toLocaleDateString('id-ID', {
@@ -296,32 +301,52 @@ export function ProgressManagementView({
                   </div>
                 </div>
 
-                {/* Footer Baris Aksi */}
-                <div
-                  className="mt-4 flex items-center justify-between border-t border-stone-100 pt-3"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    type="button"
-                    onClick={() => setSelectedRecord(record)}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-[#181700] hover:underline cursor-pointer"
-                  >
-                    <span>Detail SOAP</span>
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </button>
+                {/* Footer Baris Aksi — Mobile-first: Desktop (>3 actions) vs Mobile Compact */}
+                <div className="mt-4 flex flex-col gap-2.5 border-t border-stone-100 pt-4" onClick={(e) => e.stopPropagation()}>
+                  {/* Desktop/Tablet (≥640px): Baris 1 - Tombol Utama, Baris 2 - Grid 3 kolom */}
+                  <div className="hidden sm:flex sm:flex-col gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedRecord(record)}
+                      className="w-full h-10 px-4 rounded-full bg-[#181700] hover:bg-[var(--hafta-ylw-100)] text-white hover:text-[#181700] font-bold text-xs flex items-center justify-between whitespace-nowrap cursor-pointer transition-colors"
+                    >
+                      <span>Lihat Detail SOAP</span>
+                      <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+                    </button>
 
-                  <div className="flex items-center gap-1.5">
-                    {canEdit && (
-                      <button
-                        type="button"
-                        onClick={() => setEditingRecord(record)}
-                        className={cn(ACTION_BUTTON, ACTION_SECONDARY)}
-                      >
-                        <Pencil className="h-3 w-3" />
-                        <span>Edit</span>
-                      </button>
-                    )}
-                    <MedicalRecordActions record={record as any} />
+                    <div className="grid grid-cols-3 gap-2 w-full">
+                      {canEdit && (
+                        <button
+                          type="button"
+                          onClick={() => setEditingRecord(record)}
+                          className="h-10 px-2 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer transition-all bg-white hover:bg-[var(--hafta-ylw-100)] text-[#181700] border border-stone-200/90 hover:border-[var(--hafta-ylw-200)]"
+                        >
+                          <Pencil className="h-3 w-3" />
+                          <span>Edit</span>
+                        </button>
+                      )}
+                      <MedicalRecordPrintButton record={record as any} />
+                      <MedicalRecordDownloadButton record={record as any} />
+                    </div>
+                  </div>
+
+                  {/* Mobile (<640px): 1 Baris Kompak - Tombol Utama (Lihat Detail SOAP) + Action Dot 3 (⋮) */}
+                  <div className="sm:hidden flex items-center gap-2 w-full">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedRecord(record)}
+                      className="flex-1 h-10 rounded-full font-bold text-xs flex items-center justify-between whitespace-nowrap cursor-pointer transition-colors bg-[#181700] hover:bg-[var(--hafta-ylw-100)] text-white hover:text-[#181700] px-4"
+                    >
+                      <span>Lihat Detail SOAP</span>
+                      <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+                    </button>
+                    <button
+                      type="button"
+                      className="shrink-0 w-10 h-10 aspect-square rounded-full bg-white hover:bg-stone-100 border border-stone-200/90 text-[#181700] flex items-center justify-center cursor-pointer"
+                      onClick={() => setSelectedActionMenu(record)}
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               </article>
@@ -393,31 +418,25 @@ export function ProgressManagementView({
         }
         footer={
           selectedRecord ? (
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center justify-between gap-3 pt-4">
+              {canEdit && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const record = selectedRecord;
+                    setSelectedRecord(null);
+                    setEditingRecord(record);
+                  }}
+                  className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  <span>Edit</span>
+                </button>
+              )}
               <div className="flex items-center gap-2">
-                {canEdit && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const record = selectedRecord;
-                      setSelectedRecord(null);
-                      setEditingRecord(record);
-                    }}
-                    className={cn(ACTION_BUTTON, ACTION_SECONDARY)}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    <span>Edit</span>
-                  </button>
-                )}
-                <MedicalRecordActions record={selectedRecord as any} />
+                <MedicalRecordPrintButton record={selectedRecord as any} />
+                <MedicalRecordDownloadButton record={selectedRecord as any} />
               </div>
-              <button
-                type="button"
-                onClick={() => setSelectedRecord(null)}
-                className="rounded-xl px-4 py-2 text-xs font-semibold text-stone-500 hover:text-[#181700]"
-              >
-                Tutup
-              </button>
             </div>
           ) : null
         }

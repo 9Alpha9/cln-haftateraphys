@@ -93,7 +93,7 @@ export function AppointmentEditForm({
         <div className="space-y-2">
           <Label>Pasien</Label>
           <input type="hidden" name="patientId" value={appointment.patientId} />
-          <div className="flex h-10 w-full items-center rounded-lg border border-input bg-surface px-3 text-sm text-muted-foreground">
+          <div className="flex h-10 w-full items-center rounded-xl border border-stone-300 bg-stone-100 px-3 text-sm text-stone-500">
             {appointment.patientName}
           </div>
         </div>
@@ -105,7 +105,7 @@ export function AppointmentEditForm({
             required
             defaultValue={appointment.therapistId}
             disabled={pending || therapistOptions.length === 0}
-            className="flex h-10 w-full cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap rounded-lg border border-input bg-background py-2 pl-3 pr-10 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex h-10 w-full cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="">Pilih terapis</option>
             {therapistOptions.map((therapist) => (
@@ -133,7 +133,7 @@ export function AppointmentEditForm({
             required
             defaultValue={startTimeValue}
             disabled={pending}
-            className="flex h-10 w-full cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap rounded-lg border border-input bg-background py-2 pl-3 pr-10 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex h-10 w-full cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="">Pilih jam</option>
             {(['pagi', 'siang', 'sore', 'malam'] as const).map((period) => (
@@ -155,7 +155,7 @@ export function AppointmentEditForm({
             defaultValue={String(appointment.durationMinutes)}
             required
             disabled={pending}
-            className="flex h-10 w-full cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap rounded-lg border border-input bg-background py-2 pl-3 pr-10 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex h-10 w-full cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="">Pilih durasi</option>
             {[15, 30, 45, 60, 90, 120].map((min) => (
@@ -172,7 +172,7 @@ export function AppointmentEditForm({
             name="type"
             defaultValue={appointment.type}
             disabled={pending}
-            className="flex h-10 w-full cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap rounded-lg border border-input bg-background py-2 pl-3 pr-10 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex h-10 w-full cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="INITIAL_ASSESSMENT">Assessment Awal</option>
             <option value="THERAPY_SESSION">Sesi Terapi</option>
@@ -188,7 +188,7 @@ export function AppointmentEditForm({
           name="administrativeNote"
           disabled={pending}
           defaultValue={appointment.administrativeNote ?? ''}
-          className="flex min-h-28 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="flex min-h-28 w-full resize-none rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm leading-relaxed text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30"
         />
       </div>
     </form>

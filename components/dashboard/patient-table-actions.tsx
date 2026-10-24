@@ -3,7 +3,6 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Archive, Eye } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { archivePatient } from '@/server/actions/patients';
 import { PatientDetailDrawer } from '@/components/dashboard/patients/patient-detail-drawer';
@@ -33,9 +32,14 @@ export function PatientTableActions({ patientId, canArchive }: { patientId: stri
       <PatientDetailDrawer isOpen={showDetail} onClose={() => setShowDetail(false)} patientId={patientId} />
       {canArchive ? (
         <>
-          <Button size="sm" variant="destructive" disabled={pending} onClick={() => setShowConfirm(true)}>
-            <Archive /> <span className="hidden sm:inline">Arsipkan</span>
-          </Button>
+          <button
+            type="button"
+            onClick={() => setShowConfirm(true)}
+            disabled={pending}
+            className="h-11 px-6 rounded-full bg-[var(--hafta-ylw-100)] text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Archive className="h-4 w-4" /> <span>Arsipkan</span>
+          </button>
           <ConfirmDialog
             isOpen={showConfirm}
             title="Arsipkan Pasien?"

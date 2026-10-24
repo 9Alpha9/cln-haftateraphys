@@ -37,6 +37,7 @@ export function AdminDashboardShell({
   avatarUrl,
   unreadCount = 0,
   recentNotifications = [],
+  intakePendingCount = 0,
 }: {
   children: React.ReactNode;
   role: Role;
@@ -45,6 +46,7 @@ export function AdminDashboardShell({
   avatarUrl?: string | null;
   unreadCount?: number;
   recentNotifications?: NotificationView[];
+  intakePendingCount?: number;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -154,15 +156,17 @@ export function AdminDashboardShell({
             </Link>
           )}
 
-          {/* Mobile close button */}
-          <button
-            type="button"
-            aria-label="Tutup menu"
-            onClick={() => setSidebarOpen(false)}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-stone-400 transition-colors hover:bg-stone-800 hover:text-white lg:hidden cursor-pointer"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          {/* Mobile close button — only shown when sidebar is open (mobile) */}
+          {!collapsed && (
+            <button
+              type="button"
+              aria-label="Tutup menu"
+              onClick={() => setSidebarOpen(false)}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-stone-400 transition-colors hover:bg-stone-800 hover:text-white lg:hidden cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         {/* ── Navigation List (WeStud Tree-Line & Container Aksen) ── */}
@@ -217,7 +221,7 @@ export function AdminDashboardShell({
                                 )}
                               />
                               {/* Indicator dot on collapsed icon rail */}
-                              {collapsed && isIntakeMenu && (
+                              {collapsed && isIntakeMenu && intakePendingCount > 0 && (
                                 <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[var(--hafta-ylw-100)] shadow-2xs" />
                               )}
                             </div>
@@ -227,11 +231,11 @@ export function AdminDashboardShell({
                             )}
                           </div>
 
-                          {/* WeStud Yellow Pill Badge (Right-aligned) */}
-                          {!collapsed && isIntakeMenu && (
+                           {/* WeStud Yellow Pill Badge (Right-aligned) */}
+                          {!collapsed && isIntakeMenu && intakePendingCount > 0 && (
                             <div>
                               <span className="rounded-md bg-[var(--hafta-ylw-100)] px-1.5 py-0.5 font-mono text-[10px] font-bold text-[#181700] shadow-2xs">
-                                2
+                                {intakePendingCount > 99 ? '99+' : intakePendingCount}
                               </span>
                             </div>
                           )}

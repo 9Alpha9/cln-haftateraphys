@@ -16,6 +16,7 @@ export function DashboardShellRouter({
   avatarUrl,
   unreadCount,
   recentNotifications,
+  intakePendingCount = 0,
 }: {
   children: React.ReactNode;
   role: Role;
@@ -24,13 +25,14 @@ export function DashboardShellRouter({
   avatarUrl?: string | null;
   unreadCount?: number;
   recentNotifications?: NotificationView[];
+  intakePendingCount?: number;
 }) {
   const pathname = usePathname();
   if (pathname.endsWith('/print')) return <>{children}</>;
 
   if (ADMIN_ROLES.includes(role)) {
     return (
-      <AdminDashboardShell role={role} userName={userName} userEmail={userEmail} avatarUrl={avatarUrl} unreadCount={unreadCount} recentNotifications={recentNotifications}>
+      <AdminDashboardShell role={role} userName={userName} userEmail={userEmail} avatarUrl={avatarUrl} unreadCount={unreadCount} recentNotifications={recentNotifications} intakePendingCount={intakePendingCount}>
         {children}
       </AdminDashboardShell>
     );

@@ -5,6 +5,20 @@ import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission } from '@/lib/permissions';
 import { PERMISSIONS } from '@/lib/permissions/constants';
 
+/**
+ * Lightweight count query for the sidebar badge.
+ * Returns the number of intakes with status SUBMITTED or UNDER_REVIEW.
+ * Caller is responsible for ensuring the current session has the right role.
+ */
+export async function getPendingIntakeCount(): Promise<number> {
+  const db = getDb();
+  const [row] = await db
+    .select({ value: count() })
+    .from(patientIntakes)
+    .where(inArray(patientIntakes.status, ['SUBMITTED', 'UNDER_REVIEW']));
+  return row?.value ?? 0;
+}
+
 export async function getReviewableIntakes(page = 1, pageSize = 10, search = '', status = '') {
   const { role } = await requireSession({ redirectToLogin: true });
   if (!hasPermission(role, PERMISSIONS.INTAKE_READ) || role === 'USER') throw new ForbiddenError();

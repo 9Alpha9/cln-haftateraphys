@@ -126,19 +126,17 @@ export function GlobalSlideOver({
       {isOpen && (
         <div role="dialog" aria-modal="true">
           {/* ── 1. STATIC BACKDROP OVERLAY (LOCKED SCREEN BLUR) ── */}
-          {isTopmost ? (
-            <motion.div
-              key="slide-over-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.22 }}
-              onClick={onClose}
-              aria-hidden="true"
-              className="fixed inset-0 bg-[#181700]/40 backdrop-blur-[2px]"
-              style={{ zIndex }}
-            />
-          ) : null}
+          <motion.div
+            key="global-slide-over-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: 'easeOut' }}
+            onClick={onClose}
+            aria-hidden="true"
+            className="fixed inset-0 bg-[#181700]/45 backdrop-blur-[2px]"
+            style={{ zIndex }}
+          />
 
           {/* ── 2. SLIDE PANEL (SEJAJAR PENUH SISI KANAN LAYAR) ── */}
           <motion.aside
@@ -148,7 +146,7 @@ export function GlobalSlideOver({
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 280, mass: 0.8 }}
             className={cn(
-              'fixed inset-y-0 right-0 flex h-dvh w-full flex-col rounded-none border-l border-stone-200/90 bg-white shadow-[-16px_0_48px_rgba(24,23,0,0.14)]',
+              'fixed inset-y-0 right-0 flex h-dvh w-full flex-col rounded-none border-l border-stone-200/90 bg-white shadow-[-16px_0_48px_rgba(24,23,0,0.14)] will-change-transform',
               sizeWidthMap[size],
               className
             )}
@@ -202,7 +200,7 @@ export function GlobalSlideOver({
 
             {/* ── 2C. STICKY ACTION FOOTER ── */}
             {footer && (
-              <footer className="sticky bottom-0 z-10 shrink-0 border-t border-stone-200/80 bg-[#FEFEF6] px-5 py-3.5 sm:px-6 sm:py-4">
+              <footer className="sticky bottom-0 z-10 shrink-0 border-t border-stone-200/80 bg-[#FEFEF6] px-6 py-4">
                 {footer}
               </footer>
             )}

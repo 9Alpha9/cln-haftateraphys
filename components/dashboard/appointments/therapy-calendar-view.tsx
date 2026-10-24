@@ -525,30 +525,21 @@ export function TherapyCalendarView({
         }
         footer={
           selectedAppointment ? (
-            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-wrap items-center gap-2">
-                {canComplete &&
-                (selectedAppointment.status === 'SCHEDULED' ||
-                  selectedAppointment.status === 'CONFIRMED') ? (
-                  <CompleteSessionButton
-                    appointmentId={selectedAppointment.id}
-                    className="inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-ylw-100)] px-3.5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)]"
-                  />
-                ) : null}
-                <Link
-                  href={`/dashboard/appointments/${selectedAppointment.id}`}
-                  className="inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-stone-200 bg-white px-3.5 text-xs font-bold text-[#181700] transition-colors hover:bg-stone-50"
-                >
-                  Buka Manajemen Sesi
-                </Link>
-              </div>
-              <button
-                type="button"
-                onClick={() => setSelectedAppointment(null)}
-                className="h-9 cursor-pointer rounded-full px-3.5 text-xs font-semibold text-stone-500 transition-colors hover:text-[#181700]"
+            <div className="flex items-center justify-between gap-3">
+              {canComplete &&
+              (selectedAppointment.status === 'SCHEDULED' ||
+                selectedAppointment.status === 'CONFIRMED') ? (
+                <CompleteSessionButton
+                  appointmentId={selectedAppointment.id}
+                  className="h-10 sm:h-11 px-5 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] text-[#181700] font-bold text-xs sm:text-[13px] transition-colors hover:bg-[var(--hafta-ylw-200)] whitespace-nowrap"
+                />
+              ) : null}
+              <Link
+                href={`/dashboard/appointments/${selectedAppointment.id}`}
+                className="h-10 sm:h-11 px-5 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-200 bg-white text-[#181700] font-bold text-xs sm:text-[13px] transition-colors hover:bg-stone-50 whitespace-nowrap"
               >
-                Tutup
-              </button>
+                Buka Manajemen Sesi
+              </Link>
             </div>
           ) : null
         }

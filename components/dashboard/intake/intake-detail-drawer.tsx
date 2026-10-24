@@ -191,25 +191,16 @@ export function IntakeDetailDrawer({
       }
       size="lg"
       footer={
-        <div className="flex flex-col-reverse gap-2.5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
-            {patientId && (
-              <Link
-                href={`/dashboard/patients/${patientId}`}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200 bg-white px-3.5 py-2 text-xs font-semibold text-[#181700] hover:bg-stone-50 transition-colors shadow-2xs"
-              >
-                <span>Lihat Profil Pasien</span>
-                <ExternalLink className="h-3 w-3" />
-              </Link>
-            )}
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-xl px-4 py-2 text-xs font-semibold text-stone-500 hover:text-[#181700] transition-colors"
+        <div className="flex items-center justify-between gap-3">
+          {patientId && (
+            <Link
+              href={`/dashboard/patients/${patientId}`}
+              className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-5 h-10 sm:h-11 text-xs font-bold text-[#181700] hover:bg-stone-50 transition-colors shadow-2xs whitespace-nowrap"
             >
-              Tutup
-            </button>
-          </div>
+              <span>Lihat Profil Pasien</span>
+              <ExternalLink className="h-3 w-3" />
+            </Link>
+          )}
 
           {/* Action buttons based on status */}
           {canReview && data && (
@@ -219,7 +210,7 @@ export function IntakeDetailDrawer({
                   type="button"
                   disabled={isActionPending}
                   onClick={() => handleAction('start-review')}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-[var(--hafta-ylw-100)] px-4 py-2 text-xs font-bold text-[#181700] shadow-2xs hover:bg-[var(--hafta-ylw-200)] transition-all cursor-pointer disabled:opacity-60"
+                  className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
                 >
                   {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   <span>Mulai Tinjau Form</span>
@@ -232,7 +223,7 @@ export function IntakeDetailDrawer({
                     type="button"
                     disabled={isActionPending}
                     onClick={() => setShowRevisionInput((prev) => !prev)}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-stone-300 bg-white px-3.5 py-2 text-xs font-bold text-stone-700 hover:bg-stone-50 transition-all cursor-pointer disabled:opacity-60"
+                    className="h-10 sm:h-11 px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-bold text-xs sm:text-[13px] inline-flex items-center justify-center cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
                   >
                     <span>Minta Perbaikan</span>
                   </button>
@@ -240,7 +231,7 @@ export function IntakeDetailDrawer({
                     type="button"
                     disabled={isActionPending}
                     onClick={() => handleAction('accept')}
-                    className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-2xs hover:bg-emerald-700 transition-all cursor-pointer disabled:opacity-60"
+                    className="h-10 sm:h-11 px-5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
                   >
                     {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                     <span>Terima / ACC Form</span>

@@ -196,22 +196,13 @@ export function NotificationBell({
           </div>
         }
         footer={
-          <div className="flex items-center justify-between">
-            <Link
-              href="/dashboard/notifications"
-              onClick={() => setOpen(false)}
-              className="text-xs font-bold text-[#181700] hover:underline"
-            >
-              Buka Halaman Notifikasi Lengkap &rarr;
-            </Link>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="rounded-xl px-3 py-1.5 text-xs font-semibold text-stone-500 hover:text-[#181700]"
-            >
-              Tutup
-            </button>
-          </div>
+          <Link
+            href="/dashboard/notifications"
+            onClick={() => setOpen(false)}
+            className="text-xs font-bold text-[#181700] hover:underline"
+          >
+            Buka Halaman Notifikasi Lengkap &rarr;
+          </Link>
         }
       >
         {/* Notification Items List */}

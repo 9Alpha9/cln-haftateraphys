@@ -138,15 +138,6 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
                   Setujui &amp; Buat Jadwal
                 </button>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  if (!isPending) setSelected(null);
-                }}
-                className="h-9 cursor-pointer rounded-full px-3.5 text-xs font-semibold text-stone-500 transition-colors hover:text-[#181700]"
-              >
-                Tutup
-              </button>
             </div>
           ) : undefined
         }
