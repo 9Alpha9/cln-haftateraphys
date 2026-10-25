@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { PasswordField } from '@/components/auth/password-field';
@@ -20,9 +20,12 @@ const REMEMBER_EMAIL_KEY = 'hafta_remembered_email';
 const REMEMBER_ME_KEY = 'hafta_remember_me';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function LoginForm() {
+type LoginFormProps = {
+  reason?: string | null;
+};
+
+export function LoginForm({ reason }: LoginFormProps) {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -30,8 +33,6 @@ export function LoginForm() {
     () => typeof window !== 'undefined' && Boolean(window.localStorage.getItem(REMEMBER_EMAIL_KEY)),
   );
   const [rememberDevice, setRememberDevice] = useState(false);
-
-  const reason = searchParams.get('reason');
 
   const reasonBanner =
     reason === 'idle'
