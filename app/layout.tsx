@@ -62,9 +62,9 @@ export const metadata: Metadata = {
     siteName: 'Hafta Fisioterapi',
     images: [
       {
-        url: '/images/og/og-metadata-hafta-fisioterapy.webp',
-        width: 1200,
-        height: 630,
+        url: 'https://haftafisioterapi.my.id/images/og/og-metadata-hafta-fisioterapy.webp',
+        width: 1733,
+        height: 907,
         alt: 'Hafta Fisioterapi – Klinik Fisioterapi Profesional di Kabupaten Sidoarjo',
       },
     ],
@@ -76,7 +76,9 @@ export const metadata: Metadata = {
     title: 'Hafta Fisioterapi',
     description:
       'Klinik fisioterapi profesional di Kabupaten Sidoarjo. Rehabilitasi, terapi nyeri, dan pemulihan cedera.',
-    images: ['/images/og/og-metadata-hafta-fisioterapy.webp'],
+    images: [
+      'https://haftafisioterapi.my.id/images/og/og-metadata-hafta-fisioterapy.webp',
+    ],
   },
 };
 
