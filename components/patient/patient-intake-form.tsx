@@ -287,17 +287,16 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
 
       {/* Stepper Wizard Bar */}
       {!locked ? (
-        <nav aria-label="Tahap Form Awal" className="py-2">
-          <ol className="relative flex w-full items-start">
+        <nav aria-label="Tahap Form Awal" className="py-3">
+          <ol className="relative flex w-full items-center">
             {steps.map((item, index) => {
               const isCompleted = index < step;
               const isCurrent = index === step;
               const isPassed = index <= step;
 
               return (
-                <li key={item.title} className="flex flex-1 flex-col items-center last:flex-none">
-                  {/* Row: circle + connector line */}
-                  <div className="flex w-full items-center">
+                <li key={item.title} className="flex-1 flex-col items-center relative">
+                  <div className="flex w-full items-center justify-between">
                     <button
                       type="button"
                       disabled={locked || index > step}
@@ -311,12 +310,12 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
                     >
                       {index + 1}
                     </button>
-                    {/* Connector line — only render between steps */}
+                    {/* Connector segment between steps */}
                     {index < steps.length - 1 && (
-                      <div className="relative mx-1 w-[32px] shrink-0 h-0.5 overflow-hidden rounded-full bg-stone-200">
+                      <div className="flex-1 h-0.5 overflow-hidden rounded-full bg-stone-200">
                         <div
-                          className={`absolute inset-0 bg-[var(--hafta-ylw-300)] transition-all duration-500 ease-out ${
-                            isCompleted ? 'w-full' : 'w-0'
+                          className={`h-full transition-all duration-500 ease-out ${
+                            isCompleted ? 'bg-[var(--hafta-ylw-300)]' : 'bg-stone-200'
                           }`}
                         />
                       </div>

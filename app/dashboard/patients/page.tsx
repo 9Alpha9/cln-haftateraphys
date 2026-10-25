@@ -1,7 +1,6 @@
-import Link from 'next/link';
-import { Plus, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
+import { CreatePatientFormModal } from '@/components/dashboard/create-patient-form-modal';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
-import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Pagination,
@@ -12,12 +11,12 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PatientTableActions } from '@/components/dashboard/patient-table-actions';
+import { PatientTableClient } from '@/components/dashboard/patients/patient-table-client';
 import { PatientListFilters } from '@/components/dashboard/patient-list-filters';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS, requirePermission } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
-import { getPatientsList } from '@/server/queries/patients';
+import { getPatientsList, getUnlinkedUserPatients } from '@/server/queries/patients';
 
 function hrefFor(page: number, search: string, status: string) {
   const params = new URLSearchParams({ page: String(page) });
@@ -39,6 +38,7 @@ export default async function PatientsPage({
   const result = await getPatientsList(Number(params.page) || 1, 10, search, status);
   const canCreate = hasPermission(role, PERMISSIONS.PATIENT_CREATE);
   const canArchive = hasPermission(role, PERMISSIONS.PATIENT_ARCHIVE);
+  const unlinkedUsers = canCreate ? await getUnlinkedUserPatients() : [];
 
   return (
     <div className="space-y-6">
@@ -53,24 +53,14 @@ export default async function PatientsPage({
         action={
           canCreate ? (
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center w-full sm:w-auto">
-              <Link
-                href="/dashboard/patients/new"
-                className={cn(
-                  buttonVariants({ variant: 'outline', size: 'default' }),
-                  'w-full sm:w-auto justify-center h-10 px-5 rounded-full border border-stone-200 bg-white text-[#181700] hover:bg-stone-50 cursor-pointer'
+                <CreatePatientFormModal
+                userOptions={unlinkedUsers.map((u) => ({ id: u.id, name: u.name, email: u.email }))}
+                buttonClassName={cn(
+                  'w-full sm:w-auto justify-center h-11 px-5 rounded-full bg-[#f7f000] hover:bg-[#e6de00] text-[#181700] font-bold cursor-pointer inline-flex flex-row items-center gap-2'
                 )}
-              >
-                Hubungkan Akun
-              </Link>
-              <Link
-                href="/dashboard/users/add"
-                className={cn(
-                  buttonVariants({ size: 'default' }),
-                  'w-full sm:w-auto justify-center h-10 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold cursor-pointer'
-                )}
-              >
-                <Plus className="h-4 w-4 mr-1.5" /> Daftarkan Pasien
-              </Link>
+              />
+
+
             </div>
           ) : null
         }
@@ -98,38 +88,11 @@ export default async function PatientsPage({
                   Menampilkan {(result.currentPage - 1) * 10 + 1}–{Math.min(result.currentPage * 10, result.total)} dari{' '}
                   {result.total} pasien
                 </p>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-14">No.</TableHead>
-                      <TableHead>Nama Pasien</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="hidden sm:table-cell">Terdaftar</TableHead>
-                      <TableHead className="text-right">Aksi</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {result.items.map((patient, index) => (
-                      <TableRow key={patient.id}>
-                        <TableCell className="text-muted-foreground">
-                          {(result.currentPage - 1) * 10 + index + 1}
-                        </TableCell>
-                        <TableCell className="font-semibold text-foreground">{patient.fullName}</TableCell>
-                        <TableCell>
-                          <span className="inline-flex rounded-full bg-accent/15 px-2.5 py-1 text-xs font-semibold text-[#92400e]">
-                            {patient.caseStatus}
-                          </span>
-                        </TableCell>
-                        <TableCell className="hidden text-muted-foreground sm:table-cell">
-                          {patient.createdAt.toLocaleDateString('id-ID')}
-                        </TableCell>
-                        <TableCell>
-                          <PatientTableActions patientId={patient.id} canArchive={canArchive} />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <PatientTableClient
+                  items={result.items}
+                  currentPage={result.currentPage}
+                  canArchive={canArchive}
+                />
                 {result.totalPages > 1 ? (
                   <Pagination className="mt-6">
                     <PaginationContent>

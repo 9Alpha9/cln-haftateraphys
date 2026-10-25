@@ -61,9 +61,17 @@ function getActionDescription(action: string, targetType: string | null): string
   return 'Aktivitas terrekam';
 }
 
-export async function getRecentActivities(limit = 10): Promise<ActivityView[]> {
+export async function getRecentActivities({
+  limit = 10,
+  userId,
+}: {
+  limit?: number;
+  userId?: string;
+}): Promise<ActivityView[]> {
   const { session, role } = await requireSession({ redirectToLogin: true });
   const db = getDb();
+
+  const effectiveUserId = userId ?? session.user.id;
 
   let query = db
     .select({
@@ -76,8 +84,11 @@ export async function getRecentActivities(limit = 10): Promise<ActivityView[]> {
     .from(auditLogs)
     .leftJoin(users, eq(auditLogs.actorUserId, users.id));
 
-  // Terapis hanya melihat aktivitas klinis (jadwal, rekam medis, intake, asesmen)
-  if (role === 'THERAPIST') {
+  // Admin dan Super Admin melihat seluruh aktivitas (tanpa filter aktor)
+  if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
+    // tidak ada filter actorUserId
+  } else if (role === 'THERAPIST') {
+    // Terapis hanya melihat aktivitas klinis yang dia sendiri lakukan
     query = query.where(
       inArray(auditLogs.action, [
         'appointment.create',
@@ -102,8 +113,8 @@ export async function getRecentActivities(limit = 10): Promise<ActivityView[]> {
         'patient.program.complete',
       ])
     ) as any;
-  } else if (role !== 'SUPER_ADMIN' && role !== 'ADMIN') {
-    // Non-admin lainnya tidak boleh melihat log administrasi sistem/user/role
+  } else {
+    // Role lain (USER, dll.): hanya aktivitas non-admin yang dia sendiri lakukan
     query = query.where(
       notInArray(auditLogs.action, [
         'user.create',
@@ -115,6 +126,11 @@ export async function getRecentActivities(limit = 10): Promise<ActivityView[]> {
         'settings.update',
       ])
     ) as any;
+  }
+
+  // Filter berdasarkan user ID aktif untuk semua non-admin
+  if (role !== 'SUPER_ADMIN' && role !== 'ADMIN') {
+    query = query.where(eq(auditLogs.actorUserId, effectiveUserId)) as any;
   }
 
   const items = await query.orderBy(desc(auditLogs.createdAt)).limit(limit);

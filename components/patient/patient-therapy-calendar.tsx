@@ -487,7 +487,7 @@ export function PatientTherapyCalendar({
               if (!day) return <span key={`empty-${index}`} className="min-h-11" />;
 
               const key = dateKey(day);
-              const isPast = key < todayKey;
+               const isPast = key < todayKey;
               const holiday = holidayMap.get(key);
               const isSunday = day.getDay() === 0;
               const own = (appointmentsByDate.get(key) ?? []).filter((appointment) =>
@@ -497,6 +497,8 @@ export function PatientTherapyCalendar({
               const pendingRequests = (requestsByDate.get(key) ?? []).filter((request) => request.status === 'PENDING');
               const isSelected = selectedDate === key;
               const unavailable = isPast || isSunday || Boolean(holiday);
+              const isHoliday = Boolean(holiday);
+
 
               return (
                 <button
@@ -564,7 +566,7 @@ export function PatientTherapyCalendar({
         subtitle={detailAppointment ? formatLongDate(dateKey(detailAppointment.scheduledDate)) : undefined}
         footer={
           detailAppointment ? (
-            <div className="shrink-0 border-t border-stone-200/80 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full">
+            <div className="shrink-0 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full">
               <button
                 type="button"
                 onClick={() => {

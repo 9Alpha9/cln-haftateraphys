@@ -210,7 +210,7 @@ export function TherapyCalendarView({
 
   return (
     <>
-      <div className="flex h-[calc(100vh-190px)] min-h-[640px] flex-col overflow-hidden rounded-3xl border border-stone-200/90 bg-white shadow-2xs">
+      <div className="flex h-[calc(100vh-190px)] min-h-[640px] flex-col rounded-3xl border border-stone-200/90 bg-white shadow-2xs">
         <div className="flex shrink-0 flex-col gap-3 border-b border-stone-200/80 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-5">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-[#181700]">
@@ -419,7 +419,7 @@ export function TherapyCalendarView({
             </div>
 
             <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-              <div className="relative flex">
+              <div className="relative flex pt-2">
                 <div className="w-14 shrink-0 border-r border-stone-100">
                   {HOURS.map((hour) => (
                     <div key={hour} className="relative" style={{ height: SLOT_HEIGHT }}>

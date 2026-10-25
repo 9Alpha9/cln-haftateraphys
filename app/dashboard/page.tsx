@@ -111,7 +111,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const isTherapist = role === 'THERAPIST';
   const showCharts = role === 'SUPER_ADMIN' || role === 'ADMIN' || isTherapist;
   const stats = showCharts ? await getDashboardStats() : null;
-  const activities = await getRecentActivities(8);
+  const activities = await getRecentActivities({ limit: 8, userId: session.user.id });
   const canCreateAppt = hasPermission(role, PERMISSIONS.APPOINTMENT_CREATE);
   const canCompleteAppt = hasPermission(role, PERMISSIONS.APPOINTMENT_COMPLETE);
 

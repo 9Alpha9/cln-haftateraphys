@@ -90,7 +90,7 @@
   --destructive: var(--hafta-red-500);
   --border: #E5E7EB;
   --input: #E5E7EB;
-  --ring: var(--hafta-ylw-200);
+  --ring: #f7f000/35;
   --chart-1: var(--hafta-ylw-200);
   --chart-2: var(--hafta-ylw-50);
   --chart-3: var(--hafta-grn-500);

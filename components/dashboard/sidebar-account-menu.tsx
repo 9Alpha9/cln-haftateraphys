@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, LogOut, Settings, ShieldCheck, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { LogoutConfirmModal } from '@/components/auth/logout-confirm-modal';
 
 export function SidebarAccountMenu({
   userName,
@@ -23,6 +24,7 @@ export function SidebarAccountMenu({
   onLogout: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -110,7 +112,10 @@ export function SidebarAccountMenu({
               <motion.button
                 type="button"
                 role="menuitem"
-                onClick={() => run(onLogout)}
+                onClick={() => {
+                  setOpen(false);
+                  setLogoutModalOpen(true);
+                }}
                 className="cursor-pointer flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm text-destructive hover:bg-destructive/5"
               >
                 <LogOut className="h-4 w-4" /> Keluar
@@ -119,6 +124,12 @@ export function SidebarAccountMenu({
           </>
         )}
       </AnimatePresence>
+
+      <LogoutConfirmModal
+        isOpen={logoutModalOpen}
+        onConfirm={onLogout}
+        onCancel={() => setLogoutModalOpen(false)}
+      />
     </div>
   );
 }

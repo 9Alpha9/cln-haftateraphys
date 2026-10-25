@@ -4,7 +4,7 @@ import { and, eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { getDb } from '@/db';
-import { appointments, patients, therapyProgressRecords } from '@/db/schema';
+import { appointments, notifications, patients, therapyProgressRecords } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { createAuditLog } from '@/lib/audit';
@@ -38,6 +38,33 @@ async function assertScope(patientId: string, therapistId: string, role: string)
     .where(eq(patients.id, patientId))
     .limit(1);
   if (!patient) throw new ForbiddenError();
+}
+
+async function notifyProgress(db: any, patientId: string, therapistId: string, isFinalized: boolean, isVisibleToPatient: boolean) {
+  const [patient] = await db
+    .select({ userId: patients.userId, fullName: patients.fullName })
+    .from(patients)
+    .where(eq(patients.id, patientId))
+    .limit(1);
+
+  if (patient) {
+    if (isFinalized && isVisibleToPatient) {
+      await db.insert(notifications).values({
+        userId: patient.userId,
+        title: 'Evaluasi Rekam Medis',
+        message: 'Terapis telah memperbarui evaluasi rekam medis Anda.',
+        actionUrl: '/dashboard/progress',
+      });
+    }
+
+    // Notifikasi untuk terapis (log record)
+    await db.insert(notifications).values({
+      userId: therapistId,
+      title: isFinalized ? 'Evaluasi Difinalisasi' : 'Draft Evaluasi Disimpan',
+      message: `Berhasil mencatat evaluasi untuk ${patient.fullName}.`,
+      actionUrl: `/dashboard/patients/${patientId}`,
+    });
+  }
 }
 
 export async function saveTherapyProgress(input: unknown): Promise<SaveProgressResult> {
@@ -94,6 +121,10 @@ export async function saveTherapyProgress(input: unknown): Promise<SaveProgressR
       meta: { patientId: data.patientId, appointmentId: data.appointmentId ?? null },
       userId: session.user.id,
     });
+
+    await notifyProgress(db, data.patientId, session.user.id, false, data.patientVisible === 1);
+
+    revalidatePath('/dashboard', 'layout');
     revalidatePath('/dashboard/progress');
     return { ok: true, id: inserted.id };
   } catch (e) {
@@ -110,7 +141,13 @@ export async function finalizeTherapyProgress(progressId: string): Promise<Final
     }
     const db = getDb();
     const [record] = await db
-      .select({ id: therapyProgressRecords.id, status: therapyProgressRecords.status, therapistId: therapyProgressRecords.therapistId })
+      .select({
+        id: therapyProgressRecords.id,
+        status: therapyProgressRecords.status,
+        therapistId: therapyProgressRecords.therapistId,
+        patientId: therapyProgressRecords.patientId,
+        patientVisible: therapyProgressRecords.patientVisible,
+      })
       .from(therapyProgressRecords)
       .where(eq(therapyProgressRecords.id, progressId))
       .limit(1);
@@ -123,12 +160,16 @@ export async function finalizeTherapyProgress(progressId: string): Promise<Final
       .update(therapyProgressRecords)
       .set({ status: 'FINALIZED', finalizedAt: new Date(), finalizedBy: session.user.id, updatedAt: new Date() })
       .where(eq(therapyProgressRecords.id, progressId));
+
+    await notifyProgress(db, record.patientId, session.user.id, true, record.patientVisible === 1);
+
     await createAuditLog({
       action: 'progress.finalize',
       targetType: 'therapy_progress_record',
       targetId: progressId,
       userId: session.user.id,
     });
+    revalidatePath('/dashboard', 'layout');
     revalidatePath('/dashboard/progress');
     return { ok: true };
   } catch (e) {
@@ -198,6 +239,9 @@ export async function updateTherapyProgress(input: unknown): Promise<UpdateProgr
       userId: session.user.id,
     });
 
+    await notifyProgress(db, record.patientId, session.user.id, data.status === 'FINALIZED', data.patientVisible === 1);
+
+    revalidatePath('/dashboard', 'layout');
     revalidatePath('/dashboard/progress');
     revalidatePath(`/dashboard/patients/${record.patientId}`);
     return { ok: true };

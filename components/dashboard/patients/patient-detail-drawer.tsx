@@ -455,19 +455,25 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
               </div>
             ) : (
               <div className="space-y-3">
-                {data.sessions.map((session) => (
-                  <article key={session.id} className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-stone-200/90 bg-white p-4">
-                    <div>
-                      <p className="text-sm font-bold text-[#181700]">{formatDate(session.scheduledDate)}</p>
-                      <p className="mt-0.5 text-xs text-stone-500">
-                        {session.startTime} • {session.durationMinutes} menit • {session.therapistName ?? '-'}
-                      </p>
-                      <p className="mt-1 text-xs text-stone-600">{sessionTypeLabel(session.type)}</p>
-                    </div>
-                    <span className={cn('rounded-full border px-2.5 py-0.5 text-[10px] font-semibold', sessionStatusClass(session.status))}>
-                      {statusLabel(session.status)}
-                    </span>
-                  </article>
+                {data.sessions
+                  .slice()
+                  .sort(
+                    (a, b) =>
+                      new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime(),
+                  )
+                  .map((session, index) => (
+                    <article key={session.id} className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-stone-200/90 bg-white p-4">
+                      <div>
+                        <p className="text-sm font-bold text-[#181700]">Kunjungan Ke-{index + 1}</p>
+                        <p className="mt-0.5 text-xs text-stone-500">
+                          {formatDate(session.scheduledDate)} • {session.startTime} • {session.durationMinutes} menit • {session.therapistName ?? '-'}
+                        </p>
+                        <p className="mt-1 text-xs text-stone-600">{sessionTypeLabel(session.type)}</p>
+                      </div>
+                      <span className={cn('rounded-full border px-2.5 py-0.5 text-[10px] font-semibold', sessionStatusClass(session.status))}>
+                        {statusLabel(session.status)}
+                      </span>
+                    </article>
                 ))}
               </div>
             )}

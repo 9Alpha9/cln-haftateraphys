@@ -28,6 +28,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { SessionSecurityGuard } from '@/components/dashboard/session-security-guard';
+import { LogoutConfirmModal } from '@/components/auth/logout-confirm-modal';
 import type { Role } from '@/lib/permissions/roles';
 
 export function AdminDashboardShell({
@@ -55,6 +56,7 @@ export function AdminDashboardShell({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [updatedAvatar, setUpdatedAvatar] = useState<string | null>(null);
   const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const liveAvatar = updatedAvatar ?? avatarUrl ?? null;
 
   useEffect(() => {
@@ -76,10 +78,14 @@ export function AdminDashboardShell({
     setSidebarOpen(false);
   };
 
-  const handleLogout = async () => {
+  const performLogout = async () => {
     await signOut();
     router.push('/');
     router.refresh();
+  };
+
+  const handleLogout = () => {
+    setLogoutModalOpen(true);
   };
 
   const isActive = (href: string) => {
@@ -356,9 +362,7 @@ export function AdminDashboardShell({
                 <DropdownMenuItem onClick={() => goTo('/dashboard/settings')}>
                   Pengaturan
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => goTo('/dashboard/security')}>
-                  Keamanan
-                </DropdownMenuItem>
+
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
                   <LogOut className="h-4 w-4 mr-2" />
@@ -375,6 +379,12 @@ export function AdminDashboardShell({
         {/* Session Security Guard */}
         <SessionSecurityGuard role={role} userId={userEmail ?? 'unknown'} />
 
+        {/* Logout Confirmation Modal */}
+        <LogoutConfirmModal
+          isOpen={logoutModalOpen}
+          onConfirm={performLogout}
+          onCancel={() => setLogoutModalOpen(false)}
+        />
       </div>
     </div>
   );
