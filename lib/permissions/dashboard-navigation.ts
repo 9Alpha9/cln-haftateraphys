@@ -109,7 +109,6 @@ const patientNavigation: DashboardNavGroup[] = [
       { label: 'Data Saya', href: '/dashboard/profile', icon: Users },
       { label: 'Form Awal', href: '/dashboard/intake', icon: ClipboardList },
       { label: 'Riwayat', href: '/dashboard/history', icon: FileText },
-      { label: 'Keamanan', href: '/dashboard/security', icon: ShieldCheck },
     ],
   },
 ];
