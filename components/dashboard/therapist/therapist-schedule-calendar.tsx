@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  Eye,
   FileText,
   Filter,
   LayoutGrid,
@@ -15,6 +16,7 @@ import {
   Pencil,
   Phone,
   Plus,
+  Printer,
   X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -276,7 +278,7 @@ export function TherapistScheduleCalendar({
                   className="fixed inset-0 z-10 cursor-default"
                   onClick={() => setFilterOpen(false)}
                 />
-                <div className="absolute right-0 z-20 mt-2 w-40 rounded-xl border border-stone-200 bg-white p-1.5 shadow-lg">
+                <div className="absolute right-0 z-10 mt-2 w-40 rounded-xl border border-stone-200 bg-white p-1.5 shadow-lg">
                   {statusOptions.map((option) => (
                     <button
                       key={option.value}
@@ -548,7 +550,7 @@ export function TherapistScheduleCalendar({
                               className="fixed inset-0 z-10 cursor-default"
                               onClick={() => setMenuOpenId(null)}
                             />
-                            <div className="absolute bottom-full right-0 z-30 mb-2 w-56 origin-bottom-right rounded-2xl border border-stone-200 bg-white p-2 shadow-xl">
+                            <div className="absolute bottom-full right-0 z-10 mb-2 w-56 origin-bottom-right rounded-2xl border border-stone-200 bg-white p-2 shadow-xl">
                               <button
                                 type="button"
                                 onClick={() => {
@@ -557,6 +559,7 @@ export function TherapistScheduleCalendar({
                                 }}
                                 className="flex w-full cursor-pointer items-center rounded-full px-3 py-2 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50"
                               >
+                                <Eye className="h-3.5 w-3.5 mr-2 shrink-0" />
                                 Lihat Detail
                               </button>
                               <button
@@ -567,6 +570,7 @@ export function TherapistScheduleCalendar({
                                 }}
                                 className="flex w-full cursor-pointer items-center rounded-full px-3 py-2 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50"
                               >
+                                <FileText className="h-3.5 w-3.5 mr-2 shrink-0" />
                                 Evaluasi RM
                               </button>
                               <button
@@ -577,6 +581,7 @@ export function TherapistScheduleCalendar({
                                 }}
                                 className="flex w-full cursor-pointer items-center rounded-full px-3 py-2 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50"
                               >
+                                <Clock className="h-3.5 w-3.5 mr-2 shrink-0" />
                                 Ubah Jadwal Terapi
                               </button>
                             </div>

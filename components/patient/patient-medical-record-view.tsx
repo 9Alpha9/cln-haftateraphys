@@ -123,6 +123,17 @@ export function PatientMedicalRecordView({
   );
   const firstRecord = records[records.length - 1] ?? null;
   const visibleVisits = showAllVisits ? records : records.slice(0, 5);
+  const chronologicalRecords = useMemo(
+    () =>
+      [...records].sort(
+        (a, b) => new Date(a.recordedAt).getTime() - new Date(b.recordedAt).getTime(),
+      ),
+    [records],
+  );
+  const visitNumberById = useMemo(
+    () => new Map(chronologicalRecords.map((record, index) => [record.id, index + 1])),
+    [chronologicalRecords],
+  );
   const age = calculateAge(patient?.dateOfBirth ?? null);
   const averageProgress = records.length
     ? Math.round(
@@ -235,7 +246,7 @@ export function PatientMedicalRecordView({
             </section>
           ) : activeTab === 'medis' && selectedRecord ? (
             <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
-              <header className="flex flex-col gap-4 border-b border-stone-200 pb-5 sm:flex-row sm:items-start sm:justify-between">
+              <header className="flex items-center justify-between gap-4 border-b border-stone-200 pb-5">
                 <div className="flex items-center gap-3.5">
                   <DateBadge date={selectedRecord.recordedAt} />
                   <div>
@@ -245,7 +256,9 @@ export function PatientMedicalRecordView({
                     </p>
                   </div>
                 </div>
-                <MedicalRecordActions record={selectedRecord} />
+                <div className="flex shrink-0">
+                  <MedicalRecordActions record={selectedRecord} />
+                </div>
               </header>
 
               <div className="py-5">
@@ -358,7 +371,7 @@ export function PatientMedicalRecordView({
                   >
                     <DateBadge date={record.recordedAt} />
                     <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-bold text-[#181700]">Sesi Terapi</span>
+                      <span className="block text-sm font-bold text-[#181700]">Kunjungan Ke-{visitNumberById.get(record.id) ?? 0}</span>
                       <span className="mt-0.5 block truncate text-xs text-stone-500">
                         {record.therapistName ?? 'Fisioterapis Hafta'} · {formatShortDate(record.recordedAt)}
                       </span>
@@ -392,7 +405,7 @@ export function PatientMedicalRecordView({
                     <div className="flex items-center gap-3">
                       <DateBadge date={record.recordedAt} />
                       <div>
-                        <p className="text-sm font-bold text-[#181700]">Evaluasi {formatShortDate(record.recordedAt)}</p>
+                        <p className="text-sm font-bold text-[#181700]">Evaluasi Kunjungan Ke-{visitNumberById.get(record.id) ?? 0}</p>
                         <p className="text-xs text-stone-500">{record.therapistName ?? 'Fisioterapis Hafta'}</p>
                       </div>
                     </div>
@@ -420,7 +433,7 @@ export function PatientMedicalRecordView({
                     <div className="flex items-center gap-3">
                       <DateBadge date={record.recordedAt} />
                       <div>
-                        <p className="text-sm font-bold text-[#181700]">Sesi {formatShortDate(record.recordedAt)}</p>
+                        <p className="text-sm font-bold text-[#181700]">Kunjungan Ke-{visitNumberById.get(record.id) ?? 0}</p>
                         <p className="text-xs text-stone-500">{record.therapistName ?? 'Fisioterapis Hafta'}</p>
                       </div>
                     </div>
@@ -450,9 +463,7 @@ export function PatientMedicalRecordView({
                         <FileText className="h-4 w-4" />
                       </span>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-bold text-[#181700]">
-                          Rekam Medis {formatShortDate(record.recordedAt)}
-                        </p>
+                        <p className="truncate text-sm font-bold text-[#181700]">Rekam Medis Kunjungan Ke-{visitNumberById.get(record.id) ?? 0}</p>
                         <p className="mt-0.5 text-xs text-stone-500">
                           {record.therapistName ?? 'Fisioterapis Hafta'} · dokumen resmi
                         </p>

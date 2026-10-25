@@ -13,7 +13,7 @@ import {
   FileDown,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
-import { MedicalRecordPrintButton, MedicalRecordDownloadButton, useMedicalRecordPdf } from '@/components/dashboard/medical-record-actions';
+import { MedicalRecordActions, useMedicalRecordPdf } from '@/components/dashboard/medical-record-actions';
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
 import { cn } from '@/lib/utils';
@@ -198,11 +198,13 @@ function MedicalRecordCard({
                 <MoreVertical className="h-4 w-4 shrink-0" />
               </DropdownMenuTrigger>
             </div>
-            <DropdownMenuContent align="end" className="absolute right-0 bottom-full mb-2 z-50 w-48 rounded-2xl bg-white border border-stone-200/90 shadow-[0_12px_32px_rgba(24,23,0,0.14)] p-1.5 origin-bottom-right">
+            <DropdownMenuContent align="end" className="absolute right-0 bottom-full mb-2 z-10 w-48 rounded-2xl bg-white border border-stone-200/90 shadow-[0_12px_32px_rgba(24,23,0,0.14)] p-1.5 origin-bottom-right">
               <DropdownMenuItem onClick={() => openPrintPage()} className="text-xs">
+                <Printer className="h-3.5 w-3.5 shrink-0" />
                 Print Rekam Medis
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => downloadPdf()} className="text-xs">
+                <FileDown className="h-3.5 w-3.5 shrink-0" />
                 Unduh PDF
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -437,10 +439,7 @@ export function ProgressManagementView({
                   <span>Edit</span>
                 </button>
               )}
-              <div className="flex items-center gap-2">
-                <MedicalRecordPrintButton record={selectedRecord as any} />
-                <MedicalRecordDownloadButton record={selectedRecord as any} />
-              </div>
+              <MedicalRecordActions record={selectedRecord as any} />
             </div>
           ) : null
         }

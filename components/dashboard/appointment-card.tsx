@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Calendar,
@@ -9,6 +9,7 @@ import {
   MapPin,
   Trash2,
   MoreVertical,
+  Printer,
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { useToast } from '@/components/ui/toast';
@@ -22,12 +23,8 @@ import type { AppointmentView } from '@/server/queries/appointments';
 import { AppointmentEditButton } from '@/components/dashboard/appointments/appointment-edit-button';
 import { AppointmentEditDrawer, useAppointmentEditDrawer } from '@/components/dashboard/appointments/appointment-edit-drawer';
 import { CompleteSessionButton } from '@/components/dashboard/appointments/complete-session-button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { pdf } from '@react-pdf/renderer';
+import { MedicalRecordDocument, type MedicalRecordPdfData } from '@/components/pdf/medical-record-document';
 
 const statusConfig: Record<
   string,
@@ -69,6 +66,56 @@ const statusConfig: Record<
     border: 'border-amber-200',
   },
 };
+
+function useAppointmentDropdownPdf(appointment: AppointmentView) {
+  const [loading, setLoading] = useState(false);
+  const [printing, setPrinting] = useState(false);
+  const { showToast } = useToast();
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const openPrintPage = async () => {
+    setPrinting(true);
+    try {
+      const blob = await pdf(
+        <MedicalRecordDocument
+          record={{
+            id: appointment.id,
+            recordedAt: new Date(appointment.scheduledDate),
+            patientName: appointment.patientName,
+            therapistName: appointment.therapistName || 'Fisioterapis Hafta',
+            painScore: 0,
+            rangeOfMotionScore: 0,
+            strengthScore: 0,
+            functionScore: 0,
+            anamnesis: '',
+            physicalExamination: '',
+            diagnosis: '',
+            treatment: '',
+            followUpPlan: '',
+            summary: '',
+          }}
+        />
+      ).toBlob();
+      const url = URL.createObjectURL(blob);
+
+      if (iframeRef.current) {
+        iframeRef.current.src = url;
+        iframeRef.current.onload = () => {
+          iframeRef.current?.contentWindow?.print();
+          setPrinting(false);
+        };
+      } else {
+        window.location.href = url;
+        setPrinting(false);
+      }
+    } catch {
+      showToast('error', 'Gagal memproses file PDF untuk dicetak.');
+      setPrinting(false);
+    }
+  };
+
+   return { openPrintPage, loading, printing, iframeRef };
+}
 
 const typeLabel: Record<string, string> = {
   INITIAL_ASSESSMENT: 'Assessment Awal',
@@ -134,7 +181,7 @@ export function AppointmentCard({
 
   return (
     <>
-      <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-2xs transition-all duration-200 hover:border-stone-300">
+      <div className="group relative flex flex-col justify-between overflow-visible rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-2xs transition-all duration-200 hover:border-stone-300">
         <div>
           {/* Header Baris Atas: Pasien & Status */}
           <div className="flex items-start justify-between gap-3">
@@ -209,29 +256,11 @@ export function AppointmentCard({
                 label="Edit"
               />
             )}
-            <DropdownMenu withinWrapper>
-              <div className="relative inline-flex shrink-0">
-                <DropdownMenuTrigger className="w-10 h-10 aspect-square rounded-full border border-stone-200/90 bg-white hover:bg-stone-100 flex items-center justify-center cursor-pointer shrink-0">
-                  <MoreVertical className="h-4 w-4 shrink-0" />
-                </DropdownMenuTrigger>
-              </div>
-              <DropdownMenuContent align="end" className="absolute right-0 bottom-full mb-2 z-50 w-48 rounded-2xl bg-white border border-stone-200/90 shadow-[0_12px_32px_rgba(24,23,0,0.14)] p-1.5 origin-bottom-right min-w-[150px]">
-                <DropdownMenuItem
-                  onClick={() => {
-                    window.open(`/dashboard/appointments/${appointment.id}/print`, '_blank');
-                  }}
-                  className="text-xs"
-                >
-                  Cetak Jadwal
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => setShowDeleteDialog(true)}
-                  className="text-xs text-[var(--hafta-red-600)] font-semibold"
-                >
-                  Hapus Jadwal
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <AppointmentDropdown
+              appointment={appointment}
+              onDelete={() => setShowDeleteDialog(true)}
+              {...useAppointmentDropdownPdf(appointment)}
+            />
           </div>
         </div>
       </div>
@@ -253,5 +282,81 @@ export function AppointmentCard({
         onClose={editor.closeEdit}
       />
     </>
+  );
+}
+
+function AppointmentDropdown({
+  appointment,
+  openPrintPage,
+  loading,
+  printing,
+  iframeRef,
+  onDelete,
+}: {
+  appointment: AppointmentView;
+  openPrintPage: () => void;
+  loading: boolean;
+  printing: boolean;
+  iframeRef: React.RefObject<HTMLIFrameElement | null>;
+  onDelete: () => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Tutup dropdown saat klik di luar panel (rule #4)
+  const handleClickOutside = useCallback(
+    (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [handleClickOutside]);
+
+  return (
+    <div ref={menuRef} className="relative inline-flex shrink-0">
+      {/* Rule #2: tombol pemicu (tidak ada Portal/fixed/getBoundingClientRect) */}
+      <button
+        type="button"
+        onClick={() => setIsOpen((v) => !v)}
+        disabled={loading || printing}
+        className="w-10 h-10 aspect-square rounded-full border border-stone-200/90 bg-white hover:bg-stone-100 flex items-center justify-center cursor-pointer shrink-0"
+      >
+        <MoreVertical className="h-4 w-4 shrink-0" />
+      </button>
+
+      {/* Rule #2: panel absolute menempel di bawah tombol, dalam DOM yang sama */}
+      {isOpen && (
+        <div className="absolute right-0 bottom-full mb-2 z-10 w-48 rounded-2xl bg-white border border-stone-200/90 shadow-[0_12px_32px_rgba(24,23,0,0.14)] p-1.5 flex flex-col gap-0.5">
+          <button
+            type="button"
+            onClick={() => {
+              setIsOpen(false);
+              window.open(`/dashboard/appointments/${appointment.id}/print`, '_blank');
+            }}
+            className="hover:bg-stone-100 font-medium flex items-center gap-2 w-full px-3 py-2 text-xs sm:text-sm"
+          >
+            <Printer className="h-3.5 w-3.5 shrink-0" />
+            <span className="font-medium">Cetak Jadwal</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setIsOpen(false);
+              onDelete();
+            }}
+            className="hover:bg-stone-100 font-medium flex items-center gap-2 w-full px-3 py-2 text-xs sm:text-sm"
+          >
+            <Trash2 className="h-3.5 w-3.5 shrink-0" />
+            <span className="font-medium text-[var(--hafta-red-600)]">Hapus Jadwal</span>
+          </button>
+        </div>
+      )}
+    </div>
   );
 }
