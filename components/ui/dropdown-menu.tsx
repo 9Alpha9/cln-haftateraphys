@@ -12,6 +12,7 @@ const DropdownMenuContext = React.createContext<{
   setOpen: (open: boolean) => void;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
   contentRef: React.RefObject<HTMLDivElement | null>;
+  withinWrapper: boolean;
 } | null>(null);
 
 function useDropdownMenu() {
@@ -24,15 +25,20 @@ function DropdownMenu({
   children,
   open: openProp,
   onOpenChange,
+  modal,
+  withinWrapper,
 }: {
   children: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  modal?: boolean;
+  withinWrapper?: boolean;
 }) {
   const [internalOpen, setInternalOpen] = React.useState(false);
   const open = openProp ?? internalOpen;
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const contentRef = React.useRef<HTMLDivElement>(null);
+  const withinWrapperValue = withinWrapper ?? false;
 
   const setOpen = React.useCallback(
     (value: boolean) => {
@@ -65,8 +71,29 @@ function DropdownMenu({
     return () => document.removeEventListener('pointerdown', handlePointerDown);
   }, [open, setOpen, triggerRef, contentRef]);
 
+  // Modal scroll lock / invisible backdrop
+  React.useEffect(() => {
+    if (modal && open) {
+      document.body.style.overflow = 'hidden';
+      const backdrop = document.createElement('div');
+      backdrop.className = 'fixed inset-0 z-40 bg-black/60 pointer-events-none';
+      document.body.appendChild(backdrop);
+      return () => {
+        document.body.style.overflow = '';
+        if (backdrop.parentNode) {
+          backdrop.parentNode.removeChild(backdrop);
+        }
+      };
+    }
+    if (!modal && !open) {
+      document.body.style.overflow = '';
+    }
+  }, [modal, open]);
+
   return (
-    <DropdownMenuContext.Provider value={{ open, setOpen, triggerRef, contentRef }}>
+    <DropdownMenuContext.Provider
+      value={{ open, setOpen, triggerRef, contentRef, withinWrapper: withinWrapperValue }}
+    >
       {children}
     </DropdownMenuContext.Provider>
   );
@@ -89,44 +116,142 @@ function DropdownMenuTrigger({ className, children, ...props }: React.ComponentP
 }
 
 function DropdownMenuContent({ className, children, align = "end", side = "bottom" }: React.ComponentProps<'div'> & { align?: "start" | "end"; side?: "bottom" | "right" }) {
-  const { open, triggerRef, contentRef } = useDropdownMenu();
+  const { open, triggerRef, contentRef, withinWrapper } = useDropdownMenu();
   const [position, setPosition] = React.useState({ top: 0, bottom: 0, left: 0, right: 0 });
   const [resolvedSide, setResolvedSide] = React.useState<"bottom" | "right" | "top">(side);
 
   React.useEffect(() => {
     if (!open || !triggerRef.current) return;
     const trigger = triggerRef.current;
-    const frame = window.requestAnimationFrame(() => {
-      const rect = trigger.getBoundingClientRect();
-      const isDesktopSide = side === "right" && window.innerWidth >= 1024;
-      if (isDesktopSide) {
-        setResolvedSide("right");
-        setPosition({
-          top: Math.max(8, rect.bottom - 220),
-          bottom: 0,
-          left: rect.right + 16,
-          right: window.innerWidth - rect.right - 16,
-        });
-      } else if (side === "right") {
-        setResolvedSide("top");
-        setPosition({
-          top: 0,
-          bottom: 0,
-          left: 0,
-          right: 0,
-        });
-      } else {
-        setResolvedSide("bottom");
-        setPosition({
-          top: rect.bottom + 8,
-          bottom: 0,
-          left: Math.max(8, rect.left),
-          right: Math.max(8, window.innerWidth - rect.right),
-        });
-      }
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [open, triggerRef, side]);
+
+    // When within a wrapper (not portal to body), use absolute positioning
+    // relative to the trigger's nearest positioned ancestor
+    if (withinWrapper) {
+      const frame = window.requestAnimationFrame(() => {
+        const rect = trigger.getBoundingClientRect();
+        const parent = trigger.parentElement;
+        const container = contentRef.current;
+
+        if (!parent || !container) return;
+
+        // Get the positioned container (first ancestor with position !== static)
+        let positionedParent = parent;
+        while (positionedParent && positionedParent.nodeType === 1) {
+          const style = window.getComputedStyle(positionedParent);
+          if (style.position !== 'static') break;
+          const next = positionedParent.parentElement;
+          if (!next) break;
+          positionedParent = next;
+        }
+
+        if (positionedParent && container) {
+          const containerRect = container.getBoundingClientRect();
+          const parentRect = positionedParent.getBoundingClientRect();
+
+          // Position absolutely relative to the positioned parent
+          // Default: align right edge of trigger with right edge of container,
+          // bottom-anchored to top of trigger
+          const menuWidth = containerRect.width;
+          const menuHeight = containerRect.height;
+
+          // Align: if align="end" (default), position on the right side
+          // If align="start", position on the left side
+          const alignRight = align === "end";
+
+          let left = 0;
+          let top = 0;
+
+          if (side === "right") {
+            left = rect.left + rect.width;
+          } else {
+            // side is "bottom" or "top"
+            if (side === "bottom") {
+              top = rect.bottom;
+            } else {
+              top = rect.top - menuHeight;
+            }
+            // Horizontal: align based on align prop
+            if (alignRight) {
+              left = rect.left + rect.width - menuWidth;
+              // Clamp to container bounds
+              const containerLeft = positionedParent.getBoundingClientRect().left;
+              const maxLeft = containerLeft + positionedParent.clientWidth - menuWidth;
+              left = Math.max(containerLeft, Math.min(left, maxLeft));
+            } else {
+              left = rect.left;
+              const containerLeft = positionedParent.getBoundingClientRect().left;
+              const minLeft = containerLeft;
+              left = Math.min(left, minLeft + positionedParent.clientWidth - menuWidth);
+              left = Math.max(left, minLeft);
+            }
+          }
+
+          setPosition({
+            top: top - parentRect.top,
+            bottom: 0,
+            left: left - parentRect.left,
+            right: 0,
+          });
+        }
+      });
+      return () => window.cancelAnimationFrame(frame);
+    } else {
+      // Original fixed positioning behavior (portal to body)
+      if (!open || !triggerRef.current) return;
+      const trigger = triggerRef.current;
+      const frame = window.requestAnimationFrame(() => {
+        const rect = trigger.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+        const menuHeight = contentRef.current ? contentRef.current.getBoundingClientRect().height : 120;
+
+        const isDesktopSide = side === "right" && viewportWidth >= 1024;
+
+        if (isDesktopSide) {
+          setResolvedSide("right");
+          setPosition({
+            top: Math.max(8, rect.bottom - 220),
+            bottom: 0,
+            left: rect.right + 16,
+            right: viewportWidth - rect.right - 16,
+          });
+        } else if (side === "right") {
+          setResolvedSide("top");
+          setPosition({
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+          });
+        } else {
+          const isMobile = viewportWidth < 1024;
+          const spaceBelow = viewportHeight - rect.bottom - 8;
+          const needsTop = isMobile && spaceBelow < menuHeight + 16;
+
+          if (needsTop) {
+            setResolvedSide("top");
+            const menuWidth = contentRef.current ? contentRef.current.getBoundingClientRect().width : 160;
+            const centerX = Math.max(8, rect.left + rect.width / 2 - menuWidth / 2);
+            setPosition({
+              top: 0,
+              bottom: viewportHeight - rect.top + 8,
+              left: Math.min(viewportWidth - menuWidth - 8, Math.max(8, centerX)),
+              right: 0,
+            });
+          } else {
+            setResolvedSide("bottom");
+            setPosition({
+              top: rect.bottom + 8,
+              bottom: 0,
+              left: Math.max(8, rect.left),
+              right: Math.max(8, viewportWidth - rect.right),
+            });
+          }
+        }
+      });
+      return () => window.cancelAnimationFrame(frame);
+    }
+  }, [open, triggerRef, side, withinWrapper, align, contentRef]);
 
   const getInitialPosition = () => {
     if (resolvedSide === "right") return { opacity: 0, scale: 0.95, y: 0, x: -10 };
@@ -144,19 +269,35 @@ function DropdownMenuContent({ className, children, align = "end", side = "botto
       exit={getInitialPosition()}
       transition={{ duration: 0.15, ease: "easeOut" }}
       style={{
-        position: 'fixed',
-        ...(resolvedSide === "top" ? { bottom: position.bottom } : { top: position.top }),
-        ...(resolvedSide === "right"
-          ? { left: position.left }
-          : resolvedSide === "top"
-            ? { left: 16, right: 16, bottom: 16 }
-            : align === "end"
-              ? { right: position.right }
-              : { left: position.left }),
+        ...(withinWrapper
+          ? {
+              position: 'absolute',
+              ...(resolvedSide === "top"
+                ? { top: position.top }
+                : resolvedSide === "right"
+                  ? { right: position.right }
+                  : resolvedSide === "bottom"
+                    ? { bottom: position.bottom }
+                    : { left: position.left }),
+            }
+          : {
+              position: 'fixed',
+              ...(resolvedSide === "top"
+                ? { bottom: position.bottom }
+                : { top: position.top }),
+              ...(resolvedSide === "right"
+                ? { left: position.left }
+                : resolvedSide === "top"
+                  ? { left: 16, right: 16, bottom: 16 }
+                  : align === "end"
+                    ? { right: position.right }
+                    : { left: position.left }),
+            }),
       }}
       className={cn(
         'z-[70] min-w-48 overflow-hidden rounded-lg border border-border bg-white p-1.5 text-popover-foreground shadow-lg',
         resolvedSide === "top" && 'min-w-0 rounded-2xl p-2 shadow-xl',
+        withinWrapper && 'shadow-sm',
         className,
       )}
     >
@@ -165,6 +306,15 @@ function DropdownMenuContent({ className, children, align = "end", side = "botto
   );
 
   if (typeof document === 'undefined') return null;
+
+  if (withinWrapper) {
+    // Render inline (not via portal) when positioned within a wrapper
+    return (
+      <AnimatePresence>
+        {open && content}
+      </AnimatePresence>
+    );
+  }
 
   return createPortal(
     <AnimatePresence>
@@ -181,7 +331,7 @@ function DropdownMenuItem({ className, onClick, ...props }: React.ComponentProps
       type="button"
       role="menuitem"
       className={cn(
-        "flex w-full cursor-pointer items-center gap-2.5 rounded-md px-3 py-2.5 text-left text-sm outline-none transition-colors hover:bg-muted focus-visible:bg-muted disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg]:stroke-[2.2]",
+        "flex w-full min-h-[40px] cursor-pointer items-center gap-2.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#181700] outline-none transition-colors hover:bg-stone-50 focus:bg-stone-50 disabled:pointer-events-none disabled:opacity-50",
         className,
       )}
       onClick={(event) => {

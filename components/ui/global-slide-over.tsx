@@ -112,10 +112,16 @@ export function GlobalSlideOver({
       if (e.key === 'Escape') onCloseRef.current();
     };
 
+    const handleCloseAllSlideOvers = () => {
+      onCloseRef.current();
+    };
+
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('hafta:close-all-slide-overs', handleCloseAllSlideOvers);
     return () => {
       releaseScrollLock();
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('hafta:close-all-slide-overs', handleCloseAllSlideOvers);
     };
   }, [isOpen]);
 
@@ -146,7 +152,7 @@ export function GlobalSlideOver({
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 280, mass: 0.8 }}
             className={cn(
-              'fixed inset-y-0 right-0 flex h-dvh w-full flex-col rounded-none border-l border-stone-200/90 bg-white shadow-[-16px_0_48px_rgba(24,23,0,0.14)] will-change-transform',
+              'fixed inset-y-0 right-0 flex h-dvh w-full flex-col rounded-none border-l border-stone-200/90 bg-white shadow-[-16px_0_48px_rgba(24,23,0,0.14)] will-change-transform overflow-x-hidden',
               sizeWidthMap[size],
               className
             )}
@@ -175,32 +181,32 @@ export function GlobalSlideOver({
                         {subtitle}
                       </p>
                     )}
-                  </div>
                 </div>
-
-                {/* Tombol Tutup Bulat */}
-                <button
-                  type="button"
-                  onClick={onClose}
-                  aria-label="Tutup panel"
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-stone-100 hover:text-[#181700] cursor-pointer"
-                >
-                  <X className="h-4 w-4" />
-                </button>
               </div>
 
-              {/* Sub-header Tabs / Pills (Filter Bergaya Notification Pills) */}
-              {headerTabs && <div className="mt-3.5 pt-1">{headerTabs}</div>}
-            </header>
+              {/* Tombol Tutup Bulat */}
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Tutup panel"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-stone-100 hover:text-[#181700] cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Sub-header Tabs / Pills (Filter Bergaya Notification Pills) */}
+            {headerTabs && <div className="mt-3.5 pt-1">{headerTabs}</div>}
+          </header>
 
             {/* ── 2B. SCROLLABLE BODY ── */}
             <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6">
               {children}
             </div>
 
-            {/* ── 2C. STICKY ACTION FOOTER ── */}
+          {/* ── 2C. STICKY ACTION FOOTER ── */}
             {footer && (
-              <footer className="sticky bottom-0 z-10 shrink-0 border-t border-stone-200/80 bg-[#FEFEF6] px-6 py-4">
+              <footer className="sticky bottom-0 z-10 shrink-0 border-t border-stone-200/80 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full shrink-0">
                 {footer}
               </footer>
             )}

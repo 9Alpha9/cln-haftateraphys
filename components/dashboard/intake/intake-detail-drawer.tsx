@@ -231,7 +231,7 @@ export function IntakeDetailDrawer({
                     type="button"
                     disabled={isActionPending}
                     onClick={() => handleAction('accept')}
-                    className="h-10 sm:h-11 px-5 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
+                    className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
                   >
                     {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                     <span>Terima / ACC Form</span>

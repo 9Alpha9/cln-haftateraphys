@@ -7,15 +7,22 @@ import {
   EyeOff,
   Pencil,
   FileText,
-  ChevronRight,
   Stethoscope,
   MoreVertical,
+  Printer,
+  FileDown,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
-import { MedicalRecordPrintButton, MedicalRecordDownloadButton } from '@/components/dashboard/medical-record-actions';
+import { MedicalRecordPrintButton, MedicalRecordDownloadButton, useMedicalRecordPdf } from '@/components/dashboard/medical-record-actions';
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface ProgressManagementViewProps {
   initialRecords: TherapyProgressView[];
@@ -34,6 +41,176 @@ function getScoreColor(type: 'pain' | 'rom' | 'strength' | 'function', value: nu
   if (value >= 7) return 'bg-emerald-500 text-emerald-700';
   if (value >= 4) return 'bg-[var(--hafta-ylw-400)] text-[var(--hafta-ylw-800)]';
   return 'bg-amber-500 text-amber-700';
+}
+
+interface MedicalRecordCardProps {
+  record: TherapyProgressView;
+  canEdit: boolean;
+  onSelect: (record: TherapyProgressView) => void;
+  onEdit: (record: TherapyProgressView) => void;
+}
+
+function MedicalRecordCard({
+  record,
+  canEdit,
+  onSelect,
+  onEdit,
+}: MedicalRecordCardProps) {
+  const { openPrintPage, downloadPdf } = useMedicalRecordPdf(record);
+  const isFinal = record.status === 'FINALIZED';
+  const dateStr = new Date(record.recordedAt).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+
+  return (
+    <article
+      key={record.id}
+      onClick={() => onSelect(record)}
+      className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-2xs transition-all duration-200 hover:border-stone-300 cursor-pointer"
+    >
+      <div>
+        {/* Baris Atas: Nama Pasien & Status Badges */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="truncate text-base font-bold text-[#181700] group-hover:text-[var(--hafta-ylw-950)]">
+              {record.patientName}
+            </h3>
+            <p className="mt-0.5 text-xs text-stone-500 font-medium">
+              {dateStr} • Oleh: {record.therapistName || 'Terapis'}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-1.5 shrink-0">
+            {/* Status Badge */}
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 font-mono text-[10px] font-bold border',
+                isFinal
+                  ? 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)] border-[var(--hafta-grn-200)]'
+                  : 'bg-[var(--hafta-org-50)] text-[var(--hafta-org-700)] border-[var(--hafta-org-200)]'
+              )}
+            >
+              {isFinal ? 'Final Terkunci' : 'Draft'}
+            </span>
+
+            {/* Visibility Badge */}
+            <span
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border',
+                record.patientVisible
+                  ? 'bg-stone-50 text-stone-700 border-stone-200'
+                  : 'bg-amber-50 text-amber-800 border-amber-200'
+              )}
+              title={record.patientVisible ? 'Dapat dilihat oleh pasien di portal' : 'Akses internal terapis'}
+            >
+              {record.patientVisible ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+              <span>{record.patientVisible ? 'Pasien' : 'Internal'}</span>
+            </span>
+          </div>
+        </div>
+
+        {/* 4 Metrik Klinis Ringkas dengan Visual Bar */}
+        <div className="py-2.5 my-2.5 border-y border-stone-100 grid grid-cols-4 gap-2">
+          <div className="text-center">
+            <span className="block text-[11px] text-stone-500">Nyeri</span>
+            <span className="text-xs font-bold text-[#181700]">{record.painScore}</span>
+            <div className="mt-1 h-1 w-full bg-stone-100 overflow-hidden">
+              <div
+                className={cn('h-full', getScoreColor('pain', record.painScore).split(' ')[0])}
+                style={{ width: `${Math.min(100, record.painScore * 10)}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="text-center">
+            <span className="block text-[11px] text-stone-500">ROM</span>
+            <span className="text-xs font-bold text-[#181700]">{record.rangeOfMotionScore}</span>
+            <div className="mt-1 h-1 w-full bg-stone-100 overflow-hidden">
+              <div
+                className={cn('h-full', getScoreColor('rom', record.rangeOfMotionScore).split(' ')[0])}
+                style={{ width: `${Math.min(100, record.rangeOfMotionScore * 10)}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="text-center">
+            <span className="block text-[11px] text-stone-500">Kekuatan</span>
+            <span className="text-xs font-bold text-[#181700]">{record.strengthScore}</span>
+            <div className="mt-1 h-1 w-full bg-stone-100 overflow-hidden">
+              <div
+                className={cn('h-full', getScoreColor('strength', record.strengthScore).split(' ')[0])}
+                style={{ width: `${Math.min(100, record.strengthScore * 10)}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="text-center">
+            <span className="block text-[11px] text-stone-500">Fungsi</span>
+            <span className="text-xs font-bold text-[#181700]">{record.functionScore}</span>
+            <div className="mt-1 h-1 w-full bg-stone-100 overflow-hidden">
+              <div
+                className={cn('h-full', getScoreColor('function', record.functionScore).split(' ')[0])}
+                style={{ width: `${Math.min(100, record.functionScore * 10)}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Ringkasan Diagnosis & Tindakan (1 blok kompak, lewat jika kosong) */}
+        {(record.diagnosis || record.treatment) && (
+          <div className="mt-3 rounded-xl bg-[#F8F8F5] px-3.5 py-2.5 text-xs space-y-1">
+            <div className="line-clamp-1 font-medium text-[#181700]">
+              Diagnosis: {record.diagnosis || '-'}
+            </div>
+            <div className="line-clamp-1 text-stone-600">
+              Tindakan: {record.treatment || '-'}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Footer Baris Aksi — 1 Baris Kompak di Semua Layar */}
+      <div className="pt-3 mt-3 border-t border-stone-100 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          onClick={() => onSelect(record)}
+          className="h-9 px-4 rounded-full bg-[#181700] hover:bg-[var(--hafta-ylw-100)] text-white hover:text-[#181700] text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 whitespace-nowrap"
+        >
+          Lihat Detail SOAP
+        </button>
+
+        <div className="flex items-center gap-2 shrink-0">
+          {canEdit && (
+            <button
+              type="button"
+              onClick={() => onEdit(record)}
+              className="h-9 px-3.5 rounded-full bg-white hover:bg-stone-100 border border-stone-200/90 text-[#181700] text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              <span>Edit</span>
+            </button>
+          )}
+          <DropdownMenu withinWrapper>
+            <div className="relative inline-flex shrink-0">
+              <DropdownMenuTrigger className="w-10 h-10 aspect-square rounded-full border border-stone-200/90 bg-white hover:bg-stone-100 flex items-center justify-center cursor-pointer shrink-0">
+                <MoreVertical className="h-4 w-4 shrink-0" />
+              </DropdownMenuTrigger>
+            </div>
+            <DropdownMenuContent align="end" className="absolute right-0 bottom-full mb-2 z-50 w-48 rounded-2xl bg-white border border-stone-200/90 shadow-[0_12px_32px_rgba(24,23,0,0.14)] p-1.5 origin-bottom-right">
+              <DropdownMenuItem onClick={() => openPrintPage()} className="text-xs">
+                Print Rekam Medis
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => downloadPdf()} className="text-xs">
+                Unduh PDF
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+    </article>
+  );
 }
 
 export function ProgressManagementView({
@@ -169,189 +346,16 @@ export function ProgressManagementView({
           <p className="mt-1 text-xs text-stone-500">Silakan ubah filter pencarian atau buat evaluasi baru.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-          {filtered.map((record) => {
-            const isFinal = record.status === 'FINALIZED';
-            const dateStr = new Date(record.recordedAt).toLocaleDateString('id-ID', {
-              day: 'numeric',
-              month: 'short',
-              year: 'numeric',
-            });
-
-            return (
-              <article
-                key={record.id}
-                onClick={() => setSelectedRecord(record)}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-5 shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--hafta-ylw-200)] hover:shadow-md cursor-pointer"
-              >
-                <div>
-                  {/* Baris Atas: Nama Pasien & Status Badges */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h3 className="truncate text-base font-bold text-[#181700] group-hover:text-[var(--hafta-ylw-950)]">
-                        {record.patientName}
-                      </h3>
-                      <p className="mt-0.5 text-xs text-stone-500 font-medium">
-                        {dateStr} • Oleh: {record.therapistName || 'Terapis'}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      {/* Status Badge */}
-                      <span
-                        className={cn(
-                          'rounded-full px-2 py-0.5 font-mono text-[10px] font-bold border',
-                          isFinal
-                            ? 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)] border-[var(--hafta-grn-200)]'
-                            : 'bg-[var(--hafta-org-50)] text-[var(--hafta-org-700)] border-[var(--hafta-org-200)]'
-                        )}
-                      >
-                        {isFinal ? 'Final Terkunci' : 'Draft'}
-                      </span>
-
-                      {/* Visibility Badge */}
-                      <span
-                        className={cn(
-                          'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border',
-                          record.patientVisible
-                            ? 'bg-stone-50 text-stone-700 border-stone-200'
-                            : 'bg-amber-50 text-amber-800 border-amber-200'
-                        )}
-                        title={record.patientVisible ? 'Dapat dilihat oleh pasien di portal' : 'Akses internal terapis'}
-                      >
-                        {record.patientVisible ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-                        <span>{record.patientVisible ? 'Pasien' : 'Internal'}</span>
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* 4 Kotak Metrik Klinis dengan Visual Bar */}
-                  <div className="mt-4 grid grid-cols-4 gap-2 border-y border-stone-100 py-3 text-center">
-                    <div>
-                      <span className="block text-[10px] font-semibold text-stone-400">Nyeri</span>
-                      <span className="font-mono text-xs font-extrabold text-[#181700]">
-                        {record.painScore}<span className="text-[10px] text-stone-400">/10</span>
-                      </span>
-                      <div className="mt-1 h-1 w-full rounded-full bg-stone-100 overflow-hidden">
-                        <div
-                          className={cn('h-full', getScoreColor('pain', record.painScore).split(' ')[0])}
-                          style={{ width: `${Math.min(100, record.painScore * 10)}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <span className="block text-[10px] font-semibold text-stone-400">ROM</span>
-                      <span className="font-mono text-xs font-extrabold text-[#181700]">
-                        {record.rangeOfMotionScore}<span className="text-[10px] text-stone-400">/10</span>
-                      </span>
-                      <div className="mt-1 h-1 w-full rounded-full bg-stone-100 overflow-hidden">
-                        <div
-                          className={cn('h-full', getScoreColor('rom', record.rangeOfMotionScore).split(' ')[0])}
-                          style={{ width: `${Math.min(100, record.rangeOfMotionScore * 10)}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <span className="block text-[10px] font-semibold text-stone-400">Kekuatan</span>
-                      <span className="font-mono text-xs font-extrabold text-[#181700]">
-                        {record.strengthScore}<span className="text-[10px] text-stone-400">/10</span>
-                      </span>
-                      <div className="mt-1 h-1 w-full rounded-full bg-stone-100 overflow-hidden">
-                        <div
-                          className={cn('h-full', getScoreColor('strength', record.strengthScore).split(' ')[0])}
-                          style={{ width: `${Math.min(100, record.strengthScore * 10)}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <span className="block text-[10px] font-semibold text-stone-400">Fungsi</span>
-                      <span className="font-mono text-xs font-extrabold text-[#181700]">
-                        {record.functionScore}<span className="text-[10px] text-stone-400">/10</span>
-                      </span>
-                      <div className="mt-1 h-1 w-full rounded-full bg-stone-100 overflow-hidden">
-                        <div
-                          className={cn('h-full', getScoreColor('function', record.functionScore).split(' ')[0])}
-                          style={{ width: `${Math.min(100, record.functionScore * 10)}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Diagnosis Fisioterapi (Highlight Bersih) */}
-                  <div className="mt-3.5 space-y-1.5 text-xs">
-                    <div className="rounded-xl bg-[#FEFEF6] border border-stone-200/80 p-2.5">
-                      <span className="font-bold text-[#181700] block text-[11px]">
-                        Diagnosis Fisioterapi:
-                      </span>
-                      <p className="mt-0.5 text-stone-700 font-medium line-clamp-1">
-                        {record.diagnosis || <span className="text-stone-400 italic">Belum ditentukan</span>}
-                      </p>
-                    </div>
-
-                    {/* Pratinjau Tindakan */}
-                    {record.treatment && (
-                      <p className="line-clamp-2 text-[11px] text-stone-600 leading-relaxed px-1">
-                        <span className="font-semibold text-stone-800">Tindakan: </span>
-                        {record.treatment}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Footer Baris Aksi — Mobile-first: Desktop (>3 actions) vs Mobile Compact */}
-                <div className="mt-4 flex flex-col gap-2.5 border-t border-stone-100 pt-4" onClick={(e) => e.stopPropagation()}>
-                  {/* Desktop/Tablet (≥640px): Baris 1 - Tombol Utama, Baris 2 - Grid 3 kolom */}
-                  <div className="hidden sm:flex sm:flex-col gap-2.5">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedRecord(record)}
-                      className="w-full h-10 px-4 rounded-full bg-[#181700] hover:bg-[var(--hafta-ylw-100)] text-white hover:text-[#181700] font-bold text-xs flex items-center justify-between whitespace-nowrap cursor-pointer transition-colors"
-                    >
-                      <span>Lihat Detail SOAP</span>
-                      <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-                    </button>
-
-                    <div className="grid grid-cols-3 gap-2 w-full">
-                      {canEdit && (
-                        <button
-                          type="button"
-                          onClick={() => setEditingRecord(record)}
-                          className="h-10 px-2 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer transition-all bg-white hover:bg-[var(--hafta-ylw-100)] text-[#181700] border border-stone-200/90 hover:border-[var(--hafta-ylw-200)]"
-                        >
-                          <Pencil className="h-3 w-3" />
-                          <span>Edit</span>
-                        </button>
-                      )}
-                      <MedicalRecordPrintButton record={record as any} />
-                      <MedicalRecordDownloadButton record={record as any} />
-                    </div>
-                  </div>
-
-                  {/* Mobile (<640px): 1 Baris Kompak - Tombol Utama (Lihat Detail SOAP) + Action Dot 3 (⋮) */}
-                  <div className="sm:hidden flex items-center gap-2 w-full">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedRecord(record)}
-                      className="flex-1 h-10 rounded-full font-bold text-xs flex items-center justify-between whitespace-nowrap cursor-pointer transition-colors bg-[#181700] hover:bg-[var(--hafta-ylw-100)] text-white hover:text-[#181700] px-4"
-                    >
-                      <span>Lihat Detail SOAP</span>
-                      <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-                    </button>
-                    <button
-                      type="button"
-                      className="shrink-0 w-10 h-10 aspect-square rounded-full bg-white hover:bg-stone-100 border border-stone-200/90 text-[#181700] flex items-center justify-center cursor-pointer"
-                      onClick={() => setSelectedRecord(record)}
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 w-full">
+          {filtered.map((record) => (
+            <MedicalRecordCard
+              key={record.id}
+              record={record}
+              canEdit={canEdit}
+              onSelect={() => setSelectedRecord(record)}
+              onEdit={() => setEditingRecord(record)}
+            />
+          ))}
         </div>
       )}
 
@@ -418,7 +422,7 @@ export function ProgressManagementView({
         }
         footer={
           selectedRecord ? (
-            <div className="flex items-center justify-between gap-3 pt-4">
+            <div className="flex items-center justify-between gap-3">
               {canEdit && (
                 <button
                   type="button"

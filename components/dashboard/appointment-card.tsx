@@ -1,16 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createPortal } from 'react-dom';
 import {
   Calendar,
   Clock,
   User,
   MapPin,
   Trash2,
-  Printer,
   MoreVertical,
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -25,41 +22,12 @@ import type { AppointmentView } from '@/server/queries/appointments';
 import { AppointmentEditButton } from '@/components/dashboard/appointments/appointment-edit-button';
 import { AppointmentEditDrawer, useAppointmentEditDrawer } from '@/components/dashboard/appointments/appointment-edit-drawer';
 import { CompleteSessionButton } from '@/components/dashboard/appointments/complete-session-button';
-
-function FloatingActionMenu({ items, onClose, buttonRef }: { items: { label: string; onClick: () => void }[]; onClose: () => void; buttonRef: React.RefObject<HTMLButtonElement | null> }) {
-  const actionMenuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!buttonRef.current || !actionMenuRef.current) return;
-    const rect = buttonRef.current.getBoundingClientRect();
-    const menu = actionMenuRef.current;
-    menu.style.top = `${rect.top - 8}px`;
-    menu.style.left = `${rect.right - 192}px`;
-    return () => {
-      menu.style.top = '';
-      menu.style.left = '';
-    };
-  }, [buttonRef, actionMenuRef]);
-
-  return createPortal(
-    <div ref={actionMenuRef} className="fixed z-[60] rounded-2xl bg-white border border-stone-200/90 shadow-xl p-1.5 min-w-[160px] animate-in slide-in-from-right-2 fade-in duration-200">
-      {items.map((item, idx) => (
-        <button
-          key={idx}
-          type="button"
-          onClick={() => {
-            item.onClick();
-            onClose();
-          }}
-          className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs text-[#181700] hover:bg-stone-50 transition-colors cursor-pointer whitespace-nowrap"
-        >
-          {item.label}
-        </button>
-      ))}
-    </div>,
-    document.body
-  );
-}
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const statusConfig: Record<
   string,
@@ -126,13 +94,9 @@ export function AppointmentCard({
   appointment: AppointmentView;
   role: Role;
 }) {
-  const router = useRouter();
   const { showToast } = useToast();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [showActionMenu, setShowActionMenu] = useState(false);
-  const actionMenuRef = useRef<HTMLDivElement>(null);
-  const moreButtonRef = useRef<HTMLButtonElement>(null);
   const editor = useAppointmentEditDrawer();
 
   const canEdit = hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE);
@@ -152,16 +116,7 @@ export function AppointmentCard({
     return () => window.clearTimeout(timeoutId);
   }, [appointment.id, appointment.isNew]);
 
-  useEffect(() => {
-    if (!showActionMenu) return;
-    function handleClickOutside(e: MouseEvent) {
-      if (actionMenuRef.current && !actionMenuRef.current.contains(e.target as Node)) {
-        setShowActionMenu(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showActionMenu]);
+  const router = useRouter();
 
   async function handleDelete() {
     setDeleting(true);
@@ -179,7 +134,7 @@ export function AppointmentCard({
 
   return (
     <>
-      <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-5 shadow-2xs transition-all duration-200 hover:-translate-y-0.5 hover:border-[var(--hafta-ylw-200)] hover:shadow-md">
+      <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-2xs transition-all duration-200 hover:border-stone-300">
         <div>
           {/* Header Baris Atas: Pasien & Status */}
           <div className="flex items-start justify-between gap-3">
@@ -237,91 +192,49 @@ export function AppointmentCard({
           </div>
         </div>
 
-        {/* Baris Tombol Aksi — 2 Baris Terstruktur, 0% Terpotong */}
-        <div className="mt-4 flex flex-col gap-2.5 border-t border-stone-100 pt-4">
-          {/* Desktop/Tablet (≥640px): Baris 1 - Tombol Utama penuh lebar, Baris 2 - Grid 3 kolom */}
-          <div className="hidden sm:flex sm:flex-col gap-2.5">
-            {canComplete ? (
-              <CompleteSessionButton
-                appointmentId={appointment.id}
-                className="w-full h-10 px-4 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap"
-              />
-            ) : null}
-            <div className="grid grid-cols-3 gap-2 w-full">
-              {canEdit && (
-                <AppointmentEditButton
-                  appointmentId={appointment.id}
-                  className="h-10 px-2 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 text-xs font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer"
-                />
-              )}
-              <Link
-                href={`/dashboard/appointments/${appointment.id}/print`}
-                target="_blank"
-                className="h-10 px-2 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 text-xs font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer"
-              >
-                <Printer className="h-3.5 w-3.5" />
-                <span>Cetak</span>
-              </Link>
-              {canEdit && (
-                <button
-                  type="button"
-                  onClick={() => setShowDeleteDialog(true)}
-                  className="h-10 px-2 rounded-full bg-[var(--hafta-red-50)] hover:bg-[var(--hafta-red-100)] text-[var(--hafta-red-600)] border border-[var(--hafta-red-200)] text-xs font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer"
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  <span>Hapus</span>
-                </button>
-              )}
-            </div>
-          </div>
+        {/* Baris Tombol Aksi — 1 Baris Kompak di Semua Layar */}
+        <div className="pt-3 mt-3 border-t border-stone-100 flex items-center justify-between gap-2">
+          {canComplete ? (
+            <CompleteSessionButton
+              appointmentId={appointment.id}
+              className="h-10 px-4 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 whitespace-nowrap"
+            />
+          ) : null}
 
-          {/* Mobile (<640px): 1 Baris Kompak - Tombol Utama (Selesaikan) + Action Dot 3 (⋮) */}
-          <div className="sm:hidden flex items-center gap-2 w-full">
-            {canComplete ? (
-              <CompleteSessionButton
+          <div className="flex items-center gap-2 shrink-0">
+            {canEdit && (
+              <AppointmentEditButton
                 appointmentId={appointment.id}
-                className="flex-1 h-10 rounded-full font-bold text-xs flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700]"
+                className="h-9 px-3.5 rounded-full border border-stone-200/90 bg-white hover:bg-stone-100 text-[#181700] text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
+                label="Edit"
               />
-            ) : null}
-            <button
-              type="button"
-              ref={moreButtonRef}
-              className="shrink-0 w-10 h-10 aspect-square rounded-full bg-white hover:bg-stone-100 border border-stone-200/90 text-[#181700] flex items-center justify-center cursor-pointer"
-              onClick={() => setShowActionMenu(true)}
-            >
-              <MoreVertical className="h-4 w-4" />
-            </button>
+            )}
+            <DropdownMenu withinWrapper>
+              <div className="relative inline-flex shrink-0">
+                <DropdownMenuTrigger className="w-10 h-10 aspect-square rounded-full border border-stone-200/90 bg-white hover:bg-stone-100 flex items-center justify-center cursor-pointer shrink-0">
+                  <MoreVertical className="h-4 w-4 shrink-0" />
+                </DropdownMenuTrigger>
+              </div>
+              <DropdownMenuContent align="end" className="absolute right-0 bottom-full mb-2 z-50 w-48 rounded-2xl bg-white border border-stone-200/90 shadow-[0_12px_32px_rgba(24,23,0,0.14)] p-1.5 origin-bottom-right min-w-[150px]">
+                <DropdownMenuItem
+                  onClick={() => {
+                    window.open(`/dashboard/appointments/${appointment.id}/print`, '_blank');
+                  }}
+                  className="text-xs"
+                >
+                  Cetak Jadwal
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => setShowDeleteDialog(true)}
+                  className="text-xs text-[var(--hafta-red-600)] font-semibold"
+                >
+                  Hapus Jadwal
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
-
-      {showActionMenu && (
-        <FloatingActionMenu
-          buttonRef={moreButtonRef}
-          items={[
-            canEdit
-              ? {
-                  label: 'Edit',
-                  onClick: () => {
-                    editor.openEdit(appointment.id);
-                    setShowActionMenu(false);
-                  },
-                }
-              : null,
-            {
-              label: 'Cetak',
-              onClick: () => window.open(`/dashboard/appointments/${appointment.id}/print`, '_blank'),
-            },
-            canEdit
-              ? {
-                  label: 'Hapus',
-                  onClick: () => setShowDeleteDialog(true),
-                }
-              : null,
-          ].filter(Boolean) as { label: string; onClick: () => void }[]}
-          onClose={() => setShowActionMenu(false)}
-        />
-      )}
 
       <ConfirmDialog
         isOpen={showDeleteDialog}

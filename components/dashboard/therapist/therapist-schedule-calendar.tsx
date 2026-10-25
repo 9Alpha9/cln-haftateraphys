@@ -7,10 +7,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  FileText,
   Filter,
   LayoutGrid,
   List,
   MoreVertical,
+  Pencil,
   Phone,
   Plus,
   X,
@@ -555,7 +557,7 @@ export function TherapistScheduleCalendar({
                                 }}
                                 className="flex w-full cursor-pointer items-center rounded-full px-3 py-2 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50"
                               >
-                                Buka Detail di Slide-Over
+                                Lihat Detail
                               </button>
                               <button
                                 type="button"
@@ -565,7 +567,7 @@ export function TherapistScheduleCalendar({
                                 }}
                                 className="flex w-full cursor-pointer items-center rounded-full px-3 py-2 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50"
                               >
-                                Mulai Evaluasi Rekam Medis
+                                Evaluasi RM
                               </button>
                               <button
                                 type="button"
@@ -575,7 +577,7 @@ export function TherapistScheduleCalendar({
                                 }}
                                 className="flex w-full cursor-pointer items-center rounded-full px-3 py-2 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50"
                               >
-                                Ubah Jadwal
+                                Ubah Jadwal Terapi
                               </button>
                             </div>
                           </>
@@ -597,46 +599,43 @@ export function TherapistScheduleCalendar({
         subtitle={detailAppointment?.patientName}
         icon={<CalendarDays className="h-5 w-5" />}
         size="md"
-        footer={
+            footer={
           detailAppointment ? (
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-              <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+            <div className="shrink-0 bg-[#FEFEF6] py-4 flex flex-col gap-2.5 w-full">
+              {/* Baris 1: Aksi utama (full width) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setDetailAppointment(null);
+                  setEvaluationAppointment(detailAppointment);
+                }}
+                className="w-full h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+              >
+                <FileText className="h-4 w-4 shrink-0" />
+                Mulai Evaluasi Rekam Medis
+              </button>
+              {/* Baris 2: Aksi pendukung (2 kolom simetris) */}
+              <div className="grid grid-cols-2 gap-2.5 w-full">
+                {canComplete &&
+                (detailAppointment.status === 'SCHEDULED' ||
+                  detailAppointment.status === 'CONFIRMED') ? (
+                  <CompleteSessionButton
+                    appointmentId={detailAppointment.id}
+                    className="w-full h-10 px-4 rounded-full bg-white hover:bg-[var(--hafta-ylw-50)] hover:border-[var(--hafta-ylw-200)] text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
+                  />
+                ) : null}
                 <button
                   type="button"
                   onClick={() => {
                     appointmentEditor.openEdit(detailAppointment.id);
                     setDetailAppointment(null);
                   }}
-                  className="inline-flex h-10 cursor-pointer items-center justify-center whitespace-nowrap rounded-full border border-stone-200 bg-white px-3 text-xs font-bold text-[#181700] transition-colors hover:bg-stone-50 sm:px-4"
+                  className="w-full h-10 px-4 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
                 >
+                  <Pencil className="h-4 w-4 shrink-0" />
                   Ubah Jadwal
                 </button>
-                {canComplete &&
-                (detailAppointment.status === 'SCHEDULED' ||
-                  detailAppointment.status === 'CONFIRMED') ? (
-                  <CompleteSessionButton
-                    appointmentId={detailAppointment.id}
-                    className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full border border-stone-200 bg-white px-3 text-xs font-bold text-[#181700] transition-colors hover:bg-stone-50 sm:px-4"
-                  />
-                ) : null}
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDetailAppointment(null);
-                    setEvaluationAppointment(detailAppointment);
-                  }}
-                  className="col-span-2 inline-flex h-10 cursor-pointer items-center justify-center whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] sm:col-span-1"
-                >
-                  Mulai Evaluasi Rekam Medis
-                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setDetailAppointment(null)}
-                className="self-end rounded-full px-3.5 py-1.5 text-xs font-semibold text-stone-500 transition-colors hover:text-[#181700] sm:ml-auto sm:self-auto"
-              >
-                Tutup
-              </button>
             </div>
           ) : undefined
         }

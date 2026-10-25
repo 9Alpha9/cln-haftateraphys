@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { AlertTriangle, CalendarOff, Plus, Trash2 } from 'lucide-react';
+import {
+  AlertTriangle,
+  CalendarOff,
+  ChevronDown,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { DatePicker } from '@/components/ui/date-picker';
 import { useToast } from '@/components/ui/toast';
 import {
@@ -63,17 +69,20 @@ export function TherapistScheduleManager({
       <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
         <label className="block max-w-sm">
           <span className="text-xs font-semibold text-stone-500">Pilih fisioterapis</span>
-          <select
-            value={selected.therapistId}
-            onChange={(event) => setSelectedId(event.target.value)}
-            className="mt-1.5 h-10 w-full rounded-xl border border-stone-200 bg-white px-3 text-sm font-semibold text-[#181700] outline-none focus:border-[var(--hafta-ylw-300)] focus:ring-2 focus:ring-[var(--hafta-ylw-100)]/60"
-          >
-            {therapists.map((therapist) => (
-              <option key={therapist.therapistId} value={therapist.therapistId}>
-                {therapist.therapistName}
-              </option>
-            ))}
-          </select>
+          <div className="mt-1.5 relative w-full">
+            <select
+              value={selected.therapistId}
+              onChange={(event) => setSelectedId(event.target.value)}
+              className="h-10 w-full cursor-pointer appearance-none rounded-lg border border-stone-200/90 bg-white pl-3 pr-10 text-sm font-semibold text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 disabled:opacity-60"
+            >
+              {therapists.map((therapist) => (
+                <option key={therapist.therapistId} value={therapist.therapistId}>
+                  {therapist.therapistName}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
+          </div>
         </label>
         <p className="mt-3 text-xs leading-relaxed text-stone-500">
           Slot pasien hanya dihitung dari jam kerja yang tersimpan di sini, dikurangi appointment aktif,
@@ -263,14 +272,14 @@ export function TherapistScheduleEditor({
                           type="time"
                           value={entry.startTime}
                           onChange={(event) => updateBlock(entry.key, { startTime: event.target.value })}
-                          className="h-9 rounded-lg border border-stone-200 px-2.5 text-xs font-semibold text-[#181700] outline-none focus:border-[var(--hafta-ylw-300)]"
+                          className="h-9 rounded-lg border border-stone-200 px-2.5 text-xs font-semibold text-[#181700] outline-none focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30"
                         />
                         <span className="text-xs text-stone-400">s.d.</span>
                         <input
                           type="time"
                           value={entry.endTime}
                           onChange={(event) => updateBlock(entry.key, { endTime: event.target.value })}
-                          className="h-9 rounded-lg border border-stone-200 px-2.5 text-xs font-semibold text-[#181700] outline-none focus:border-[var(--hafta-ylw-300)]"
+                          className="h-9 rounded-lg border border-stone-200 px-2.5 text-xs font-semibold text-[#181700] outline-none focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30"
                         />
                         <button
                           type="button"

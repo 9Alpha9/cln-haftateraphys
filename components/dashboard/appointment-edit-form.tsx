@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { useToast } from '@/components/ui/toast';
 import { updateAppointment } from '@/server/actions/appointments';
@@ -99,13 +100,12 @@ export function AppointmentEditForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="therapistId">Terapis</Label>
-          <select
+          <Select
             id="therapistId"
             name="therapistId"
             required
             defaultValue={appointment.therapistId}
             disabled={pending || therapistOptions.length === 0}
-            className="flex h-10 w-full cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="">Pilih terapis</option>
             {therapistOptions.map((therapist) => (
@@ -113,7 +113,7 @@ export function AppointmentEditForm({
                 {therapist.label}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="scheduledDate">Tanggal</Label>
@@ -127,13 +127,12 @@ export function AppointmentEditForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="startTime">Waktu Mulai</Label>
-          <select
+          <Select
             id="startTime"
             name="startTime"
             required
             defaultValue={startTimeValue}
             disabled={pending}
-            className="flex h-10 w-full cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="">Pilih jam</option>
             {(['pagi', 'siang', 'sore', 'malam'] as const).map((period) => (
@@ -145,17 +144,16 @@ export function AppointmentEditForm({
                 ))}
               </optgroup>
             ))}
-          </select>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="durationMinutes">Durasi</Label>
-          <select
+          <Select
             id="durationMinutes"
             name="durationMinutes"
             defaultValue={String(appointment.durationMinutes)}
             required
             disabled={pending}
-            className="flex h-10 w-full cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="">Pilih durasi</option>
             {[15, 30, 45, 60, 90, 120].map((min) => (
@@ -163,22 +161,21 @@ export function AppointmentEditForm({
                 {min} menit
               </option>
             ))}
-          </select>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="type">Jenis</Label>
-          <select
+          <Select
             id="type"
             name="type"
             defaultValue={appointment.type}
             disabled={pending}
-            className="flex h-10 w-full cursor-pointer appearance-none overflow-hidden text-ellipsis whitespace-nowrap rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="INITIAL_ASSESSMENT">Assessment Awal</option>
             <option value="THERAPY_SESSION">Sesi Terapi</option>
             <option value="FOLLOW_UP">Tindak Lanjut</option>
             <option value="EVALUATION">Evaluasi</option>
-          </select>
+          </Select>
         </div>
       </div>
       <div className="space-y-2">

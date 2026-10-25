@@ -28,9 +28,9 @@ export function TherapistSchedulePanel({
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-3.5 text-xs font-semibold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-50)] whitespace-nowrap"
+        className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-200/90 bg-white px-5 text-xs sm:text-[13px] font-semibold text-[#181700] shadow-2xs transition-colors hover:bg-stone-100 whitespace-nowrap shrink-0"
       >
-        <CalendarClock className="h-4 w-4" />
+        <CalendarClock className="h-4 w-4 shrink-0" />
         {label}
       </button>
 
@@ -44,15 +44,17 @@ export function TherapistSchedulePanel({
           onlyTherapist ? onlyTherapist.therapistName : 'Atur jam kerja mingguan dan blokir tanggal'
         }
         footer={
-          <button
-            type="submit"
-            form={formId}
-            disabled={isSaving}
-            className="inline-flex w-full sm:w-auto h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-6 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Simpan Jam Kerja
-          </button>
+          <div className="flex items-center justify-between gap-3">
+            <button
+              type="submit"
+              form={formId}
+              disabled={isSaving}
+              className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+            >
+              {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Simpan Jam Kerja
+            </button>
+          </div>
         }
       >
         {onlyTherapist ? (

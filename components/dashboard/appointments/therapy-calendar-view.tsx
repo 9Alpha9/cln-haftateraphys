@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  FileText,
   Plus,
   XCircle,
 } from 'lucide-react';
@@ -525,18 +526,20 @@ export function TherapyCalendarView({
         }
         footer={
           selectedAppointment ? (
-            <div className="flex items-center justify-between gap-3">
+            <div className="shrink-0 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full">
+              {/* Baris 1: Aksi utama (full width) */}
               {canComplete &&
               (selectedAppointment.status === 'SCHEDULED' ||
                 selectedAppointment.status === 'CONFIRMED') ? (
                 <CompleteSessionButton
                   appointmentId={selectedAppointment.id}
-                  className="h-10 sm:h-11 px-5 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] text-[#181700] font-bold text-xs sm:text-[13px] transition-colors hover:bg-[var(--hafta-ylw-200)] whitespace-nowrap"
+                  className="w-full h-11 px-5 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] text-[#181700] font-bold text-xs sm:text-[13px] transition-colors hover:bg-[var(--hafta-ylw-200)] whitespace-nowrap shrink-0"
                 />
               ) : null}
+              {/* Baris 2: Aksi pendukung (full width sekunder) */}
               <Link
                 href={`/dashboard/appointments/${selectedAppointment.id}`}
-                className="h-10 sm:h-11 px-5 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-200 bg-white text-[#181700] font-bold text-xs sm:text-[13px] transition-colors hover:bg-stone-50 whitespace-nowrap"
+                className="w-full h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-200 bg-white text-[#181700] font-bold text-xs sm:text-[13px] transition-colors hover:bg-stone-50 whitespace-nowrap shrink-0"
               >
                 Buka Manajemen Sesi
               </Link>

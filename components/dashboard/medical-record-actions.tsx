@@ -10,7 +10,7 @@ function safeFilePart(value: string) {
   return value.replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, ' ').trim();
 }
 
-function useMedicalRecordPdf(record: MedicalRecordPdfData) {
+export function useMedicalRecordPdf(record: MedicalRecordPdfData) {
   const [loading, setLoading] = useState(false);
   const [printing, setPrinting] = useState(false);
   const { showToast } = useToast();

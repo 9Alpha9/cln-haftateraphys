@@ -54,7 +54,7 @@ export default async function ProgressPage({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24 lg:pb-6">
       {/* ── 1. GLOBAL ARCHITECTURAL NON-ROUNDED HEADER ── */}
       <DashboardPageHeader
         title="Rekam Medis Pasien"

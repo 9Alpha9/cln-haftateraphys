@@ -32,11 +32,11 @@ const TABS: { key: TabKey; label: string }[] = [
 ];
 
 const ACTION_BUTTON =
-  'h-10 sm:h-11 px-5 rounded-full text-xs sm:text-[13px] font-bold inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap';
-const ACTION_SECONDARY =
-  'bg-white hover:bg-[var(--hafta-ylw-100)] text-[#181700] border border-stone-200/90 hover:border-[var(--hafta-ylw-200)]';
+  'h-10 sm:h-11 px-5 rounded-full text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0';
 const ACTION_PRIMARY =
-  'bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] border border-[var(--hafta-ylw-200)]';
+  'font-bold bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] shadow-2xs';
+const ACTION_SECONDARY =
+  'font-semibold bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90';
 
 function formatDate(value: Date | string | null, options?: Intl.DateTimeFormatOptions) {
   if (!value) return '-';
@@ -201,46 +201,50 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
         }
         footer={
           data && patient ? (
-            <div className="flex flex-wrap gap-2 justify-end w-full sm:w-auto">
-              {activeTab === 'profile' && data.capabilities.canEditRecord ? (
-                <button
-                  type="button"
-                  onClick={() => setCreatingRecord(true)}
-                  className={cn(ACTION_BUTTON, ACTION_PRIMARY)}
-                >
-                  <FileText className="h-4 w-4" />
-                  Catat Assessment Baru
-                </button>
-              ) : null}
-              {activeTab === 'assessment' && data.capabilities.canEditRecord ? (
-                <button
-                  type="button"
-                  onClick={() => setCreatingRecord(true)}
-                  className={cn(ACTION_BUTTON, ACTION_PRIMARY)}
-                >
-                  <FileText className="h-4 w-4" />
-                  Catat Assessment Baru
-                </button>
-              ) : null}
-              {activeTab === 'profile' && data.capabilities.canCreateAppointment ? (
-                <NewAppointmentButton
-                  defaultPatientId={patient.id}
-                  className={cn(ACTION_BUTTON, ACTION_SECONDARY)}
-                >
-                  <CalendarPlus className="h-4 w-4" />
-                  Jadwalkan Sesi Baru
-                </NewAppointmentButton>
-              ) : null}
-              {activeTab === 'profile' &&
-              data.capabilities.canCompleteProgram &&
-              (patient.caseStatus === 'ACTIVE' || patient.caseStatus === 'ON_HOLD') ? (
-                <CompleteProgramButton
-                  patientId={patient.id}
-                  patientName={patient.fullName}
-                  onCompleted={() => setReloadToken((token) => token + 1)}
-                  className={cn(ACTION_BUTTON, ACTION_SECONDARY)}
-                />
-              ) : null}
+            <div className="flex items-center justify-between gap-3 w-full">
+              <div className="flex items-center gap-2">
+                {activeTab === 'profile' && data.capabilities.canEditRecord ? (
+                  <button
+                    type="button"
+                    onClick={() => setCreatingRecord(true)}
+                    className={cn(ACTION_BUTTON, ACTION_PRIMARY)}
+                  >
+                    <FileText className="h-4 w-4" />
+                    Catat Assessment Baru
+                  </button>
+                ) : null}
+                {activeTab === 'assessment' && data.capabilities.canEditRecord ? (
+                  <button
+                    type="button"
+                    onClick={() => setCreatingRecord(true)}
+                    className={cn(ACTION_BUTTON, ACTION_PRIMARY)}
+                  >
+                    <FileText className="h-4 w-4" />
+                    Catat Assessment Baru
+                  </button>
+                ) : null}
+              </div>
+              <div className="flex items-center gap-2">
+                {activeTab === 'profile' && data.capabilities.canCreateAppointment ? (
+                  <NewAppointmentButton
+                    defaultPatientId={patient.id}
+                    className={cn(ACTION_BUTTON, ACTION_SECONDARY)}
+                  >
+                    <CalendarPlus className="h-4 w-4" />
+                    Jadwalkan Sesi Baru
+                  </NewAppointmentButton>
+                ) : null}
+                {activeTab === 'profile' &&
+                data.capabilities.canCompleteProgram &&
+                (patient.caseStatus === 'ACTIVE' || patient.caseStatus === 'ON_HOLD') ? (
+                  <CompleteProgramButton
+                    patientId={patient.id}
+                    patientName={patient.fullName}
+                    onCompleted={() => setReloadToken((token) => token + 1)}
+                    className={cn(ACTION_BUTTON, ACTION_SECONDARY)}
+                  />
+                ) : null}
+              </div>
             </div>
           ) : null
         }

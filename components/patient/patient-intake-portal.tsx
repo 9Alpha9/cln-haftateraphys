@@ -269,19 +269,12 @@ function IntakeDrawer({
           </span>
         }
         footer={
-          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <button
-              type="button"
-              onClick={onClose}
-              className="h-10 cursor-pointer rounded-full border border-stone-200 bg-white px-5 text-xs font-semibold text-stone-600 transition-colors hover:bg-stone-50"
-            >
-              Tutup
-            </button>
+          <div className="shrink-0 border-t border-stone-200/80 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full">
             {editable ? (
               <button
                 type="button"
                 onClick={onEdit}
-                className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)]"
+                className="w-full h-11 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-sm flex items-center justify-center shadow-2xs cursor-pointer transition-all px-5"
               >
                 <PencilLine className="h-4 w-4" />
                 Perbarui Jawaban

@@ -69,7 +69,7 @@ function TextField({
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={name} className="text-xs sm:text-sm font-semibold text-[#1F2937]">
+      <Label htmlFor={name} className="text-xs sm:text-sm font-semibold text-[#181700]">
         {label}
         {required ? ' *' : ''}
       </Label>
@@ -78,18 +78,18 @@ function TextField({
           id={name}
           rows={rows}
           disabled={disabled}
-          className="flex min-h-[6rem] w-full resize-none rounded-xl border border-[#E9E2D8] bg-[#FBF9F6] px-3.5 py-2.5 text-sm leading-relaxed text-[#1F2937] placeholder:text-[#9CA3AF] focus-visible:outline-none focus-visible:border-[var(--hafta-ylw-400)] focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-400)]/20 disabled:cursor-not-allowed disabled:opacity-60 transition-all"
+          className="flex min-h-[6rem] w-full resize-none rounded-xl border border-stone-200/80 bg-[#FEFEF6] px-3.5 py-2.5 text-sm leading-relaxed text-[#181700] placeholder:text-stone-400 focus-visible:outline-none focus-visible:border-[var(--hafta-ylw-400)] focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-400)]/20 disabled:cursor-not-allowed disabled:opacity-60 transition-all"
           {...field}
         />
       ) : (
         <Input
           id={name}
           disabled={disabled}
-          className="rounded-xl border border-[#E9E2D8] bg-[#FBF9F6] px-3.5 py-2 text-sm text-[#1F2937] focus-visible:border-[var(--hafta-ylw-400)] focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-400)]/20 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-xl border border-stone-200/80 bg-[#FEFEF6] px-3.5 py-2 text-sm text-[#181700] focus-visible:border-[var(--hafta-ylw-400)] focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-400)]/20 disabled:cursor-not-allowed disabled:opacity-60"
           {...field}
         />
       )}
-      {error ? <p className="text-xs text-rose-600 font-medium">{error}</p> : null}
+      {error ? <p className="text-xs text-[var(--hafta-red-600)] font-medium">{error}</p> : null}
     </div>
   );
 }
@@ -225,25 +225,25 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
   return (
     <form className="flex min-h-full flex-col gap-6" onSubmit={save('submit')}>
       {status ? (
-        <Alert className="border-[#E9E2D8] bg-[#FBF9F6] text-[#4B5563]">
+        <Alert className="border-stone-200/80 bg-[#FEFEF6] text-stone-700">
           <AlertDescription className="flex items-center gap-2 text-sm">
-            <span className="text-[#6B7280]">Status:</span>
-            <strong className="font-semibold text-[#1F2937]">{statusLabel[status]}</strong>
-            {locked ? <span className="text-[#6B7280]">· Form tidak dapat diubah sampai tim Hafta meminta perbaikan.</span> : null}
+            <span className="text-stone-500">Status:</span>
+            <strong className="font-semibold text-[#181700]">{statusLabel[status]}</strong>
+            {locked ? <span className="text-stone-500">· Form tidak dapat diubah sampai tim Hafta meminta perbaikan.</span> : null}
           </AlertDescription>
         </Alert>
       ) : null}
 
       {/* Humanized Error Handle Box dengan Penjelasan & Tindakan Jelas */}
       {rootErrorDetail ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50/70 p-4.5 sm:p-5 text-red-950 transition-all duration-200">
+        <div className="rounded-2xl border border-[var(--hafta-red-200)] bg-[var(--hafta-red-50)]/70 p-4.5 sm:p-5 text-[var(--hafta-red-950)] transition-all duration-200">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 shrink-0 text-red-600 mt-0.5" aria-hidden="true" />
+            <AlertCircle className="h-5 w-5 shrink-0 text-[var(--hafta-red-600)] mt-0.5" aria-hidden="true" />
             <div className="flex-1 space-y-1.5 text-sm">
-              <h4 className="font-bold text-red-900 leading-snug">
+              <h4 className="font-bold text-[var(--hafta-red-900)] leading-snug">
                 {rootErrorDetail.title}
               </h4>
-              <p className="text-xs sm:text-sm leading-relaxed text-red-800/90">
+              <p className="text-xs sm:text-sm leading-relaxed text-[var(--hafta-red-800)]/90">
                 {rootErrorDetail.description}
               </p>
               {rootErrorDetail.actionHref && (
@@ -252,7 +252,7 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
                     href={rootErrorDetail.actionHref}
                     target={rootErrorDetail.actionHref.startsWith('http') ? '_blank' : undefined}
                     rel={rootErrorDetail.actionHref.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-red-900 border border-red-200 shadow-2xs transition-colors hover:bg-red-100/50"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-[var(--hafta-red-900)] border border-[var(--hafta-red-200)] shadow-2xs transition-colors hover:bg-[var(--hafta-red-100)]/50"
                   >
                     <span>{rootErrorDetail.actionText}</span>
                     <ExternalLink className="h-3 w-3" />
@@ -305,7 +305,7 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
                       className={`relative z-10 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all ${
                         isPassed
                           ? 'bg-[var(--hafta-ylw-100)] text-[#181700] shadow-sm'
-                          : 'border border-[#E9E2D8] bg-white text-[#9CA3AF]'
+                          : 'border border-stone-200 bg-white text-stone-400'
                       } ${index <= step && !locked ? 'cursor-pointer hover:opacity-90' : 'cursor-default'}`}
                       aria-current={isCurrent ? 'step' : undefined}
                     >
@@ -313,7 +313,7 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
                     </button>
                     {/* Connector line — only render between steps */}
                     {index < steps.length - 1 && (
-                      <div className="relative mx-1 h-0.5 flex-1 overflow-hidden rounded-full bg-[#E9E2D8]">
+                      <div className="relative mx-1 w-[32px] shrink-0 h-0.5 overflow-hidden rounded-full bg-stone-200">
                         <div
                           className={`absolute inset-0 bg-[var(--hafta-ylw-300)] transition-all duration-500 ease-out ${
                             isCompleted ? 'w-full' : 'w-0'
@@ -325,7 +325,7 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
                   {/* Label below the circle */}
                   <span
                     className={`mt-2 text-center text-xs font-medium ${
-                      isCurrent ? 'text-[#181700]' : isCompleted ? 'text-[#1F2937]' : 'text-[#9CA3AF]'
+                      isCurrent ? 'text-[#181700]' : isCompleted ? 'text-stone-600' : 'text-stone-400'
                     }`}
                   >
                     {item.title}
@@ -339,26 +339,26 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
 
       {/* Document View (locked) — compact read-only summary */}
       {locked ? (
-        <div className="rounded-xl border border-[#E9E2D8] bg-white divide-y divide-[#E9E2D8] overflow-hidden">
+        <div className="rounded-xl border border-stone-200 bg-white divide-y divide-stone-200 overflow-hidden">
           {/* Section: Keluhan Utama */}
           <div className="px-5 py-4">
             <p className="text-xs font-semibold text-stone-500 mb-3">Keluhan Utama</p>
             <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <div>
-                <p className="text-xs text-[#9CA3AF] mb-0.5">Keluhan utama</p>
-                <p className="text-sm text-[#1F2937] leading-relaxed whitespace-pre-wrap">{getValues('chiefComplaint') || <span className="italic text-[#C4B9A8]">Tidak diisi</span>}</p>
+                <p className="text-xs text-stone-500 mb-0.5">Keluhan utama</p>
+                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('chiefComplaint') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-[#9CA3AF] mb-0.5">Area yang dikeluhkan</p>
-                <p className="text-sm text-[#1F2937] leading-relaxed whitespace-pre-wrap">{getValues('affectedArea') || <span className="italic text-[#C4B9A8]">Tidak diisi</span>}</p>
+                <p className="text-xs text-stone-500 mb-0.5">Area yang dikeluhkan</p>
+                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('affectedArea') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-[#9CA3AF] mb-0.5">Awal keluhan</p>
-                <p className="text-sm text-[#1F2937] leading-relaxed whitespace-pre-wrap">{getValues('onsetDescription') || <span className="italic text-[#C4B9A8]">Tidak diisi</span>}</p>
+                <p className="text-xs text-stone-500 mb-0.5">Awal keluhan</p>
+                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('onsetDescription') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-[#9CA3AF] mb-0.5">Pemicu</p>
-                <p className="text-sm text-[#1F2937] leading-relaxed whitespace-pre-wrap">{getValues('triggeringEvent') || <span className="italic text-[#C4B9A8]">Tidak diisi</span>}</p>
+                <p className="text-xs text-stone-500 mb-0.5">Pemicu</p>
+                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('triggeringEvent') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
               </div>
             </div>
           </div>
@@ -368,20 +368,20 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
             <p className="text-xs font-semibold text-stone-500 mb-3">Aktivitas & Target</p>
             <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <div>
-                <p className="text-xs text-[#9CA3AF] mb-0.5">Keterbatasan aktivitas</p>
-                <p className="text-sm text-[#1F2937] leading-relaxed whitespace-pre-wrap">{getValues('dailyLimitations') || <span className="italic text-[#C4B9A8]">Tidak diisi</span>}</p>
+                <p className="text-xs text-stone-500 mb-0.5">Keterbatasan aktivitas</p>
+                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('dailyLimitations') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-[#9CA3AF] mb-0.5">Target pasien</p>
-                <p className="text-sm text-[#1F2937] leading-relaxed whitespace-pre-wrap">{getValues('patientGoal') || <span className="italic text-[#C4B9A8]">Tidak diisi</span>}</p>
+                <p className="text-xs text-stone-500 mb-0.5">Target pasien</p>
+                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('patientGoal') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-[#9CA3AF] mb-0.5">Hal yang memperberat</p>
-                <p className="text-sm text-[#1F2937] leading-relaxed whitespace-pre-wrap">{getValues('aggravatingFactors') || <span className="italic text-[#C4B9A8]">Tidak diisi</span>}</p>
+                <p className="text-xs text-stone-500 mb-0.5">Hal yang memperberat</p>
+                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('aggravatingFactors') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-[#9CA3AF] mb-0.5">Hal yang membantu meredakan</p>
-                <p className="text-sm text-[#1F2937] leading-relaxed whitespace-pre-wrap">{getValues('relievingFactors') || <span className="italic text-[#C4B9A8]">Tidak diisi</span>}</p>
+                <p className="text-xs text-stone-500 mb-0.5">Hal yang membantu meredakan</p>
+                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('relievingFactors') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
               </div>
             </div>
           </div>
@@ -391,24 +391,24 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
             <p className="text-xs font-semibold text-stone-500 mb-3">Riwayat Relevan</p>
             <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <div>
-                <p className="text-xs text-[#9CA3AF] mb-0.5">Riwayat cedera</p>
-                <p className="text-sm text-[#1F2937] leading-relaxed whitespace-pre-wrap">{getValues('previousInjuryHistory') || <span className="italic text-[#C4B9A8]">Tidak diisi</span>}</p>
+                <p className="text-xs text-stone-500 mb-0.5">Riwayat cedera</p>
+                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('previousInjuryHistory') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-[#9CA3AF] mb-0.5">Riwayat operasi</p>
-                <p className="text-sm text-[#1F2937] leading-relaxed whitespace-pre-wrap">{getValues('surgeryHistory') || <span className="italic text-[#C4B9A8]">Tidak diisi</span>}</p>
+                <p className="text-xs text-stone-500 mb-0.5">Riwayat operasi</p>
+                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('surgeryHistory') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-[#9CA3AF] mb-0.5">Riwayat medis relevan</p>
-                <p className="text-sm text-[#1F2937] leading-relaxed whitespace-pre-wrap">{getValues('relevantMedicalHistory') || <span className="italic text-[#C4B9A8]">Tidak diisi</span>}</p>
+                <p className="text-xs text-stone-500 mb-0.5">Riwayat medis relevan</p>
+                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('relevantMedicalHistory') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-[#9CA3AF] mb-0.5">Obat saat ini</p>
-                <p className="text-sm text-[#1F2937] leading-relaxed whitespace-pre-wrap">{getValues('currentMedication') || <span className="italic text-[#C4B9A8]">Tidak diisi</span>}</p>
+                <p className="text-xs text-stone-500 mb-0.5">Obat saat ini</p>
+                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('currentMedication') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-[#9CA3AF] mb-0.5">Alergi</p>
-                <p className="text-sm text-[#1F2937] leading-relaxed whitespace-pre-wrap">{getValues('allergies') || <span className="italic text-[#C4B9A8]">Tidak diisi</span>}</p>
+                <p className="text-xs text-stone-500 mb-0.5">Alergi</p>
+                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('allergies') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
               </div>
             </div>
           </div>
@@ -419,8 +419,8 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
       {step === 0 && !locked ? (
         <section className="space-y-5">
           <div className="space-y-1">
-            <h2 className="text-base font-bold text-[#1F2937]">Keluhan Utama</h2>
-            <p className="text-sm text-[#6B7280]">
+            <h2 className="text-base font-bold text-[#181700]">Keluhan Utama</h2>
+            <p className="text-sm text-stone-500">
               Tuliskan dengan kata-kata Anda sendiri. Form ini bukan diagnosis.
             </p>
           </div>
@@ -467,10 +467,10 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
 
       {/* Step 1: Aktivitas & Target (edit mode only) */}
       {step === 1 && !locked ? (
-        <section className="space-y-5 border-t border-[#E9E2D8] pt-6">
+        <section className="space-y-5 border-t border-stone-200 pt-6">
           <div className="space-y-1">
-            <h2 className="text-base font-bold text-[#1F2937]">Aktivitas & Target</h2>
-            <p className="text-sm text-[#6B7280]">Bantu tim memahami dampak keluhan pada aktivitas Anda.</p>
+            <h2 className="text-base font-bold text-[#181700]">Aktivitas & Target</h2>
+            <p className="text-sm text-stone-500">Bantu tim memahami dampak keluhan pada aktivitas Anda.</p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2">
             <TextField
@@ -515,10 +515,10 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
 
       {/* Step 2: Riwayat Relevan (edit mode only) */}
       {step === 2 && !locked ? (
-        <section className="space-y-5 border-t border-[#E9E2D8] pt-6">
+        <section className="space-y-5 border-t border-stone-200 pt-6">
           <div className="space-y-1">
-            <h2 className="text-base font-bold text-[#1F2937]">Riwayat Relevan</h2>
-            <p className="text-sm text-[#6B7280]">Isi hanya informasi yang relevan dan Anda ketahui.</p>
+            <h2 className="text-base font-bold text-[#181700]">Riwayat Relevan</h2>
+            <p className="text-sm text-stone-500">Isi hanya informasi yang relevan dan Anda ketahui.</p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2">
             <TextField
@@ -572,22 +572,22 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
 
       {/* Step 3: Review & Kirim */}
       {step === 3 && !locked ? (
-        <section className="space-y-5 border-t border-[#E9E2D8] pt-6">
+        <section className="space-y-5 border-t border-stone-200 pt-6">
           <div className="space-y-1">
-            <h2 className="text-base font-bold text-[#1F2937]">Review & Kirim</h2>
-            <p className="text-sm text-[#6B7280]">
+            <h2 className="text-base font-bold text-[#181700]">Review & Kirim</h2>
+            <p className="text-sm text-stone-500">
               Setelah dikirim, Form Awal akan ditinjau tim Hafta. Anda masih dapat memperbarui jawaban selama proses peninjauan.
             </p>
           </div>
-          <div className="rounded-xl border border-[#E9E2D8] bg-[#FBF9F6] p-4 text-sm text-[#4B5563] space-y-2">
+          <div className="rounded-xl border border-stone-200 bg-[#FEFEF6] p-4 text-sm text-stone-600 space-y-2">
             <p>
-              <strong className="text-[#1F2937]">Keluhan:</strong> {getValues('chiefComplaint') || 'Belum diisi'}
+              <strong className="text-[#181700]">Keluhan:</strong> {getValues('chiefComplaint') || 'Belum diisi'}
             </p>
             <p>
-              <strong className="text-[#1F2937]">Area yang dikeluhkan:</strong> {getValues('affectedArea') || 'Belum diisi'}
+              <strong className="text-[#181700]">Area yang dikeluhkan:</strong> {getValues('affectedArea') || 'Belum diisi'}
             </p>
             <p>
-              <strong className="text-[#1F2937]">Target Terapi:</strong> {getValues('patientGoal') || 'Belum diisi'}
+              <strong className="text-[#181700]">Target Terapi:</strong> {getValues('patientGoal') || 'Belum diisi'}
             </p>
           </div>
           <div className="flex items-start align-middle gap-3 p-4 text-sm">
@@ -598,7 +598,7 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
               disabled={pending}
               {...register('dataAccuracyAcknowledged', { required: 'Konfirmasi ketepatan data diperlukan.' })}
             />
-            <label htmlFor="dataAccuracyAcknowledged" className="select-none text-[#1F2937] cursor-pointer">
+            <label htmlFor="dataAccuracyAcknowledged" className="select-none text-[#181700] cursor-pointer">
               Saya mengonfirmasi bahwa informasi yang saya kirimkan akurat sesuai pengetahuan saya.
             </label>
           </div>
@@ -610,50 +610,50 @@ export function PatientIntakeForm({ initialValues, status, onSaved, showStartNew
 
       {/* Action Buttons */}
       {!locked ? (
-        <div className="sticky bottom-0 z-10 mt-auto -mx-5 flex flex-col-reverse gap-3 border-t border-[#E9E2D8] bg-white px-5 pb-1 pt-4 sm:-mx-6 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div>
-            {step > 0 ? (
+          <div className="sticky bottom-0 z-10 mt-auto -mx-5 flex flex-col-reverse gap-3 border-t border-stone-200 bg-white px-5 pb-1 pt-4 sm:-mx-6 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div>
+              {step > 0 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={pending}
+                  onClick={() => setStep((current) => current - 1)}
+                  className="rounded-xl border border-stone-200 bg-white text-[#181700] hover:bg-[var(--hafta-ylw-50)] hover:text-[#181700]"
+                >
+                  Kembali
+                </Button>
+              ) : null}
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
               <Button
                 type="button"
                 variant="outline"
                 disabled={pending}
-                onClick={() => setStep((current) => current - 1)}
-                className="rounded-xl border border-[#E9E2D8] bg-white text-[#1F2937] hover:bg-[var(--hafta-ylw-50)]/50 hover:text-[#181700]"
+                onClick={save('draft')}
+                className="rounded-xl border border-stone-200 bg-white text-[#181700] hover:bg-[var(--hafta-ylw-50)] hover:text-[#181700]"
               >
-                Kembali
+                Simpan Draft
               </Button>
-            ) : null}
+              {step < steps.length - 1 ? (
+                <Button
+                  type="button"
+                  disabled={pending}
+                  onClick={next}
+                  className="rounded-xl bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-semibold shadow-xs"
+                >
+                  Lanjut
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={pending}
+                  className="rounded-xl bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-semibold shadow-xs"
+                >
+                  {pending ? 'Mengirim...' : 'Kirim untuk Ditinjau'}
+                </Button>
+              )}
+            </div>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button
-              type="button"
-              variant="outline"
-              disabled={pending}
-              onClick={save('draft')}
-              className="rounded-xl border border-[#E9E2D8] bg-white text-[#1F2937] hover:bg-[var(--hafta-ylw-50)]/50 hover:text-[#181700]"
-            >
-              Simpan Draft
-            </Button>
-            {step < steps.length - 1 ? (
-              <Button
-                type="button"
-                disabled={pending}
-                onClick={next}
-                className="rounded-xl bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-semibold shadow-xs"
-              >
-                Lanjut
-              </Button>
-            ) : (
-              <Button
-                type="submit"
-                disabled={pending}
-                className="rounded-xl bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-semibold shadow-xs"
-              >
-                {pending ? 'Mengirim...' : 'Kirim untuk Ditinjau'}
-              </Button>
-            )}
-          </div>
-        </div>
       ) : null}
     </form>
   );

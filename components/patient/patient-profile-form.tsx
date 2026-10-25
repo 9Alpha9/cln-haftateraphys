@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from 'react';
 import { useForm, Controller } from 'react-hook-form';
-import { Camera, User } from 'lucide-react';
+import { Camera, ChevronDown, User } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -228,19 +228,22 @@ export function PatientProfileForm({
           </div>
           <div className="space-y-2">
             <Label htmlFor="addressCity">Kabupaten / Kota</Label>
-            <select
-              id="addressCity"
-              disabled={pending || !regencies.length || loadingRegencies}
-              defaultValue={initialValues.addressCity ?? ''}
-              className="flex h-10 w-full cursor-pointer appearance-none rounded-lg border border-input bg-background py-2 pl-3 pr-12 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-50"
-              {...register('addressCity')}
-              onChange={(event) => setValue('addressCity', event.target.value)}
-            >
-              <option value="">{loadingRegencies ? 'Memuat kabupaten/kota...' : 'Pilih kabupaten / kota'}</option>
-              {regencies.map((regency) => (
-                <option key={regency.id} value={regency.name}>{regency.name}</option>
-              ))}
-            </select>
+            <div className="relative w-full">
+              <select
+                id="addressCity"
+                disabled={pending || !regencies.length || loadingRegencies}
+                defaultValue={initialValues.addressCity ?? ''}
+                className="h-10 w-full cursor-pointer appearance-none rounded-lg border border-stone-200/90 bg-white pl-3 pr-10 text-sm text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 disabled:opacity-50"
+                {...register('addressCity')}
+                onChange={(event) => setValue('addressCity', event.target.value)}
+              >
+                <option value="">{loadingRegencies ? 'Memuat kabupaten/kota...' : 'Pilih kabupaten / kota'}</option>
+                {regencies.map((regency) => (
+                  <option key={regency.id} value={regency.name}>{regency.name}</option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
+            </div>
           </div>
         </div>
         <div className="space-y-2">

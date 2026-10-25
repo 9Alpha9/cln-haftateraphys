@@ -3,7 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { PasswordField } from '@/components/auth/password-field';
@@ -17,16 +17,28 @@ type FieldErrors = {
 };
 
 const REMEMBER_EMAIL_KEY = 'hafta_remembered_email';
+const REMEMBER_ME_KEY = 'hafta_remember_me';
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [remember, setRemember] = useState(
     () => typeof window !== 'undefined' && Boolean(window.localStorage.getItem(REMEMBER_EMAIL_KEY)),
   );
+  const [rememberDevice, setRememberDevice] = useState(false);
+
+  const reason = searchParams.get('reason');
+
+  const reasonBanner =
+    reason === 'idle'
+      ? 'Sesi Anda telah dikunci otomatis karena tidak ada aktivitas untuk melindungi kerahasiaan data medis. Silakan masuk kembali.'
+      : reason === 'closed'
+        ? 'Sesi sebelumnya telah berakhir saat browser ditutup. Silakan masuk kembali untuk melanjutkan.'
+        : null;
 
   useEffect(() => {
     const saved = window.localStorage.getItem(REMEMBER_EMAIL_KEY);
@@ -39,6 +51,14 @@ export function LoginForm() {
       window.localStorage.setItem(REMEMBER_EMAIL_KEY, email);
     } else {
       window.localStorage.removeItem(REMEMBER_EMAIL_KEY);
+    }
+  };
+
+  const persistRememberDevice = () => {
+    if (rememberDevice) {
+      window.localStorage.setItem(REMEMBER_ME_KEY, '1');
+    } else {
+      window.localStorage.removeItem(REMEMBER_ME_KEY);
     }
   };
 
@@ -108,6 +128,7 @@ export function LoginForm() {
         router.push('/dashboard');
         router.refresh();
         persistEmail(email);
+        persistRememberDevice();
       } catch {
         setFieldErrors({
           email: 'Terjadi kendala pada server.',
@@ -146,6 +167,15 @@ export function LoginForm() {
       {generalError && (
         <div className="mb-5">
           <AuthAlert type="error" message={generalError} />
+        </div>
+      )}
+
+      {reasonBanner && (
+        <div className="mb-6">
+          <div className="rounded-2xl bg-[var(--hafta-ylw-50)]/80 border border-[var(--hafta-ylw-200)] px-4 py-3 text-xs text-[#181700] flex items-center gap-2.5">
+            <AlertCircle className="h-4 w-4 shrink-0 text-[#181700]" />
+            <span>{reasonBanner}</span>
+          </div>
         </div>
       )}
 
@@ -195,8 +225,8 @@ export function LoginForm() {
           />
         </div>
 
-        {/* Baris Checkbox Simpan & Lupa Kata Sandi */}
-        <div className="flex items-center justify-between pt-1 text-xs">
+        {/* Baris Checkbox Simpan & Ingat Perangkat */}
+        <div className="flex flex-col gap-2 pt-1 text-xs">
           <label htmlFor="rememberLogin" className="flex items-center gap-2 text-stone-600 cursor-pointer select-none">
             <input
               id="rememberLogin"
@@ -206,6 +236,17 @@ export function LoginForm() {
               className="h-4 w-4 shrink-0 rounded border-stone-300 accent-[#181700] cursor-pointer"
             />
             <span>Simpan data login</span>
+          </label>
+
+          <label htmlFor="rememberDevice" className="flex items-center gap-2 text-stone-600 cursor-pointer select-none">
+            <input
+              id="rememberDevice"
+              type="checkbox"
+              checked={rememberDevice}
+              onChange={(e) => setRememberDevice(e.target.checked)}
+              className="h-4 w-4 shrink-0 rounded-md border-stone-300 text-[#181700] focus:ring-[#f7f000]/30 cursor-pointer"
+            />
+            <span>Ingat perangkat ini selama 7 hari</span>
           </label>
 
           <a

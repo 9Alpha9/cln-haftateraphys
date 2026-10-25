@@ -3,6 +3,7 @@ import { CalendarDays, LayoutList, Plus, Search, Filter } from 'lucide-react';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
 import { buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { ViewSwitcher } from '@/components/dashboard/appointments/view-switcher';
 import {
   Pagination,
   PaginationContent,
@@ -46,7 +47,7 @@ export default async function AppointmentsPage({
     ]);
 
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 pb-24 lg:pb-6">
         <DashboardPageHeader
           title="Jadwal Terapi"
           description="Lihat sesi terapi Anda, temukan slot fisioterapis yang tersedia, lalu ajukan jadwal baru. Pengajuan akan dikonfirmasi oleh tim Hafta."
@@ -101,7 +102,7 @@ export default async function AppointmentsPage({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-24 lg:pb-6">
       <DashboardPageHeader
         title="Jadwal Terapi"
         description="Kelola jadwal janji temu dan pantau ketersediaan sesi terapi."
@@ -111,41 +112,31 @@ export default async function AppointmentsPage({
         ]}
         icon={<CalendarDays className="h-6 w-6 text-[var(--hafta-ylw-100)]" />}
         action={
-          <div className="flex flex-col gap-3 w-full">
-            <div className="flex items-center justify-between gap-2 w-full">
-              {scheduleOverview.length > 0 ? (
-                <TherapistSchedulePanel
-                  therapists={scheduleOverview}
-                  label={role === 'THERAPIST' ? 'Jadwal Kerja Saya' : 'Jadwal Kerja Terapis'}
-                />
+          <div className="flex flex-col gap-2.5 w-full sm:w-auto sm:flex-row sm:items-center">
+            {/* Mobile Row 1: View Switcher full width */}
+            <ViewSwitcher />
+
+            {/* Row 2 (mobile): Appointment button + Jadwal Kerja Saya grid */}
+            {/* Row 1 (desktop): Jadwal Kerja Saya + Switcher + Buat Appointment side by side */}
+            <div className="grid grid-cols-2 gap-2.5 w-full sm:flex sm:w-auto sm:items-center sm:justify-end">
+              {canCreate ? (
+                <NewAppointmentButton
+                  patientOptions={formOptions.patientOptions}
+                  therapistOptions={formOptions.therapistOptions}
+                  className="h-11 px-3 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] border border-transparent text-[#181700] text-xs sm:text-[13px] font-bold inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
+                >
+                  <Plus className="h-4 w-4" /> Buat Appointment
+                </NewAppointmentButton>
               ) : null}
-
-              {/* View Switcher */}
-              <div className="flex items-center rounded-xl border border-stone-200 bg-white p-1 shadow-2xs">
-            <Link
-                href="/dashboard/appointments"
-                className="flex h-10 items-center gap-1.5 rounded-lg bg-[var(--hafta-ylw-100)] px-3.5 text-xs font-bold text-[#181700] shadow-2xs whitespace-nowrap"
-              >
-                <LayoutList className="h-3.5 w-3.5" /> List
-              </Link>
-              <Link
-                href="/dashboard/calendar"
-                className="flex h-10 items-center gap-1.5 rounded-lg px-3.5 text-xs font-semibold text-stone-500 hover:text-[#181700] whitespace-nowrap"
-              >
-                <CalendarDays className="h-3.5 w-3.5" /> Kalender
-              </Link>
-              </div>
+              {scheduleOverview.length > 0 ? (
+                <div className="w-full sm:w-auto">
+                  <TherapistSchedulePanel
+                    therapists={scheduleOverview}
+                    label={role === 'THERAPIST' ? 'Jadwal Kerja Saya' : 'Jadwal Kerja Terapis'}
+                  />
+                </div>
+              ) : null}
             </div>
-
-            {canCreate ? (
-              <NewAppointmentButton
-                patientOptions={formOptions.patientOptions}
-                therapistOptions={formOptions.therapistOptions}
-                className="w-full justify-center inline-flex items-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-4 py-2 h-10 text-xs font-bold text-[#181700] shadow-2xs transition-all hover:bg-[var(--hafta-ylw-200)] whitespace-nowrap"
-              >
-                <Plus className="h-4 w-4" /> Buat Appointment
-              </NewAppointmentButton>
-            ) : null}
           </div>
         }
       />
@@ -223,7 +214,7 @@ export default async function AppointmentsPage({
         </Card>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 w-full">
             {filteredItems.map((appointment) => (
               <AppointmentCard key={appointment.id} appointment={appointment} role={role} />
             ))}

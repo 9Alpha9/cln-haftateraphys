@@ -26,6 +26,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { SessionSecurityGuard } from '@/components/dashboard/session-security-guard';
 import type { Role } from '@/lib/permissions/roles';
 
 export function PatientDashboardShell({
@@ -339,7 +340,11 @@ export function PatientDashboardShell({
         </header>
 
         {/* Content area */}
-        <main className="flex-1 w-full max-w-[1440px] mx-auto px-5 sm:px-8 pb-12">{children}</main>
+        <main className="flex-1 w-full max-w-[1600px] mx-auto px-5 sm:px-8 pb-12">{children}</main>
+
+        {/* Session Security Guard */}
+        <SessionSecurityGuard role={role} userId={userEmail ?? 'unknown'} />
+
       </div>
     </div>
   );
