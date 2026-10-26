@@ -42,6 +42,8 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
   const [mode, setMode] = useState<Mode>('view');
   const [isOpen, setIsOpen] = useState(false);
   const [showNewEpisodeConfirm, setShowNewEpisodeConfirm] = useState(false);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
+  const [isClosingAfterSave, setIsClosingAfterSave] = useState(false);
 
   const current = history[0] ?? null;
   const canStartEpisode = !current || current.status === 'ACCEPTED' || current.status === 'ARCHIVED';
@@ -59,6 +61,22 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
   }
 
   function closeDrawer() {
+    if ((mode === 'edit' || mode === 'new') && !isClosingAfterSave) {
+      setShowCloseConfirm(true);
+      return;
+    }
+    setIsOpen(false);
+    setMode('view');
+    setIsClosingAfterSave(false);
+  }
+
+  function handleSaved() {
+    setIsClosingAfterSave(true);
+    closeDrawer();
+  }
+
+  function handleCloseConfirm() {
+    setShowCloseConfirm(false);
     setIsOpen(false);
     setMode('view');
   }
@@ -104,6 +122,7 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
         <IntakeDrawer
           isOpen={isOpen}
           onClose={closeDrawer}
+          onSaved={handleSaved}
           activeIntake={activeIntake}
           mode={mode}
           onEdit={() => setMode('edit')}
@@ -220,6 +239,7 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
       <IntakeDrawer
         isOpen={isOpen}
         onClose={closeDrawer}
+        onSaved={handleSaved}
         activeIntake={activeIntake}
         mode={mode}
         onEdit={() => setMode('edit')}
@@ -234,6 +254,17 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
         onConfirm={createNewEpisode}
         onCancel={() => setShowNewEpisodeConfirm(false)}
       />
+
+      <ConfirmDialog
+        isOpen={showCloseConfirm}
+        title="Batalkan Pengisian Form?"
+        description="Anda memiliki isian form yang belum disimpan. Jika batal, data yang telah Anda isi akan hilang dan tidak akan dikirimkan."
+        confirmLabel="Ya, Batalkan"
+        cancelLabel="Tetap Isi Form"
+        variant="destructive"
+        onConfirm={handleCloseConfirm}
+        onCancel={() => setShowCloseConfirm(false)}
+      />
     </div>
   );
 }
@@ -241,12 +272,14 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
 function IntakeDrawer({
   isOpen,
   onClose,
+  onSaved,
   activeIntake,
   mode,
   onEdit,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  onSaved: () => void;
   activeIntake: PatientIntakeHistoryItem | null;
   mode: Mode;
   onEdit: () => void;
@@ -318,9 +351,7 @@ function IntakeDrawer({
           key={activeIntake?.id ?? 'new-intake'}
           status={mode === 'new' ? null : activeIntake?.status ?? null}
           initialValues={activeIntake ? intakeToFormValues(activeIntake) : null}
-          onSaved={() => {
-            onClose();
-          }}
+          onSaved={onSaved}
           onFooterChange={setFormFooterNode}
           showStartNewAction={false}
         />
