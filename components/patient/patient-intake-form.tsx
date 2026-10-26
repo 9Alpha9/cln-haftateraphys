@@ -52,6 +52,7 @@ function TextField({
   disabled,
   register,
   error,
+  className,
 }: {
   name: FieldName;
   label: string;
@@ -63,6 +64,7 @@ function TextField({
   disabled: boolean;
   register: ReturnType<typeof useForm<IntakeDraftInput>>['register'];
   error?: string;
+  className?: string;
 }) {
   const field = register(
     name,
@@ -87,7 +89,10 @@ function TextField({
           rows={rows}
           disabled={disabled}
           placeholder={placeholder}
-          className="flex min-h-[5.5rem] w-full resize-none rounded-2xl border border-stone-200/90 bg-[#FEFEF6] px-4 py-3 text-sm sm:text-base leading-relaxed text-[#181700] placeholder:text-stone-400 focus-visible:outline-none focus-visible:border-[var(--hafta-ylw-400)] focus-visible:ring-3 focus-visible:ring-[var(--hafta-ylw-400)]/20 disabled:cursor-not-allowed disabled:opacity-60 transition-all"
+          className={cn(
+            "flex w-full resize-y overflow-y-auto min-h-[5.5rem] max-h-[24rem] rounded-2xl border border-stone-200/90 bg-[#FEFEF6] px-4 py-3 text-sm sm:text-base leading-relaxed text-[#181700] placeholder:text-stone-400 focus-visible:outline-none focus-visible:border-[var(--hafta-ylw-400)] focus-visible:ring-3 focus-visible:ring-[var(--hafta-ylw-400)]/20 disabled:cursor-not-allowed disabled:opacity-60 transition-all scrollbar-thin",
+            className
+          )}
           {...field}
         />
       ) : (
@@ -95,7 +100,10 @@ function TextField({
           id={name}
           disabled={disabled}
           placeholder={placeholder}
-          className="h-12 rounded-2xl border border-stone-200/90 bg-[#FEFEF6] px-4 py-2.5 text-sm sm:text-base text-[#181700] focus-visible:border-[var(--hafta-ylw-400)] focus-visible:ring-3 focus-visible:ring-[var(--hafta-ylw-400)]/20 disabled:cursor-not-allowed disabled:opacity-60"
+          className={cn(
+            "h-12 rounded-2xl border border-stone-200/90 bg-[#FEFEF6] px-4 py-2.5 text-sm sm:text-base text-[#181700] focus-visible:border-[var(--hafta-ylw-400)] focus-visible:ring-3 focus-visible:ring-[var(--hafta-ylw-400)]/20 disabled:cursor-not-allowed disabled:opacity-60",
+            className
+          )}
           {...field}
         />
       )}
@@ -523,6 +531,7 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.chiefComplaint?.message}
+              className="text-[11px]"
             />
             <TextField
               name="affectedArea"
@@ -534,6 +543,7 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.affectedArea?.message}
+              className="text-[11px]"
             />
             <TextField
               name="onsetDescription"
@@ -545,6 +555,7 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.onsetDescription?.message}
+              className="text-[11px]"
             />
             <TextField
               name="triggeringEvent"
@@ -556,6 +567,7 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.triggeringEvent?.message}
+              className="text-[11px]"
             />
           </div>
         </section>
@@ -579,6 +591,7 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.dailyLimitations?.message}
+              className="text-[11px]"
             />
             <TextField
               name="patientGoal"
@@ -590,6 +603,7 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.patientGoal?.message}
+              className="text-[11px]"
             />
             <TextField
               name="aggravatingFactors"
@@ -601,6 +615,7 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.aggravatingFactors?.message}
+              className="text-[11px]"
             />
             <TextField
               name="relievingFactors"
@@ -612,6 +627,7 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.relievingFactors?.message}
+              className="text-[11px]"
             />
           </div>
         </section>
@@ -635,6 +651,7 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.previousInjuryHistory?.message}
+              className="text-[11px]"
             />
             <TextField
               name="surgeryHistory"
@@ -646,6 +663,7 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.surgeryHistory?.message}
+              className="text-[11px]"
             />
             <TextField
               name="relevantMedicalHistory"
@@ -657,6 +675,7 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.relevantMedicalHistory?.message}
+              className="text-[11px]"
             />
             <TextField
               name="currentMedication"
@@ -668,6 +687,7 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.currentMedication?.message}
+              className="text-[11px]"
             />
             <TextField
               name="allergies"
@@ -679,6 +699,7 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.allergies?.message}
+              className="text-[11px]"
             />
           </div>
         </section>
