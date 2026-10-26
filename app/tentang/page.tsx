@@ -105,7 +105,7 @@ export default function AboutPage() {
             sizes="100vw"
             priority
             className="-z-20 object-cover object-[center_20%] lg:object-[center_15%]"
-            quality={100}
+            quality={75}
           />
           <div
             aria-hidden="true"

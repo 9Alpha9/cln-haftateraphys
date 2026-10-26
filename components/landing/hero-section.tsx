@@ -15,8 +15,9 @@ export function HeroSection() {
         fill
         sizes="100vw"
         className="-z-20 object-cover object-[center_20%] lg:object-[center_15%]"
-        quality={100}
+        quality={75}
         priority
+        fetchPriority="high"
       />
       <div
         aria-hidden="true"

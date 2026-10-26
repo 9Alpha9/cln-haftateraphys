@@ -64,7 +64,7 @@ function ReviewCard({ review }: { review: FeaturableReview }) {
           <GoogleIcon />
         </div>
 
-        <div className="mt-4 flex gap-1" aria-label={`${review.rating} dari 5 bintang`}>
+        <div className="mt-4 flex gap-1" role="img" aria-label={`${review.rating} dari 5 bintang`}>
           {Array.from({ length: 5 }).map((_, index) => (
             <Star
               key={index}

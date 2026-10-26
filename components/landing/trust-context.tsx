@@ -37,7 +37,7 @@ export function TrustContext() {
                 <item.icon className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[var(--hafta-ylw-950)]">{item.title}</h3>
+                <h2 className="text-sm font-bold text-[var(--hafta-ylw-950)]">{item.title}</h2>
                 <p className="mt-1 text-xs leading-relaxed text-stone-600 sm:text-sm">{item.description}</p>
               </div>
             </div>
