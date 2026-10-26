@@ -4,6 +4,25 @@ import { getTherapyProgressById } from '@/server/queries/therapy-progress';
 import { PrintTrigger } from '@/components/dashboard/print-trigger';
 import { PrintFooter } from '@/components/ui/print-footer';
 
+function calculateAge(dob: Date | string | null | undefined): string {
+  if (!dob) return '-';
+  const birthDate = new Date(dob);
+  if (isNaN(birthDate.getTime())) return '-';
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return `${age} tahun`;
+}
+
+function formatGender(gender: string | null | undefined): string {
+  if (gender === 'MALE') return 'Laki-laki';
+  if (gender === 'FEMALE') return 'Perempuan';
+  return gender || '-';
+}
+
 export default async function PrintMedicalRecordPage({
   params,
   searchParams,
@@ -26,6 +45,14 @@ export default async function PrintMedicalRecordPage({
     year: 'numeric',
   });
 
+  const dobFormatted = record.patientDob
+    ? new Date(record.patientDob).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    : null;
+
   return (
     <div className="min-h-screen bg-slate-50 p-4 sm:p-8 print:bg-white print:p-0">
       <PrintTrigger mode={mode} patientName={record.patientName} recordId={record.id} recordedAt={record.recordedAt} />
@@ -43,12 +70,12 @@ export default async function PrintMedicalRecordPage({
             />
             <div>
               <h1 className="text-xl font-bold text-slate-900">HAFTA FISIOTERAPI</h1>
-              <p className="text-xs text-slate-500">Klinik & Layanan Terapi Fisik Profesional</p>
-              <p className="text-xs text-slate-500">Jl. Operasional Klinik No. 8, Indonesia • Telp: (021) 555-0199</p>
+              <p className="text-xs text-slate-500 font-medium">Klinik & Layanan Terapi Fisik Profesional</p>
+              <p className="text-xs text-slate-500">Jl. Pd. Sidokare Indah No.AE-13, Sidokare, Sidoarjo 61214 • WhatsApp: 0812-3293-2872</p>
             </div>
           </div>
           <div className="text-right">
-            <span className="rounded bg-accent/15 text-[#92400e] print:border print:border-accent/30">
+            <span className="rounded bg-accent/15 px-3 py-1 text-xs font-bold text-[#92400e] print:border print:border-accent/30">
               REKAM MEDIS RESMI
             </span>
             <p className="mt-2 font-mono text-xs text-slate-400">ID: {record.id.slice(0, 8).toUpperCase()}</p>
@@ -64,16 +91,34 @@ export default async function PrintMedicalRecordPage({
               <span className="font-semibold text-slate-900">{record.patientName}</span>
             </div>
             <div>
-              <span className="text-xs text-slate-500 block">Tanggal Pelayanan</span>
-              <span className="font-semibold text-slate-900">{formattedDate}</span>
+              <span className="text-xs text-slate-500 block">No. Rekam Medis</span>
+              <span className="font-semibold text-slate-900">{record.medicalRecordNumber || '-'}</span>
             </div>
             <div>
-              <span className="text-xs text-slate-500 block">Nomor Telepon</span>
+              <span className="text-xs text-slate-500 block">Umur / Tanggal Lahir</span>
+              <span className="text-slate-800">
+                {calculateAge(record.patientDob)} {dobFormatted ? `(${dobFormatted})` : ''}
+              </span>
+            </div>
+            <div>
+              <span className="text-xs text-slate-500 block">Jenis Kelamin</span>
+              <span className="text-slate-800">{formatGender(record.gender)}</span>
+            </div>
+            <div>
+              <span className="text-xs text-slate-500 block">Nomor Telepon / HP</span>
               <span className="text-slate-800">{record.patientPhone || '-'}</span>
             </div>
             <div>
               <span className="text-xs text-slate-500 block">Terapis Penanggung Jawab</span>
               <span className="font-semibold text-slate-900">{record.therapistName || 'Terapis Hafta'}</span>
+            </div>
+            <div className="col-span-2">
+              <span className="text-xs text-slate-500 block">Alamat Domisili Pasien</span>
+              <span className="text-slate-800">{record.patientAddress || '-'}</span>
+            </div>
+            <div className="col-span-2">
+              <span className="text-xs text-slate-500 block">Tanggal Pelayanan</span>
+              <span className="font-semibold text-slate-900">{formattedDate}</span>
             </div>
           </div>
         </div>

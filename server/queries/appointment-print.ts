@@ -1,6 +1,6 @@
 import { and, eq } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { appointments, patients, users } from '@/db/schema';
+import { appointments, patients, profiles, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 
@@ -21,12 +21,20 @@ export async function getScopedAppointment(id: string) {
       durationMinutes: appointments.durationMinutes,
       type: appointments.type,
       status: appointments.status,
+      administrativeNote: appointments.administrativeNote,
       patientName: patients.fullName,
+      medicalRecordNumber: patients.medicalRecordNumber,
+      dateOfBirth: patients.dateOfBirth,
+      gender: patients.gender,
+      addressLine: patients.addressLine,
+      addressCity: patients.addressCity,
+      phone: profiles.phone,
       therapistName: users.name,
     })
     .from(appointments)
     .innerJoin(patients, eq(appointments.patientId, patients.id))
     .innerJoin(users, eq(appointments.therapistId, users.id))
+    .leftJoin(profiles, eq(profiles.userId, patients.userId))
     .where(and(eq(appointments.id, id), where))
     .limit(1);
   if (!appointment) throw new ForbiddenError();

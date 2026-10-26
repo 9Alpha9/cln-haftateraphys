@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { patientIntakes, patients } from '@/db/schema';
+import { patientIntakes, patients, profiles } from '@/db/schema';
 import { ForbiddenError } from '@/lib/permissions';
 
 export async function getCurrentPatientIntake(userId: string) {
@@ -97,6 +97,8 @@ export type IntakeHistoryPdfData = {
   currentMedication: string | null;
   allergies: string | null;
   patientGoal: string | null;
+  patientAddress: string | null;
+  patientPhone: string | null;
 };
 
 export async function getIntakeDetailForPdf(
@@ -115,6 +117,9 @@ export async function getIntakeDetailForPdf(
       medicalRecordNumber: patients.medicalRecordNumber,
       dateOfBirth: patients.dateOfBirth,
       gender: patients.gender,
+      patientAddressLine: patients.addressLine,
+      patientAddressCity: patients.addressCity,
+      patientPhone: profiles.phone,
       chiefComplaint: patientIntakes.chiefComplaint,
       onsetDescription: patientIntakes.onsetDescription,
       triggeringEvent: patientIntakes.triggeringEvent,
@@ -131,6 +136,7 @@ export async function getIntakeDetailForPdf(
     })
     .from(patientIntakes)
     .innerJoin(patients, eq(patientIntakes.patientId, patients.id))
+    .leftJoin(profiles, eq(profiles.userId, patients.userId))
     .where(eq(patientIntakes.id, intakeId))
     .limit(1);
 
@@ -140,6 +146,10 @@ export async function getIntakeDetailForPdf(
     throw new ForbiddenError();
   }
 
-  const { patientUserId: _, ...data } = row;
-  return data;
+  const { patientUserId: _, patientAddressLine, patientAddressCity, ...data } = row;
+  const patientAddress = [patientAddressLine, patientAddressCity].filter(Boolean).join(', ') || null;
+  return {
+    ...data,
+    patientAddress,
+  };
 }

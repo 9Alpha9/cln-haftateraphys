@@ -200,13 +200,13 @@ export function GlobalSlideOver({
           </header>
 
             {/* ── 2B. SCROLLABLE BODY ── */}
-            <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6">
               {children}
             </div>
 
-          {/* ── 2C. STICKY ACTION FOOTER ── */}
+            {/* ── 2C. SOLID DOCKED ACTION FOOTER ── */}
             {footer && (
-              <footer className="sticky bottom-0 z-10 shrink-0 border-t border-stone-200/80 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full shrink-0">
+              <footer className="shrink-0 border-t border-stone-200/80 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full">
                 {footer}
               </footer>
             )}

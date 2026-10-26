@@ -202,6 +202,19 @@ function FieldSection({ label, value }: { label: string; value: string | null })
   );
 }
 
+function calculateAge(dob: Date | string | null | undefined): string {
+  if (!dob) return '-';
+  const birthDate = new Date(dob);
+  if (isNaN(birthDate.getTime())) return '-';
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return `${age} tahun`;
+}
+
 export function IntakeHistoryDocument({ data }: { data: IntakeHistoryPdfData }) {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
   const logoUrl = `${origin}/images/logos/logos-text.png`;
@@ -216,7 +229,8 @@ export function IntakeHistoryDocument({ data }: { data: IntakeHistoryPdfData }) 
             <View style={s.clinicBlock}>
               <Text style={s.clinicName}>HAFTA FISIOTERAPI</Text>
               <Text style={s.clinicDetail}>Klinik & Layanan Terapi Fisik Profesional</Text>
-              <Text style={s.clinicDetail}>Jl. Operasional Klinik No. 8, Indonesia</Text>
+              <Text style={s.clinicDetail}>Jl. Pd. Sidokare Indah No.AE-13, Sidokare, Sidoarjo 61214</Text>
+              <Text style={s.clinicDetail}>WhatsApp: 0812-3293-2872</Text>
             </View>
           </View>
           <View style={s.headerRight}>
@@ -245,12 +259,24 @@ export function IntakeHistoryDocument({ data }: { data: IntakeHistoryPdfData }) 
           </View>
           <View style={s.patientRow}>
             <View style={s.patientCol}>
-              <Text style={s.fieldLabel}>Tanggal Lahir</Text>
-              <Text style={s.fieldValue}>{formatDate(data.dateOfBirth)}</Text>
+              <Text style={s.fieldLabel}>Umur / Tanggal Lahir</Text>
+              <Text style={s.fieldValue}>
+                {calculateAge(data.dateOfBirth)} ({formatDate(data.dateOfBirth)})
+              </Text>
             </View>
             <View style={s.patientCol}>
               <Text style={s.fieldLabel}>Jenis Kelamin</Text>
               <Text style={s.fieldValue}>{genderLabel}</Text>
+            </View>
+          </View>
+          <View style={s.patientRow}>
+            <View style={s.patientCol}>
+              <Text style={s.fieldLabel}>No. Handphone / Telepon</Text>
+              <Text style={s.fieldValue}>{data.patientPhone || '-'}</Text>
+            </View>
+            <View style={s.patientCol}>
+              <Text style={s.fieldLabel}>Alamat Domisili</Text>
+              <Text style={s.fieldValue}>{data.patientAddress || '-'}</Text>
             </View>
           </View>
         </View>

@@ -29,6 +29,25 @@ const statusColor: Record<string, string> = {
   NO_SHOW: 'bg-red-100 text-red-800 border-red-300',
 };
 
+function calculateAge(dob: Date | string | null | undefined): string {
+  if (!dob) return '-';
+  const birthDate = new Date(dob);
+  if (isNaN(birthDate.getTime())) return '-';
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return `${age} tahun`;
+}
+
+function formatGender(gender: string | null | undefined): string {
+  if (gender === 'MALE') return 'Laki-laki';
+  if (gender === 'FEMALE') return 'Perempuan';
+  return gender || '-';
+}
+
 export default async function PrintAppointmentPage({
   params,
   searchParams,
@@ -53,6 +72,17 @@ export default async function PrintAppointmentPage({
     year: 'numeric',
   });
 
+  const dobFormatted = appointment.dateOfBirth
+    ? new Date(appointment.dateOfBirth).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    : null;
+
+  const patientAddress =
+    [appointment.addressLine, appointment.addressCity].filter(Boolean).join(', ') || '-';
+
   return (
     <div className="min-h-screen bg-slate-50 p-4 sm:p-8 print:bg-white print:p-0">
       <PrintTrigger mode={mode} patientName={appointment.patientName} recordId={appointment.id} recordedAt={date} backHref="/dashboard/appointments" />
@@ -71,8 +101,8 @@ export default async function PrintAppointmentPage({
             />
             <div>
               <h1 className="text-lg font-bold text-slate-900">HAFTA FISIOTERAPI</h1>
-              <p className="text-xs text-slate-500">Klinik & Layanan Terapi Fisik Profesional</p>
-              <p className="text-xs text-slate-500">WhatsApp: 0812-3293-2872</p>
+              <p className="text-xs text-slate-500 font-medium">Klinik & Layanan Terapi Fisik Profesional</p>
+              <p className="text-xs text-slate-500">Jl. Pd. Sidokare Indah No.AE-13, Sidokare, Sidoarjo 61214 • WhatsApp: 0812-3293-2872</p>
             </div>
           </div>
           <div className="text-right">
@@ -89,14 +119,43 @@ export default async function PrintAppointmentPage({
           <p className="mt-1 text-xs text-slate-500">Dokumen ini merupakan bukti jadwal kunjungan pasien di Hafta Fisioterapi.</p>
         </div>
 
-        {/* Info Grid */}
+        {/* Data Pasien */}
         <div className="mt-6 rounded-lg bg-slate-50 p-5 print:bg-slate-50">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Detail Appointment</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Data Pasien</h3>
           <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
             <div>
               <span className="text-xs text-slate-500 block">Nama Pasien</span>
               <span className="font-semibold text-slate-900">{appointment.patientName}</span>
             </div>
+            <div>
+              <span className="text-xs text-slate-500 block">No. Rekam Medis</span>
+              <span className="font-semibold text-slate-900">{appointment.medicalRecordNumber || '-'}</span>
+            </div>
+            <div>
+              <span className="text-xs text-slate-500 block">Umur / Tanggal Lahir</span>
+              <span className="text-slate-800">
+                {calculateAge(appointment.dateOfBirth)} {dobFormatted ? `(${dobFormatted})` : ''}
+              </span>
+            </div>
+            <div>
+              <span className="text-xs text-slate-500 block">Jenis Kelamin</span>
+              <span className="text-slate-800">{formatGender(appointment.gender)}</span>
+            </div>
+            <div>
+              <span className="text-xs text-slate-500 block">Nomor Telepon / HP</span>
+              <span className="text-slate-800">{appointment.phone || '-'}</span>
+            </div>
+            <div>
+              <span className="text-xs text-slate-500 block">Alamat Domisili</span>
+              <span className="text-slate-800">{patientAddress}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Detail Appointment */}
+        <div className="mt-4 rounded-lg bg-slate-50 p-5 print:bg-slate-50">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Detail Jadwal Kunjungan</h3>
+          <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
             <div>
               <span className="text-xs text-slate-500 block">Fisioterapis</span>
               <span className="font-semibold text-slate-900">{appointment.therapistName ?? 'Belum ditentukan'}</span>
@@ -123,6 +182,12 @@ export default async function PrintAppointmentPage({
                 {statusLabel[appointment.status as keyof typeof statusLabel] ?? appointment.status}
               </span>
             </div>
+            {appointment.administrativeNote ? (
+              <div>
+                <span className="text-xs text-slate-500 block">Catatan Petugas</span>
+                <span className="text-slate-800">{appointment.administrativeNote}</span>
+              </div>
+            ) : null}
           </div>
         </div>
 

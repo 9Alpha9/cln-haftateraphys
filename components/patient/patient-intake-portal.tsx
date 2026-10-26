@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ClipboardList, FilePlus2, Loader2, PencilLine } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
@@ -253,6 +253,13 @@ function IntakeDrawer({
 }) {
   const editing = mode === 'edit' || mode === 'new';
   const editable = !activeIntake || EDITABLE_STATUSES.has(activeIntake.status);
+  const [formFooterNode, setFormFooterNode] = useState<React.ReactNode>(null);
+
+  useEffect(() => {
+    if (!isOpen || !editing) {
+      setFormFooterNode(null);
+    }
+  }, [isOpen, editing]);
 
   if (mode === 'view' && activeIntake) {
     return (
@@ -269,18 +276,16 @@ function IntakeDrawer({
           </span>
         }
         footer={
-          <div className="shrink-0 border-t border-stone-200/80 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full">
-            {editable ? (
-              <button
-                type="button"
-                onClick={onEdit}
-                className="w-full h-11 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-sm flex items-center justify-center shadow-2xs cursor-pointer transition-all px-5"
-              >
-                <PencilLine className="h-4 w-4" />
-                Perbarui Jawaban
-              </button>
-            ) : null}
-          </div>
+          editable ? (
+            <button
+              type="button"
+              onClick={onEdit}
+              className="w-full h-11 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all px-5"
+            >
+              <PencilLine className="h-4 w-4" />
+              Perbarui Jawaban
+            </button>
+          ) : undefined
         }
       >
         <PatientIntakeSummaryContent intake={activeIntake} />
@@ -306,6 +311,7 @@ function IntakeDrawer({
           ? 'Episode keluhan baru'
           : 'Perubahan akan dikirim ulang untuk ditinjau fisioterapis'
       }
+      footer={formFooterNode}
     >
       {editing ? (
         <PatientIntakeForm
@@ -315,6 +321,7 @@ function IntakeDrawer({
           onSaved={() => {
             onClose();
           }}
+          onFooterChange={setFormFooterNode}
           showStartNewAction={false}
         />
       ) : (

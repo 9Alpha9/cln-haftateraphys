@@ -82,7 +82,7 @@ export function MedicalRecordFormDrawer({
       title={record ? 'Edit Rekam Medis' : 'Tambah Evaluasi'}
       subtitle={record ? record.patientName : 'Lengkapi indikator klinis dan catatan SOAP'}
       footer={
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3 w-full">
           <button
             type="submit"
             form={formId}

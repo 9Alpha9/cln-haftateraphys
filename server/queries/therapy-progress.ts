@@ -22,9 +22,16 @@ export type TherapyProgressView = {
   summary: string | null;
   status: 'DRAFT' | 'FINALIZED';
   patientVisible: boolean;
+  medicalRecordNumber?: string | null;
+  gender?: string | null;
+  patientDob?: Date | null;
+  patientPhone?: string | null;
+  patientAddress?: string | null;
 };
 
 export type TherapyProgressDetail = TherapyProgressView & {
+  medicalRecordNumber: string | null;
+  gender: string | null;
   patientDob: Date | null;
   patientPhone: string | null;
   patientAddress: string | null;
@@ -43,9 +50,12 @@ export async function getTherapyProgressById(id: string): Promise<TherapyProgres
       patientUserId: patients.userId,
       therapistId: therapyProgressRecords.therapistId,
       patientName: patients.fullName,
+      medicalRecordNumber: patients.medicalRecordNumber,
+      gender: patients.gender,
       patientDob: patients.dateOfBirth,
       patientPhone: profiles.phone,
       patientAddress: patients.addressLine,
+      patientCity: patients.addressCity,
       therapistName: users.name,
       recordedAt: therapyProgressRecords.recordedAt,
       painScore: therapyProgressRecords.painScore,
@@ -92,9 +102,11 @@ export async function getTherapyProgressById(id: string): Promise<TherapyProgres
     if (!assignment) return null;
   }
 
-  const { patientUserId: _, therapistId: __, ...record } = row;
+  const { patientUserId: _, therapistId: __, patientCity, patientAddress, ...record } = row;
+  const fullAddress = [patientAddress, patientCity].filter(Boolean).join(', ') || null;
   return {
     ...record,
+    patientAddress: fullAddress,
     patientVisible: record.patientVisible === 1,
   };
 }
@@ -203,6 +215,11 @@ export async function getScopedTherapyProgress(
       id: therapyProgressRecords.id,
       patientId: therapyProgressRecords.patientId,
       patientName: patients.fullName,
+      medicalRecordNumber: patients.medicalRecordNumber,
+      gender: patients.gender,
+      patientDob: patients.dateOfBirth,
+      patientPhone: profiles.phone,
+      patientAddress: patients.addressLine,
       therapistName: users.name,
       recordedAt: therapyProgressRecords.recordedAt,
       painScore: therapyProgressRecords.painScore,
@@ -221,6 +238,7 @@ export async function getScopedTherapyProgress(
     .from(therapyProgressRecords)
     .innerJoin(patients, eq(therapyProgressRecords.patientId, patients.id))
     .innerJoin(users, eq(therapyProgressRecords.therapistId, users.id))
+    .leftJoin(profiles, eq(profiles.userId, patients.userId))
     .leftJoin(patientAssignments, eq(patientAssignments.patientId, patients.id));
 
   let scopeFilter;

@@ -175,9 +175,33 @@ const styles = StyleSheet.create({
   },
 });
 
+function calculateAge(dob: Date | string | null | undefined): string {
+  if (!dob) return '-';
+  const birthDate = new Date(dob);
+  if (isNaN(birthDate.getTime())) return '-';
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return `${age} tahun`;
+}
+
+function formatGender(gender: string | null | undefined): string {
+  if (gender === 'MALE') return 'Laki-laki';
+  if (gender === 'FEMALE') return 'Perempuan';
+  return gender || '-';
+}
+
 export type MedicalRecordPdfData = {
   id: string;
   patientName: string;
+  medicalRecordNumber?: string | null;
+  gender?: string | null;
+  patientDob?: Date | string | null;
+  patientPhone?: string | null;
+  patientAddress?: string | null;
   therapistName: string | null;
   recordedAt: Date;
   painScore: number;
@@ -202,6 +226,14 @@ export const MedicalRecordDocument = ({ record }: { record: MedicalRecordPdfData
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
   const logoUrl = `${origin}/images/logos/logos-text.png`;
 
+  const dobFormatted = record.patientDob
+    ? new Date(record.patientDob).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      })
+    : null;
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -209,9 +241,10 @@ export const MedicalRecordDocument = ({ record }: { record: MedicalRecordPdfData
           <View style={styles.headerIdentity}>
             <Image src={logoUrl} style={styles.headerLogo} />
             <View style={styles.headerClinic}>
+              <Text style={styles.clinicInfoAccent}>HAFTA FISIOTERAPI</Text>
               <Text style={styles.clinicInfo}>Klinik & Layanan Terapi Fisik Profesional</Text>
-              <Text style={styles.clinicInfo}>Jl. Operasional Klinik No. 8, Indonesia</Text>
-              <Text style={styles.clinicInfo}>Telp: (021) 555-0199</Text>
+              <Text style={styles.clinicInfo}>Jl. Pd. Sidokare Indah No.AE-13, Sidokare, Sidoarjo 61214</Text>
+              <Text style={styles.clinicInfo}>WhatsApp: 0812-3293-2872</Text>
             </View>
           </View>
           <View style={styles.badgeContainer}>
@@ -227,18 +260,40 @@ export const MedicalRecordDocument = ({ record }: { record: MedicalRecordPdfData
               <Text style={styles.infoValue}>{record.patientName}</Text>
             </View>
             <View style={styles.infoCol}>
+              <Text style={styles.infoLabel}>No. Rekam Medis</Text>
+              <Text style={styles.infoValue}>{record.medicalRecordNumber || '-'}</Text>
+            </View>
+          </View>
+          <View style={styles.infoRow}>
+            <View style={styles.infoCol}>
+              <Text style={styles.infoLabel}>Umur / Tanggal Lahir</Text>
+              <Text style={styles.infoValue}>
+                {calculateAge(record.patientDob)} {dobFormatted ? `(${dobFormatted})` : ''}
+              </Text>
+            </View>
+            <View style={styles.infoCol}>
+              <Text style={styles.infoLabel}>Jenis Kelamin</Text>
+              <Text style={styles.infoValue}>{formatGender(record.gender)}</Text>
+            </View>
+          </View>
+          <View style={styles.infoRow}>
+            <View style={styles.infoCol}>
+              <Text style={styles.infoLabel}>No. Handphone / Telepon</Text>
+              <Text style={styles.infoValue}>{record.patientPhone || '-'}</Text>
+            </View>
+            <View style={styles.infoCol}>
               <Text style={styles.infoLabel}>Terapis Penanggung Jawab</Text>
               <Text style={styles.infoValue}>{record.therapistName || 'Terapis Hafta'}</Text>
             </View>
           </View>
           <View style={styles.infoRow}>
             <View style={styles.infoCol}>
-              <Text style={styles.infoLabel}>Tanggal Pelayanan</Text>
-              <Text style={styles.infoValue}>{formattedDate}</Text>
+              <Text style={styles.infoLabel}>Alamat Pasien</Text>
+              <Text style={styles.infoValue}>{record.patientAddress || '-'}</Text>
             </View>
             <View style={styles.infoCol}>
-              <Text style={styles.infoLabel}>Status Dokumen</Text>
-              <Text style={styles.infoValue}>Finalized</Text>
+              <Text style={styles.infoLabel}>Tanggal Pelayanan</Text>
+              <Text style={styles.infoValue}>{formattedDate}</Text>
             </View>
           </View>
         </View>
