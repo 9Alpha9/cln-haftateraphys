@@ -74,7 +74,7 @@ export default async function AppointmentsPage({
     hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE) ||
     hasPermission(role, PERMISSIONS.SETTINGS_MANAGE);
   const [result, formOptions, pendingRequests, scheduleOverview] = await Promise.all([
-    getScopedAppointments(page, 20),
+    getScopedAppointments(page, 6),
     canCreate
       ? getAppointmentFormOptions().catch(() => ({ patientOptions: [], therapistOptions: [] }))
       : Promise.resolve({ patientOptions: [], therapistOptions: [] }),
@@ -194,9 +194,11 @@ export default async function AppointmentsPage({
         </div>
 
         {/* Info Ringkas */}
-        <p className="text-xs font-medium text-stone-500">
-          Menampilkan {filteredItems.length} jadwal sesi
-        </p>
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <p className="text-xs font-medium text-stone-500">
+            Menampilkan {filteredItems.length} jadwal sesi
+          </p>
+        </div>
       </div>
 
       {/* ── APPOINTMENT GRID LAYOUT (MODERN STRUCTURED CARDS) ── */}

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState, useTransition, useCallback, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import { Archive, Eye, MoreVertical } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { archivePatient } from '@/server/actions/patients';
@@ -35,8 +37,20 @@ export function PatientTableActions({
 
   function archive() {
     startTransition(async () => {
-      await archivePatient(patientId);
-      router.refresh();
+      try {
+        await archivePatient(patientId);
+        toast.success("Pasien diarsipkan", {
+          action: {
+            label: "Lihat arsip",
+            onClick: () => router.push("/dashboard/patients/archived"),
+          },
+        });
+        router.refresh();
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Gagal mengarsipkan pasien.");
+      } finally {
+        setShowConfirm(false);
+      }
     });
   }
 
@@ -46,23 +60,19 @@ export function PatientTableActions({
       const rect = trigger.getBoundingClientRect();
       const menuWidth = 176; // w-44
       const menuHeight = 110;
-      const spaceBelow = window.innerHeight - rect.bottom - 8;
-      const spaceAbove = rect.top - 8;
+      const gap = 8;
+      const spaceBelow = window.innerHeight - rect.bottom - gap;
+      const spaceAbove = rect.top - gap;
       const direction = spaceBelow < menuHeight && spaceAbove >= spaceBelow ? 'top' : 'bottom';
 
-      // Smart horizontal clamping: keep menu within viewport
-      let left = rect.left;
-      if (left + menuWidth > window.innerWidth - 8) {
-        left = window.innerWidth - menuWidth - 8;
-      }
-      if (left < 8) left = 8;
+      // Align the menu's right edge with the trigger, then clamp inside the viewport
+      let left = rect.right - menuWidth;
+      left = Math.min(left, window.innerWidth - menuWidth - gap);
+      left = Math.max(left, gap);
 
-      setMenuPosition({
-        top: rect.top,
-        left,
-        width: menuWidth,
-        direction,
-      });
+      const top = direction === 'top' ? rect.top - gap : rect.bottom + gap;
+
+      setMenuPosition({ top, left, width: menuWidth, direction });
     }
     setOpenRowId(patientId);
   }, [patientId, setOpenRowId]);
@@ -106,14 +116,20 @@ export function PatientTableActions({
         <MoreVertical className="w-4 h-4 shrink-0 text-[#181700]" />
       </button>
 
-      {isMenuOpen && (
+      {isMenuOpen && typeof document !== 'undefined' && createPortal(
         <div
           ref={menuRef}
+          role="menu"
+          style={{
+            position: 'fixed',
+            left: menuPosition.left,
+            width: menuPosition.width,
+            top: menuPosition.top,
+            transform: menuPosition.direction === 'top' ? 'translateY(-100%)' : undefined,
+          }}
           className={cn(
-            "fixed z-50 w-44 rounded-2xl bg-white shadow-[0_12px_32px_rgba(24,23,0,0.14)] p-1.5 flex flex-col gap-0.5",
-            menuPosition.direction === 'top'
-              ? `bottom-[calc(100%+8px)] right-[calc(100vw-${menuPosition.left}-${menuPosition.width}px)] origin-bottom-right`
-              : `top-[${menuPosition.top}px] right-[calc(100vw-${menuPosition.left}-${menuPosition.width}px)] mt-1.5 origin-top-right`,
+            'z-[60] rounded-2xl bg-white shadow-[0_12px_32px_rgba(24,23,0,0.14)] p-1.5 flex flex-col gap-0.5',
+            menuPosition.direction === 'top' ? 'origin-bottom-right' : 'origin-top-right',
           )}
         >
           <button
@@ -135,13 +151,14 @@ export function PatientTableActions({
                 closeMenu();
                 setShowConfirm(true);
               }}
-              className="w-full px-3.5 py-2.5 text-xs sm:text-[13px] font-semibold text-[#181700] bg-transparent hover:bg-[var(--hafta-ylw-50)] flex items-center gap-3 cursor-pointer transition-colors text-left rounded-xl justify-start"
+              className="group w-full px-3.5 py-2.5 text-xs sm:text-[13px] font-semibold text-[#181700] bg-transparent hover:bg-red-600 hover:text-white flex items-center gap-3 cursor-pointer transition-colors text-left rounded-xl justify-start"
             >
-              <Archive className="w-4 h-4 shrink-0 text-stone-600" />
-              <span className="truncate">Arsipkan</span>
+              <Archive className="w-4 h-4 shrink-0 text-stone-600 transition-colors group-hover:text-white" />
+              <span className="truncate transition-colors group-hover:text-white">Arsipkan</span>
             </button>
           ) : null}
-        </div>
+        </div>,
+        document.body,
       )}
 
       <PatientDetailDrawer isOpen={showDetail} onClose={() => setShowDetail(false)} patientId={patientId} />
@@ -154,7 +171,7 @@ export function PatientTableActions({
           variant="destructive"
           pending={pending}
           onConfirm={archive}
-          onCancel={closeMenu}
+          onCancel={() => setShowConfirm(false)}
         />
       )}
     </div>

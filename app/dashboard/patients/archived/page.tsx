@@ -10,7 +10,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { PatientListFilters } from '@/components/dashboard/patient-list-filters';
+import { PatientListTabs } from '@/components/dashboard/patient-list-tabs';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS, requirePermission } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
@@ -49,8 +49,7 @@ export default async function ArchivedPatientsPage({
       <div>
         <Card className="rounded-2xl border-stone-200/90 shadow-sm overflow-visible">
           <CardHeader className="gap-4">
-            <CardTitle>Pasien Diarsipkan</CardTitle>
-            <PatientListFilters initialSearch={search} initialStatus="" />
+            <PatientListTabs active="archived" />
           </CardHeader>
           <CardContent>
             {result.items.length === 0 ? (

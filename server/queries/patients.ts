@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, ilike, isNull, or } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, isNotNull, isNull, or } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { patientAssignments, patients, profiles, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
@@ -74,7 +74,7 @@ export async function getArchivedPatientsList(page = 1, pageSize = 10, search = 
   if (!hasPermission(role, PERMISSIONS.PATIENT_LIST)) throw new ForbiddenError();
 
   const safePage = Math.max(1, page);
-  const filters = [eq(patients.archivedAt, patients.archivedAt)];
+  const filters = [isNotNull(patients.archivedAt)];
   if (search.trim()) filters.push(ilike(patients.fullName, `%${search.trim()}%`));
   const where = and(...filters);
   const db = getDb();

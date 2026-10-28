@@ -312,37 +312,37 @@ export function TherapistScheduleEditor({
           </p>
         </div>
 
-        <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_1fr_1.5fr_auto] sm:items-end">
+        <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end">
           <label className="block">
             <span className="text-[11px] font-semibold text-stone-500">Cuti mulai</span>
-            <DatePicker
-              value={timeOffStart}
-              onChange={(value) => {
-                setTimeOffStart(value);
-                if (!timeOffEnd || timeOffEnd < value) setTimeOffEnd(value);
-              }}
-              placeholder="Pilih tanggal mulai"
-              className="mt-1 h-10 w-full rounded-xl border-stone-200 bg-white text-sm text-[#181700]"
-            />
+              <DatePicker
+                value={timeOffStart}
+                onChange={(value) => {
+                  setTimeOffStart(value);
+                  if (!timeOffEnd || timeOffEnd < value) setTimeOffEnd(value);
+                }}
+                placeholder="Pilih tanggal mulai"
+                className="mt-1 h-10 w-full rounded-xl border border-stone-200 bg-white text-sm text-[#181700] focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35"
+              />
           </label>
           <label className="block">
             <span className="text-[11px] font-semibold text-stone-500">Cuti selesai</span>
-            <DatePicker
-              value={timeOffEnd}
-              onChange={(value) => setTimeOffEnd(timeOffStart && value < timeOffStart ? timeOffStart : value)}
-              placeholder="Pilih tanggal selesai"
-              className="mt-1 h-10 w-full rounded-xl border-stone-200 bg-white text-sm text-[#181700]"
-            />
+              <DatePicker
+                value={timeOffEnd}
+                onChange={(value) => setTimeOffEnd(timeOffStart && value < timeOffStart ? timeOffStart : value)}
+                placeholder="Pilih tanggal selesai"
+                className="mt-1 h-10 w-full rounded-xl border-stone-200 bg-white text-sm text-[#181700] focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35"
+              />
           </label>
           <label className="block">
             <span className="text-[11px] font-semibold text-stone-500">Keterangan (opsional)</span>
-            <input
-              type="text"
-              value={timeOffReason}
-              onChange={(event) => setTimeOffReason(event.target.value)}
-              placeholder="Contoh: cuti tahunan"
-              className="mt-1 h-10 w-full rounded-xl border border-stone-200 px-3 text-sm text-[#181700] outline-none focus:border-[var(--hafta-ylw-300)]"
-            />
+              <input
+                type="text"
+                value={timeOffReason}
+                onChange={(event) => setTimeOffReason(event.target.value)}
+                placeholder="Contoh: cuti tahunan"
+                className="mt-1 h-10 w-full rounded-xl border border-stone-200 px-3 text-sm text-[#181700] outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35"
+              />
           </label>
           <button
             type="button"

@@ -13,6 +13,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PatientTableClient } from '@/components/dashboard/patients/patient-table-client';
 import { PatientListFilters } from '@/components/dashboard/patient-list-filters';
+import { PatientListTabs } from '@/components/dashboard/patient-list-tabs';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS, requirePermission } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
@@ -53,14 +54,12 @@ export default async function PatientsPage({
         action={
           canCreate ? (
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center w-full sm:w-auto">
-                <CreatePatientFormModal
-                userOptions={unlinkedUsers.map((u) => ({ id: u.id, name: u.name, email: u.email }))}
-                buttonClassName={cn(
-                  'h-11 px-3 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] border border-transparent text-[#181700] text-xs sm:text-[13px] font-bold inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0'
-                )}
+              <CreatePatientFormModal
+              userOptions={unlinkedUsers.map((u) => ({ id: u.id, name: u.name, email: u.email }))}
+              buttonClassName={cn(
+                'h-11 px-3 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] border border-transparent text-[#181700] text-xs sm:text-[13px] font-bold inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0'
+              )}
               />
-
-
             </div>
           ) : null
         }
@@ -70,7 +69,7 @@ export default async function PatientsPage({
       <div>
         <Card className="rounded-2xl border-stone-200/90 shadow-sm overflow-visible">
           <CardHeader className="gap-4">
-            <CardTitle>Pasien Aktif</CardTitle>
+            <PatientListTabs active="active" />
             <PatientListFilters initialSearch={search} initialStatus={status} />
           </CardHeader>
           <CardContent>
