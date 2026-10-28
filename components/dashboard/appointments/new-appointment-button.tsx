@@ -3,12 +3,15 @@
 import { useState } from 'react';
 import { AppointmentFormDrawer } from '@/components/dashboard/appointments/appointment-form-drawer';
 import { fetchAppointmentFormOptionsAction } from '@/server/actions/appointment-form-options';
+import { Button } from '@/components/ui/button';
 
 type SelectOption = { id: string; label: string };
 
 type Props = {
   children: React.ReactNode;
   className?: string;
+  variant?: 'default' | 'outline' | 'secondary' | 'ghost' | 'destructive' | 'link';
+  size?: 'default' | 'xs' | 'sm' | 'lg' | 'icon' | 'icon-xs' | 'icon-sm' | 'icon-lg';
   patientOptions?: SelectOption[];
   therapistOptions?: SelectOption[];
   defaultPatientId?: string;
@@ -19,6 +22,8 @@ type Props = {
 export function NewAppointmentButton({
   children,
   className,
+  variant = 'default',
+  size = 'default',
   patientOptions: initialPatientOptions,
   therapistOptions: initialTherapistOptions,
   defaultPatientId,
@@ -49,9 +54,15 @@ export function NewAppointmentButton({
 
   return (
     <>
-      <button type="button" onClick={openDrawer} className={className}>
-        {children}
-      </button>
+      <Button
+        type="button"
+        variant={variant}
+        size={size}
+        onClick={openDrawer}
+        className={className}
+      >
+        <span className="inline-flex items-center gap-2">{children}</span>
+      </Button>
       <AppointmentFormDrawer
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

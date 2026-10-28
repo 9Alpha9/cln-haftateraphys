@@ -124,78 +124,53 @@ function DropdownMenuContent({ className, children, align = "end", side = "botto
     if (!open || !triggerRef.current) return;
     const trigger = triggerRef.current;
 
-    // When within a wrapper (not portal to body), use absolute positioning
-    // relative to the trigger's nearest positioned ancestor
-    if (withinWrapper) {
-      const frame = window.requestAnimationFrame(() => {
-        const rect = trigger.getBoundingClientRect();
-        const parent = trigger.parentElement;
-        const container = contentRef.current;
+        // When within a wrapper (not portal to body), use absolute positioning
+        // relative to the trigger's nearest positioned ancestor - opening UPWARDS (bottom-full)
+        if (withinWrapper) {
+          const frame = window.requestAnimationFrame(() => {
+            const rect = trigger.getBoundingClientRect();
+            const parent = trigger.parentElement;
+            const container = contentRef.current;
 
-        if (!parent || !container) return;
+            if (!parent || !container) return;
 
-        // Get the positioned container (first ancestor with position !== static)
-        let positionedParent = parent;
-        while (positionedParent && positionedParent.nodeType === 1) {
-          const style = window.getComputedStyle(positionedParent);
-          if (style.position !== 'static') break;
-          const next = positionedParent.parentElement;
-          if (!next) break;
-          positionedParent = next;
-        }
-
-        if (positionedParent && container) {
-          const containerRect = container.getBoundingClientRect();
-          const parentRect = positionedParent.getBoundingClientRect();
-
-          // Position absolutely relative to the positioned parent
-          // Default: align right edge of trigger with right edge of container,
-          // bottom-anchored to top of trigger
-          const menuWidth = containerRect.width;
-          const menuHeight = containerRect.height;
-
-          // Align: if align="end" (default), position on the right side
-          // If align="start", position on the left side
-          const alignRight = align === "end";
-
-          let left = 0;
-          let top = 0;
-
-          if (side === "right") {
-            left = rect.left + rect.width;
-          } else {
-            // side is "bottom" or "top"
-            if (side === "bottom") {
-              top = rect.bottom;
-            } else {
-              top = rect.top - menuHeight;
+            let positionedParent = parent;
+            while (positionedParent && positionedParent.nodeType === 1) {
+              const style = window.getComputedStyle(positionedParent);
+              if (style.position !== 'static') break;
+              const next = positionedParent.parentElement;
+              if (!next) break;
+              positionedParent = next;
             }
-            // Horizontal: align based on align prop
-            if (alignRight) {
-              left = rect.left + rect.width - menuWidth;
-              // Clamp to container bounds
-              const containerLeft = positionedParent.getBoundingClientRect().left;
-              const maxLeft = containerLeft + positionedParent.clientWidth - menuWidth;
-              left = Math.max(containerLeft, Math.min(left, maxLeft));
-            } else {
-              left = rect.left;
-              const containerLeft = positionedParent.getBoundingClientRect().left;
-              const minLeft = containerLeft;
-              left = Math.min(left, minLeft + positionedParent.clientWidth - menuWidth);
-              left = Math.max(left, minLeft);
-            }
-          }
 
-          setPosition({
-            top: top - parentRect.top,
-            bottom: 0,
-            left: left - parentRect.left,
-            right: 0,
+            if (positionedParent && container) {
+              const containerRect = container.getBoundingClientRect();
+              const parentRect = positionedParent.getBoundingClientRect();
+              const menuWidth = containerRect.width;
+              const menuHeight = containerRect.height;
+              const alignRight = align === "end";
+
+              let left = 0;
+              // Open upwards above the trigger: top = trigger.top - parent.top - menuHeight - 8
+              let top = rect.top - parentRect.top - menuHeight - 8;
+
+              if (alignRight) {
+                left = rect.left + rect.width - menuWidth - parentRect.left;
+              } else {
+                left = rect.left - parentRect.left;
+              }
+
+              setPosition({
+                top: Math.max(8, top),
+                bottom: 0,
+                left: Math.max(8, left),
+                right: 0,
+              });
+              setResolvedSide("top");
+            }
           });
-        }
-      });
-      return () => window.cancelAnimationFrame(frame);
-    } else {
+          return () => window.cancelAnimationFrame(frame);
+        } else {
       // Original fixed positioning behavior (portal to body)
       if (!open || !triggerRef.current) return;
       const trigger = triggerRef.current;

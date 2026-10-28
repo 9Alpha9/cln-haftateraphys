@@ -20,6 +20,7 @@ export interface GlobalSlideOverProps {
   size?: SlideOverSize;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  footerClassName?: string;
   className?: string;
 }
 
@@ -89,6 +90,7 @@ export function GlobalSlideOver({
   size = 'md',
   children,
   footer,
+  footerClassName,
   className,
 }: GlobalSlideOverProps) {
   const mounted = React.useSyncExternalStore(
@@ -206,7 +208,7 @@ export function GlobalSlideOver({
 
             {/* ── 2C. SOLID DOCKED ACTION FOOTER ── */}
             {footer && (
-              <footer className="shrink-0 border-t border-stone-200/80 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full">
+              <footer className={cn("shrink-0 border-t border-stone-200/80 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full", footerClassName)}>
                 {footer}
               </footer>
             )}

@@ -44,7 +44,6 @@ export function IntakeReviewActions({
         <Button
           disabled={pending}
           onClick={() => run('start-review')}
-          className="rounded-xl bg-[var(--hafta-ylw-400)] hover:bg-[var(--hafta-ylw-300)] text-white font-semibold"
         >
           {pending ? 'Memproses...' : 'Mulai Tinjau'}
         </Button>
@@ -90,7 +89,6 @@ export function IntakeReviewActions({
             variant="outline"
             disabled={pending}
             onClick={() => run('request-revision')}
-            className="rounded-xl border border-[#E9E2D8] bg-white text-[#1F2937] hover:bg-[#FFF7ED]/50 hover:text-[var(--hafta-ylw-400)]"
           >
             Minta Perbaikan
           </Button>
@@ -99,7 +97,6 @@ export function IntakeReviewActions({
           <Button
             disabled={pending}
             onClick={() => run('accept')}
-            className="rounded-xl bg-[var(--hafta-ylw-400)] hover:bg-[var(--hafta-ylw-300)] text-white font-semibold"
           >
             {pending ? 'Memproses...' : 'Terima Form Awal'}
           </Button>

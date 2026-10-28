@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { UserPlus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { CreatePatientForm } from '@/components/dashboard/create-patient-form';
 
 type UserOption = { id: string; name: string | null; email: string };
@@ -17,16 +18,14 @@ export function CreatePatientFormModal({
 
   return (
     <>
-      <button
+      <Button
         type="button"
         onClick={() => setIsOpen(true)}
-        className={
-          buttonClassName ??
-          'h-11 px-5 rounded-full bg-[#f7f000] hover:bg-[#e6de00] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex flex-row items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs w-full sm:w-auto'
-        }
+        className={buttonClassName ?? 'w-full sm:w-auto shadow-2xs'}
       >
-        <UserPlus className="h-4 w-4" /> Daftarkan Pasien
-      </button>
+        <UserPlus className="h-4 w-4 shrink-0" />
+        Daftarkan Pasien
+      </Button>
       <CreatePatientForm userOptions={userOptions} isOpen={isOpen} onClose={() => setIsOpen(false)} />
     </>
   );

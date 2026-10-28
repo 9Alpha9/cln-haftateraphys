@@ -99,9 +99,9 @@ export function MedicalRecordActions({ record, className }: { record: MedicalRec
         {/* <span className="hidden sm:inline">Aksi Lebih Banyak</span> */}
       </button>
 
-      {/* Rule #2: panel absolute menempel di bawah tombol, dalam DOM yang sama */}
+      {/* Rule #2: panel absolute menempel di atas tombol, dalam DOM yang sama */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 z-10 w-48 rounded-2xl bg-white border border-stone-200/90 shadow-[0_12px_32px_rgba(24,23,0,0.14)] p-1.5 flex flex-col gap-0.5">
+        <div className="absolute bottom-full right-0 z-10 mb-2 w-48 origin-bottom-right rounded-2xl border border-stone-200 bg-white p-2 shadow-xl">
           <button
             type="button"
             onClick={() => {
@@ -109,15 +109,15 @@ export function MedicalRecordActions({ record, className }: { record: MedicalRec
               void openPrintPage();
             }}
             disabled={printing}
-            className="hover:bg-stone-50 cursor-pointer rounded-full  font-medium flex items-center justify-between gap-2 w-full px-3 py-2 text-xs sm:text-sm"
+            className="hover:bg-stone-50 cursor-pointer rounded-full font-medium flex items-center gap-2 w-full px-3 py-2 text-left text-xs sm:text-sm text-stone-700 transition-colors"
           >
             <div className="flex items-center gap-2">
               {printing ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0 text-stone-500" />
               ) : (
-                <Printer className="h-3.5 w-3.5 shrink-0" />
+                <Printer className="h-3.5 w-3.5 shrink-0 text-stone-500" />
               )}
-              <span className="font-medium">{printing ? 'Mencetak...' : 'Cetak Dokumen'}</span>
+              <span className="font-medium text-xs">{printing ? 'Mencetak...' : 'Cetak Dokumen'}</span>
             </div>
           </button>
           <button
@@ -127,15 +127,15 @@ export function MedicalRecordActions({ record, className }: { record: MedicalRec
               void downloadPdf();
             }}
             disabled={loading}
-            className="hover:bg-stone-50 cursor-pointer rounded-full font-medium flex items-center justify-between gap-2 w-full px-3 py-2 text-xs sm:text-sm"
+            className="hover:bg-stone-50 cursor-pointer rounded-full font-medium flex items-center gap-2 w-full px-3 py-2 text-left text-xs sm:text-sm text-stone-700 transition-colors"
           >
             <div className="flex items-center gap-2">
               {loading ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
+                <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0 text-stone-500" />
               ) : (
-                <FileDown className="h-3.5 w-3.5 shrink-0" />
+                <FileDown className="h-3.5 w-3.5 shrink-0 text-stone-500" />
               )}
-              <span className="font-medium">{loading ? 'Memproses...' : 'Unduh PDF'}</span>
+              <span className="font-medium text-xs">{loading ? 'Memproses...' : 'Unduh PDF'}</span>
             </div>
           </button>
         </div>

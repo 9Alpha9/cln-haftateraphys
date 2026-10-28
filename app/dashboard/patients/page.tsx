@@ -56,7 +56,7 @@ export default async function PatientsPage({
                 <CreatePatientFormModal
                 userOptions={unlinkedUsers.map((u) => ({ id: u.id, name: u.name, email: u.email }))}
                 buttonClassName={cn(
-                  'w-full sm:w-auto justify-center h-11 px-5 rounded-full bg-[#f7f000] hover:bg-[#e6de00] text-[#181700] font-bold cursor-pointer inline-flex flex-row items-center gap-2'
+                  'h-11 px-3 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] border border-transparent text-[#181700] text-xs sm:text-[13px] font-bold inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0'
                 )}
               />
 
@@ -68,7 +68,7 @@ export default async function PatientsPage({
 
       {/* Content */}
       <div>
-        <Card className="rounded-2xl border-stone-200/90 shadow-sm">
+        <Card className="rounded-2xl border-stone-200/90 shadow-sm overflow-visible">
           <CardHeader className="gap-4">
             <CardTitle>Pasien Aktif</CardTitle>
             <PatientListFilters initialSearch={search} initialStatus={status} />

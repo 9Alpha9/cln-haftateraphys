@@ -54,8 +54,8 @@ export function CompleteProgramButton({
   return (
     <>
       <button type="button" onClick={() => setIsOpen(true)} className={className}>
-        <CheckCircle2 className="h-4 w-4" />
-        Selesaikan Program
+        <CheckCircle2 className="h-4 w-4 shrink-0" />
+        <span>Selesaikan Program</span>
       </button>
 
       <GlobalSlideOver

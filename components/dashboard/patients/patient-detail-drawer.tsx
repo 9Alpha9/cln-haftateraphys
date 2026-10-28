@@ -9,6 +9,7 @@ import {
   Eye,
   FileText,
   Loader2,
+  MoreVertical,
   Pencil,
   UserRound,
 } from 'lucide-react';
@@ -125,6 +126,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
   const [editingRecord, setEditingRecord] = useState<TherapyProgressView | null>(null);
   const [creatingRecord, setCreatingRecord] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
+  const [showProgramMenu, setShowProgramMenu] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -202,48 +204,61 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
         footer={
           data && patient ? (
             <div className="flex items-center justify-between gap-3 w-full">
-              <div className="flex items-center gap-2">
-                {activeTab === 'profile' && data.capabilities.canEditRecord ? (
-                  <button
-                    type="button"
-                    onClick={() => setCreatingRecord(true)}
-                    className={cn(ACTION_BUTTON, ACTION_PRIMARY)}
-                  >
-                    <FileText className="h-4 w-4" />
-                    Catat Assessment Baru
-                  </button>
-                ) : null}
-                {activeTab === 'assessment' && data.capabilities.canEditRecord ? (
-                  <button
-                    type="button"
-                    onClick={() => setCreatingRecord(true)}
-                    className={cn(ACTION_BUTTON, ACTION_PRIMARY)}
-                  >
-                    <FileText className="h-4 w-4" />
-                    Catat Assessment Baru
-                  </button>
-                ) : null}
-              </div>
-              <div className="flex items-center gap-2">
-                {activeTab === 'profile' && data.capabilities.canCreateAppointment ? (
-                  <NewAppointmentButton
-                    defaultPatientId={patient.id}
-                    className={cn(ACTION_BUTTON, ACTION_SECONDARY)}
-                  >
-                    <CalendarPlus className="h-4 w-4" />
-                    Jadwalkan Sesi Baru
-                  </NewAppointmentButton>
-                ) : null}
-                {activeTab === 'profile' &&
-                data.capabilities.canCompleteProgram &&
-                (patient.caseStatus === 'ACTIVE' || patient.caseStatus === 'ON_HOLD') ? (
-                  <CompleteProgramButton
-                    patientId={patient.id}
-                    patientName={patient.fullName}
-                    onCompleted={() => setReloadToken((token) => token + 1)}
-                    className={cn(ACTION_BUTTON, ACTION_SECONDARY)}
-                  />
-                ) : null}
+              {data.capabilities.canEditRecord ? (
+                <button
+                  type="button"
+                  onClick={() => setCreatingRecord(true)}
+                  className={cn(ACTION_BUTTON, ACTION_PRIMARY)}
+                >
+                  <FileText className="h-4 w-4 shrink-0" />
+                  Catat Assessment Baru
+                </button>
+              ) : <div />}
+
+              <div className="relative">
+                <button
+                  type="button"
+                  aria-label="Menu opsi program"
+                  onClick={() => setShowProgramMenu((prev) => !prev)}
+                  className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white text-[#181700] transition-colors hover:bg-stone-100 shadow-2xs"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </button>
+
+                {showProgramMenu && (
+                  <>
+                    <button
+                      type="button"
+                      aria-label="Tutup menu"
+                      className="fixed inset-0 z-10 cursor-default"
+                      onClick={() => setShowProgramMenu(false)}
+                    />
+                    <div className="absolute bottom-full right-0 z-20 mb-2 w-56 origin-bottom-right rounded-2xl border border-stone-200 bg-white p-2 shadow-xl">
+                      {data.capabilities.canCreateAppointment ? (
+                        <span onClick={(e) => e.stopPropagation()}>
+                          <NewAppointmentButton
+                            defaultPatientId={patient.id}
+                            className="flex w-full cursor-pointer items-center rounded-full px-3 py-2 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50 gap-2 bg-transparent border-0 shadow-none justify-start h-auto"
+                          >
+                            <CalendarPlus className="h-3.5 w-3.5 shrink-0 text-stone-500" />
+                            <span>Jadwalkan Sesi Baru</span>
+                          </NewAppointmentButton>
+                        </span>
+                      ) : null}
+                      {data.capabilities.canCompleteProgram &&
+                      (patient.caseStatus === 'ACTIVE' || patient.caseStatus === 'ON_HOLD') ? (
+                        <span onClick={(e) => e.stopPropagation()}>
+                          <CompleteProgramButton
+                            patientId={patient.id}
+                            patientName={patient.fullName}
+                            onCompleted={() => setReloadToken((token) => token + 1)}
+                            className="flex w-full cursor-pointer items-center rounded-full px-3 py-2 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50 gap-2 bg-transparent border-0 shadow-none justify-start h-auto"
+                          />
+                        </span>
+                      ) : null}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           ) : null

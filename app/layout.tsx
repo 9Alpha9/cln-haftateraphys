@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Satisfy } from 'next/font/google';
+import { Inter, Poppins, Satisfy } from 'next/font/google';
 import { FloatingWhatsApp } from '@/components/ui/floating-whatsapp';
 import { ToastProvider } from '@/components/ui/toast';
 import { Sonner } from '@/components/ui/sonner';
@@ -16,6 +16,13 @@ const satisfy = Satisfy({
   subsets: ['latin'],
   weight: ['400'],
   variable: '--font-satisfy',
+  display: 'swap',
+});
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-poppins',
   display: 'swap',
 });
 
@@ -88,7 +95,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${inter.variable} ${satisfy.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="id" className={`${inter.variable} ${satisfy.variable} ${poppins.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
         <ToastProvider>
           {children}

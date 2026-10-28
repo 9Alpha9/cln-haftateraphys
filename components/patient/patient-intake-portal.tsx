@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
+import { useState, useTransition, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { ClipboardList, FilePlus2, Loader2, PencilLine } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
@@ -288,11 +288,9 @@ function IntakeDrawer({
   const editable = !activeIntake || EDITABLE_STATUSES.has(activeIntake.status);
   const [formFooterNode, setFormFooterNode] = useState<React.ReactNode>(null);
 
-  useEffect(() => {
-    if (!isOpen || !editing) {
-      setFormFooterNode(null);
-    }
-  }, [isOpen, editing]);
+  const handleFooterChange = useCallback((node: React.ReactNode) => {
+    setFormFooterNode(node);
+  }, []);
 
   if (mode === 'view' && activeIntake) {
     return (
@@ -352,7 +350,7 @@ function IntakeDrawer({
           status={mode === 'new' ? null : activeIntake?.status ?? null}
           initialValues={activeIntake ? intakeToFormValues(activeIntake) : null}
           onSaved={onSaved}
-          onFooterChange={setFormFooterNode}
+          onFooterChange={handleFooterChange}
           showStartNewAction={false}
         />
       ) : (

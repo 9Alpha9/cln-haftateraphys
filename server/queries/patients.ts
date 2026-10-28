@@ -1,4 +1,4 @@
-import { and, asc, count, eq, ilike, isNull, or } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, isNull, or } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { patientAssignments, patients, profiles, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
@@ -67,4 +67,33 @@ export async function getPatientSelectOptions() {
     .from(patients)
     .where(isNull(patients.archivedAt))
     .orderBy(asc(patients.fullName));
+}
+
+export async function getArchivedPatientsList(page = 1, pageSize = 10, search = '') {
+  const { role } = await requireSession({ redirectToLogin: true });
+  if (!hasPermission(role, PERMISSIONS.PATIENT_LIST)) throw new ForbiddenError();
+
+  const safePage = Math.max(1, page);
+  const filters = [eq(patients.archivedAt, patients.archivedAt)];
+  if (search.trim()) filters.push(ilike(patients.fullName, `%${search.trim()}%`));
+  const where = and(...filters);
+  const db = getDb();
+  const [total] = await db.select({ value: count() }).from(patients).where(where);
+  const totalPages = Math.max(1, Math.ceil(total.value / pageSize));
+  const currentPage = Math.min(safePage, totalPages);
+  const items = await db
+    .select({
+      id: patients.id,
+      fullName: patients.fullName,
+      caseStatus: patients.caseStatus,
+      createdAt: patients.createdAt,
+      archivedAt: patients.archivedAt,
+    })
+    .from(patients)
+    .where(where)
+    .orderBy(desc(patients.archivedAt))
+    .limit(pageSize)
+    .offset((currentPage - 1) * pageSize);
+
+  return { items, currentPage, totalPages, total: total.value };
 }

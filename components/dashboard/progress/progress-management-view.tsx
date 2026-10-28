@@ -17,12 +17,6 @@ import { MedicalRecordActions, useMedicalRecordPdf } from '@/components/dashboar
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
 import { cn } from '@/lib/utils';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 interface ProgressManagementViewProps {
   initialRecords: TherapyProgressView[];
@@ -57,6 +51,7 @@ function MedicalRecordCard({
   onEdit,
 }: MedicalRecordCardProps) {
   const { openPrintPage, downloadPdf } = useMedicalRecordPdf(record);
+  const [showRecordMenu, setShowRecordMenu] = useState(false);
   const isFinal = record.status === 'FINALIZED';
   const dateStr = new Date(record.recordedAt).toLocaleDateString('id-ID', {
     day: 'numeric',
@@ -176,7 +171,7 @@ function MedicalRecordCard({
         <button
           type="button"
           onClick={() => onSelect(record)}
-          className="h-9 px-4 rounded-full bg-[#181700] hover:bg-[var(--hafta-ylw-100)] text-white hover:text-[#181700] text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 whitespace-nowrap"
+          className="h-9 px-4 rounded-full bg-[#181700] hover:bg-[var(--hafta-ylw-100)] text-white hover:text-[#181700] text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors shrink-0 whitespace-nowrap"
         >
           Lihat Detail SOAP
         </button>
@@ -186,29 +181,57 @@ function MedicalRecordCard({
             <button
               type="button"
               onClick={() => onEdit(record)}
-              className="h-9 px-3.5 rounded-full bg-white hover:bg-stone-100 border border-stone-200/90 text-[#181700] text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
+              className="h-9 px-3.5 rounded-full bg-white hover:bg-stone-100 border border-stone-200/90 text-[#181700] text-xs font-semibold inline-flex items-center justify-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
             >
               <Pencil className="h-3.5 w-3.5" />
               <span>Edit</span>
             </button>
           )}
-          <DropdownMenu withinWrapper>
-            <div className="relative inline-flex shrink-0">
-              <DropdownMenuTrigger className="w-10 h-10 aspect-square rounded-full border border-stone-200/90 bg-white hover:bg-stone-100 flex items-center justify-center cursor-pointer shrink-0">
-                <MoreVertical className="h-4 w-4 shrink-0" />
-              </DropdownMenuTrigger>
-            </div>
-            <DropdownMenuContent align="end" className="absolute right-0 bottom-full mb-2 z-10 w-48 rounded-2xl bg-white border border-stone-200/90 shadow-[0_12px_32px_rgba(24,23,0,0.14)] p-1.5 origin-bottom-right">
-              <DropdownMenuItem onClick={() => openPrintPage()} className="text-xs">
-                <Printer className="h-3.5 w-3.5 shrink-0" />
-                Print Rekam Medis
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => downloadPdf()} className="text-xs">
-                <FileDown className="h-3.5 w-3.5 shrink-0" />
-                Unduh PDF
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="relative inline-flex shrink-0">
+            <button
+              type="button"
+              aria-label="Menu opsi rekam medis"
+              onClick={() => setShowRecordMenu((prev) => !prev)}
+              className="w-9 h-9 aspect-square rounded-full border border-stone-200/90 bg-white hover:bg-stone-100 flex items-center justify-center cursor-pointer shrink-0"
+            >
+              <MoreVertical className="h-4 w-4 shrink-0" />
+            </button>
+
+            {showRecordMenu && (
+              <>
+                <button
+                  type="button"
+                  aria-label="Tutup menu"
+                  className="fixed inset-0 z-10 cursor-default"
+                  onClick={() => setShowRecordMenu(false)}
+                />
+                <div className="absolute bottom-full right-0 z-20 mb-2 w-48 origin-bottom-right rounded-2xl border border-stone-200 bg-white p-2 shadow-xl">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowRecordMenu(false);
+                      void openPrintPage();
+                    }}
+                    className="hover:bg-stone-50 cursor-pointer rounded-full font-medium flex items-center gap-2 w-full px-3 py-2 text-left text-xs sm:text-sm text-stone-700 transition-colors"
+                  >
+                    <Printer className="h-3.5 w-3.5 shrink-0 text-stone-500" />
+                    <span className="font-medium text-xs">Print Rekam Medis</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowRecordMenu(false);
+                      void downloadPdf();
+                    }}
+                    className="hover:bg-stone-50 cursor-pointer rounded-full font-medium flex items-center gap-2 w-full px-3 py-2 text-left text-xs sm:text-sm text-stone-700 transition-colors"
+                  >
+                    <FileDown className="h-3.5 w-3.5 shrink-0 text-stone-500" />
+                    <span className="font-medium text-xs">Unduh PDF</span>
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </article>

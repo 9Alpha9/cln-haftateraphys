@@ -191,57 +191,46 @@ export function IntakeDetailDrawer({
       }
       size="lg"
       footer={
-        <div className="flex items-center justify-between gap-3">
-          {patientId && (
-            <Link
-              href={`/dashboard/patients/${patientId}`}
-              className="inline-flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-5 h-10 sm:h-11 text-xs font-bold text-[#181700] hover:bg-stone-50 transition-colors shadow-2xs whitespace-nowrap"
-            >
-              <span>Lihat Profil Pasien</span>
-              <ExternalLink className="h-3 w-3" />
-            </Link>
-          )}
+        /* Action buttons based on status */
+        canReview && data ? (
+          <div className="flex items-center justify-end gap-2 w-full">
+            {currentStatus === 'SUBMITTED' && (
+              <button
+                type="button"
+                disabled={isActionPending}
+                onClick={() => handleAction('start-review')}
+                className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
+              >
+                {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                <span>Mulai Tinjau Form</span>
+              </button>
+            )}
 
-          {/* Action buttons based on status */}
-          {canReview && data && (
-            <div className="flex items-center gap-2">
-              {currentStatus === 'SUBMITTED' && (
+            {currentStatus === 'UNDER_REVIEW' && (
+              <>
                 <button
                   type="button"
                   disabled={isActionPending}
-                  onClick={() => handleAction('start-review')}
+                  onClick={() => setShowRevisionInput((prev) => !prev)}
+                  className="h-10 sm:h-11 px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-bold text-xs sm:text-[13px] inline-flex items-center justify-center cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
+                >
+                  <span>Minta Perbaikan</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={isActionPending}
+                  onClick={() => handleAction('accept')}
                   className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
                 >
                   {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-                  <span>Mulai Tinjau Form</span>
+                  <span>Terima / ACC Form</span>
                 </button>
-              )}
-
-              {currentStatus === 'UNDER_REVIEW' && (
-                <>
-                  <button
-                    type="button"
-                    disabled={isActionPending}
-                    onClick={() => setShowRevisionInput((prev) => !prev)}
-                    className="h-10 sm:h-11 px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-bold text-xs sm:text-[13px] inline-flex items-center justify-center cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
-                  >
-                    <span>Minta Perbaikan</span>
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isActionPending}
-                    onClick={() => handleAction('accept')}
-                    className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
-                  >
-                    {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
-                    <span>Terima / ACC Form</span>
-                  </button>
-                </>
-              )}
-            </div>
-          )}
-        </div>
+              </>
+            )}
+          </div>
+        ) : null
       }
+      footerClassName="bg-white border-t border-stone-200/80 px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full"
     >
       {/* ── BODY KONTEN DRAWER ── */}
       {fetching ? (
