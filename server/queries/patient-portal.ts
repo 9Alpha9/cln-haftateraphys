@@ -253,10 +253,14 @@ export async function getPendingAppointmentRequests() {
       patientName: patients.fullName,
       therapistName: users.name,
       createdAt: appointmentRequests.createdAt,
+      rescheduleAppointmentId: appointmentRequests.rescheduleAppointmentId,
+      rescheduleFromDate: appointments.scheduledDate,
+      rescheduleFromTime: appointments.startTime,
     })
     .from(appointmentRequests)
     .innerJoin(patients, eq(appointmentRequests.patientId, patients.id))
     .innerJoin(users, eq(appointmentRequests.therapistId, users.id))
+    .leftJoin(appointments, eq(appointmentRequests.rescheduleAppointmentId, appointments.id))
     .where(and(eq(appointmentRequests.status, 'PENDING'), scope))
     .orderBy(asc(appointmentRequests.requestedDate), asc(appointmentRequests.startTime));
 }

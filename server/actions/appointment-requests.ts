@@ -1,6 +1,6 @@
 'use server';
 
-import { and, eq, gte, inArray, isNull, ne, or } from 'drizzle-orm';
+import { and, asc, eq, gte, inArray, isNull, ne, or } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/db';
 import { appointmentRequests, appointments, patientAssignments, patients, profiles, users } from '@/db/schema';
@@ -21,7 +21,13 @@ type RequestAppointmentInput = {
   therapistId: string;
   durationMinutes?: number;
   patientNote?: string;
-  rescheduleAppointmentId?: string;
+};
+
+type RescheduleAppointmentInput = {
+  appointmentId: string;
+  requestedDate: string;
+  startTime: string;
+  therapistId: string;
 };
 
 function minutesSinceMidnight(value: string) {
@@ -39,6 +45,16 @@ function isValidTime(value: string) {
 
 function localDateKey(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function formatDateLabel(dateKey: string) {
+  const [year, month, day] = dateKey.slice(0, 10).split('-').map(Number);
+  return new Date(year, (month ?? 1) - 1, day ?? 1).toLocaleDateString('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
 }
 
 export async function requestPatientAppointment(input: RequestAppointmentInput) {
@@ -124,41 +140,6 @@ export async function requestPatientAppointment(input: RequestAppointmentInput) 
     throw new Error('Slot tersebut tidak tersedia pada jadwal fisioterapis. Silakan pilih jam lain.');
   }
 
-  const [ownedAppointment] = input.rescheduleAppointmentId
-    ? await db
-        .select({
-          id: appointments.id,
-          therapistId: appointments.therapistId,
-          scheduledDate: appointments.scheduledDate,
-          startTime: appointments.startTime,
-          durationMinutes: appointments.durationMinutes,
-          type: appointments.type,
-        })
-        .from(appointments)
-        .where(
-          and(
-            eq(appointments.id, input.rescheduleAppointmentId),
-            eq(appointments.patientId, patient.id),
-            gte(appointments.scheduledDate, todayKey),
-            inArray(appointments.status, [...ACTIVE_APPOINTMENT_STATUSES]),
-          ),
-        )
-        .limit(1)
-    : [];
-
-  if (input.rescheduleAppointmentId && !ownedAppointment) {
-    throw new Error('Jadwal yang ingin diubah tidak ditemukan atau sudah tidak aktif.');
-  }
-
-  if (
-    ownedAppointment &&
-    ownedAppointment.scheduledDate.slice(0, 10) === input.requestedDate &&
-    ownedAppointment.startTime === input.startTime &&
-    ownedAppointment.therapistId === input.therapistId
-  ) {
-    throw new Error('Jadwal baru sama dengan jadwal saat ini. Silakan pilih tanggal atau jam lain.');
-  }
-
   const existing = await db
     .select({
       id: appointments.id,
@@ -171,7 +152,6 @@ export async function requestPatientAppointment(input: RequestAppointmentInput) 
         eq(appointments.therapistId, input.therapistId),
         eq(appointments.scheduledDate, input.requestedDate),
         inArray(appointments.status, [...ACTIVE_APPOINTMENT_STATUSES]),
-        ownedAppointment ? ne(appointments.id, ownedAppointment.id) : undefined,
       ),
     );
 
@@ -181,58 +161,6 @@ export async function requestPatientAppointment(input: RequestAppointmentInput) 
     return start < existingEnd && end > existingStart;
   });
   if (hasConflict) throw new Error('Slot tersebut sudah terisi. Silakan pilih jam lain.');
-
-  if (ownedAppointment) {
-    await db.batch([
-      db
-        .update(appointments)
-        .set({ status: 'RESCHEDULED', updatedAt: new Date() })
-        .where(
-          and(
-            eq(appointments.id, ownedAppointment.id),
-            eq(appointments.patientId, patient.id),
-          ),
-        ),
-      db.insert(appointments).values({
-        patientId: patient.id,
-        therapistId: input.therapistId,
-        scheduledDate: input.requestedDate,
-        startTime: input.startTime,
-        durationMinutes: ownedAppointment.durationMinutes,
-        type: ownedAppointment.type,
-        status: 'SCHEDULED',
-        rescheduledFromId: ownedAppointment.id,
-        createdBy: session.user.id,
-      }),
-    ]);
-
-    await createAuditLog({
-      action: 'appointment.reschedule',
-      targetType: 'appointment',
-      targetId: ownedAppointment.id,
-      meta: {
-        previousTherapistId: ownedAppointment.therapistId,
-        previousDate: ownedAppointment.scheduledDate.slice(0, 10),
-        previousStartTime: ownedAppointment.startTime,
-        therapistId: input.therapistId,
-        requestedDate: input.requestedDate,
-        startTime: input.startTime,
-      },
-      userId: session.user.id,
-    });
-
-    await notifyUser({
-      userId: input.therapistId,
-      title: 'Jadwal pasien diubah',
-      message: `${session.user.name ?? 'Pasien'} memindahkan sesi ke ${input.requestedDate} pukul ${input.startTime}.`,
-      actionUrl: '/dashboard/appointments',
-    });
-
-    revalidatePath('/dashboard');
-    revalidatePath('/dashboard/appointments');
-    revalidatePath('/dashboard/notifications');
-    return { ok: true as const };
-  }
 
   const [duplicate] = await db
     .select({ id: appointmentRequests.id })
@@ -257,7 +185,6 @@ export async function requestPatientAppointment(input: RequestAppointmentInput) 
       startTime: input.startTime,
       durationMinutes,
       patientNote: input.patientNote?.trim() || null,
-      rescheduleAppointmentId: input.rescheduleAppointmentId ?? null,
     })
     .returning({ id: appointmentRequests.id });
 
@@ -269,7 +196,6 @@ export async function requestPatientAppointment(input: RequestAppointmentInput) 
       therapistId: input.therapistId,
       requestedDate: input.requestedDate,
       startTime: input.startTime,
-      rescheduleAppointmentId: input.rescheduleAppointmentId ?? null,
     },
     userId: session.user.id,
   });
@@ -283,6 +209,190 @@ export async function requestPatientAppointment(input: RequestAppointmentInput) 
 
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/appointments');
+  return { ok: true as const };
+}
+
+export async function reschedulePatientAppointment(input: RescheduleAppointmentInput) {
+  const { session, role } = await requireSession({ redirectToLogin: false });
+  if (role !== 'USER' || !hasPermission(role, PERMISSIONS.APPOINTMENT_LIST)) {
+    throw new ForbiddenError();
+  }
+  if (!isValidDateKey(input.requestedDate) || !isValidTime(input.startTime) || !input.therapistId) {
+    throw new Error('Tanggal, jam, atau fisioterapis tidak valid.');
+  }
+
+  const db = getDb();
+  const [patient] = await db
+    .select({ id: patients.id, fullName: patients.fullName })
+    .from(patients)
+    .where(eq(patients.userId, session.user.id))
+    .limit(1);
+  if (!patient) throw new Error('Data pasien tidak ditemukan.');
+
+  const todayKey = localDateKey(new Date());
+  const [appointment] = await db
+    .select({
+      id: appointments.id,
+      therapistId: appointments.therapistId,
+      scheduledDate: appointments.scheduledDate,
+      startTime: appointments.startTime,
+      durationMinutes: appointments.durationMinutes,
+      type: appointments.type,
+    })
+    .from(appointments)
+    .where(
+      and(
+        eq(appointments.id, input.appointmentId),
+        eq(appointments.patientId, patient.id),
+        gte(appointments.scheduledDate, todayKey),
+        inArray(appointments.status, [...ACTIVE_APPOINTMENT_STATUSES]),
+      ),
+    )
+    .limit(1);
+  if (!appointment) throw new Error('Jadwal yang ingin diubah tidak ditemukan atau sudah tidak aktif.');
+
+  const [pendingReschedule] = await db
+    .select({ id: appointmentRequests.id })
+    .from(appointmentRequests)
+    .where(
+      and(
+        eq(appointmentRequests.rescheduleAppointmentId, appointment.id),
+        eq(appointmentRequests.status, 'PENDING'),
+      ),
+    )
+    .limit(1);
+  if (pendingReschedule) {
+    throw new Error('Pengajuan perubahan jadwal untuk sesi ini masih menunggu konfirmasi terapis.');
+  }
+
+  if (
+    appointment.scheduledDate.slice(0, 10) === input.requestedDate &&
+    appointment.startTime === input.startTime &&
+    appointment.therapistId === input.therapistId
+  ) {
+    throw new Error('Jadwal baru sama dengan jadwal saat ini. Silakan pilih tanggal atau jam lain.');
+  }
+
+  const [therapist] = await db
+    .select({ id: users.id })
+    .from(users)
+    .innerJoin(profiles, eq(profiles.userId, users.id))
+    .where(and(eq(users.id, input.therapistId), eq(profiles.accountType, 'THERAPIST')))
+    .limit(1);
+  if (!therapist) throw new Error('Fisioterapis tidak ditemukan.');
+
+  if (input.requestedDate < todayKey) {
+    throw new Error('Tanggal yang dipilih sudah lewat.');
+  }
+  const requestedDay = new Date(`${input.requestedDate}T00:00:00`);
+  const requestedStart = new Date(`${input.requestedDate}T${input.startTime}:00`);
+  if (requestedStart.getTime() <= Date.now()) {
+    throw new Error('Jam yang dipilih sudah lewat. Silakan pilih jadwal lain.');
+  }
+  const maxDate = new Date();
+  maxDate.setDate(maxDate.getDate() + 90);
+  if (input.requestedDate > localDateKey(maxDate)) {
+    throw new Error('Pengajuan jadwal hanya tersedia maksimal 90 hari ke depan.');
+  }
+
+  const holidays = await getIndonesianHolidays(requestedDay.getFullYear()).catch(() => []);
+  if (holidays.some((holiday) => holiday.date === input.requestedDate)) {
+    throw new Error('Klinik tutup pada tanggal tersebut. Silakan pilih tanggal lain.');
+  }
+
+  const durationMinutes = appointment.durationMinutes;
+  const availabilityRules = await getAvailabilityRules(
+    [input.therapistId],
+    input.requestedDate,
+    input.requestedDate,
+  );
+  const isOnTimeOff = (availabilityRules.timeOffByTherapist.get(input.therapistId) ?? []).some(
+    (item) => item.startDate <= input.requestedDate && item.endDate >= input.requestedDate,
+  );
+  if (isOnTimeOff) {
+    throw new Error('Fisioterapis sedang tidak tersedia pada tanggal tersebut.');
+  }
+
+  const start = minutesSinceMidnight(input.startTime);
+  const end = start + durationMinutes;
+  const fitsSchedule = (availabilityRules.blocksByTherapist.get(input.therapistId) ?? [])
+    .filter((block) => block.dayOfWeek === requestedDay.getDay())
+    .some((block) => {
+      const blockStart = minutesSinceMidnight(block.startTime);
+      const blockEnd = minutesSinceMidnight(block.endTime);
+      if (start < blockStart || end > blockEnd) return false;
+      for (let cursor = blockStart; cursor + SLOT_MINUTES <= blockEnd; cursor += SLOT_MINUTES) {
+        if (cursor === start) return true;
+      }
+      return false;
+    });
+  if (!fitsSchedule) {
+    throw new Error('Slot tersebut tidak tersedia pada jadwal fisioterapis. Silakan pilih jam lain.');
+  }
+
+  const existing = await db
+    .select({
+      id: appointments.id,
+      startTime: appointments.startTime,
+      durationMinutes: appointments.durationMinutes,
+    })
+    .from(appointments)
+    .where(
+      and(
+        eq(appointments.therapistId, input.therapistId),
+        eq(appointments.scheduledDate, input.requestedDate),
+        inArray(appointments.status, [...ACTIVE_APPOINTMENT_STATUSES]),
+        ne(appointments.id, appointment.id),
+      ),
+    );
+
+  const hasConflict = existing.some((conflict) => {
+    const conflictStart = minutesSinceMidnight(conflict.startTime);
+    const conflictEnd = conflictStart + conflict.durationMinutes;
+    return start < conflictEnd && end > conflictStart;
+  });
+  if (hasConflict) throw new Error('Slot tersebut sudah terisi. Silakan pilih jam lain.');
+
+  const [request] = await db
+    .insert(appointmentRequests)
+    .values({
+      patientId: patient.id,
+      therapistId: input.therapistId,
+      requestedDate: input.requestedDate,
+      startTime: input.startTime,
+      durationMinutes: appointment.durationMinutes,
+      type: appointment.type,
+      status: 'PENDING',
+      rescheduleAppointmentId: appointment.id,
+    })
+    .returning({ id: appointmentRequests.id });
+
+  await notifyUser({
+    userId: input.therapistId,
+    title: 'Pengajuan ubah jadwal pasien',
+    message: `Pasien ${patient.fullName} mengajukan perubahan jadwal dari ${formatDateLabel(appointment.scheduledDate)} pukul ${appointment.startTime} ke ${formatDateLabel(input.requestedDate)} pukul ${input.startTime}. Menunggu konfirmasi Anda.`,
+    actionUrl: '/dashboard/appointments',
+  });
+
+  await createAuditLog({
+    action: 'appointment.reschedule_requested',
+    targetType: 'appointment_request',
+    targetId: request.id,
+    meta: {
+      appointmentId: appointment.id,
+      previousTherapistId: appointment.therapistId,
+      previousDate: appointment.scheduledDate.slice(0, 10),
+      previousStartTime: appointment.startTime,
+      therapistId: input.therapistId,
+      requestedDate: input.requestedDate,
+      startTime: input.startTime,
+    },
+    userId: session.user.id,
+  });
+
+  revalidatePath('/dashboard');
+  revalidatePath('/dashboard/appointments');
+  revalidatePath('/dashboard/notifications');
   return { ok: true as const };
 }
 
@@ -354,73 +464,148 @@ export async function reviewPatientAppointmentRequest({
         });
     }
 
-    await createAppointment(
-      {
-        patientId: request.patientId,
-        therapistId: request.therapistId,
-        scheduledDate: request.requestedDate,
-        startTime: request.startTime,
-        durationMinutes: request.durationMinutes,
-        type: 'THERAPY_SESSION',
-        administrativeNote: reviewNote?.trim() || undefined,
-      },
-      { notifyPatient: false },
-    );
-
-    const [appointment] = await db
-      .select({ id: appointments.id })
-      .from(appointments)
-      .where(
-        and(
-          eq(appointments.patientId, request.patientId),
-          eq(appointments.therapistId, request.therapistId),
-          eq(appointments.scheduledDate, request.requestedDate),
-          eq(appointments.startTime, request.startTime),
-        ),
-      )
-      .limit(1);
-
-    const updateRequest = db
-      .update(appointmentRequests)
-      .set({
-        status: 'APPROVED',
-        reviewNote: reviewNote?.trim() || null,
-        appointmentId: appointment?.id ?? null,
-        reviewedBy: session.user.id,
-        reviewedAt: new Date(),
-        updatedAt: new Date(),
-      })
-      .where(eq(appointmentRequests.id, requestId));
-
     if (request.rescheduleAppointmentId) {
-      await db.batch([
-        db
-          .update(appointments)
-          .set({ status: 'RESCHEDULED', updatedAt: new Date() })
-          .where(
-            and(
-              eq(appointments.id, request.rescheduleAppointmentId),
-              eq(appointments.patientId, request.patientId),
-            ),
+      const [sourceAppointment] = await db
+        .select({
+          id: appointments.id,
+          scheduledDate: appointments.scheduledDate,
+          startTime: appointments.startTime,
+          durationMinutes: appointments.durationMinutes,
+        })
+        .from(appointments)
+        .where(
+          and(
+            eq(appointments.id, request.rescheduleAppointmentId),
+            eq(appointments.patientId, request.patientId),
+            inArray(appointments.status, [...ACTIVE_APPOINTMENT_STATUSES]),
           ),
-        updateRequest,
-      ]);
+        )
+        .limit(1);
+      if (!sourceAppointment) {
+        throw new Error('Jadwal asal pengajuan sudah tidak aktif. Minta pasien mengajukan ulang.');
+      }
+
+      const requestedStart = minutesSinceMidnight(request.startTime);
+      const requestedEnd = requestedStart + request.durationMinutes;
+      const conflicts = await db
+        .select({
+          id: appointments.id,
+          startTime: appointments.startTime,
+          durationMinutes: appointments.durationMinutes,
+        })
+        .from(appointments)
+        .where(
+          and(
+            eq(appointments.therapistId, request.therapistId),
+            eq(appointments.scheduledDate, request.requestedDate),
+            inArray(appointments.status, [...ACTIVE_APPOINTMENT_STATUSES]),
+            ne(appointments.id, sourceAppointment.id),
+          ),
+        );
+      const hasConflict = conflicts.some((conflict) => {
+        const conflictStart = minutesSinceMidnight(conflict.startTime);
+        const conflictEnd = conflictStart + conflict.durationMinutes;
+        return requestedStart < conflictEnd && requestedEnd > conflictStart;
+      });
+      if (hasConflict) {
+        throw new Error('Slot pengajuan sudah terisi jadwal lain. Tolak pengajuan ini dan minta pasien memilih ulang.');
+      }
+
+      await db
+        .update(appointments)
+        .set({
+          scheduledDate: request.requestedDate,
+          startTime: request.startTime,
+          therapistId: request.therapistId,
+          durationMinutes: request.durationMinutes,
+          updatedAt: new Date(),
+        })
+        .where(and(eq(appointments.id, sourceAppointment.id), eq(appointments.patientId, request.patientId)));
+
+      const todayKey = localDateKey(new Date());
+      const [nextSession] = await db
+        .select({
+          scheduledDate: appointments.scheduledDate,
+          startTime: appointments.startTime,
+        })
+        .from(appointments)
+        .where(
+          and(
+            eq(appointments.patientId, request.patientId),
+            inArray(appointments.status, [...ACTIVE_APPOINTMENT_STATUSES]),
+            gte(appointments.scheduledDate, todayKey),
+          ),
+        )
+        .orderBy(asc(appointments.scheduledDate), asc(appointments.startTime))
+        .limit(1);
+      if (nextSession) {
+        const [year, month, day] = nextSession.scheduledDate.slice(0, 10).split('-').map(Number);
+        const [hours, minutes] = nextSession.startTime.split(':').map(Number);
+        await db
+          .update(patients)
+          .set({ nextTherapyAt: new Date(year, (month ?? 1) - 1, day ?? 1, hours ?? 0, minutes ?? 0) })
+          .where(eq(patients.id, request.patientId));
+      }
+
+      await db
+        .update(appointmentRequests)
+        .set({
+          status: 'APPROVED',
+          reviewNote: reviewNote?.trim() || null,
+          appointmentId: sourceAppointment.id,
+          reviewedBy: session.user.id,
+          reviewedAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(appointmentRequests.id, requestId));
     } else {
-      await updateRequest;
+      await createAppointment(
+        {
+          patientId: request.patientId,
+          therapistId: request.therapistId,
+          scheduledDate: request.requestedDate,
+          startTime: request.startTime,
+          durationMinutes: request.durationMinutes,
+          type: 'THERAPY_SESSION',
+          administrativeNote: reviewNote?.trim() || undefined,
+        },
+        { notifyPatient: false },
+      );
+
+      const [appointment] = await db
+        .select({ id: appointments.id })
+        .from(appointments)
+        .where(
+          and(
+            eq(appointments.patientId, request.patientId),
+            eq(appointments.therapistId, request.therapistId),
+            eq(appointments.scheduledDate, request.requestedDate),
+            eq(appointments.startTime, request.startTime),
+          ),
+        )
+        .limit(1);
+
+      await db
+        .update(appointmentRequests)
+        .set({
+          status: 'APPROVED',
+          reviewNote: reviewNote?.trim() || null,
+          appointmentId: appointment?.id ?? null,
+          reviewedBy: session.user.id,
+          reviewedAt: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(appointmentRequests.id, requestId));
     }
 
     if (request.patientUserId) {
-      const [year, month, day] = request.requestedDate.slice(0, 10).split('-').map(Number);
-      const dateLabel = new Date(year, month - 1, day).toLocaleDateString('id-ID', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      });
+      const dateLabel = formatDateLabel(request.requestedDate);
       await notifyUser({
         userId: request.patientUserId,
-        title: 'Pengajuan jadwal disetujui',
-        message: `Pengajuan jadwal Anda pada ${dateLabel} pukul ${request.startTime} telah disetujui${request.therapistName ? ` bersama ${request.therapistName}` : ''}. Sampai jumpa di klinik Hafta.`,
+        title: request.rescheduleAppointmentId ? 'Pengajuan ubah jadwal disetujui' : 'Pengajuan jadwal disetujui',
+        message: request.rescheduleAppointmentId
+          ? `Pengajuan ubah jadwal Anda ke ${dateLabel} pukul ${request.startTime} telah disetujui oleh fisioterapis.`
+          : `Pengajuan jadwal Anda pada ${dateLabel} pukul ${request.startTime} telah disetujui${request.therapistName ? ` bersama ${request.therapistName}` : ''}. Sampai jumpa di klinik Hafta.`,
         actionUrl: '/dashboard/appointments',
       });
     }
@@ -437,12 +622,14 @@ export async function reviewPatientAppointmentRequest({
       .where(eq(appointmentRequests.id, requestId));
 
     if (request.patientUserId) {
+      const dateLabel = formatDateLabel(request.requestedDate);
       await notifyUser({
         userId: request.patientUserId,
         title: 'Pengajuan jadwal belum disetujui',
-        message:
-          reviewNote?.trim() ||
-          'Tim Hafta belum dapat menyetujui slot yang diajukan. Silakan pilih tanggal lain melalui portal pasien.',
+        message: request.rescheduleAppointmentId
+          ? `Pengajuan perubahan jadwal Anda ke ${dateLabel} pukul ${request.startTime} belum dapat disetujui. Tekan tombol Ubah Jadwal pada kalender untuk memilih tanggal lain.${reviewNote?.trim() ? ` Catatan: ${reviewNote.trim()}` : ''}`
+          : reviewNote?.trim() ||
+            'Tim Hafta belum dapat menyetujui slot yang diajukan. Silakan pilih tanggal lain melalui portal pasien.',
         actionUrl: '/dashboard/appointments',
       });
     }

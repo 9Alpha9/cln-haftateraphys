@@ -292,8 +292,26 @@ Jika nanti Hafta ingin pasien mengajukan perubahan:
 ```text
 REQUEST_RESCHEDULE
 ```
-
 harus menjadi separate workflow, bukan direct mutation appointment.
+
+> **Update (keputusan pemilik proyek):** Patient Reschedule menggunakan alur
+> **Approval-Gated Request**, bukan direct mutation dari sisi pasien:
+>
+> ```text
+> Pasien pilih slot baru
+>   -> appointment_requests (PENDING, rescheduleAppointmentId = jadwal asal)
+>   -> Terapis/Admin ACC di AppointmentRequestQueue
+>   -> APPROVED: appointment lama di-update in-place (scheduledDate/startTime/
+>      therapistId), sinkron patients.nextTherapyAt, tanpa record ganda
+>   -> DECLINED: appointment lama tetap utuh, pasien boleh mengajukan ulang
+> ```
+>
+> Status penolakan memakai nilai enum `DECLINED` (bukan `REJECTED` — keputusan
+> pemilik proyek: tanpa migration enum). Validasi slot (hari libur, jadwal
+> kerja, bentrok, cegah dobel `PENDING`) dilakukan saat pengajuan **dan**
+> saat ACC. Audit: `appointment.reschedule_requested` saat pengajuan,
+> `appointment.request.approve` / `appointment.request.decline` saat review.
+> Pasien tidak pernah mengubah tabel `appointments` secara langsung.
 
 ### 4.8 Calendar Views
 

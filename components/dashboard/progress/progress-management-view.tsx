@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Activity,
   Eye,
@@ -11,6 +12,7 @@ import {
   MoreVertical,
   Printer,
   FileDown,
+  Search,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import { MedicalRecordActions, useMedicalRecordPdf } from '@/components/dashboard/medical-record-actions';
@@ -22,6 +24,7 @@ interface ProgressManagementViewProps {
   initialRecords: TherapyProgressView[];
   canEdit: boolean;
   patientOptions: { id: string; label: string }[];
+  initialSearch?: string;
 }
 
 function getScoreColor(type: 'pain' | 'rom' | 'strength' | 'function', value: number) {
@@ -69,11 +72,28 @@ function MedicalRecordCard({
         {/* Baris Atas: Nama Pasien & Status Badges */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="truncate text-base font-bold text-[#181700] group-hover:text-[var(--hafta-ylw-950)]">
-              {record.patientName}
-            </h3>
-            <p className="mt-0.5 text-xs text-stone-500 font-medium">
-              {dateStr} • Oleh: {record.therapistName || 'Terapis'}
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <h3 className="truncate text-base font-bold text-[#181700] group-hover:text-[var(--hafta-ylw-950)]">
+                {record.patientName}
+              </h3>
+              {record.medicalRecordNumber ? (
+                <span
+                  className="shrink-0 rounded-full bg-stone-100 px-2 py-0.5 font-mono text-[10px] font-bold text-[#181700]"
+                  title="Nomor Rekam Medis"
+                >
+                  {record.medicalRecordNumber}
+                </span>
+              ) : null}
+            </div>
+            <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-stone-500 font-medium">
+              <span>
+                {dateStr} • Oleh: {record.therapistName || 'Terapis'}
+              </span>
+              {record.visitNumber ? (
+                <span className="rounded-full border border-stone-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600">
+                  Kunjungan Ke-{record.visitNumber}
+                </span>
+              ) : null}
             </p>
           </div>
 
@@ -242,13 +262,37 @@ export function ProgressManagementView({
   initialRecords,
   canEdit,
   patientOptions,
+  initialSearch = '',
 }: ProgressManagementViewProps) {
+  const router = useRouter();
   const [selectedRecord, setSelectedRecord] = useState<TherapyProgressView | null>(null);
   const [editingRecord, setEditingRecord] = useState<TherapyProgressView | null>(null);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'FINALIZED' | 'DRAFT'>('ALL');
   const [visibilityFilter, setVisibilityFilter] = useState<'ALL' | 'VISIBLE' | 'INTERNAL'>('ALL');
   const [activeTab, setActiveTab] = useState<'soap' | 'metrics'>('soap');
+
+  const hasQuery = search.trim().length > 0;
+
+  const quickPatients = (() => {
+    const seen = new Map<string, { patientId: string; rm: string | null; name: string }>();
+    for (const rec of initialRecords) {
+      if (!seen.has(rec.patientId)) {
+        seen.set(rec.patientId, {
+          patientId: rec.patientId,
+          rm: rec.medicalRecordNumber ?? null,
+          name: rec.patientName,
+        });
+      }
+    }
+    return [...seen.values()].slice(0, 5);
+  })();
+
+  function applySearch(value: string) {
+    setSearch(value);
+    const trimmed = value.trim();
+    router.push(trimmed ? `/dashboard/progress?q=${encodeURIComponent(trimmed)}` : '/dashboard/progress');
+  }
 
   // Real-time filtering
   const filtered = initialRecords.filter((rec) => {
@@ -259,10 +303,14 @@ export function ProgressManagementView({
     if (search.trim()) {
       const q = search.toLowerCase();
       const matchName = rec.patientName.toLowerCase().includes(q);
+      const matchRm = (rec.medicalRecordNumber ?? '').toLowerCase().includes(q);
       const matchDiagnosis = rec.diagnosis?.toLowerCase().includes(q) ?? false;
+      const matchAnamnesis = rec.anamnesis?.toLowerCase().includes(q) ?? false;
       const matchTreatment = rec.treatment?.toLowerCase().includes(q) ?? false;
       const matchTherapist = rec.therapistName?.toLowerCase().includes(q) ?? false;
-      if (!matchName && !matchDiagnosis && !matchTreatment && !matchTherapist) return false;
+      if (!matchName && !matchRm && !matchDiagnosis && !matchAnamnesis && !matchTreatment && !matchTherapist) {
+        return false;
+      }
     }
 
     return true;
@@ -271,25 +319,51 @@ export function ProgressManagementView({
   return (
     <div className="space-y-6">
     <div className="space-y-3">
-        {/* Baris 1: Search */}
-        <div className="relative w-full">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari pasien, diagnosis, atau terapis..."
-            className="h-11 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-4 text-xs text-[#181700] placeholder:text-stone-400 outline-none transition-all focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 shadow-2xs"
-          />
-          <svg
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none"
-            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-          >
-            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-          </svg>
+        {/* Baris 1: Search + Aksi Cari/Reset */}
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center">
+          <div className="relative w-full">
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') applySearch(search);
+              }}
+              placeholder="Cari berdasarkan Nomor Rekam Medis (No. RM), Nama Pasien, atau Diagnosis..."
+              className="h-11 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-4 text-xs text-[#181700] placeholder:text-stone-400 outline-none transition-all focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35 shadow-2xs"
+            />
+            <svg
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none"
+              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+            >
+              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+            </svg>
+          </div>
+
+          {hasQuery ? (
+            <div className="flex shrink-0 gap-2">
+              <button
+                type="button"
+                onClick={() => applySearch(search)}
+                className="inline-flex h-11 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#181700] px-5 text-xs font-bold text-white transition-colors hover:bg-[var(--hafta-ylw-100)] hover:text-[#181700]"
+              >
+                <Search className="h-3.5 w-3.5" />
+                Cari
+              </button>
+              <button
+                type="button"
+                onClick={() => applySearch('')}
+                className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100"
+              >
+                Reset
+              </button>
+            </div>
+          ) : null}
         </div>
 
-        {/* Baris 2: Segmented Status Track + Visibility Switcher */}
+        {/* Baris 2: Segmented Status Track + Visibility Switcher — hanya setelah ada kata kunci */}
+        {hasQuery ? (
         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           {/* Segmented Pill Track Status */}
           <div className="grid grid-cols-3 sm:inline-flex items-center gap-0 bg-stone-100/90 p-1 rounded-full w-full sm:w-auto">
@@ -361,26 +435,81 @@ export function ProgressManagementView({
             </button>
           </div>
         </div>
+        ) : null}
       </div>
 
       {/* ── 2. COMPACT CLINICAL REKAM MEDIS CARDS GRID ── */}
-      {filtered.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-stone-200 bg-white p-12 text-center">
-          <Activity className="mx-auto h-10 w-10 text-stone-300" />
-          <h3 className="mt-3 text-sm font-bold text-[#181700]">Belum ada evaluasi klinis yang sesuai</h3>
-          <p className="mt-1 text-xs text-stone-500">Silakan ubah filter pencarian atau buat evaluasi baru.</p>
+      {!hasQuery ? (
+        <div className="space-y-6">
+          {quickPatients.length > 0 ? (
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-stone-500">Cepat pilih pasien</p>
+              <div className="flex flex-wrap gap-2">
+                {quickPatients.map((patient) => (
+                  <button
+                    key={patient.patientId}
+                    type="button"
+                    onClick={() => applySearch(patient.rm ?? patient.name)}
+                    className="cursor-pointer rounded-full border border-stone-200/90 bg-white px-3.5 py-1.5 text-xs font-semibold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-50)]"
+                  >
+                    {patient.rm ? `[${patient.rm}] • ${patient.name}` : patient.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <div className="rounded-3xl border border-stone-200/90 bg-white px-6 py-16 text-center">
+            <span className="mx-auto flex h-11 w-11 aspect-square items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
+              <Search className="h-5 w-5" />
+            </span>
+            <h3 className="mt-4 text-sm font-bold text-[#181700]">
+              Cari Pasien untuk Menampilkan Rekam Medis
+            </h3>
+            <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-stone-500">
+              Masukkan Nomor Rekam Medis (No. RM), Nama Pasien, atau Diagnosis pada kolom pencarian di atas
+              untuk membuka riwayat evaluasi SOAP tanpa menumpuk ratusan data.
+            </p>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 w-full">
-          {filtered.map((record) => (
-            <MedicalRecordCard
-              key={record.id}
-              record={record}
-              canEdit={canEdit}
-              onSelect={() => setSelectedRecord(record)}
-              onEdit={() => setEditingRecord(record)}
-            />
-          ))}
+        <div className="space-y-6">
+          <p className="text-xs text-stone-500">
+            <span className="font-bold text-[#181700]">{filtered.length}</span> rekam medis ditemukan
+          </p>
+
+          {filtered.length === 0 ? (
+            <div className="rounded-3xl border border-stone-200/90 bg-white px-6 py-16 text-center">
+              <span className="mx-auto flex h-11 w-11 aspect-square items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
+                <Search className="h-5 w-5" />
+              </span>
+              <h3 className="mt-4 text-sm font-bold text-[#181700]">
+                Tidak ditemukan rekam medis untuk kata kunci tersebut
+              </h3>
+              <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-stone-500">
+                Periksa kembali No. RM, nama pasien, atau diagnosis yang Anda ketik.
+              </p>
+              <button
+                type="button"
+                onClick={() => applySearch('')}
+                className="mt-5 inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100"
+              >
+                Bersihkan Pencarian
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 w-full">
+              {filtered.map((record) => (
+                <MedicalRecordCard
+                  key={record.id}
+                  record={record}
+                  canEdit={canEdit}
+                  onSelect={() => setSelectedRecord(record)}
+                  onEdit={() => setEditingRecord(record)}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 

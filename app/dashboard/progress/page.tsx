@@ -76,12 +76,14 @@ export default async function ProgressPage({
       ) : (
         <>
           <ProgressManagementView
+            key={search}
             initialRecords={records}
             canEdit={canCreate}
             patientOptions={patientOptions}
+            initialSearch={search}
           />
 
-          {totalPages > 1 && (
+          {search.trim() && totalPages > 1 && (
             <div className="flex justify-center pt-4">
               <Pagination>
                 <PaginationContent>

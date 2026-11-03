@@ -12,7 +12,7 @@ type HubTab = 'target' | 'kehadiran' | 'aktivitas';
 
 const TABS = [
   { id: 'target', label: 'Target' },
-  { id: 'kehadiran', label: 'Hadir' },
+  { id: 'kehadiran', label: 'Kehadiran' },
   { id: 'aktivitas', label: 'Aktivitas' },
 ];
 
@@ -135,7 +135,7 @@ export function PatientDashboardProgressHub({
   > = {
     target: {
       totalValue: treatmentGoal ? 'Aktif' : '—',
-      totalLabel: 'TARGET',
+      totalLabel: 'TARGET TERAPI',
       context: treatmentGoal ?? 'Target terapi akan tampil setelah asesmen awal selesai.',
       summaryTitle: 'Fokus Program',
       summaryTags: [
@@ -166,7 +166,7 @@ export function PatientDashboardProgressHub({
     },
     kehadiran: {
       totalValue: `${attendance}%`,
-      totalLabel: 'KEHADIRAN',
+      totalLabel: 'KEHADIRAN PASIEN',
       context: eligibleSessions
         ? `${completed} dari ${eligibleSessions} sesi terlaksana`
         : 'Belum ada sesi yang dapat dihitung.',
@@ -189,7 +189,7 @@ export function PatientDashboardProgressHub({
     },
     aktivitas: {
       totalValue: totalRecords,
-      totalLabel: 'AKTIVITAS',
+      totalLabel: 'AKTIVITAS PASIEN',
       context: 'Jejak terbaru dari catatan, jadwal, dan pengajuan Anda.',
       summaryTitle: 'Jejak Aktivitas',
       summaryTags: [

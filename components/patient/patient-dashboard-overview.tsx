@@ -134,6 +134,9 @@ export function PatientDashboardOverview({
     )[0];
   const pendingRequest = requests.find((request) => request.status === 'PENDING');
   const intakeCopy = intake ? INTAKE_COPY[intake.status] : null;
+  const hasActiveSchedule = appointments.some((appointment) =>
+    ['SCHEDULED', 'CONFIRMED'].includes(appointment.status),
+  );
 
   return (
     <div className="w-full space-y-6">
@@ -220,22 +223,17 @@ export function PatientDashboardOverview({
               />
             )}
           </section>
-
           <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
-            <div className="flex items-start justify-between gap-3 mb-4">
-              <div>
-                <h2 className="text-base font-bold text-[#181700]">Jadwal Terapi</h2>
-                <p className="mt-1 text-xs text-stone-500">
-                  Lihat ketersediaan sesi dan ajukan jadwal baru.
-                </p>
-              </div>
-              <Link
-                href="/dashboard/appointments"
-                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-[#181700] px-3.5 text-xs font-bold text-white transition-colors hover:bg-[var(--hafta-ylw-100)] hover:text-[#181700]"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                Atur Jadwal
-              </Link>
+            <div className="flex items-start justify-between gap-3">
+              {!hasActiveSchedule ? (
+                <Link
+                  href="/dashboard/appointments"
+                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-full bg-[#181700] px-3.5 text-xs font-bold text-white transition-colors hover:bg-[var(--hafta-ylw-100)] hover:text-[#181700]"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Pilih Jadwal Terapi
+                </Link>
+              ) : null}
             </div>
             <PatientTherapyCalendar
               appointments={appointments}

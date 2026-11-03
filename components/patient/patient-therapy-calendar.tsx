@@ -17,6 +17,7 @@ import { useToast } from '@/components/ui/toast';
 import {
   cancelPatientAppointmentRequest,
   requestPatientAppointment,
+  reschedulePatientAppointment,
 } from '@/server/actions/appointment-requests';
 import type {
   AvailabilityDate,
@@ -97,9 +98,9 @@ export function PatientTherapyCalendar({
   const [selectedDate, setSelectedDate] = useState<string | null>(defaultDate ?? null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedTherapistId, setSelectedTherapistId] = useState<string | null>(null);
-  const [rescheduleAppointmentId, setRescheduleAppointmentId] = useState<string | null>(null);
+  const [reschedulingAppointment, setReschedulingAppointment] = useState<PatientPortalAppointment | null>(null);
   const [detailAppointment, setDetailAppointment] = useState<PatientPortalAppointment | null>(null);
-  const [showRescheduleConfirm, setShowRescheduleConfirm] = useState<string | null>(null);
+  const [confirmingAppointment, setConfirmingAppointment] = useState<PatientPortalAppointment | null>(null);
   const todayKey = dateKey(new Date());
 
   const availabilityMap = useMemo(
@@ -123,6 +124,12 @@ export function PatientTherapyCalendar({
     }
     return map;
   }, [requests]);
+
+  const hasActiveSchedule = useMemo(
+    () => appointments.some((appointment) => ['SCHEDULED', 'CONFIRMED'].includes(appointment.status)),
+    [appointments],
+  );
+  const showAvailability = reschedulingAppointment !== null || !hasActiveSchedule;
 
   const days = useMemo(() => {
     const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
@@ -149,10 +156,6 @@ export function PatientTherapyCalendar({
   const effectiveTherapist =
     therapistsForTime.find((slot) => slot.therapistId === selectedTherapistId) ?? therapistsForTime[0] ?? null;
 
-  const reschedulingAppointment = rescheduleAppointmentId
-    ? appointments.find((appointment) => appointment.id === rescheduleAppointmentId) ?? null
-    : null;
-
   const smartAlternatives = useMemo(() => {
     const base = selectedDate ?? todayKey;
     return availability
@@ -176,9 +179,10 @@ export function PatientTherapyCalendar({
     setMonth(new Date(day.getFullYear(), day.getMonth(), 1));
   }
 
-  function confirmReschedule(appointmentId: string) {
-    setShowRescheduleConfirm(null);
-    setRescheduleAppointmentId(appointmentId);
+  function confirmReschedule() {
+    if (!confirmingAppointment) return;
+    setReschedulingAppointment(confirmingAppointment);
+    setConfirmingAppointment(null);
     setSelectedTime(null);
     setSelectedTherapistId(null);
     setTimeout(() => {
@@ -187,7 +191,7 @@ export function PatientTherapyCalendar({
   }
 
   function cancelReschedule() {
-    setRescheduleAppointmentId(null);
+    setReschedulingAppointment(null);
     setSelectedTime(null);
     setSelectedTherapistId(null);
   }
@@ -218,24 +222,31 @@ export function PatientTherapyCalendar({
 
     startTransition(async () => {
       try {
-        const isReschedule = Boolean(rescheduleAppointmentId);
-        await requestPatientAppointment({
-          requestedDate: selectedDate,
-          startTime: effectiveTime,
-          therapistId: effectiveTherapist.therapistId,
-          durationMinutes: 60,
-          rescheduleAppointmentId: rescheduleAppointmentId ?? undefined,
-        });
-        showToast(
-          'success',
-          isReschedule
-            ? 'Jadwal berhasil dipindahkan ke tanggal dan jam baru.'
-            : 'Pengajuan jadwal terkirim. Tim Hafta akan mengonfirmasi.',
-        );
-        setRescheduleAppointmentId(null);
+        if (reschedulingAppointment) {
+          await reschedulePatientAppointment({
+            appointmentId: reschedulingAppointment.id,
+            requestedDate: selectedDate,
+            startTime: effectiveTime,
+            therapistId: effectiveTherapist.therapistId,
+          });
+          showToast(
+            'success',
+            'Pengajuan ubah jadwal berhasil dikirim. Menunggu konfirmasi (ACC) dari fisioterapis.',
+          );
+          setReschedulingAppointment(null);
+        } else {
+          await requestPatientAppointment({
+            requestedDate: selectedDate,
+            startTime: effectiveTime,
+            therapistId: effectiveTherapist.therapistId,
+            durationMinutes: 60,
+          });
+          showToast('success', 'Pengajuan jadwal terkirim. Tim Hafta akan mengonfirmasi.');
+        }
         setSelectedTime(null);
         setSelectedTherapistId(null);
         setDetailAppointment(null);
+        setSelectedDate(selectedDate);
         router.refresh();
       } catch (error) {
         showToast('error', error instanceof Error ? error.message : 'Pengajuan jadwal tidak dapat dikirim.');
@@ -250,72 +261,131 @@ export function PatientTherapyCalendar({
           <CalendarDays className="h-8 w-8 text-stone-300" />
           <p className="mt-3 text-sm font-semibold text-[#181700]">Pilih tanggal</p>
           <p className="mt-1 max-w-xs text-xs leading-relaxed text-stone-500">
-            Tanggal dengan lingkaran kuning memiliki slot fisioterapis yang masih tersedia.
+            {showAvailability
+              ? 'Tanggal dengan lingkaran kuning memiliki slot fisioterapis yang masih tersedia.'
+              : 'Klik tanggal sesi Anda (lingkaran hitam) untuk melihat detail jadwal.'}
           </p>
         </div>
       );
     }
 
-    if (selectedAppointments.length > 0) {
+    const ownCards = selectedAppointments.filter(
+      (appointment) => appointment.id !== reschedulingAppointment?.id,
+    );
+    if (ownCards.length > 0) {
       return (
         <div className="space-y-4">
           <div>
             <p className="text-xs text-stone-500">Jadwal sesi Anda</p>
             <h3 className="mt-1 text-base font-bold text-[#181700]">{formatLongDate(selectedDate)}</h3>
           </div>
-          {rescheduleAppointmentId ? (
-            <div className="flex items-start justify-between gap-3 rounded-xl border border-[var(--hafta-ylw-300)] bg-[var(--hafta-ylw-50)]/60 px-3 py-2.5 text-[11px] leading-relaxed text-[#181700]">
-              <span>Pilih tanggal baru di kalender, lalu tentukan jam dan fisioterapis pengganti.</span>
-              <button
-                type="button"
-                onClick={cancelReschedule}
-                className="shrink-0 cursor-pointer font-semibold underline underline-offset-4"
-              >
-                Batal
-              </button>
-            </div>
-          ) : null}
-          {selectedAppointments.map((appointment) => (
-            <article key={appointment.id} className="rounded-2xl bg-[#181700] p-4 text-white">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-sm font-bold">{TYPE_LABELS[appointment.type] ?? appointment.type}</p>
-                  <p className="mt-1 text-xs text-stone-300">
-                    {appointment.startTime} · {appointment.durationMinutes} menit
-                  </p>
+          {ownCards.map((appointment) => {
+            const pendingReschedule = requests.find(
+              (request) =>
+                request.rescheduleAppointmentId === appointment.id && request.status === 'PENDING',
+            );
+            const canReschedule =
+              ['SCHEDULED', 'CONFIRMED'].includes(appointment.status) && !pendingReschedule;
+            return (
+              <article key={appointment.id} className="rounded-2xl bg-[#181700] p-4 text-white">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-bold">{TYPE_LABELS[appointment.type] ?? appointment.type}</p>
+                    <p className="mt-1 text-xs text-stone-300">
+                      {appointment.startTime} · {appointment.durationMinutes} menit
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-[var(--hafta-ylw-100)]">
+                    {STATUS_LABELS[appointment.status] ?? appointment.status}
+                  </span>
                 </div>
-                <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-[var(--hafta-ylw-100)]">
-                  {STATUS_LABELS[appointment.status] ?? appointment.status}
-                </span>
-              </div>
-              <div className="mt-4 flex items-center gap-2 border-t border-white/10 pt-3 text-xs text-stone-300">
-                <UserRound className="h-4 w-4 text-[var(--hafta-ylw-100)]" />
-                {appointment.therapistName ?? 'Fisioterapis Hafta'}
-              </div>
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setDetailAppointment(appointment)}
-                  className="h-9 cursor-pointer rounded-full border border-white/20 bg-white/5 px-3 text-xs font-semibold text-white transition-colors hover:bg-white/10"
-                >
-                  Lihat Detail
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowRescheduleConfirm(appointment.id);
-                  }}
-                  className="h-9 cursor-pointer rounded-full bg-[var(--hafta-ylw-100)] px-3 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)]"
-                >
-                  Ubah Jadwal
-                </button>
-              </div>
-            </article>
-          ))}
+                <div className="mt-4 flex items-center gap-2 border-t border-white/10 pt-3 text-xs text-stone-300">
+                  <UserRound className="h-4 w-4 text-[var(--hafta-ylw-100)]" />
+                  {appointment.therapistName ?? 'Fisioterapis Hafta'}
+                </div>
+                {pendingReschedule ? (
+                  <div className="mt-3 border-t border-white/10 pt-3">
+                    <span className="inline-block rounded-full border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] px-3 py-0.5 text-[10px] font-bold text-[#181700]">
+                      Menunggu ACC Terapis
+                    </span>
+                    <p className="mt-1.5 text-[11px] leading-relaxed text-stone-300">
+                      Diajukan pindah ke{' '}
+                      {formatShortDate(dateKey(pendingReschedule.requestedDate))} •{' '}
+                      {pendingReschedule.startTime}
+                    </p>
+                  </div>
+                ) : null}
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  {canReschedule ? (
+                    <button
+                      type="button"
+                      onClick={() => setConfirmingAppointment(appointment)}
+                      className="h-10 cursor-pointer rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)]"
+                    >
+                      Ubah Jadwal
+                    </button>
+                  ) : null}
+                  <button
+                    type="button"
+                    onClick={() => setDetailAppointment(appointment)}
+                    className={cn(
+                      'h-10 cursor-pointer rounded-full border border-white/25 bg-white/10 px-4 text-xs font-semibold text-white transition-colors hover:bg-white/20',
+                      !canReschedule && 'col-span-2',
+                    )}
+                  >
+                    Lihat Detail
+                  </button>
+                </div>
+              </article>
+            );
+          })}
         </div>
       );
     }
 
+    if (!showAvailability) {
+      if (selectedRequests.length > 0) {
+        return (
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs text-stone-500">Tanggal dipilih</p>
+              <h3 className="mt-1 text-base font-bold text-[#181700]">{formatLongDate(selectedDate)}</h3>
+            </div>
+            <div className="space-y-2.5 rounded-2xl border border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)] px-4 py-3">
+              <span className="inline-block rounded-full border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] px-3 py-0.5 text-[10px] font-bold text-[#181700]">
+                Menunggu ACC Terapis
+              </span>
+              <p className="text-xs leading-relaxed text-[#181700]">
+                Pengajuan jadwal {formatShortDate(selectedDate)} ·{' '}
+                {selectedRequests[0]?.startTime} sedang menunggu konfirmasi fisioterapis.
+              </p>
+              {selectedRequests.map((request) => (
+                <button
+                  key={request.id}
+                  type="button"
+                  disabled={pending}
+                  onClick={() => cancelPendingRequest(request.id)}
+                  className="block cursor-pointer text-xs font-semibold text-stone-600 underline underline-offset-4 disabled:opacity-60"
+                >
+                  Batalkan pengajuan {request.startTime}
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div className="space-y-4">
+          <div>
+            <p className="text-xs text-stone-500">Tanggal dipilih</p>
+            <h3 className="mt-1 text-base font-bold text-[#181700]">{formatLongDate(selectedDate)}</h3>
+          </div>
+          <p className="rounded-2xl bg-white px-4 py-3 text-xs leading-relaxed text-stone-600">
+            Jadwal sesi Anda sudah terjadwal. Tekan tombol Ubah Jadwal pada kartu sesi (lingkaran hitam) untuk memilih tanggal baru.
+          </p>
+        </div>
+      );
+    }
 
     if (selectedAvailability && selectedAvailability.slots.length > 0) {
       return (
@@ -342,15 +412,6 @@ export function PatientTherapyCalendar({
               {reschedulingAppointment ? 'Pilih jadwal pengganti' : 'Cari jadwal baru'}
             </p>
             <h3 className="mt-1 text-base font-bold text-[#181700]">{formatLongDate(selectedDate)}</h3>
-            {reschedulingAppointment ? (
-              <button
-                type="button"
-                onClick={cancelReschedule}
-                className="mt-2 cursor-pointer text-xs font-semibold text-stone-500 underline underline-offset-4 hover:text-[#181700]"
-              >
-                Batalkan ubah jadwal
-              </button>
-            ) : null}
           </div>
 
           <div>
@@ -427,19 +488,37 @@ export function PatientTherapyCalendar({
             </div>
           ) : null}
 
-          <button
-            type="button"
-            onClick={submitRequest}
-            disabled={pending || !effectiveTherapist || selectedRequests.length > 0}
-            className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-            {pending
-              ? 'Memproses...'
-              : rescheduleAppointmentId
-                ? 'Pindahkan ke Jadwal Ini'
-                : 'Pilih & Ajukan Jadwal Ini'}
-          </button>
+          {reschedulingAppointment ? (
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+              <button
+                type="button"
+                onClick={submitRequest}
+                disabled={pending || !effectiveTherapist || selectedRequests.length > 0}
+                className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+              >
+                {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                {pending ? 'Memproses...' : 'Ajukan Perubahan Jadwal'}
+              </button>
+              <button
+                type="button"
+                onClick={cancelReschedule}
+                disabled={pending}
+                className="inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100 disabled:opacity-60 sm:w-auto"
+              >
+                Batal
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={submitRequest}
+              disabled={pending || !effectiveTherapist || selectedRequests.length > 0}
+              className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+              {pending ? 'Memproses...' : 'Pilih & Ajukan Jadwal Ini'}
+            </button>
+          )}
         </div>
       );
     }
@@ -450,18 +529,6 @@ export function PatientTherapyCalendar({
           <p className="text-xs text-stone-500">Tanggal dipilih</p>
           <h3 className="mt-1 text-base font-bold text-[#181700]">{formatLongDate(selectedDate)}</h3>
         </div>
-        {rescheduleAppointmentId ? (
-          <div className="flex items-start justify-between gap-3 rounded-xl border border-[var(--hafta-ylw-300)] bg-[var(--hafta-ylw-50)]/60 px-3 py-2.5 text-[11px] leading-relaxed text-[#181700]">
-            <span>Pilih tanggal lain yang memiliki slot untuk memindahkan jadwal.</span>
-            <button
-              type="button"
-              onClick={cancelReschedule}
-              className="shrink-0 cursor-pointer font-semibold underline underline-offset-4"
-            >
-              Batal
-            </button>
-          </div>
-        ) : null}
         <p className="rounded-2xl bg-stone-50 px-4 py-3 text-xs leading-relaxed text-stone-600">
           Maaf, slot pada tanggal ini sudah penuh atau klinik sedang libur. Berikut jadwal kosong terdekat yang tersedia untuk Anda.
         </p>
@@ -539,7 +606,22 @@ export function PatientTherapyCalendar({
         </div>
       </header>
 
-      {availability.length === 0 ? (
+      {reschedulingAppointment ? (
+        <div className="flex flex-col gap-3 rounded-2xl border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs font-medium leading-relaxed text-[#181700]">
+            Pilih tanggal berwarna kuning di kalender untuk memindahkan jadwal sesi Anda.
+          </p>
+          <button
+            type="button"
+            onClick={cancelReschedule}
+            className="shrink-0 cursor-pointer rounded-full border border-[var(--hafta-ylw-300)] bg-white px-3 py-1.5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-100)]"
+          >
+            Batal Ubah
+          </button>
+        </div>
+      ) : null}
+
+      {showAvailability && availability.length === 0 ? (
         <div className="rounded-2xl bg-[var(--hafta-ylw-50)]/45 px-4 py-3 text-xs leading-relaxed text-[#181700]">
           Belum ada slot tersedia. Fisioterapis Anda mungkin belum terhubung atau jadwal kerjanya belum diatur. Silakan hubungi tim Hafta untuk penjadwalan.
         </div>
@@ -563,7 +645,7 @@ export function PatientTherapyCalendar({
               const own = (appointmentsByDate.get(key) ?? []).filter((appointment) =>
                 ['SCHEDULED', 'CONFIRMED', 'COMPLETED'].includes(appointment.status),
               );
-              const slots = availabilityMap.get(key)?.slots ?? [];
+              const slots = showAvailability ? availabilityMap.get(key)?.slots ?? [] : [];
               const pendingRequests = (requestsByDate.get(key) ?? []).filter((request) => request.status === 'PENDING');
               const isSelected = selectedDate === key;
               const unavailable = isPast || isSunday || Boolean(holiday);
@@ -584,7 +666,7 @@ export function PatientTherapyCalendar({
                       own.length > 0
                         ? 'bg-[#181700] font-bold text-white'
                         : pendingRequests.length > 0
-                          ? 'border border-[var(--hafta-ylw-300)] bg-[var(--hafta-ylw-100)] font-bold text-[#181700]'
+                          ? 'border-2 border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)] font-bold text-[#181700]'
                           : slots.length > 0 && !unavailable
                             ? 'border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/70 font-semibold text-[#181700] group-hover:bg-[var(--hafta-ylw-100)]'
                             : unavailable
@@ -598,6 +680,8 @@ export function PatientTherapyCalendar({
                     {day.getDate()}
                     {own.length > 0 ? (
                       <span className="mt-0.5 h-1 w-1 rounded-full bg-[var(--hafta-ylw-100)]" />
+                    ) : pendingRequests.length > 0 ? (
+                      <span className="mt-0.5 h-1 w-1 rounded-full bg-[var(--hafta-ylw-400)]" />
                     ) : slots.length > 0 && !unavailable ? (
                       <span className="mt-0.5 h-1 w-1 rounded-full bg-[var(--hafta-grn-500)]" />
                     ) : (
@@ -614,11 +698,23 @@ export function PatientTherapyCalendar({
               <span className="h-2.5 w-2.5 rounded-full bg-[#181700]" /> Sesi Anda
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]" /> Slot tersedia
+              <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-red-400)]" /> Hari Libur / Minggu
             </span>
-            <span className="inline-flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-grn-500)]" /> Ada slot kosong
-            </span>
+            {requests.some((request) => request.status === 'PENDING') ? (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="h-2.5 w-2.5 rounded-full border-2 border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)]" /> Menunggu ACC
+              </span>
+            ) : null}
+            {showAvailability ? (
+              <>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]" /> Slot tersedia
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-grn-500)]" /> Ada slot kosong
+                </span>
+              </>
+            ) : null}
           </div>
         </div>
 
@@ -635,12 +731,18 @@ export function PatientTherapyCalendar({
         title="Detail Sesi"
         subtitle={detailAppointment ? formatLongDate(dateKey(detailAppointment.scheduledDate)) : undefined}
         footer={
-          detailAppointment ? (
+          detailAppointment &&
+          ['SCHEDULED', 'CONFIRMED'].includes(detailAppointment.status) &&
+          !requests.some(
+            (request) =>
+              request.rescheduleAppointmentId === detailAppointment.id &&
+              request.status === 'PENDING',
+          ) ? (
             <div className="shrink-0 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full">
                 <button
                 type="button"
                 onClick={() => {
-                  setShowRescheduleConfirm(detailAppointment.id);
+                  setConfirmingAppointment(detailAppointment);
                   setDetailAppointment(null);
                 }}
                 className="w-full h-11 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-sm flex items-center justify-center shadow-2xs cursor-pointer transition-all px-5"
@@ -669,13 +771,23 @@ export function PatientTherapyCalendar({
       </GlobalSlideOver>
 
       <ConfirmDialog
-        isOpen={showRescheduleConfirm !== null}
-        title="Ubah Jadwal Terapi"
-        description="Jadwal lama akan langsung dipindahkan. Setelah ini, pilih tanggal baru di kalender lalu tentukan jam dan fisioterapisnya."
-        confirmLabel="Ya, Ubah Jadwal"
+        isOpen={confirmingAppointment !== null}
+        title="Ingin Mengubah Jadwal Sesi Ini?"
+        description={
+          confirmingAppointment
+            ? `Anda akan mengubah jadwal sesi pada ${formatLongDate(dateKey(confirmingAppointment.scheduledDate))} pukul ${confirmingAppointment.startTime}. Jika dilanjutkan, kalender akan menampilkan tanggal dan jam terapis yang tersedia untuk Anda pilih.`
+            : undefined
+        }
+        confirmLabel="Ya, Pilih Tanggal Baru"
         cancelLabel="Batal"
-        onConfirm={() => confirmReschedule(showRescheduleConfirm as string)}
-        onCancel={() => setShowRescheduleConfirm(null)}
+        mainFirst
+        icon={<CalendarDays className="h-5 w-5" />}
+        iconClassName="h-11 w-11 bg-[var(--hafta-ylw-100)] text-[#181700] sm:h-11 sm:w-11"
+        panelClassName="rounded-3xl border border-stone-200/90 shadow-2xl"
+        confirmClassName="rounded-full bg-[var(--hafta-ylw-100)] font-bold text-[#181700] hover:bg-[var(--hafta-ylw-200)] hover:opacity-100"
+        cancelClassName="rounded-full border border-stone-200/90 bg-white font-semibold text-[#181700] hover:bg-stone-100 hover:text-[#181700]"
+        onConfirm={confirmReschedule}
+        onCancel={() => setConfirmingAppointment(null)}
       />
 
 

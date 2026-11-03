@@ -1,20 +1,27 @@
 "use client";
 
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useOverlayLayer } from "@/components/ui/use-overlay-layer";
+import { cn } from "@/lib/utils";
 
 export type ConfirmDialogProps = {
   isOpen: boolean;
   title: string;
-  description: string;
+  description?: ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: "default" | "destructive";
   pending?: boolean;
+  mainFirst?: boolean;
+  icon?: ReactNode;
+  iconClassName?: string;
+  panelClassName?: string;
+  confirmClassName?: string;
+  cancelClassName?: string;
   onConfirm: () => void;
   onCancel: () => void;
 };
@@ -27,6 +34,12 @@ export function ConfirmDialog({
   cancelLabel = "Batal",
   variant = "default",
   pending = false,
+  mainFirst = false,
+  icon,
+  iconClassName,
+  panelClassName,
+  confirmClassName,
+  cancelClassName,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
@@ -67,37 +80,51 @@ export function ConfirmDialog({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-white shadow-xl"
+            className={cn(
+              "relative w-full max-w-md overflow-hidden rounded-2xl border border-border bg-white shadow-xl",
+              panelClassName,
+            )}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="p-6 sm:p-8">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                 <div
-                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10 ${
-                    variant === "destructive" ? "bg-destructive/10" : "bg-primary/10"
-                  }`}
+                  className={cn(
+                    "flex h-12 w-12 shrink-0 items-center justify-center rounded-full sm:h-10 sm:w-10",
+                    variant === "destructive" ? "bg-destructive/10" : "bg-primary/10",
+                    iconClassName,
+                  )}
                 >
-                  <AlertTriangle
-                    className={`h-6 w-6 sm:h-5 sm:w-5 ${
-                      variant === "destructive" ? "text-destructive" : "text-primary"
-                    }`}
-                  />
+                  {icon ?? (
+                    <AlertTriangle
+                      className={`h-6 w-6 sm:h-5 sm:w-5 ${
+                        variant === "destructive" ? "text-destructive" : "text-primary"
+                      }`}
+                    />
+                  )}
                 </div>
                 <div className="mt-3 text-center sm:mt-0 sm:text-left">
                   <h3 className="text-lg font-semibold text-foreground">{title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {description}
-                  </p>
+                  {description ? (
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                      {description}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             </div>
-            <div className="flex flex-col-reverse gap-2 bg-surface px-6 py-4 sm:flex-row sm:justify-between sm:gap-3">
+            <div
+              className={cn(
+                "flex flex-col-reverse gap-2 bg-surface px-6 py-4 sm:justify-between sm:gap-3",
+                mainFirst ? "sm:flex-row-reverse" : "sm:flex-row",
+              )}
+            >
               <Button
                 type="button"
                 variant="outline"
                 onClick={onCancel}
                 disabled={pending}
-                className="w-full sm:w-auto"
+                className={cn("w-full sm:w-auto", cancelClassName)}
               >
                 {cancelLabel}
               </Button>
@@ -106,7 +133,7 @@ export function ConfirmDialog({
                 variant={variant}
                 onClick={onConfirm}
                 disabled={pending}
-                className="w-full sm:w-auto"
+                className={cn("w-full sm:w-auto", confirmClassName)}
               >
                 {pending ? "Memproses..." : confirmLabel}
               </Button>

@@ -17,6 +17,14 @@ function formatDate(value: string) {
   });
 }
 
+function formatShortDate(value: string) {
+  return new Date(`${value.slice(0, 10)}T00:00:00`).toLocaleDateString('id-ID', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
 export function AppointmentRequestQueue({ requests }: { requests: PendingAppointmentRequest[] }) {
   const router = useRouter();
   const { showToast } = useToast();
@@ -40,7 +48,9 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
         showToast(
           'success',
           action === 'approve'
-            ? 'Pengajuan disetujui dan jadwal pasien dibuat.'
+            ? selected.rescheduleAppointmentId
+              ? 'Pengajuan ubah jadwal disetujui dan jadwal pasien dipindahkan.'
+              : 'Pengajuan disetujui dan jadwal pasien dibuat.'
             : 'Pengajuan ditolak dan pasien telah diberi tahu.',
         );
         setSelected(null);
@@ -75,10 +85,24 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
         {requests.map((request) => (
           <div key={request.id} className="flex flex-col gap-3 py-3.5 sm:flex-row sm:items-center">
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold text-[#181700]">{request.patientName}</p>
-              <p className="mt-0.5 text-xs text-stone-500">
-                {formatDate(request.requestedDate)} · {request.startTime} ({request.durationMinutes} menit)
-              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="truncate text-sm font-bold text-[#181700]">{request.patientName}</p>
+                {request.rescheduleAppointmentId ? (
+                  <span className="rounded-full border border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)] px-2.5 py-0.5 text-[10px] font-bold text-[#181700]">
+                    Permintaan Ubah Jadwal (Reschedule)
+                  </span>
+                ) : null}
+              </div>
+              {request.rescheduleAppointmentId && request.rescheduleFromDate ? (
+                <p className="mt-0.5 text-xs font-semibold text-[#181700]">
+                  Jadwal Asal: {formatShortDate(request.rescheduleFromDate)} · {request.rescheduleFromTime}
+                  {' → '}Jadwal Diajukan: {formatShortDate(request.requestedDate)} · {request.startTime}
+                </p>
+              ) : (
+                <p className="mt-0.5 text-xs text-stone-500">
+                  {formatDate(request.requestedDate)} · {request.startTime} ({request.durationMinutes} menit)
+                </p>
+              )}
               <p className="mt-0.5 text-[11px] text-stone-400">
                 Fisioterapis: {request.therapistName}
               </p>
@@ -109,41 +133,51 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
         subtitle={selected ? `${selected.patientName} · ${formatDate(selected.requestedDate)}` : undefined}
         footer={
           selected ? (
-            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-col-reverse gap-2 sm:flex-row">
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => submit('decline')}
-                  className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-[var(--hafta-red-200)] bg-white px-5 text-xs font-semibold text-[var(--hafta-red-700)] transition-colors hover:bg-[var(--hafta-red-50)] disabled:opacity-60"
-                >
-                  {isPending && pendingAction === 'decline' ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <X className="h-4 w-4" />
-                  )}
-                  Tolak
-                </button>
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => submit('approve')}
-                  className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:opacity-60"
-                >
-                  {isPending && pendingAction === 'approve' ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Check className="h-4 w-4" />
-                  )}
-                  Setujui &amp; Buat Jadwal
-                </button>
-              </div>
+            <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={() => submit('approve')}
+                className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:opacity-60"
+              >
+                {isPending && pendingAction === 'approve' ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Check className="h-4 w-4" />
+                )}
+                {selected.rescheduleAppointmentId ? 'Setujui & Pindahkan Jadwal' : 'Setujui & Buat Jadwal'}
+              </button>
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={() => submit('decline')}
+                className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-[var(--hafta-red-200)] bg-white px-5 text-xs font-semibold text-[var(--hafta-red-700)] transition-colors hover:bg-[var(--hafta-red-50)] disabled:opacity-60"
+              >
+                {isPending && pendingAction === 'decline' ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <X className="h-4 w-4" />
+                )}
+                Tolak
+              </button>
             </div>
           ) : undefined
         }
       >
         {selected ? (
           <div className="space-y-5">
+            {selected.rescheduleAppointmentId && selected.rescheduleFromDate ? (
+              <div className="rounded-2xl border border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)] px-4 py-3">
+                <p className="text-[11px] font-bold text-[#181700]">
+                  Permintaan Ubah Jadwal (Reschedule)
+                </p>
+                <p className="mt-1.5 text-xs leading-relaxed text-[#181700]">
+                  Jadwal Asal: {formatDate(selected.rescheduleFromDate)} · {selected.rescheduleFromTime}
+                  <br />→ Jadwal Diajukan: {formatDate(selected.requestedDate)} · {selected.startTime}
+                </p>
+              </div>
+            ) : null}
+
             <dl className="divide-y divide-stone-100 text-sm">
               <div className="flex items-start justify-between gap-4 py-3">
                 <dt className="text-xs text-stone-500">Pasien</dt>

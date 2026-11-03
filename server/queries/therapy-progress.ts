@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, or } from 'drizzle-orm';
+import { and, count, desc, eq, ilike, or, sql } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { patientAssignments, patients, profiles, therapyProgressRecords, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
@@ -23,6 +23,7 @@ export type TherapyProgressView = {
   status: 'DRAFT' | 'FINALIZED';
   patientVisible: boolean;
   medicalRecordNumber?: string | null;
+  visitNumber?: number;
   gender?: string | null;
   patientDob?: Date | null;
   patientPhone?: string | null;
@@ -216,6 +217,12 @@ export async function getScopedTherapyProgress(
       patientId: therapyProgressRecords.patientId,
       patientName: patients.fullName,
       medicalRecordNumber: patients.medicalRecordNumber,
+      visitNumber: sql<number>`(
+        select count(*)::int + 1
+        from ${therapyProgressRecords} as prior
+        where prior.patient_id = ${therapyProgressRecords.patientId}
+          and prior.recorded_at < ${therapyProgressRecords.recordedAt}
+      )`,
       gender: patients.gender,
       patientDob: patients.dateOfBirth,
       patientPhone: profiles.phone,
@@ -262,7 +269,17 @@ export async function getScopedTherapyProgress(
   }
   if (patientId) filters.push(eq(therapyProgressRecords.patientId, patientId));
   if (search.trim()) {
-    filters.push(ilike(patients.fullName, `%${search.trim()}%`));
+    const term = `%${search.trim()}%`;
+    filters.push(
+      or(
+        ilike(patients.fullName, term),
+        ilike(patients.medicalRecordNumber, term),
+        ilike(therapyProgressRecords.diagnosis, term),
+        ilike(therapyProgressRecords.anamnesis, term),
+        ilike(therapyProgressRecords.treatment, term),
+        ilike(users.name, term),
+      ),
+    );
   }
 
   const whereClause = and(...filters);

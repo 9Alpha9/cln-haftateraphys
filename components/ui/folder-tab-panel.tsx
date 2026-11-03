@@ -144,8 +144,11 @@ export function FolderTabPanel({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-2xl font-bold tracking-tight text-[#181700] sm:text-[26px]">
-              {totalValue}
-              <sup className="ml-1 align-super text-[10px] font-semibold tracking-[0.14em] text-stone-400">
+              {/* {totalValue} */}
+              {/* <sup className="ml-1 align-super text-[10px] font-semibold tracking-[0.14em] text-stone-400">
+                {totalLabel}
+              </sup> */}
+              <sup className="align-super text-[10px] font-semibold tracking-[0.14em] text-stone-400">
                 {totalLabel}
               </sup>
             </p>
@@ -229,9 +232,9 @@ export function FolderTabPanel({
                   <span className="text-xl font-bold leading-none text-[#181700] sm:text-2xl">
                     {totalValue}
                   </span>
-                  <span className="ml-1 -translate-y-1 text-[9px] font-medium leading-none text-stone-500 sm:text-[11px]">
+                  {/* <span className="ml-1 -translate-y-1 text-[9px] font-medium leading-none text-stone-500 sm:text-[11px]">
                     Aktivitas
-                  </span>
+                  </span> */}
                 </div>
                 </div>
               </div>
