@@ -27,7 +27,7 @@ export default async function SettingsPage() {
     { title: 'Umum', text: 'Pengaturan umum aplikasi', icon: Settings },
   ];
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="space-y-6">
       <DashboardPageHeader
         title="Pengaturan"
         description="Kelola konfigurasi sistem yang tersedia."

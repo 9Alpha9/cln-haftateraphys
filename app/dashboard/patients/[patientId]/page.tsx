@@ -20,8 +20,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
   const therapist = await getPatientTherapist(patient.id);
 
   return (
-    <Container>
-      <div className="mx-auto max-w-7xl space-y-6">
+    <div className="space-y-6">
         <DashboardPageHeader
           title="Detail Pasien"
           description={`ID pasien: ${patient.id}`}
@@ -167,6 +166,5 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
           </CardContent>
         </Card>
       </div>
-    </Container>
   );
 }

@@ -66,7 +66,7 @@ export default async function IntakeReviewDetailPage({ params }: { params: Promi
 
   if (!intake) {
     return (
-      <div className="mx-auto max-w-7xl space-y-6">
+      <div className="space-y-6">
         <DashboardPageHeader
           title="Form Awal"
           description="Belum ada Form Awal yang dapat ditinjau."
@@ -82,7 +82,7 @@ export default async function IntakeReviewDetailPage({ params }: { params: Promi
   }
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="space-y-6">
       <DashboardPageHeader
         title={`Form Awal · ${intake.patientName}`}
         description=""

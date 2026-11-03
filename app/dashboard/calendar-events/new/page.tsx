@@ -8,7 +8,7 @@ import { PERMISSIONS, requirePermission } from '@/lib/permissions';
 export default async function NewCalendarEventPage() {
   await requirePermission(PERMISSIONS.CALENDAR_EVENT_MANAGE);
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="space-y-6">
       <DashboardPageHeader
         title="Tambah Event Kalender"
         description="Buat libur klinik, pelatihan, atau kegiatan internal."

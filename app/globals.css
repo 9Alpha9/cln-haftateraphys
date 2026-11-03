@@ -90,7 +90,7 @@
   --destructive: var(--hafta-red-500);
   --border: #E5E7EB;
   --input: #E5E7EB;
-  --ring: #f7f000/35;
+  --ring: var(--hafta-ylw-200);
   --chart-1: var(--hafta-ylw-200);
   --chart-2: var(--hafta-ylw-50);
   --chart-3: var(--hafta-grn-500);
@@ -173,10 +173,9 @@
   --color-hafta-org-950: var(--hafta-org-950);
 
   /* ── Fonts ── */
-  --font-heading: var(--font-poppins), system-ui, sans-serif;
-  --font-sans: var(--font-poppins), system-ui, sans-serif;
+  --font-heading: var(--font-inter), system-ui, sans-serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
   --font-inter: var(--font-inter);
-  --font-poppins: var(--font-poppins);
   --font-satisfy: var(--font-satisfy);
 
   /* ── shadcn semantic → Tailwind utilities ── */
@@ -252,21 +251,10 @@
   html {
     @apply overflow-x-clip font-sans antialiased;
     scroll-behavior: smooth;
-    scrollbar-gutter: stable;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
-  }
-
-  /* ── Override browser blue autofill background into warm cream/white ── */
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover,
-  input:-webkit-autofill:focus,
-  input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 1000px #FEFEF6 inset !important;
-    -webkit-text-fill-color: #181700 !important;
-    transition: background-color 5000s ease-in-out 0s;
+    font-family: var(--font-inter), system-ui, sans-serif;
   }
 }
 
@@ -303,26 +291,5 @@
 
   .font-slogan {
     font-family: var(--font-satisfy), cursive;
-  }
-
-  /* ── Custom scrollbar untuk textarea dan area scroll ── */
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 #f1f5f9;
-  }
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 3px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
   }
 }

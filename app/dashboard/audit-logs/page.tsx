@@ -60,7 +60,7 @@ export default async function AuditLogsPage({ searchParams }: { searchParams: Pr
   const result = await getAuditLogs(Number(params.page) || 1);
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="space-y-6">
       <DashboardPageHeader
         title="Log Audit"
         description="Pantau aktivitas dan perubahan data sistem."

@@ -8,7 +8,7 @@ import { PERMISSIONS, requirePermission } from '@/lib/permissions';
 export default async function NewPatientPage() {
   await requirePermission(PERMISSIONS.PATIENT_CREATE);
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="space-y-6">
       <DashboardPageHeader
         title="Daftarkan Pasien"
         description="Buat akun portal untuk pasien baru."

@@ -24,10 +24,10 @@ export default async function ProfilePage() {
       icon={<UserRound />}
     />
   );
-  if (role !== 'USER') return <div className="mx-auto max-w-7xl space-y-6">{header}</div>;
+  if (role !== 'USER') return <div className="space-y-6">{header}</div>;
   const profile = await getCurrentPatientProfile(session.user.id);
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="space-y-6">
       {header}
       <PatientProfileTabs
         email={session.user.email}

@@ -5,6 +5,7 @@ import { getRecentActivities } from '@/server/queries/recent-activities';
 import { getCurrentPatientIntake } from '@/server/queries/patient-intakes';
 import {
   getPatientAppointmentRequests,
+  getPatientBookingAvailability,
   getPatientPortalAppointments,
 } from '@/server/queries/patient-portal';
 import { getOwnMedicalRecordSummary, getScopedTherapyProgress } from '@/server/queries/therapy-progress';
@@ -57,13 +58,16 @@ async function PatientDashboard({
   userId: string;
   userName?: string;
 }) {
-  const [intake, medicalSummary, appointments, requests, progress] = await Promise.all([
-    getCurrentPatientIntake(userId),
-    getOwnMedicalRecordSummary(),
-    getPatientPortalAppointments(),
-    getPatientAppointmentRequests(),
-    getScopedTherapyProgress({ page: 1, pageSize: 3 }),
-  ]);
+  const [intake, medicalSummary, appointments, requests, progress, availability, holidays] =
+    await Promise.all([
+      getCurrentPatientIntake(userId),
+      getOwnMedicalRecordSummary(),
+      getPatientPortalAppointments(),
+      getPatientAppointmentRequests(),
+      getScopedTherapyProgress({ page: 1, pageSize: 3 }),
+      getPatientBookingAvailability(),
+      getIndonesianHolidays(new Date().getFullYear()).catch(() => []),
+    ]);
 
   return (
     <PatientDashboardOverview
@@ -72,8 +76,10 @@ async function PatientDashboard({
       intake={intake ? { status: intake.status, reviewMessage: intake.reviewMessage ?? null } : null}
       appointments={appointments}
       requests={requests}
+      availability={availability}
       records={progress.items}
       totalRecords={progress.total}
+      holidays={holidays}
     />
   );
 }

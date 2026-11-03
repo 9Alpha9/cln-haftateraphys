@@ -33,7 +33,7 @@ export default async function AddUserPage() {
           </Link>
         }
       />
-      <div className="mx-auto max-w-7xl">
+      <div className="">
         <Card>
           <CardHeader>
             <CardTitle>Detail Akun</CardTitle>
