@@ -1,20 +1,16 @@
+import { redirect } from 'next/navigation';
 import { Activity } from 'lucide-react';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
+import { PaginationBar } from '@/components/ui/pagination-bar';
+import { NewMedicalRecordButton } from '@/components/dashboard/progress/new-medical-record-button';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { getOwnMedicalRecordSummary, getScopedTherapyProgress } from '@/server/queries/therapy-progress';
+import { getOwnHomeProgram } from '@/server/queries/home-programs';
+import { getOwnTreatmentPlan } from '@/server/queries/treatment-plans';
 import { PatientMedicalRecordView } from '@/components/patient/patient-medical-record-view';
 import { ProgressManagementView } from '@/components/dashboard/progress/progress-management-view';
-import { NewMedicalRecordButton } from '@/components/dashboard/progress/new-medical-record-button';
 import { getPatientSelectOptions } from '@/server/queries/patients';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
 
 export default async function ProgressPage({
   searchParams,
@@ -23,6 +19,10 @@ export default async function ProgressPage({
 }) {
   const { role } = await requireSession({ redirectToLogin: true });
   const isPatient = role === 'USER';
+  const canRead = hasPermission(role, isPatient ? PERMISSIONS.PROGRESS_READ_OWN : PERMISSIONS.PROGRESS_READ);
+  if (!canRead) {
+    redirect('/dashboard');
+  }
   const canCreate = hasPermission(role, PERMISSIONS.PROGRESS_READ) && !isPatient;
 
   const params = await searchParams;
@@ -32,7 +32,13 @@ export default async function ProgressPage({
   const visible = params.visible === 'true' ? true : params.visible === 'false' ? false : '';
 
   // Parallel fetching untuk menghindari waterfall
-  const [{ items: records, totalPages, currentPage }, patientSummary, patientOptions] = await Promise.all([
+  const [
+    { items: records, totalPages, currentPage },
+    patientSummary,
+    patientOptions,
+    homeProgram,
+    treatmentPlan,
+  ] = await Promise.all([
     getScopedTherapyProgress({
       page,
       pageSize: isPatient ? 50 : 12,
@@ -42,19 +48,21 @@ export default async function ProgressPage({
     }),
     isPatient ? getOwnMedicalRecordSummary() : Promise.resolve(null),
     !isPatient && canCreate ? getPatientSelectOptions() : Promise.resolve([]),
+    isPatient ? getOwnHomeProgram() : Promise.resolve(null),
+    isPatient ? getOwnTreatmentPlan() : Promise.resolve(null),
   ]);
 
-  const buildUrl = (pageNumber: number) => {
+  const hrefTemplate = (() => {
     const p = new URLSearchParams();
-    p.set('page', String(pageNumber));
     if (search) p.set('q', search);
     if (status) p.set('status', status);
     if (params.visible) p.set('visible', params.visible);
-    return `/dashboard/progress?${p.toString()}`;
-  };
+    const query = p.toString();
+    return `/dashboard/progress?${query ? `${query}&` : ''}page={page}`;
+  })();
 
   return (
-    <div className="space-y-6 pb-24 lg:pb-6">
+    <div className="space-y-4 pb-6 sm:space-y-5">
       {/* ── 1. GLOBAL ARCHITECTURAL NON-ROUNDED HEADER ── */}
       <DashboardPageHeader
         title="Rekam Medis Pasien"
@@ -66,13 +74,20 @@ export default async function ProgressPage({
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Rekam Medis' }]}
         icon={<Activity className="h-6 w-6 text-[var(--hafta-ylw-100)]" />}
         action={
-          canCreate ? <NewMedicalRecordButton patientOptions={patientOptions} /> : undefined
+          !isPatient && canCreate ? (
+            <NewMedicalRecordButton patientOptions={patientOptions} />
+          ) : undefined
         }
       />
 
       {/* ── 2. ROLE-BASED VIEW ── */}
       {isPatient ? (
-        <PatientMedicalRecordView patient={patientSummary} records={records} />
+        <PatientMedicalRecordView
+        patient={patientSummary}
+        records={records}
+        homeProgram={homeProgram}
+        treatmentPlan={treatmentPlan}
+      />
       ) : (
         <>
           <ProgressManagementView
@@ -83,33 +98,13 @@ export default async function ProgressPage({
             initialSearch={search}
           />
 
-          {search.trim() && totalPages > 1 && (
-            <div className="flex justify-center pt-4">
-              <Pagination>
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href={currentPage > 1 ? buildUrl(currentPage - 1) : '#'}
-                      className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
-                    />
-                  </PaginationItem>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((pNumber) => (
-                    <PaginationItem key={pNumber}>
-                      <PaginationLink href={buildUrl(pNumber)} isActive={currentPage === pNumber}>
-                        {pNumber}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-                  <PaginationItem>
-                    <PaginationNext
-                      href={currentPage < totalPages ? buildUrl(currentPage + 1) : '#'}
-                      className={currentPage === totalPages ? 'pointer-events-none opacity-50' : ''}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            </div>
-          )}
+          {search.trim() && totalPages > 1 ? (
+            <PaginationBar
+              page={currentPage}
+              pageCount={totalPages}
+              hrefTemplate={hrefTemplate}
+            />
+          ) : null}
         </>
       )}
     </div>

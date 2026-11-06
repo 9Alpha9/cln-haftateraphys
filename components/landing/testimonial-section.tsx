@@ -37,7 +37,7 @@ function ReviewCard({ review }: { review: FeaturableReview }) {
   const showPhoto = Boolean(review.profilePhotoUrl && !imageError);
 
   return (
-    <article className="relative w-[340px] sm:w-[380px] min-h-[210px] shrink-0 rounded-2xl border border-stone-200/80 bg-white p-6 flex flex-col">
+    <article className="relative w-[340px] sm:w-[380px] min-h-[210px] shrink-0 rounded-2xl border border-stone-200/80 bg-white p-3.5 sm:p-5 flex flex-col">
       <div>
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">

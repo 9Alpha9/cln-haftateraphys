@@ -135,7 +135,7 @@ export function AuthShell({ children }: AuthShellProps) {
       </aside>
 
       {/* ── PANEL KANAN: FORM KONTEN ── */}
-      <div className="relative z-10 flex min-h-screen flex-col justify-center px-5 py-8 sm:px-8 lg:ml-[50%] lg:w-1/2 lg:px-12 xl:px-16">
+      <div className="relative z-10 flex min-h-screen flex-col justify-center px-4 sm:px-5 py-8 sm:px-8 lg:ml-[50%] lg:w-1/2 lg:px-12 xl:px-16">
         <div className="mx-auto w-full max-w-[420px]">
           {/* Baris Paling Atas: Navigasi Balik ke Beranda */}
           <Link
@@ -147,7 +147,7 @@ export function AuthShell({ children }: AuthShellProps) {
           </Link>
 
           {/* Form Wrapper: Card putih bersih di mobile, seamless di desktop */}
-          <div className="rounded-3xl border border-stone-200/80 bg-white p-6 shadow-sm sm:p-8 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
+          <div className="rounded-3xl border border-stone-200/80 bg-white p-3.5 sm:p-5 shadow-sm sm:p-8 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
             {children}
           </div>
         </div>

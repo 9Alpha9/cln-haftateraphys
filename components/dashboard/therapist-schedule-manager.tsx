@@ -57,7 +57,7 @@ export function TherapistScheduleManager({
 
   if (!selected) {
     return (
-      <div className="rounded-3xl border border-stone-200 bg-white px-6 py-16 text-center">
+      <div className="rounded-3xl border border-stone-200 bg-white px-4 sm:px-6 py-10 sm:py-16 text-center">
         <p className="text-sm font-semibold text-[#181700]">Belum ada akun fisioterapis</p>
         <p className="mt-1 text-xs text-stone-500">Tambahkan pengguna dengan tipe akun THERAPIST terlebih dahulu.</p>
       </div>
@@ -65,15 +65,15 @@ export function TherapistScheduleManager({
   }
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
+    <div className="space-y-4 sm:space-y-6">
+      <section className="rounded-3xl border border-stone-200 bg-white p-4 sm:p-5">
         <label className="block max-w-sm">
           <span className="text-xs font-semibold text-stone-500">Pilih fisioterapis</span>
           <div className="mt-1.5 relative w-full">
             <select
               value={selected.therapistId}
               onChange={(event) => setSelectedId(event.target.value)}
-              className="h-10 w-full cursor-pointer appearance-none rounded-lg border border-stone-200/90 bg-white pl-3 pr-10 text-sm font-semibold text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 disabled:opacity-60"
+              className="h-10 w-full cursor-pointer appearance-none rounded-xl border border-stone-200/90 bg-white pl-3 pr-10 text-sm font-semibold text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35 disabled:opacity-60"
             >
               {therapists.map((therapist) => (
                 <option key={therapist.therapistId} value={therapist.therapistId}>
@@ -215,7 +215,7 @@ export function TherapistScheduleEditor({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {entries.length === 0 ? (
         <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/70 p-4 text-amber-950">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
@@ -236,7 +236,7 @@ export function TherapistScheduleEditor({
           saveSchedule();
         }}
       >
-        <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
+        <section className="rounded-3xl border border-stone-200 bg-white p-4 sm:p-5">
         <div className="border-b border-stone-200 pb-4">
           <h2 className="text-base font-bold text-[#181700]">Jam Kerja Mingguan</h2>
           <p className="mt-1 text-xs leading-relaxed text-stone-500">
@@ -272,14 +272,14 @@ export function TherapistScheduleEditor({
                           type="time"
                           value={entry.startTime}
                           onChange={(event) => updateBlock(entry.key, { startTime: event.target.value })}
-                          className="h-9 rounded-lg border border-stone-200 px-2.5 text-xs font-semibold text-[#181700] outline-none focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30"
+                          className="h-10 rounded-xl border border-stone-200/90 px-3 text-xs font-semibold text-[#181700] outline-none focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35"
                         />
                         <span className="text-xs text-stone-400">s.d.</span>
                         <input
                           type="time"
                           value={entry.endTime}
                           onChange={(event) => updateBlock(entry.key, { endTime: event.target.value })}
-                          className="h-9 rounded-lg border border-stone-200 px-2.5 text-xs font-semibold text-[#181700] outline-none focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30"
+                          className="h-10 rounded-xl border border-stone-200/90 px-3 text-xs font-semibold text-[#181700] outline-none focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35"
                         />
                         <button
                           type="button"
@@ -300,11 +300,11 @@ export function TherapistScheduleEditor({
         </section>
       </form>
 
-      <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6 pt-2">
+      <section className="rounded-3xl border border-stone-200 bg-white p-4 sm:p-5 pt-2">
         <div className="border-b border-stone-200 pb-4">
           <h2 className="flex items-center gap-2 text-base font-bold text-[#181700]">
             <CalendarOff className="h-4 w-4" />
-            Blokir Tanggal (Cuti / Tidak Tersedia)
+            Blokir Tanggal
           </h2>
           <p className="mt-1 text-xs leading-relaxed text-stone-500">
             Bagian ini hanya menutup tanggal dari slot pasien dan tidak menambah jam kerja. Pilih
@@ -322,6 +322,7 @@ export function TherapistScheduleEditor({
                   if (!timeOffEnd || timeOffEnd < value) setTimeOffEnd(value);
                 }}
                 placeholder="Pilih tanggal mulai"
+                disablePast
                 className="mt-1 h-10 w-full rounded-xl border border-stone-200 bg-white text-sm text-[#181700] focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35"
               />
           </label>
@@ -356,28 +357,36 @@ export function TherapistScheduleEditor({
         </div>
 
         {therapist.timeOff.length > 0 ? (
-          <div className="mt-4 divide-y divide-stone-100">
+          <ul className="mt-4 space-y-2">
             {therapist.timeOff.map((item) => (
-              <div key={item.id} className="flex items-center gap-3 py-3">
+              <li
+                key={item.id}
+                className="flex items-start gap-3 rounded-2xl border border-stone-200 bg-[#FAFAF8] px-3.5 py-3"
+              >
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#181700]">
+                  <CalendarOff className="h-4 w-4" />
+                </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[#181700]">
+                  <p className="text-sm font-bold leading-snug text-[#181700]">
                     {formatDate(item.startDate)}
                     {item.endDate !== item.startDate ? ` – ${formatDate(item.endDate)}` : ''}
                   </p>
-                  {item.reason ? <p className="mt-0.5 text-xs text-stone-500">{item.reason}</p> : null}
+                  <p className="mt-0.5 text-[11px] leading-relaxed text-stone-500">
+                    {item.reason?.trim() ? item.reason : 'Cuti / tidak tersedia'}
+                  </p>
                 </div>
                 <button
                   type="button"
                   disabled={pending}
                   onClick={() => removeTimeOff(item.id)}
                   aria-label="Hapus jadwal cuti"
-                  className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-stone-400 hover:bg-[var(--hafta-red-50)] hover:text-[var(--hafta-red-700)] disabled:opacity-60"
+                  className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-[var(--hafta-red-50)] hover:text-[var(--hafta-red-700)] disabled:opacity-60"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         ) : (
           <p className="mt-4 text-xs text-stone-400">Belum ada tanggal yang diblokir.</p>
         )}

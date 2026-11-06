@@ -34,6 +34,7 @@ export function CreatePatientForm({
   const router = useRouter();
 
   const [pendingSubmit, setPendingSubmit] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState('');
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPhone, setNewPhone] = useState('');
@@ -139,7 +140,7 @@ export function CreatePatientForm({
               <button
                 type="button"
                 onClick={() => setMode('pick-user')}
-                className="h-10 sm:h-11 px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
+                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
               >
                 <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
                 Kembali
@@ -149,7 +150,7 @@ export function CreatePatientForm({
                 type="button"
                 disabled={createPending}
                 onClick={() => setMode('create-user')}
-                className="h-10 sm:h-11 px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:opacity-60"
+                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:opacity-60"
               >
                 {createPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5 shrink-0" />}
                 Buat baru
@@ -162,7 +163,7 @@ export function CreatePatientForm({
                 type="button"
                 disabled={createPending || !newName.trim() || !newEmail.trim() || !newPassword.trim()}
                 onClick={handleCreateUser}
-                className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:opacity-60"
+                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--hafta-ylw-100)]"
               >
                 {createPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
                 Simpan & Daftarkan
@@ -171,8 +172,8 @@ export function CreatePatientForm({
               <button
                 type="submit"
                 form="create-patient-form"
-                disabled={pendingSubmit || pending || userOptions.length === 0}
-                className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+                disabled={pendingSubmit || pending || userOptions.length === 0 || !selectedUserId}
+                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--hafta-ylw-100)]"
               >
                 {pendingSubmit || pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
                 Simpan & Daftarkan
@@ -182,7 +183,7 @@ export function CreatePatientForm({
               type="button"
               disabled={mode === 'create-user' ? createPending : false}
               onClick={onClose}
-              className="h-10 sm:h-11 px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:opacity-60"
+              className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:opacity-60"
             >
               Batal
             </button>
@@ -190,7 +191,7 @@ export function CreatePatientForm({
         </div>
       }
     >
-      <form id="create-patient-form" onSubmit={submit} className="space-y-5">
+      <form id="create-patient-form" onSubmit={submit} className="space-y-4 sm:space-y-5">
         {error ? (
           <Alert variant="destructive">
             <AlertDescription>{error}</AlertDescription>
@@ -199,7 +200,14 @@ export function CreatePatientForm({
         {mode === 'pick-user' ? (
           <div className="space-y-2">
             <Label htmlFor="userId">Akun pasien</Label>
-            <Select id="userId" name="userId" required disabled={pending || userOptions.length === 0}>
+            <Select
+              id="userId"
+              name="userId"
+              required
+              value={selectedUserId}
+              onChange={(event) => setSelectedUserId(event.target.value)}
+              disabled={pending || userOptions.length === 0}
+            >
               <option value="">Pilih akun pasien</option>
               {userOptions.map((user) => (
                 <option key={user.id} value={user.id}>
@@ -223,7 +231,7 @@ export function CreatePatientForm({
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="Masukkan nama lengkap pasien"
                 className={cn(
-                  'text-xs sm:text-sm border rounded-lg p-2',
+                  'text-xs sm:text-sm border rounded-xl p-2.5',
                   nameError ? 'border-red-500 focus:ring-red-500' : 'border-stone-200 focus:border-stone-400'
                 )}
               />
@@ -238,7 +246,7 @@ export function CreatePatientForm({
                 onChange={(e) => setNewEmail(e.target.value)}
                 placeholder="masukkan@email.com"
                 className={cn(
-                  'text-xs sm:text-sm border rounded-lg p-2',
+                  'text-xs sm:text-sm border rounded-xl p-2.5',
                   emailError ? 'border-red-500 focus:ring-red-500' : 'border-stone-200 focus:border-stone-400'
                 )}
               />
@@ -255,7 +263,7 @@ export function CreatePatientForm({
                   setNewPhone(digits.slice(0, 12));
                 }}
                 placeholder="08123456789"
-                className="text-xs sm:text-sm border rounded-lg p-2 border-stone-200 focus:border-stone-400"
+                className="text-xs sm:text-sm border rounded-xl p-2.5 border-stone-200 focus:border-stone-400"
                 maxLength={12}
               />
             </div>
@@ -269,7 +277,7 @@ export function CreatePatientForm({
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="••••••••••••"
                   className={cn(
-                    'text-xs sm:text-sm border rounded-lg p-2 pr-10',
+                    'text-xs sm:text-sm border rounded-xl p-2.5 pr-10',
                     passwordError ? 'border-red-500 focus:ring-red-500' : 'border-stone-200 focus:border-stone-400'
                   )}
                 />

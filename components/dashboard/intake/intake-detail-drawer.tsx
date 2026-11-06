@@ -19,6 +19,20 @@ import { fetchIntakeDetailAction } from '@/server/actions/intake-details';
 import { reviewPatientIntake } from '@/server/actions/intake-review';
 import { cn } from '@/lib/utils';
 
+function parseIntakePhotos(value?: string | null) {
+  if (!value) return [] as { name: string; data: string }[];
+  try {
+    const parsed = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (item): item is { name: string; data: string } =>
+        Boolean(item && typeof item.name === 'string' && typeof item.data === 'string'),
+    );
+  } catch {
+    return [];
+  }
+}
+
 interface IntakeDetailDrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -168,6 +182,33 @@ export function IntakeDetailDrawer({
         { label: 'Alergi Pasien', value: data?.allergies },
       ],
     },
+    {
+      group: 'Persetujuan Pasien',
+      rows: [
+        {
+          label: 'Persetujuan Pemrosesan Data',
+          value: data?.privacyConsent
+            ? `Disetujui${
+                data.privacyConsentAt
+                  ? ` pada ${new Date(data.privacyConsentAt).toLocaleDateString('id-ID', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}`
+                  : ''
+              }`
+            : 'Belum disetujui',
+        },
+        {
+          label: 'Konfirmasi Ketepatan Data',
+          value: data?.dataAccuracyAcknowledged ? 'Dikonfirmasi' : 'Belum dikonfirmasi',
+        },
+        {
+          label: 'Persetujuan Publikasi Media',
+          value: data?.mediaConsent ? 'Diberikan (opsional)' : 'Tidak diberikan',
+        },
+      ],
+    },
   ];
 
   return (
@@ -175,18 +216,19 @@ export function IntakeDetailDrawer({
       isOpen={isOpen}
       onClose={onClose}
       title={data?.patientName || initialPatientName || 'Detail Form Awal'}
-      subtitle={patientId ? `ID Pasien: ${patientId.slice(0, 8)}` : undefined}
-      badge={
-        <span
-          className={cn(
-            'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-bold',
-            badgeConfig.bg,
-            badgeConfig.text,
-            badgeConfig.border
-          )}
-        >
-          <span className={cn('h-1.5 w-1.5 rounded-full', badgeConfig.dot)} />
-          {badgeConfig.label}
+      subtitle={
+        <span className="mt-1 inline-flex items-center gap-1.5">
+          <span
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-bold',
+              badgeConfig.bg,
+              badgeConfig.text,
+              badgeConfig.border
+            )}
+          >
+            <span className={cn('h-1.5 w-1.5 rounded-full', badgeConfig.dot)} />
+            {badgeConfig.label}
+          </span>
         </span>
       }
       size="lg"
@@ -199,7 +241,7 @@ export function IntakeDetailDrawer({
                 type="button"
                 disabled={isActionPending}
                 onClick={() => handleAction('start-review')}
-                className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
+                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
               >
                 {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                 <span>Mulai Tinjau Form</span>
@@ -212,7 +254,7 @@ export function IntakeDetailDrawer({
                   type="button"
                   disabled={isActionPending}
                   onClick={() => setShowRevisionInput((prev) => !prev)}
-                  className="h-10 sm:h-11 px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-bold text-xs sm:text-[13px] inline-flex items-center justify-center cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
+                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-bold text-xs sm:text-[13px] inline-flex items-center justify-center cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
                 >
                   <span>Minta Perbaikan</span>
                 </button>
@@ -220,7 +262,7 @@ export function IntakeDetailDrawer({
                   type="button"
                   disabled={isActionPending}
                   onClick={() => handleAction('accept')}
-                  className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
+                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
                 >
                   {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   <span>Terima / ACC Form</span>
@@ -230,7 +272,7 @@ export function IntakeDetailDrawer({
           </div>
         ) : null
       }
-      footerClassName="bg-white border-t border-stone-200/80 px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full"
+      footerClassName="bg-white border-t border-stone-200/80 px-3.5 py-3.5 sm:px-6 sm:py-4 flex flex-col gap-2.5 w-full"
     >
       {/* ── BODY KONTEN DRAWER ── */}
       {fetching ? (
@@ -239,7 +281,7 @@ export function IntakeDetailDrawer({
           <p className="mt-3 text-xs font-semibold text-stone-600">Memuat rincian form awal...</p>
         </div>
       ) : error ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50/70 p-5 text-red-950">
+        <div className="rounded-2xl border border-red-200 bg-red-50/70 p-3.5 sm:p-5 text-red-950">
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 shrink-0" />
             <div>
@@ -271,7 +313,7 @@ export function IntakeDetailDrawer({
           ) : null}
 
           {/* Header Info Banner: Standalone Full-bleed Edge-to-Edge (Tanpa padding top/left/right container) */}
-          <div className="-mx-5 -mt-5 sm:-mx-6 sm:-mt-5 border-b border-stone-200/80 bg-[#FEFEF6] px-5 py-4 sm:px-6 sm:py-4.5 text-xs text-stone-600">
+          <div className="-mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-4 border-b border-stone-200/80 bg-[#FEFEF6] px-3.5 py-3.5 sm:px-6 sm:py-4.5 text-xs text-stone-600">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200/60 pb-2">
               <span className="font-bold text-[#181700]">Ringkasan Pengiriman</span>
               <span className="flex items-center gap-1.5 font-medium text-stone-500">
@@ -286,6 +328,9 @@ export function IntakeDetailDrawer({
                     })}`
                   : 'Belum dikirim final'}
               </span>
+              <span className="font-mono text-[11px] font-semibold text-stone-600">
+                RM: {data.medicalRecordNumber ?? '-'}
+              </span>
             </div>
             <p className="mt-2 text-xs leading-relaxed text-stone-600">
               Form ini memuat data anamnesis mandiri pasien yang diisi melalui Patient Portal sebelum evaluasi fisik
@@ -293,7 +338,7 @@ export function IntakeDetailDrawer({
             </p>
           </div>
 
-          <div className="mt-6 space-y-6">
+          <div className="mt-6 space-y-4 sm:space-y-6">
             {/* Form Permintaan Revisi (Muncul saat tombol Minta Perbaikan ditekan) */}
             {showRevisionInput && (
               <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-4 space-y-3 animate-in fade-in-50 duration-150">
@@ -337,7 +382,7 @@ export function IntakeDetailDrawer({
             )}
 
             {/* ── COMPACT CLINICAL DATA GROUPS (TABLE / KEY-VALUE GRID) ── */}
-            <div className="space-y-5">
+            <div className="space-y-4 sm:space-y-5">
               {clinicalSections.map((sec) => (
                 <div
                   key={sec.group}
@@ -366,6 +411,34 @@ export function IntakeDetailDrawer({
                   </div>
                 </div>
               ))}
+
+              {parseIntakePhotos(data?.photos).length > 0 ? (
+                <div className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-2xs">
+                  <div className="border-b border-stone-200/80 bg-stone-50/90 px-4 py-2.5">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#181700]">
+                      Foto dari pasien
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3">
+                    {parseIntakePhotos(data?.photos).map((photo, index) => (
+                      <a
+                        key={`${photo.name}-${index}`}
+                        href={photo.data}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="overflow-hidden rounded-xl border border-stone-200"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={photo.data}
+                          alt={photo.name}
+                          className="h-28 w-full object-cover transition-transform hover:scale-105"
+                        />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </div>
           </div>
         </div>

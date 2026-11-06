@@ -72,11 +72,34 @@ SUPER_ADMIN tidak otomatis mempunyai unrestricted clinical read access. Clinical
 
 ### R-002 — ADMIN
 
-Role staff. Dapat memiliki sub-type seperti `THERAPIST` atau `STAFF` dan scoped permissions.
+Role administrasi operasional. Mengelola pasien, jadwal, intake review, rekam medis operasional, pengguna (read/create pasien), dan audit terbatas sesuai permission. Tidak dapat mengubah role, permission, atau pengaturan sistem.
 
-### R-003 — USER
+### R-003 — THERAPIST
+
+Role klinis. Mengelola pasien yang di-assign, review intake, membuat/finalisasi rekam medis, menyelesaikan sesi, dan mengatur jadwal terapi sesuai scope assignment. Tidak dapat mengelola role, permission, atau pengaturan sistem.
+
+### R-004 — STAFF
+
+Role administrasi minimum. Melihat data pasien terbatas, membuat appointment, dan melihat intake tanpa akses catatan klinis kecuali diberikan scope eksplisit.
+
+### R-005 — USER
 
 Patient account. Hanya boleh mengakses data miliknya sendiri dan resource yang secara eksplisit patient-visible.
+
+### R-006 — Account status
+
+Status akun adalah state terpisah dari role:
+
+- `ACTIVE` — dapat masuk dan menggunakan aplikasi sesuai role/permission.
+- `SUSPENDED` — tidak dapat masuk; seluruh sesi aktif dicabut; data dan riwayat tetap tersimpan.
+
+Aturan flow:
+
+- Hanya `SUPER_ADMIN` dengan permission `user:suspend` / `user:reactivate` yang dapat mengubah status akun.
+- Suspensi bersifat reversibel dan tidak menghapus data klinis.
+- Akun tidak dapat menangguhkan dirinya sendiri.
+- Setiap perubahan status wajib membuat audit event `user.suspend` atau `user.reactivate`.
+- Hard delete akun bukan mekanisme utama; gunakan suspend untuk akun yang bermasalah.
 
 ## 5. Public information architecture
 
@@ -391,13 +414,20 @@ Routes candidate:
 
 ### SA-001 — Account management
 
-Manage account state:
+Status akun v1 yang diimplementasikan:
 
-- active;
-- suspended;
-- disabled;
-- invited;
-- verification status.
+- `ACTIVE`;
+- `SUSPENDED`.
+
+Status tambahan (`DISABLED`, `INVITED`) dan detail verification status belum termasuk v1.
+
+Kemampuan wajib:
+
+- daftar pengguna dengan pencarian server-side dan pagination;
+- suspend/reactivate akun;
+- pencabutan sesi aktif saat suspend;
+- role assignment;
+- audit untuk setiap perubahan status/role.
 
 ### SA-002 — Role assignment
 
@@ -406,6 +436,8 @@ Role changes wajib audit.
 ### SA-003 — Permission management
 
 Permission assignment tidak boleh dapat diedit oleh ADMIN biasa.
+
+Pada v1, matriks permission dikelola sebagai konfigurasi kode di `lib/permissions/roles.ts` dan belum memiliki UI editor. Perubahan permission harus melalui review kode, migration/permission test, dan audit. UI permission management ditunda sampai ada requirement terpisah.
 
 ### SA-004 — Audit viewer
 
@@ -430,10 +462,21 @@ Final terminology harus divalidasi bersama Hafta.
 
 ### Clinical document state
 
+Target lifecycle:
+
 - `DRAFT`
 - `FINALIZED`
 - `AMENDED`
 - `ARCHIVED`
+
+Status implementasi v1:
+
+- Rekam final (`FINALIZED`) terkunci dan tidak dapat diedit langsung.
+- Koreksi dilakukan melalui **amandemen**: sistem membuat draft revisi baru (`revision_number + 1`, `amended_from_id`) dengan alasan wajib.
+- Draft amandemen dapat diedit seperti draft biasa, lalu difinalisasi.
+- Saat amandemen difinalisasi, rekam asal ditandai `superseded_at` dan tetap tersimpan immutable sebagai riwayat.
+- Rekam yang sudah digantikan tidak muncul lagi di daftar aktif dan tidak dapat diedit.
+- Status `AMENDED`/`ARCHIVED` belum menjadi nilai enum terpisah; status amandemen direpresentasikan oleh relasi revisi dan `superseded_at`.
 
 ### Medical record number
 
@@ -587,7 +630,7 @@ V1 dianggap layak staging jika:
 - ADMIN yang permitted dapat melihat assigned patient dan membuat clinical records;
 - USER tidak dapat melihat patient lain;
 - ADMIN tanpa permission tidak dapat membuka resource melalui direct URL/API/action;
-- SUPER_ADMIN dapat mengelola akun/permission dan audit;
+- SUPER_ADMIN dapat mengelola akun/status/role dan audit; perubahan permission v1 melalui role matrix di kode yang di-review;
 - clinical hard delete tidak tersedia;
 - security tests kritis lulus;
 - audit log untuk sensitive mutations bekerja;
@@ -610,3 +653,58 @@ Master PRD ini menentukan kebijakan produk utama. Implementasi halaman harus mem
 - `docs/ROUTE-AND-NAVIGATION.md` — route/access matrix.
 
 Jika detail page spec membutuhkan perubahan terhadap product policy di Master PRD, update Master PRD terlebih dahulu. Security, permissions, dan database integrity tidak boleh diturunkan oleh page spec.
+
+## 23. Implementation status & flow corrections (2026-11-06)
+
+Bagian ini mencatat koreksi flow dan status implementasi. Requirement di atas tetap menjadi target produk; jika ada perbedaan, bagian ini menjelaskan kondisi aktual yang berlaku saat ini.
+
+### 23.1 Koreksi flow
+
+1. **Role adalah entitas terpisah.** Implementasi memakai lima role nyata: `SUPER_ADMIN`, `ADMIN`, `THERAPIST`, `STAFF`, `USER`. Tidak ada lagi model “ADMIN dengan sub-type THERAPIST/STAFF”.
+2. **`SUPER_ADMIN` bukan wildcard permission.** Permission klinis tidak otomatis dimiliki Super Admin. Clinical read (`progress:read`, `assessment:read`, `session:read`, dan seterusnya) harus diberikan eksplisit.
+3. **Permission management v1 bersifat code-defined.** Tidak ada UI editor permission; perubahan dilakukan lewat role matrix di kode dan wajib melalui review serta test.
+4. **Status akun v1 adalah `ACTIVE`/`SUSPENDED`.** Suspend mencabut semua sesi aktif dan bersifat reversibel. Hard delete akun bukan flow utama.
+5. **Route auth belum lengkap.** `/forgot-password`, `/reset-password`, dan `/verify-email` belum aktif. Reset password saat ini diarahkan ke kanal bantuan resmi, dan verifikasi email belum diwajibkan.
+6. **Clinical record v1.** Assessment dan session masih menyatu dalam satu rekam medis per kunjungan (`therapy_progress_records`) dengan status `DRAFT`/`FINALIZED`. Treatment plan v1 sudah menjadi entitas terpisah di `treatment_plans`.
+7. **Amendment sudah aktif.** Rekam `FINALIZED` terkunci; koreksi membuat draft revisi dengan alasan wajib. Finalisasi amandemen menandai rekam asal sebagai `superseded` dan menyimpan keduanya sebagai riwayat.
+8. **Dokumen klinis belum diaktifkan.** Upload/download dokumen (R2) dan route `/dashboard/documents` belum tersedia.
+9. **Export belum di-gate.** PDF rekam medis sudah tersedia, tetapi belum memakai permission `patient:export` dan belum dicatat sebagai audit event ekspor.
+10. **Search wajib server-side** untuk dataset yang berkembang. Daftar pengguna sudah memakai search server-side + pagination; beberapa tampilan lain masih memfilter halaman yang sudah diambil.
+11. **Hard delete akun dengan jejak klinis diblokir.** Akun pasien atau staf yang memiliki rekam medis, intake yang direview, atau appointment tidak dapat dihapus permanen. Gunakan suspend/reactivate; data klinis tetap tersimpan.
+12. **Assignment pasien sudah aktif.** Admin/Super Admin dengan `patient:assign` dapat menetapkan terapis penanggung jawab. Assignment lama ditutup dengan `activeUntil`, bukan dihapus, sehingga riwayat tetap tersimpan.
+13. **Filter terapis pada daftar pasien sudah aktif.** Daftar pasien dapat difilter berdasarkan terapis aktif; filter berjalan server-side bersama search, status, dan pagination.
+14. **Audit coverage diperluas.** Login/logout, patient create/update/archive/restore, intake submit/review, assignment, export/print rekam medis, dan pencabutan sesi kini tercatat.
+15. **Session management tersedia.** Pengguna dapat melihat daftar sesi aktif, mencabut sesi lain, atau mencabut semua sesi lain tanpa mengeluarkan sesi yang sedang digunakan.
+16. **Consent intake tersedia.** Form Awal mencatat persetujuan pemrosesan data (`privacy_consent_at`) dan persetujuan publikasi media opsional yang terpisah. Pengiriman form ditolak jika persetujuan privasi belum diberikan; draft tetap dapat disimpan.
+17. **Rencana terapi v1 tersedia.** Terapis/Admin dapat membuat rencana terapi per pasien: tujuan, intervensi, interval/tanggal evaluasi, precaution, status Draft/Aktif, dan visibilitas Internal/Pasien. Pasien melihat rencana aktif yang dibagikan pada halaman Rekam Medis.
+18. **Scope terapis ditegakkan.** Daftar pasien, pilihan pasien pada form rekam medis, akses detail pasien, rencana terapi, dan home program untuk `THERAPIST` dibatasi pada pasien dengan assignment aktif. Terapis tidak dapat membuka pasien yang tidak di-assign meskipun mengetahui URL-nya.
+19. **Home program v1 tersedia.** Terapis/Admin dapat menyusun program latihan mandiri (hingga 20 latihan, dengan set/repetisi/durasi/frekuensi/precaution), menandai terlihat pasien atau internal, dan pasien melihat program aktif yang dibagikan. Program disimpan pada tabel `home_programs`/`home_program_items`. Relasi opsional ke `treatment_plans` belum diisi otomatis pada v1.
+
+### 23.2 Status per role
+
+| Role | Sudah berjalan | Belum / sebagian |
+| --- | --- | --- |
+| `SUPER_ADMIN` | Manajemen pengguna (daftar, search, pagination, tambah, role, suspend/reactivate, hapus), audit viewer, pengaturan sistem (halaman), kalender internal, jadwal terapis, session management, permission non-klinis eksplisit | UI permission management, MFA, settings fungsional, clinical access eksplisit, halaman detail pengguna |
+| `ADMIN` | Jadwal, pasien, intake review, rekam medis operasional, tambah pasien, jadwal terapis, assignment pasien, filter terapis, rencana terapi, home program, audit (sesuai permission), appointment request | Suspend/reactivate, assessment terpisah, dokumen, export bulk ter-gate |
+| `THERAPIST` | Pasien assigned, jadwal, intake review, rekam medis SOAP, finalisasi, amandemen rekam final, rencana terapi, home program, PDF, profil + crop foto, jadwal terapi pasien | Assessment terpisah, dokumen, export ter-gate, audit klinis lengkap |
+| `STAFF` | Appointment, pasien minimum, intake read, jadwal, profil | Catatan klinis (memang dibatasi), dokumen, assignment |
+| `USER` | Dashboard, booking/reschedule/cancel, intake + consent privasi, riwayat, rekam medis patient-visible, rencana terapi & home program viewer, PDF, profil + crop foto, notifikasi in-app, session management | Reset password mandiri, verifikasi email, dokumen |
+
+### 23.3 Status lintas role
+
+| Area | Status |
+| --- | --- |
+| Audit login/logout | Sudah |
+| Audit patient create/update/archive/restore/assign | Sudah |
+| Audit intake submit/draft/review/accept | Sudah |
+| Audit user suspend/reactivate | Sudah |
+| Audit role assignment | Sudah |
+| Audit rekam medis create/update/finalize/amend + home program | Sudah |
+| Consent privasi & media pada intake | Sudah (privasi wajib saat submit, media opsional terpisah) |
+| Rencana terapi | Sudah (v1: satu rencana aktif per pasien, audit tersimpan) |
+| Audit appointment create/update/cancel/complete | Sudah |
+| MFA staf | Belum |
+| Revoke session staf | Sudah (daftar sesi aktif + cabut sesi lain; sesi berjalan tetap aktif) |
+| Dokumen klinis/R2 | Belum |
+| Export audit (PDF/print) | Sudah tercatat; pembatasan bulk export belum ada |
+| Test authorization untuk Super Admin non-wildcard | Sudah |

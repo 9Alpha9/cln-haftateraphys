@@ -34,7 +34,7 @@ export function TherapistTodaySchedule({
   const displayItems = appointments.slice(0, 4);
 
   return (
-    <div className="rounded-3xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-sm space-y-4">
+    <div className="rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-sm space-y-4">
       {/* Header Bar */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between border-b border-stone-100 pb-4">
         <div className="flex items-center gap-3">

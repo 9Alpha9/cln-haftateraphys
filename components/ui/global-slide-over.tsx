@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useOverlayLayer } from '@/components/ui/use-overlay-layer';
+import { useBodyScrollLock } from '@/components/ui/use-body-scroll-lock';
 
 export type SlideOverSize = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -22,54 +23,8 @@ export interface GlobalSlideOverProps {
   footer?: React.ReactNode;
   footerClassName?: string;
   className?: string;
-}
-
-let scrollLockCount = 0;
-let savedScrollStyles:
-  | {
-      htmlOverflow: string;
-      bodyOverflow: string;
-      htmlOverscroll: string;
-      bodyOverscroll: string;
-      bodyPaddingRight: string;
-    }
-  | null = null;
-
-function acquireScrollLock() {
-  const html = document.documentElement;
-  const body = document.body;
-
-  if (scrollLockCount === 0) {
-    savedScrollStyles = {
-      htmlOverflow: html.style.overflow,
-      bodyOverflow: body.style.overflow,
-      htmlOverscroll: html.style.overscrollBehavior,
-      bodyOverscroll: body.style.overscrollBehavior,
-      bodyPaddingRight: body.style.paddingRight,
-    };
-    const scrollBarWidth = window.innerWidth - html.clientWidth;
-    html.style.overflow = 'hidden';
-    body.style.overflow = 'hidden';
-    html.style.overscrollBehavior = 'none';
-    body.style.overscrollBehavior = 'none';
-    if (scrollBarWidth > 0) body.style.paddingRight = `${scrollBarWidth}px`;
-  }
-
-  scrollLockCount += 1;
-}
-
-function releaseScrollLock() {
-  scrollLockCount = Math.max(0, scrollLockCount - 1);
-  if (scrollLockCount !== 0 || !savedScrollStyles) return;
-
-  const html = document.documentElement;
-  const body = document.body;
-  html.style.overflow = savedScrollStyles.htmlOverflow;
-  body.style.overflow = savedScrollStyles.bodyOverflow;
-  html.style.overscrollBehavior = savedScrollStyles.htmlOverscroll;
-  body.style.overscrollBehavior = savedScrollStyles.bodyOverscroll;
-  body.style.paddingRight = savedScrollStyles.bodyPaddingRight;
-  savedScrollStyles = null;
+  /** Custom base z-index, useful when the sheet must sit above page-level dropdowns. */
+  zIndexBase?: number;
 }
 
 const sizeWidthMap: Record<SlideOverSize, string> = {
@@ -92,13 +47,17 @@ export function GlobalSlideOver({
   footer,
   footerClassName,
   className,
+  zIndexBase,
 }: GlobalSlideOverProps) {
   const mounted = React.useSyncExternalStore(
     () => () => {},
     () => true,
     () => false
   );
-  const { isTopmost, zIndex } = useOverlayLayer(isOpen);
+  const { isTopmost, zIndex } = useOverlayLayer(isOpen, zIndexBase);
+  useBodyScrollLock(isOpen);
+  const titleId = React.useId();
+  const panelRef = React.useRef<HTMLDivElement | null>(null);
 
   const onCloseRef = React.useRef(onClose);
 
@@ -108,10 +67,38 @@ export function GlobalSlideOver({
 
   useEffect(() => {
     if (!isOpen) return;
+    const previouslyFocused = document.activeElement as HTMLElement | null;
+    const frame = window.requestAnimationFrame(() => panelRef.current?.focus());
+    return () => {
+      window.cancelAnimationFrame(frame);
+      previouslyFocused?.focus?.();
+    };
+  }, [isOpen]);
 
-    acquireScrollLock();
+  useEffect(() => {
+    if (!isOpen) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onCloseRef.current();
+      if (!isTopmost) return;
+      if (e.key === 'Escape') {
+        onCloseRef.current();
+        return;
+      }
+      if (e.key !== 'Tab' || !panelRef.current) return;
+
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
 
     const handleCloseAllSlideOvers = () => {
@@ -121,18 +108,26 @@ export function GlobalSlideOver({
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('hafta:close-all-slide-overs', handleCloseAllSlideOvers);
     return () => {
-      releaseScrollLock();
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('hafta:close-all-slide-overs', handleCloseAllSlideOvers);
     };
-  }, [isOpen]);
+  }, [isOpen, isTopmost]);
 
   if (!mounted) return null;
 
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div role="dialog" aria-modal="true">
+        <motion.div
+          key="global-slide-over"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          initial={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0.99 }}
+          transition={{ duration: 0.32 }}
+        >
           {/* ── 1. STATIC BACKDROP OVERLAY (LOCKED SCREEN BLUR) ── */}
           <motion.div
             key="global-slide-over-backdrop"
@@ -149,6 +144,8 @@ export function GlobalSlideOver({
           {/* ── 2. SLIDE PANEL (SEJAJAR PENUH SISI KANAN LAYAR) ── */}
           <motion.aside
             key="slide-over-panel"
+            ref={panelRef}
+            tabIndex={-1}
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
@@ -161,7 +158,7 @@ export function GlobalSlideOver({
             style={{ zIndex: zIndex + 1 }}
           >
             {/* ── 2A. UNIFIED HEADER (ICON KIRI, JUDUL TENGAH, CLOSE KANAN) ── */}
-            <header className="sticky top-0 z-10 shrink-0 border-b border-stone-100 bg-white/95 px-5 py-4 backdrop-blur-sm sm:px-6">
+            <header className="sticky top-0 z-10 shrink-0 border-b border-stone-100 bg-white/95 px-3.5 py-3.5 backdrop-blur-sm sm:px-6 sm:py-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3 min-w-0 flex-1">
                   {/* Lingkaran Ikon Kuning Hafta */}
@@ -173,7 +170,7 @@ export function GlobalSlideOver({
 
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <h2 className="truncate text-base font-bold tracking-tight text-[#181700] sm:text-lg">
+                      <h2 id={titleId} className="truncate text-base font-bold tracking-tight text-[#181700] sm:text-lg">
                         {title}
                       </h2>
                       {badge}
@@ -202,18 +199,18 @@ export function GlobalSlideOver({
           </header>
 
             {/* ── 2B. SCROLLABLE BODY ── */}
-            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-3.5 py-3.5 sm:px-6 sm:py-4">
               {children}
             </div>
 
             {/* ── 2C. SOLID DOCKED ACTION FOOTER ── */}
             {footer && (
-              <footer className={cn("shrink-0 border-t border-stone-200/80 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full", footerClassName)}>
+              <footer className={cn("shrink-0 border-t border-stone-200/80 bg-[#FEFEF6] px-3.5 py-3.5 sm:px-6 sm:py-4 flex flex-col gap-2.5 w-full", footerClassName)}>
                 {footer}
               </footer>
             )}
           </motion.aside>
-        </div>
+        </motion.div>
       )}
     </AnimatePresence>,
     document.body

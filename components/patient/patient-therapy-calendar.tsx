@@ -1,14 +1,18 @@
 'use client';
 
 import { useMemo, useState, useTransition } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
+  AlertTriangle,
   CalendarDays,
+  CalendarX2,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock3,
   Loader2,
+  Plus,
   UserRound,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
@@ -83,25 +87,27 @@ export function PatientTherapyCalendar({
   requests,
   holidays,
   defaultDate,
+  hideHeader = false,
 }: {
   appointments: PatientPortalAppointment[];
   availability: AvailabilityDate[];
   requests: PatientAppointmentRequestView[];
   holidays: IndonesianHoliday[];
   defaultDate?: string;
+  hideHeader?: boolean;
 }) {
   const router = useRouter();
   const { showToast } = useToast();
   const [pending, startTransition] = useTransition();
+  const todayKey = dateKey(new Date());
   const initialDate = defaultDate ? parseDateKey(defaultDate) : new Date();
   const [month, setMonth] = useState(() => new Date(initialDate.getFullYear(), initialDate.getMonth(), 1));
-  const [selectedDate, setSelectedDate] = useState<string | null>(defaultDate ?? null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(defaultDate ?? todayKey);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedTherapistId, setSelectedTherapistId] = useState<string | null>(null);
   const [reschedulingAppointment, setReschedulingAppointment] = useState<PatientPortalAppointment | null>(null);
-  const [detailAppointment, setDetailAppointment] = useState<PatientPortalAppointment | null>(null);
   const [confirmingAppointment, setConfirmingAppointment] = useState<PatientPortalAppointment | null>(null);
-  const todayKey = dateKey(new Date());
+  const [isDateDrawerOpen, setIsDateDrawerOpen] = useState(false);
 
   const availabilityMap = useMemo(
     () => new Map(availability.map((item) => [item.date, item])),
@@ -125,11 +131,15 @@ export function PatientTherapyCalendar({
     return map;
   }, [requests]);
 
-  const hasActiveSchedule = useMemo(
-    () => appointments.some((appointment) => ['SCHEDULED', 'CONFIRMED'].includes(appointment.status)),
-    [appointments],
+  const hasActiveSchedule = appointments.some(
+    (appointment) =>
+      ['SCHEDULED', 'CONFIRMED'].includes(appointment.status) &&
+      dateKey(appointment.scheduledDate) >= todayKey,
   );
-  const showAvailability = reschedulingAppointment !== null || !hasActiveSchedule;
+  const hasPendingRequest = requests.some((request) => request.status === 'PENDING');
+  const showAvailability =
+    reschedulingAppointment !== null || (!hasActiveSchedule && !hasPendingRequest);
+  const requestMode: 'RESCHEDULE' | 'FIRST' = reschedulingAppointment ? 'RESCHEDULE' : 'FIRST';
 
   const days = useMemo(() => {
     const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
@@ -142,6 +152,11 @@ export function PatientTherapyCalendar({
 
   const selectedAvailability = selectedDate ? availabilityMap.get(selectedDate) : undefined;
   const selectedAppointments = selectedDate ? appointmentsByDate.get(selectedDate) ?? [] : [];
+  const activeSelectedAppointments = selectedAppointments.filter(
+    (appointment) =>
+      ['SCHEDULED', 'CONFIRMED'].includes(appointment.status) &&
+      dateKey(appointment.scheduledDate) >= todayKey,
+  );
   const selectedRequests = selectedDate
     ? (requestsByDate.get(selectedDate) ?? []).filter((request) => request.status === 'PENDING')
     : [];
@@ -149,20 +164,33 @@ export function PatientTherapyCalendar({
     () => Array.from(new Set((selectedAvailability?.slots ?? []).map((slot) => slot.startTime))).sort(),
     [selectedAvailability],
   );
-  const effectiveTime = selectedTime && availableTimes.includes(selectedTime) ? selectedTime : availableTimes[0] ?? null;
+  const effectiveTime = selectedTime && availableTimes.includes(selectedTime) ? selectedTime : null;
   const therapistsForTime = (selectedAvailability?.slots ?? []).filter(
     (slot) => slot.startTime === effectiveTime,
   );
+  const currentTherapistSlot = reschedulingAppointment
+    ? therapistsForTime.find((slot) => slot.therapistId === reschedulingAppointment.therapistId)
+    : undefined;
   const effectiveTherapist =
-    therapistsForTime.find((slot) => slot.therapistId === selectedTherapistId) ?? therapistsForTime[0] ?? null;
+    therapistsForTime.find((slot) => slot.therapistId === selectedTherapistId) ??
+    currentTherapistSlot ??
+    therapistsForTime[0] ??
+    null;
 
-  const smartAlternatives = useMemo(() => {
-    const base = selectedDate ?? todayKey;
-    return availability
-      .filter((item) => item.date > base)
-      .slice(0, 3)
-      .map((item) => ({ date: item.date, slot: item.slots[0] }));
-  }, [availability, selectedDate, todayKey]);
+  const selectedActiveAppointment = activeSelectedAppointments[0] ?? null;
+  const pendingRescheduleForSelected = selectedActiveAppointment
+    ? requests.find(
+        (request) =>
+          request.status === 'PENDING' &&
+          request.rescheduleAppointmentId === selectedActiveAppointment.id,
+      ) ?? null
+    : null;
+
+  const availabilityHint =
+    requestMode === 'RESCHEDULE'
+      ? 'Pilih slot waktu untuk memindahkan sesi Anda ke tanggal ini.'
+      : 'Pilih slot waktu di bawah untuk mengajukan jadwal baru.';
+  const submitLabel = requestMode === 'RESCHEDULE' ? 'Ajukan Perubahan Jadwal' : 'Ajukan Jadwal';
 
   function changeMonth(offset: number) {
     setMonth((current) => new Date(current.getFullYear(), current.getMonth() + offset, 1));
@@ -175,6 +203,7 @@ export function PatientTherapyCalendar({
     setSelectedDate(key);
     setSelectedTime(null);
     setSelectedTherapistId(null);
+    setIsDateDrawerOpen(true);
     const day = parseDateKey(key);
     setMonth(new Date(day.getFullYear(), day.getMonth(), 1));
   }
@@ -185,13 +214,20 @@ export function PatientTherapyCalendar({
     setConfirmingAppointment(null);
     setSelectedTime(null);
     setSelectedTherapistId(null);
-    setTimeout(() => {
-      document.getElementById('patient-slot-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 50);
+    // Tutup panel detail agar kalender dengan tanggal tersedia langsung terlihat.
+    setIsDateDrawerOpen(false);
   }
 
   function cancelReschedule() {
     setReschedulingAppointment(null);
+    setSelectedTime(null);
+    setSelectedTherapistId(null);
+  }
+
+  function goToToday() {
+    const today = new Date();
+    setMonth(new Date(today.getFullYear(), today.getMonth(), 1));
+    setSelectedDate(todayKey);
     setSelectedTime(null);
     setSelectedTherapistId(null);
   }
@@ -208,13 +244,13 @@ export function PatientTherapyCalendar({
     });
   }
 
-  function selectAlternative(key: string, time: string, therapistId: string) {
-    selectDate(key);
+  function selectTimeSlot(time: string) {
+    const slots = (selectedAvailability?.slots ?? []).filter((slot) => slot.startTime === time);
+    const preferredTherapist = reschedulingAppointment
+      ? slots.find((slot) => slot.therapistId === reschedulingAppointment.therapistId) ?? slots[0]
+      : slots[0];
     setSelectedTime(time);
-    setSelectedTherapistId(therapistId);
-    setTimeout(() => {
-      document.getElementById('patient-slot-panel')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 50);
+    setSelectedTherapistId(preferredTherapist?.therapistId ?? null);
   }
 
   function submitRequest() {
@@ -242,10 +278,10 @@ export function PatientTherapyCalendar({
             durationMinutes: 60,
           });
           showToast('success', 'Pengajuan jadwal terkirim. Tim Hafta akan mengonfirmasi.');
+          setIsDateDrawerOpen(false);
         }
         setSelectedTime(null);
         setSelectedTherapistId(null);
-        setDetailAppointment(null);
         setSelectedDate(selectedDate);
         router.refresh();
       } catch (error) {
@@ -254,354 +290,45 @@ export function PatientTherapyCalendar({
     });
   }
 
-  const panelContent = (() => {
-    if (!selectedDate) {
-      return (
-        <div className="flex min-h-48 flex-col items-center justify-center px-4 text-center">
-          <CalendarDays className="h-8 w-8 text-stone-300" />
-          <p className="mt-3 text-sm font-semibold text-[#181700]">Pilih tanggal</p>
-          <p className="mt-1 max-w-xs text-xs leading-relaxed text-stone-500">
-            {showAvailability
-              ? 'Tanggal dengan lingkaran kuning memiliki slot fisioterapis yang masih tersedia.'
-              : 'Klik tanggal sesi Anda (lingkaran hitam) untuk melihat detail jadwal.'}
-          </p>
-        </div>
-      );
-    }
-
-    const ownCards = selectedAppointments.filter(
-      (appointment) => appointment.id !== reschedulingAppointment?.id,
-    );
-    if (ownCards.length > 0) {
-      return (
-        <div className="space-y-4">
+  return (
+    <section className="space-y-4 sm:space-y-5">
+      <header className={cn('flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between', hideHeader && 'sm:justify-end')}>
+        {!hideHeader ? (
           <div>
-            <p className="text-xs text-stone-500">Jadwal sesi Anda</p>
-            <h3 className="mt-1 text-base font-bold text-[#181700]">{formatLongDate(selectedDate)}</h3>
-          </div>
-          {ownCards.map((appointment) => {
-            const pendingReschedule = requests.find(
-              (request) =>
-                request.rescheduleAppointmentId === appointment.id && request.status === 'PENDING',
-            );
-            const canReschedule =
-              ['SCHEDULED', 'CONFIRMED'].includes(appointment.status) && !pendingReschedule;
-            return (
-              <article key={appointment.id} className="rounded-2xl bg-[#181700] p-4 text-white">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-bold">{TYPE_LABELS[appointment.type] ?? appointment.type}</p>
-                    <p className="mt-1 text-xs text-stone-300">
-                      {appointment.startTime} · {appointment.durationMinutes} menit
-                    </p>
-                  </div>
-                  <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-[var(--hafta-ylw-100)]">
-                    {STATUS_LABELS[appointment.status] ?? appointment.status}
-                  </span>
-                </div>
-                <div className="mt-4 flex items-center gap-2 border-t border-white/10 pt-3 text-xs text-stone-300">
-                  <UserRound className="h-4 w-4 text-[var(--hafta-ylw-100)]" />
-                  {appointment.therapistName ?? 'Fisioterapis Hafta'}
-                </div>
-                {pendingReschedule ? (
-                  <div className="mt-3 border-t border-white/10 pt-3">
-                    <span className="inline-block rounded-full border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] px-3 py-0.5 text-[10px] font-bold text-[#181700]">
-                      Menunggu ACC Terapis
-                    </span>
-                    <p className="mt-1.5 text-[11px] leading-relaxed text-stone-300">
-                      Diajukan pindah ke{' '}
-                      {formatShortDate(dateKey(pendingReschedule.requestedDate))} •{' '}
-                      {pendingReschedule.startTime}
-                    </p>
-                  </div>
-                ) : null}
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  {canReschedule ? (
-                    <button
-                      type="button"
-                      onClick={() => setConfirmingAppointment(appointment)}
-                      className="h-10 cursor-pointer rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)]"
-                    >
-                      Ubah Jadwal
-                    </button>
-                  ) : null}
-                  <button
-                    type="button"
-                    onClick={() => setDetailAppointment(appointment)}
-                    className={cn(
-                      'h-10 cursor-pointer rounded-full border border-white/25 bg-white/10 px-4 text-xs font-semibold text-white transition-colors hover:bg-white/20',
-                      !canReschedule && 'col-span-2',
-                    )}
-                  >
-                    Lihat Detail
-                  </button>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-      );
-    }
-
-    if (!showAvailability) {
-      if (selectedRequests.length > 0) {
-        return (
-          <div className="space-y-4">
-            <div>
-              <p className="text-xs text-stone-500">Tanggal dipilih</p>
-              <h3 className="mt-1 text-base font-bold text-[#181700]">{formatLongDate(selectedDate)}</h3>
-            </div>
-            <div className="space-y-2.5 rounded-2xl border border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)] px-4 py-3">
-              <span className="inline-block rounded-full border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] px-3 py-0.5 text-[10px] font-bold text-[#181700]">
-                Menunggu ACC Terapis
-              </span>
-              <p className="text-xs leading-relaxed text-[#181700]">
-                Pengajuan jadwal {formatShortDate(selectedDate)} ·{' '}
-                {selectedRequests[0]?.startTime} sedang menunggu konfirmasi fisioterapis.
-              </p>
-              {selectedRequests.map((request) => (
-                <button
-                  key={request.id}
-                  type="button"
-                  disabled={pending}
-                  onClick={() => cancelPendingRequest(request.id)}
-                  className="block cursor-pointer text-xs font-semibold text-stone-600 underline underline-offset-4 disabled:opacity-60"
-                >
-                  Batalkan pengajuan {request.startTime}
-                </button>
-              ))}
-            </div>
-          </div>
-        );
-      }
-      return (
-        <div className="space-y-4">
-          <div>
-            <p className="text-xs text-stone-500">Tanggal dipilih</p>
-            <h3 className="mt-1 text-base font-bold text-[#181700]">{formatLongDate(selectedDate)}</h3>
-          </div>
-          <p className="rounded-2xl bg-white px-4 py-3 text-xs leading-relaxed text-stone-600">
-            Jadwal sesi Anda sudah terjadwal. Tekan tombol Ubah Jadwal pada kartu sesi (lingkaran hitam) untuk memilih tanggal baru.
-          </p>
-        </div>
-      );
-    }
-
-    if (selectedAvailability && selectedAvailability.slots.length > 0) {
-      return (
-        <div className="space-y-4">
-          {reschedulingAppointment ? (
-            <div className="rounded-xl border border-stone-200 bg-white p-3 shadow-2xs">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-stone-400">
-                Jadwal saat ini
-              </p>
-              <div className="mt-1.5">
-                <p className="text-xs font-bold text-[#181700]">
-                  {TYPE_LABELS[reschedulingAppointment.type] ?? reschedulingAppointment.type}
-                </p>
-                <p className="text-[11px] text-stone-500">
-                  {formatShortDate(dateKey(reschedulingAppointment.scheduledDate))} ·{' '}
-                  {reschedulingAppointment.startTime} ·{' '}
-                  {reschedulingAppointment.therapistName ?? 'Fisioterapis Hafta'}
-                </p>
-              </div>
-            </div>
-          ) : null}
-          <div>
-            <p className="text-xs text-stone-500">
-              {reschedulingAppointment ? 'Pilih jadwal pengganti' : 'Cari jadwal baru'}
+            <h2 className="text-base font-bold text-[#181700]">Kalender & Slot Terapi</h2>
+            <p className="mt-1 text-xs leading-relaxed text-stone-500">
+              {reschedulingAppointment
+                ? 'Pilih tanggal dan jam baru untuk memindahkan sesi Anda.'
+                : 'Pilih tanggal untuk melihat sesi Anda, mengajukan jadwal baru, atau mengubah jadwal.'}
             </p>
-            <h3 className="mt-1 text-base font-bold text-[#181700]">{formatLongDate(selectedDate)}</h3>
-          </div>
-
-          <div>
-            <p className="text-xs font-semibold text-[#181700]">Jam tersedia</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {availableTimes.map((time) => {
-                const slots = selectedAvailability.slots.filter((slot) => slot.startTime === time);
-                return (
-                  <button
-                    key={time}
-                    type="button"
-                    onClick={() => {
-                      setSelectedTime(time);
-                      setSelectedTherapistId(slots[0]?.therapistId ?? null);
-                    }}
-                    className={cn(
-                      'h-10 cursor-pointer rounded-full border px-3.5 text-xs font-semibold transition-colors',
-                      effectiveTime === time
-                        ? 'border-[#181700] bg-[#181700] text-white'
-                        : 'border-stone-200 bg-white text-[#181700] hover:bg-[var(--hafta-ylw-50)]/50',
-                    )}
-                  >
-                    {time}–{slots[0]?.endTime}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div>
-            <p className="text-xs font-semibold text-[#181700]">Fisioterapis</p>
-            <div className="mt-2 space-y-2">
-              {therapistsForTime.map((slot) => (
-                <button
-                  key={`${slot.startTime}-${slot.therapistId}`}
-                  type="button"
-                  onClick={() => setSelectedTherapistId(slot.therapistId)}
-                  className={cn(
-                    'flex w-full cursor-pointer items-center gap-3 rounded-xl border px-3 py-2.5 text-left transition-colors',
-                    effectiveTherapist?.therapistId === slot.therapistId
-                      ? 'border-[var(--hafta-ylw-300)] bg-[var(--hafta-ylw-50)]/45'
-                      : 'border-stone-200 bg-white hover:bg-stone-50',
-                  )}
-                >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#181700] ring-1 ring-stone-200">
-                    <UserRound className="h-4 w-4" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-xs font-bold text-[#181700]">{slot.therapistName}</span>
-                    <span className="block text-[11px] text-stone-500">{slot.startTime}–{slot.endTime}</span>
-                  </span>
-                  {effectiveTherapist?.therapistId === slot.therapistId ? (
-                    <CheckCircle2 className="h-4 w-4 text-[var(--hafta-grn-600)]" />
-                  ) : null}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {selectedRequests.length > 0 ? (
-            <div className="space-y-2 rounded-xl bg-[var(--hafta-ylw-50)]/45 px-3.5 py-2.5 text-xs leading-relaxed text-[#181700]">
-              <p>Anda sudah memiliki pengajuan menunggu konfirmasi pada tanggal ini.</p>
-              {selectedRequests.map((request) => (
-                <button
-                  key={request.id}
-                  type="button"
-                  disabled={pending}
-                  onClick={() => cancelPendingRequest(request.id)}
-                  className="font-semibold underline underline-offset-4 disabled:opacity-60"
-                >
-                  Batalkan pengajuan {request.startTime}
-                </button>
-              ))}
-            </div>
-          ) : null}
-
-          {reschedulingAppointment ? (
-            <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
-              <button
-                type="button"
-                onClick={submitRequest}
-                disabled={pending || !effectiveTherapist || selectedRequests.length > 0}
-                className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-              >
-                {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                {pending ? 'Memproses...' : 'Ajukan Perubahan Jadwal'}
-              </button>
-              <button
-                type="button"
-                onClick={cancelReschedule}
-                disabled={pending}
-                className="inline-flex h-10 w-full cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100 disabled:opacity-60 sm:w-auto"
-              >
-                Batal
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={submitRequest}
-              disabled={pending || !effectiveTherapist || selectedRequests.length > 0}
-              className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-              {pending ? 'Memproses...' : 'Pilih & Ajukan Jadwal Ini'}
-            </button>
-          )}
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-4">
-        <div>
-          <p className="text-xs text-stone-500">Tanggal dipilih</p>
-          <h3 className="mt-1 text-base font-bold text-[#181700]">{formatLongDate(selectedDate)}</h3>
-        </div>
-        <p className="rounded-2xl bg-stone-50 px-4 py-3 text-xs leading-relaxed text-stone-600">
-          Maaf, slot pada tanggal ini sudah penuh atau klinik sedang libur. Berikut jadwal kosong terdekat yang tersedia untuk Anda.
-        </p>
-        {selectedRequests.length > 0 ? (
-          <div className="space-y-2 rounded-xl bg-[var(--hafta-ylw-50)]/45 px-3.5 py-2.5 text-xs text-[#181700]">
-            <p>Ada pengajuan jadwal yang masih menunggu konfirmasi pada tanggal ini.</p>
-            {selectedRequests.map((request) => (
-              <button
-                key={request.id}
-                type="button"
-                disabled={pending}
-                onClick={() => cancelPendingRequest(request.id)}
-                className="block font-semibold underline underline-offset-4 disabled:opacity-60"
-              >
-                Batalkan pengajuan {request.startTime}
-              </button>
-            ))}
           </div>
         ) : null}
-        <div className="space-y-2">
-          {smartAlternatives.length > 0 ? (
-            smartAlternatives.map((alternative) => (
-              <button
-                key={`${alternative.date}-${alternative.slot.startTime}`}
-                type="button"
-                onClick={() => selectAlternative(alternative.date, alternative.slot.startTime, alternative.slot.therapistId)}
-                className="flex w-full cursor-pointer items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left transition-colors hover:border-[var(--hafta-ylw-300)] hover:bg-[var(--hafta-ylw-50)]/30"
-              >
-                <span>
-                  <span className="block text-xs font-bold text-[#181700]">{formatShortDate(alternative.date)}</span>
-                  <span className="mt-0.5 block text-[11px] text-stone-500">{alternative.slot.therapistName}</span>
-                </span>
-                <span className="rounded-full bg-[var(--hafta-ylw-50)] px-3 py-1 text-xs font-bold text-[#181700]">
-                  {alternative.slot.startTime}
-                </span>
-              </button>
-            ))
-          ) : (
-            <p className="text-xs text-stone-400">Belum ada slot lain dalam periode ini.</p>
-          )}
-        </div>
-      </div>
-    );
-  })();
-
-  return (
-    <section className="space-y-5">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-base font-bold text-[#181700]">Kalender & Slot Terapi</h2>
-          <p className="mt-1 text-xs leading-relaxed text-stone-500">
-            Pilih tanggal untuk melihat sesi Anda atau mengajukan jadwal baru.
-          </p>
-        </div>
-        <div className="flex items-center justify-between gap-1 rounded-full border border-stone-200 bg-white p-1 sm:justify-start">
+        <div className="flex w-full min-w-0 items-center gap-1 rounded-full border border-stone-200 bg-white p-1 sm:w-auto sm:justify-start">
           <button
             type="button"
             aria-label="Bulan sebelumnya"
             onClick={() => changeMonth(-1)}
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-[#181700] transition-colors hover:bg-stone-100"
+            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-[#181700] transition-colors hover:bg-stone-100 sm:h-10 sm:w-10"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <p className="min-w-32 text-center text-xs font-bold text-[#181700] sm:text-sm">
+          <p className="min-w-0 flex-1 text-center text-xs font-bold text-[#181700] sm:min-w-32 sm:flex-none sm:text-sm">
             {MONTHS[month.getMonth()]} {month.getFullYear()}
           </p>
           <button
             type="button"
             aria-label="Bulan berikutnya"
             onClick={() => changeMonth(1)}
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-[#181700] transition-colors hover:bg-stone-100"
+            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-[#181700] transition-colors hover:bg-stone-100 sm:h-10 sm:w-10"
           >
             <ChevronRight className="h-4 w-4" />
+          </button>
+          <button
+            type="button"
+            onClick={goToToday}
+            className="ml-0.5 h-9 shrink-0 cursor-pointer rounded-full bg-[#181700] px-2.5 text-[10px] font-semibold text-white transition-colors hover:bg-[#2a2800] sm:h-10 sm:px-3.5 sm:text-[11px]"
+          >
+            Hari ini
           </button>
         </div>
       </header>
@@ -623,18 +350,22 @@ export function PatientTherapyCalendar({
 
       {showAvailability && availability.length === 0 ? (
         <div className="rounded-2xl bg-[var(--hafta-ylw-50)]/45 px-4 py-3 text-xs leading-relaxed text-[#181700]">
-          Belum ada slot tersedia. Fisioterapis Anda mungkin belum terhubung atau jadwal kerjanya belum diatur. Silakan hubungi tim Hafta untuk penjadwalan.
+          Belum ada slot tersedia. Fisioterapis Anda mungkin belum terhubung atau jadwal kerjanya belum diatur.
+          Silakan{' '}
+          <Link href="/kontak" className="font-semibold underline underline-offset-2 hover:no-underline">
+            hubungi tim Hafta
+          </Link>{' '}
+          untuk penjadwalan.
         </div>
       ) : null}
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_21rem]">
-        <div className="min-w-0">
-          <div className="grid grid-cols-7 text-center text-[10px] font-semibold text-stone-400">
+      <div>
+        <div className="mx-auto grid w-full max-w-[460px] grid-cols-7 text-center text-[11px] font-semibold uppercase tracking-wide text-stone-400 sm:max-w-[560px] lg:max-w-none">
             {WEEKDAYS.map((label) => (
-              <span key={label} className="py-1.5">{label}</span>
+              <span key={label} className="py-2">{label}</span>
             ))}
           </div>
-          <div className="mt-1 grid grid-cols-7 gap-1">
+          <div className="mx-auto mt-1 grid w-full max-w-[460px] grid-cols-7 gap-1.5 sm:max-w-[560px] sm:gap-2 lg:max-w-none lg:gap-2.5">
             {days.map((day, index) => {
               if (!day) return <span key={`empty-${index}`} className="min-h-11" />;
 
@@ -648,6 +379,7 @@ export function PatientTherapyCalendar({
               const slots = showAvailability ? availabilityMap.get(key)?.slots ?? [] : [];
               const pendingRequests = (requestsByDate.get(key) ?? []).filter((request) => request.status === 'PENDING');
               const isSelected = selectedDate === key;
+              const isToday = key === todayKey;
               const unavailable = isPast || isSunday || Boolean(holiday);
               const isHoliday = Boolean(holiday);
 
@@ -656,38 +388,56 @@ export function PatientTherapyCalendar({
                 <button
                   type="button"
                   key={key}
-                  title={holiday?.name ?? (isSunday ? 'Minggu' : undefined)}
+                  title={holiday?.name ?? (isSunday ? 'Minggu' : isToday ? 'Hari ini' : undefined)}
                   onClick={() => selectDate(key)}
-                  className="group flex min-h-11 w-full cursor-pointer items-center justify-center"
+                  className={cn(
+                    'flex min-h-[58px] w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-1 py-2 text-sm font-bold transition-all lg:min-h-[76px]',
+                    own.length > 0
+                      ? 'border-[#181700] bg-[#181700] text-white'
+                      : pendingRequests.length > 0
+                        ? 'border-2 border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)] text-[#181700]'
+                        : slots.length > 0 && !unavailable
+                          ? 'border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/70 text-[#181700]'
+                          : unavailable
+                            ? isSunday || holiday
+                              ? 'border-transparent text-[var(--hafta-red-400)]'
+                              : 'border-transparent text-stone-300'
+                            : 'border-transparent text-stone-600 hover:bg-stone-50',
+                    isToday && !isSelected && 'ring-1 ring-[#181700]/25',
+                    isSelected && 'ring-2 ring-[#181700] ring-offset-2 ring-offset-white',
+                  )}
                 >
-                  <span
-                    className={cn(
-                      'relative mx-auto flex h-10 w-10 flex-col items-center justify-center rounded-full text-[13px] transition-all sm:h-11 sm:w-11',
-                      own.length > 0
-                        ? 'bg-[#181700] font-bold text-white'
-                        : pendingRequests.length > 0
-                          ? 'border-2 border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)] font-bold text-[#181700]'
-                          : slots.length > 0 && !unavailable
-                            ? 'border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/70 font-semibold text-[#181700] group-hover:bg-[var(--hafta-ylw-100)]'
-                            : unavailable
-                              ? isSunday || holiday
-                                ? 'font-medium text-[var(--hafta-red-400)]'
-                                : 'font-medium text-stone-300'
-                              : 'font-medium text-stone-500 group-hover:bg-stone-100',
-                      isSelected && 'ring-2 ring-[#181700] ring-offset-2 ring-offset-white',
-                    )}
-                  >
-                    {day.getDate()}
-                    {own.length > 0 ? (
-                      <span className="mt-0.5 h-1 w-1 rounded-full bg-[var(--hafta-ylw-100)]" />
-                    ) : pendingRequests.length > 0 ? (
-                      <span className="mt-0.5 h-1 w-1 rounded-full bg-[var(--hafta-ylw-400)]" />
-                    ) : slots.length > 0 && !unavailable ? (
-                      <span className="mt-0.5 h-1 w-1 rounded-full bg-[var(--hafta-grn-500)]" />
-                    ) : (
-                      <span className="mt-0.5 h-1 w-1" />
-                    )}
-                  </span>
+                  <span className="leading-none">{day.getDate()}</span>
+                  {own.length > 0 ? (
+                    <span className="flex max-w-full items-center justify-center gap-0.5">
+                      {own.slice(0, 4).map((_, dotIndex) => (
+                        <span
+                          key={dotIndex}
+                          className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--hafta-ylw-100)]"
+                        />
+                      ))}
+                      {own.length > 4 ? (
+                        <span className="text-[8px] font-bold leading-none text-[var(--hafta-ylw-100)]">
+                          +{own.length - 4}
+                        </span>
+                      ) : null}
+                    </span>
+                  ) : pendingRequests.length > 0 ? (
+                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-400)]" />
+                  ) : slots.length > 0 && !unavailable ? (
+                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-grn-500)]" />
+                  ) : (
+                    <span className="h-1.5 w-1.5 rounded-full bg-transparent" />
+                  )}
+                  {own.length > 0 ? (
+                    <span className="hidden max-w-full truncate text-[9px] font-semibold text-[var(--hafta-ylw-100)] lg:block">
+                      {own.length} sesi
+                    </span>
+                  ) : slots.length > 0 && !unavailable ? (
+                    <span className="hidden max-w-full truncate text-[9px] font-medium text-[#181700]/70 lg:block">
+                      {slots.length} slot
+                    </span>
+                  ) : null}
                 </button>
               );
             })}
@@ -700,75 +450,16 @@ export function PatientTherapyCalendar({
             <span className="inline-flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-red-400)]" /> Hari Libur / Minggu
             </span>
-            {requests.some((request) => request.status === 'PENDING') ? (
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full border-2 border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)]" /> Menunggu ACC
+            </span>
+            {showAvailability ? (
               <span className="inline-flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full border-2 border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)]" /> Menunggu ACC
+                <span className="h-2.5 w-2.5 rounded-full border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]" /> Slot tersedia
               </span>
             ) : null}
-            {showAvailability ? (
-              <>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]" /> Slot tersedia
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-grn-500)]" /> Ada slot kosong
-                </span>
-              </>
-            ) : null}
           </div>
-        </div>
-
-        <aside id="patient-slot-panel" className="rounded-3xl bg-[#F7F7F5] p-4 sm:p-5">
-          {panelContent}
-        </aside>
       </div>
-
-      <GlobalSlideOver
-        isOpen={detailAppointment !== null}
-        onClose={() => setDetailAppointment(null)}
-        size="md"
-        icon={<Clock3 className="h-5 w-5" />}
-        title="Detail Sesi"
-        subtitle={detailAppointment ? formatLongDate(dateKey(detailAppointment.scheduledDate)) : undefined}
-        footer={
-          detailAppointment &&
-          ['SCHEDULED', 'CONFIRMED'].includes(detailAppointment.status) &&
-          !requests.some(
-            (request) =>
-              request.rescheduleAppointmentId === detailAppointment.id &&
-              request.status === 'PENDING',
-          ) ? (
-            <div className="shrink-0 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full">
-                <button
-                type="button"
-                onClick={() => {
-                  setConfirmingAppointment(detailAppointment);
-                  setDetailAppointment(null);
-                }}
-                className="w-full h-11 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-sm flex items-center justify-center shadow-2xs cursor-pointer transition-all px-5"
-              >
-                Ubah Jadwal
-              </button>
-            </div>
-          ) : null
-        }
-      >
-        {detailAppointment ? (
-          <dl className="space-y-4 text-sm">
-            {[
-              ['Jam', `${detailAppointment.startTime} · ${detailAppointment.durationMinutes} menit`],
-              ['Fisioterapis', detailAppointment.therapistName ?? '-'],
-              ['Jenis sesi', TYPE_LABELS[detailAppointment.type] ?? detailAppointment.type],
-              ['Status', STATUS_LABELS[detailAppointment.status] ?? detailAppointment.status],
-            ].map(([label, value]) => (
-              <div key={label} className="border-b border-stone-100 pb-3">
-                <dt className="text-xs text-stone-500">{label}</dt>
-                <dd className="mt-1 font-semibold text-[#181700]">{value}</dd>
-              </div>
-            ))}
-          </dl>
-        ) : null}
-      </GlobalSlideOver>
 
       <ConfirmDialog
         isOpen={confirmingAppointment !== null}
@@ -780,7 +471,6 @@ export function PatientTherapyCalendar({
         }
         confirmLabel="Ya, Pilih Tanggal Baru"
         cancelLabel="Batal"
-        mainFirst
         icon={<CalendarDays className="h-5 w-5" />}
         iconClassName="h-11 w-11 bg-[var(--hafta-ylw-100)] text-[#181700] sm:h-11 sm:w-11"
         panelClassName="rounded-3xl border border-stone-200/90 shadow-2xl"
@@ -790,7 +480,281 @@ export function PatientTherapyCalendar({
         onCancel={() => setConfirmingAppointment(null)}
       />
 
+      <GlobalSlideOver
+        isOpen={isDateDrawerOpen}
+        onClose={() => {
+          setIsDateDrawerOpen(false);
+          setSelectedTime(null);
+          setSelectedTherapistId(null);
+        }}
+        title="Detail Tanggal & Jadwal"
+        subtitle={selectedDate ? formatLongDate(selectedDate) : undefined}
+        icon={<CalendarDays className="h-5 w-5 text-[#181700]" />}
+        footer={
+          <div className="flex flex-col gap-2 sm:flex-row sm:justify-between">
+            {selectedDate && reschedulingAppointment && (
+              <button
+                type="button"
+                onClick={submitRequest}
+                disabled={pending || !effectiveTherapist}
+                className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:opacity-60"
+              >
+                {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                {submitLabel}
+              </button>
+            )}
+            {selectedDate &&
+              !reschedulingAppointment &&
+              showAvailability &&
+              activeSelectedAppointments.length === 0 &&
+              availableTimes.length > 0 && (
+                <button
+                  type="button"
+                  onClick={submitRequest}
+                  disabled={pending || !effectiveTherapist}
+                  className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:opacity-60"
+                >
+                  {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                  {submitLabel}
+                </button>
+              )}
+            {selectedDate && !reschedulingAppointment && activeSelectedAppointments.length > 0 && (
+              pendingRescheduleForSelected ? (
+                <p className="flex-1 text-[11px] leading-relaxed text-stone-500">
+                  Perubahan jadwal sesi ini sedang menunggu konfirmasi fisioterapis. Batalkan pengajuan di atas bila
+                  ingin memilih jadwal lain.
+                </p>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmingAppointment(activeSelectedAppointments[0] ?? null)}
+                  disabled={pending}
+                  className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:opacity-60"
+                >
+                  {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                  Ubah Jadwal
+                </button>
+              )
+            )}
+            <button
+              type="button"
+              onClick={() => setIsDateDrawerOpen(false)}
+              className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-200/90 bg-white px-4 sm:px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100 disabled:opacity-60"
+            >
+              Batal
+            </button>
+          </div>
+        }
+      >
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs text-stone-500">Tanggal dipilih</p>
+              <h3 className="mt-1 text-base font-bold text-[#181700]">{selectedDate ? formatLongDate(selectedDate) : '-'}</h3>
+            </div>
+            {selectedRequests.length > 0 ? (
+              <div className="space-y-2">
+                {selectedRequests.map((request) => (
+                  <div key={request.id} className="rounded-2xl border border-stone-200 bg-[#FAFAF8] p-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#181700]">
+                          <Clock3 className="h-4 w-4" />
+                        </span>
+                        <div>
+                          <p className="text-xs font-bold text-[#181700]">
+                            {request.rescheduleFromDate ? 'Perubahan jadwal' : 'Sesi tambahan'}
+                          </p>
+                          <p className="text-[10px] text-stone-500">
+                            Diajukan {formatShortDate(dateKey(request.createdAt))}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="rounded-full border border-stone-200 bg-white px-2.5 py-1 text-[10px] font-semibold text-stone-600">
+                        Menunggu konfirmasi
+                      </span>
+                    </div>
+                    <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-[11px]">
+                      <div>
+                        <dt className="text-stone-400">Jadwal usulan</dt>
+                        <dd className="font-semibold text-[#181700]">
+                          {formatShortDate(request.requestedDate)} · {request.startTime}
+                        </dd>
+                      </div>
+                      <div>
+                        <dt className="text-stone-400">Durasi</dt>
+                        <dd className="font-semibold text-[#181700]">{request.durationMinutes} menit</dd>
+                      </div>
+                      <div>
+                        <dt className="text-stone-400">Fisioterapis</dt>
+                        <dd className="font-semibold text-[#181700]">
+                          {request.therapistName ?? 'Fisioterapis Hafta'}
+                        </dd>
+                      </div>
+                      {request.rescheduleFromDate ? (
+                        <div>
+                          <dt className="text-stone-400">Jadwal semula</dt>
+                          <dd className="font-semibold text-[#181700]">
+                            {formatShortDate(request.rescheduleFromDate)} ·{' '}
+                            {request.rescheduleFromTime?.slice(0, 5) ?? '-'}
+                          </dd>
+                        </div>
+                      ) : null}
+                    </dl>
+                    <button
+                      type="button"
+                      disabled={pending}
+                      onClick={() => cancelPendingRequest(request.id)}
+                      className="mt-3 inline-flex h-9 cursor-pointer items-center justify-center rounded-full border border-red-200 bg-white px-3 text-[11px] font-semibold text-red-700 transition-colors hover:bg-red-50 disabled:opacity-60"
+                    >
+                      Batalkan pengajuan
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+            {selectedDate ? (
+              <div className="space-y-3">
+                <p className="text-xs text-stone-500">Detail Sesi</p>
+                {selectedAppointments.length > 0 ? (
+                  selectedAppointments.map((appointment) => (
+                    <div key={appointment.id} className="rounded-2xl bg-[#181700] p-3 text-white space-y-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-bold">{TYPE_LABELS[appointment.type] ?? appointment.type}</p>
+                          <p className="mt-1 text-xs text-stone-300">
+                            {appointment.startTime} · {appointment.durationMinutes} menit
+                          </p>
+                        </div>
+                        <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-[var(--hafta-ylw-100)]">
+                          {STATUS_LABELS[appointment.status] ?? appointment.status}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-2 text-xs text-stone-300">
+                        <UserRound className="h-4 w-4 text-[var(--hafta-ylw-100)]" />
+                        {appointment.therapistName ?? 'Fisioterapis Hafta'}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-stone-200 bg-white px-4 py-4 sm:py-6 text-center">
+                    <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#FAFAF8] text-stone-400">
+                      <CalendarX2 className="h-5 w-5" />
+                    </span>
+                    <p className="mt-2 text-sm font-semibold text-[#181700]">
+                      Tidak ada sesi pada tanggal ini
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-stone-500">
+                      {showAvailability
+                        ? availabilityHint
+                        : 'Pilih tanggal lain untuk melihat jadwal Anda.'}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : null}
 
+            {selectedDate && showAvailability && selectedAppointments.length === 0 ? (
+              <div className="space-y-2">
+                {effectiveTime && effectiveTherapist ? (
+                  <div className="rounded-2xl border border-stone-200 bg-[#FAFAF8] p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-stone-400">
+                          Slot dipilih
+                        </p>
+                        <p className="mt-1 text-sm font-bold text-[#181700]">
+                          {selectedDate ? formatLongDate(selectedDate) : ''}
+                        </p>
+                        <p className="mt-0.5 text-xs text-stone-600">
+                          {effectiveTime}–{therapistsForTime[0]?.endTime ?? ''} · 60 menit
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedTime(null);
+                          setSelectedTherapistId(null);
+                        }}
+                        className="shrink-0 cursor-pointer rounded-full border border-stone-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-[#181700] transition-colors hover:bg-stone-50"
+                      >
+                        Ganti jam
+                      </button>
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5 border-t border-stone-200 pt-2 text-xs text-stone-600">
+                      <span className="text-stone-500">Fisioterapis:</span>
+                      {therapistsForTime.length > 1 ? (
+                        therapistsForTime.map((slot) => (
+                          <button
+                            key={slot.therapistId}
+                            type="button"
+                            onClick={() => setSelectedTherapistId(slot.therapistId)}
+                            className={cn(
+                              'cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors',
+                              effectiveTherapist.therapistId === slot.therapistId
+                                ? 'border-[#181700] bg-[#181700] text-white'
+                                : 'border-stone-200 bg-white text-[#181700] hover:bg-stone-50',
+                            )}
+                          >
+                            {slot.therapistName}
+                          </button>
+                        ))
+                      ) : (
+                        <span className="font-medium text-[#181700]">
+                          {effectiveTherapist.therapistName}
+                        </span>
+                      )}
+                    </div>
+                    {reschedulingAppointment &&
+                    effectiveTherapist.therapistId !== reschedulingAppointment.therapistId ? (
+                      <div className="mt-2 flex items-start gap-2 rounded-xl border border-stone-200 bg-white px-3 py-2 text-[11px] leading-relaxed text-stone-700">
+                        <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[var(--hafta-org-500)]" />
+                        <span>
+                          Sesi ini akan ditangani <strong>{effectiveTherapist.therapistName}</strong>, bukan{' '}
+                          {reschedulingAppointment.therapistName ?? 'fisioterapis sebelumnya'}. Pilih jam
+                          lain bila ingin tetap dengan fisioterapis yang sama.
+                        </span>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-xs text-stone-500">Jam tersedia</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {availableTimes.map((time) => {
+                        const slots = (selectedAvailability?.slots ?? []).filter(
+                          (slot) => slot.startTime === time,
+                        );
+                        return (
+                          <button
+                            key={time}
+                            type="button"
+                            onClick={() => selectTimeSlot(time)}
+                            className="flex cursor-pointer flex-col items-start gap-1 rounded-xl border border-stone-200 bg-white p-3 text-left transition-colors hover:border-[#181700] hover:bg-[#FAFAF8]"
+                          >
+                            <span className="flex w-full items-center justify-between gap-2">
+                              <span className="text-sm font-bold text-[#181700]">
+                                {time}–{slots[0]?.endTime}
+                              </span>
+                              <span className="h-4 w-4 shrink-0 rounded-full border border-stone-300" />
+                            </span>
+                            <span className="text-[10px] leading-tight text-stone-500">
+                              60 menit · {slots[0]?.therapistName ?? 'Fisioterapis Hafta'}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {availableTimes.length === 0 ? (
+                      <p className="text-[11px] text-stone-500">
+                        Tidak ada jam tersedia pada tanggal ini.
+                      </p>
+                    ) : null}
+                  </>
+                )}
+              </div>
+            ) : null}
+          </div>
+        </GlobalSlideOver>
     </section>
   );
 }

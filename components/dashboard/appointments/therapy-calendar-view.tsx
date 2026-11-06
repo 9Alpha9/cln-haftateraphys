@@ -13,7 +13,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
-import { Select } from '@/components/ui/select';
+import { AppSelect } from '@/components/ui/app-select';
 import type { CalendarAppointment } from '@/server/queries/appointment-calendar';
 import { cn } from '@/lib/utils';
 import { AppointmentFormDrawer } from '@/components/dashboard/appointments/appointment-form-drawer';
@@ -125,7 +125,7 @@ export function TherapyCalendarView({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const media = window.matchMedia('(max-width: 767px)');
+    const media = window.matchMedia('(max-width: 1023px)');
     const update = () => setIsMobile(media.matches);
     update();
     media.addEventListener('change', update);
@@ -210,32 +210,32 @@ export function TherapyCalendarView({
 
   return (
     <>
-      <div className="flex h-[calc(100vh-190px)] min-h-[640px] flex-col rounded-3xl border border-stone-200/90 bg-white shadow-2xs">
-        <div className="flex shrink-0 flex-col gap-3 border-b border-stone-200/80 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-5">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-[#181700]">
-              <CalendarDays className="h-5 w-5" />
+      <div className="flex h-[calc(100dvh-230px)] min-h-[460px] max-h-[860px] flex-col overflow-hidden rounded-3xl border border-stone-200/70 bg-white shadow-[0_8px_30px_rgba(24,23,0,0.05)] lg:h-[calc(100vh-190px)] lg:min-h-[620px]">
+        <div className="shrink-0 border-b border-stone-200/80 px-3 py-2.5 sm:px-4 sm:py-3">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-[#181700]">
+                <CalendarDays className="h-4 w-4" />
+              </div>
+              <div className="min-w-0">
+                <h2 className="truncate text-sm font-bold text-[#181700] sm:text-base">Jadwal Terapi</h2>
+                <p className="truncate text-[11px] font-medium text-stone-500 sm:text-xs">{title}</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <h2 className="truncate text-base font-bold text-[#181700]">Jadwal Terapi</h2>
-              <p className="truncate text-xs font-medium text-stone-500">{title}</p>
-            </div>
-          </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              type="button"
-              onClick={goToday}
-              className="h-9 cursor-pointer rounded-full border border-stone-200 bg-white px-3.5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-50"
-            >
-              Hari Ini
-            </button>
-            <div className="flex items-center gap-1">
+            <div className="flex shrink-0 items-center gap-1.5">
+              <button
+                type="button"
+                onClick={goToday}
+                className="h-8 cursor-pointer rounded-full border border-stone-200 bg-white px-3 text-[11px] font-semibold text-[#181700] transition-colors hover:bg-stone-50"
+              >
+                Hari Ini
+              </button>
               <button
                 type="button"
                 onClick={() => step(-1)}
                 aria-label="Sebelumnya"
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-[#181700] transition-colors hover:bg-stone-50"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-[#181700] transition-colors hover:bg-stone-50"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -243,21 +243,23 @@ export function TherapyCalendarView({
                 type="button"
                 onClick={() => step(1)}
                 aria-label="Berikutnya"
-                className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-[#181700] transition-colors hover:bg-stone-50"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-[#181700] transition-colors hover:bg-stone-50"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
+          </div>
 
-            <div className="flex items-center rounded-full bg-stone-100 p-1">
+          <div className="no-scrollbar mt-2 flex items-center gap-2 overflow-x-auto pb-0.5">
+            <div className="flex shrink-0 items-center rounded-full bg-stone-100 p-1">
               {(['day', 'week', 'month', 'agenda'] as const).map((mode) => (
                 <button
                   key={mode}
                   type="button"
                   onClick={() => setViewMode(mode)}
                   className={cn(
-                    'h-7 cursor-pointer rounded-full px-2.5 text-[11px] font-semibold transition-colors',
-                    viewMode === mode ? 'bg-white text-[#181700] shadow-2xs' : 'text-stone-500 hover:text-[#181700]',
+                    'h-7 shrink-0 cursor-pointer rounded-full px-2.5 text-[11px] font-semibold transition-colors',
+                    viewMode === mode ? 'bg-[#181700] text-white shadow-2xs' : 'text-stone-500 hover:text-[#181700]',
                   )}
                 >
                   {mode === 'day' ? 'Hari' : mode === 'week' ? 'Minggu' : mode === 'month' ? 'Bulan' : 'Agenda'}
@@ -265,29 +267,31 @@ export function TherapyCalendarView({
               ))}
             </div>
 
-            <div className="w-32">
-              <Select
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
-                selectClassName="h-9 rounded-full text-xs"
-                aria-label="Filter status"
-              >
-                <option value="ALL">Semua status</option>
-                <option value="SCHEDULED">Terjadwal</option>
-                <option value="CONFIRMED">Terkonfirmasi</option>
-                <option value="COMPLETED">Selesai</option>
-                <option value="CANCELLED">Dibatalkan</option>
-                <option value="NO_SHOW">Tidak hadir</option>
-              </Select>
-            </div>
+            <AppSelect
+              value={statusFilter}
+              onChange={setStatusFilter}
+              size="sm"
+              align="right"
+              className="w-32 shrink-0"
+              menuClassName="z-20 min-w-44"
+              aria-label="Filter status"
+              options={[
+                { value: 'ALL', label: 'Semua status' },
+                { value: 'SCHEDULED', label: 'Terjadwal' },
+                { value: 'CONFIRMED', label: 'Terkonfirmasi' },
+                { value: 'COMPLETED', label: 'Selesai' },
+                { value: 'CANCELLED', label: 'Dibatalkan' },
+                { value: 'NO_SHOW', label: 'Tidak hadir' },
+              ]}
+            />
 
             {canCreate && (
               <button
                 type="button"
                 onClick={() => openCreate(dateKey(currentDate), '08:00')}
-                className="inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-ylw-100)] px-3.5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)]"
+                className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-ylw-100)] px-3 text-[11px] font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)]"
               >
-                <Plus className="h-4 w-4" />
+                <Plus className="h-3.5 w-3.5" />
                 Buat Jadwal
               </button>
             )}
@@ -526,20 +530,27 @@ export function TherapyCalendarView({
         }
         footer={
           selectedAppointment ? (
-            <div className="shrink-0 bg-[#FEFEF6] px-5 sm:px-6 py-4 flex flex-col gap-2.5 w-full">
-              {/* Baris 1: Aksi utama (full width) */}
+            <div
+              className={cn(
+                'flex w-full items-center gap-2',
+                canComplete &&
+                  (selectedAppointment.status === 'SCHEDULED' ||
+                    selectedAppointment.status === 'CONFIRMED')
+                  ? 'justify-between'
+                  : 'justify-end',
+              )}
+            >
               {canComplete &&
               (selectedAppointment.status === 'SCHEDULED' ||
                 selectedAppointment.status === 'CONFIRMED') ? (
                 <CompleteSessionButton
                   appointmentId={selectedAppointment.id}
-                  className="w-full h-11 px-5 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] text-[#181700] font-bold text-xs sm:text-[13px] transition-colors hover:bg-[var(--hafta-ylw-200)] whitespace-nowrap shrink-0"
+                  className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)] sm:h-11 sm:px-5 sm:text-[13px]"
                 />
               ) : null}
-              {/* Baris 2: Aksi pendukung (full width sekunder) */}
               <Link
                 href={`/dashboard/appointments/${selectedAppointment.id}`}
-                className="w-full h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-200 bg-white text-[#181700] font-bold text-xs sm:text-[13px] transition-colors hover:bg-stone-50 whitespace-nowrap shrink-0"
+                className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full border border-stone-200/90 bg-white px-4 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100 sm:h-11 sm:px-5 sm:text-[13px]"
               >
                 Buka Manajemen Sesi
               </Link>
@@ -548,23 +559,49 @@ export function TherapyCalendarView({
         }
       >
         {selectedAppointment && (
-          <div className="space-y-4">
-            <div className="rounded-2xl border border-stone-200/90 bg-stone-50/50 p-4">
-              <p className="text-xs font-medium text-stone-500">Pasien</p>
-              <p className="mt-1 text-sm font-bold text-[#181700]">{selectedAppointment.patientName}</p>
-              <p className="mt-0.5 text-xs text-stone-500">Terapis: {selectedAppointment.therapistName ?? '-'}</p>
-            </div>
-            {[
-              ['Tanggal', formatLongDate(parseDateKey(dateKey(selectedAppointment.scheduledDate)))],
-              ['Waktu', `${selectedAppointment.startTime} • ${selectedAppointment.durationMinutes} menit`],
-              ['Tipe', TYPE_LABELS[selectedAppointment.type] ?? selectedAppointment.type],
-              ['Status', STATUS_LABELS[selectedAppointment.status] ?? selectedAppointment.status],
-            ].map(([label, value]) => (
-              <div key={label} className="rounded-xl border border-stone-200/80 p-3">
-                <p className="text-xs font-medium text-stone-500">{label}</p>
-                <p className="mt-1 text-sm font-medium text-[#181700]">{value}</p>
+          <div className="space-y-3">
+            <div className="rounded-2xl border border-stone-200/70 bg-[#FBFBFA] p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+                    Pasien
+                  </p>
+                  <p className="mt-1 truncate text-sm font-bold text-[#181700]">
+                    {selectedAppointment.patientName}
+                  </p>
+                  <p className="mt-0.5 truncate text-xs text-stone-500">
+                    Terapis: {selectedAppointment.therapistName ?? '-'}
+                  </p>
+                </div>
+                <span
+                  className={cn(
+                    'shrink-0 rounded-full border px-2.5 py-1 text-[10px] font-bold',
+                    statusBadgeClass(selectedAppointment.status),
+                  )}
+                >
+                  {STATUS_LABELS[selectedAppointment.status] ?? selectedAppointment.status}
+                </span>
               </div>
-            ))}
+            </div>
+
+            <div className="rounded-2xl border border-stone-200/70 bg-white p-4">
+              <dl className="space-y-3">
+                {[
+                  ['Tanggal', formatLongDate(parseDateKey(dateKey(selectedAppointment.scheduledDate)))],
+                  ['Waktu', `${selectedAppointment.startTime} • ${selectedAppointment.durationMinutes} menit WIB`],
+                  ['Tipe', TYPE_LABELS[selectedAppointment.type] ?? selectedAppointment.type],
+                ].map(([label, value]) => (
+                  <div key={label} className="min-w-0">
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-stone-400">
+                      {label}
+                    </dt>
+                    <dd className="mt-1 text-xs font-semibold leading-relaxed text-[#181700] sm:text-sm">
+                      {value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
           </div>
         )}
       </GlobalSlideOver>
@@ -604,8 +641,8 @@ function AgendaView({ monthEvents, onSelect }: { monthEvents: CalendarAppointmen
   }
 
   return (
-    <div className="flex-1 overflow-y-auto overscroll-contain p-4 lg:p-5">
-      <div className="space-y-5">
+    <div className="flex-1 overflow-y-auto overscroll-contain p-3.5 sm:p-4 lg:p-5">
+      <div className="space-y-4 sm:space-y-5">
         {grouped.map(([key, items]) => (
           <section key={key}>
             <h3 className="mb-2 text-xs font-semibold text-stone-500">{formatLongDate(parseDateKey(key))}</h3>

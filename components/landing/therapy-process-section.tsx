@@ -102,7 +102,7 @@ export function TherapyProcessSection() {
         <div className="mt-14 hidden lg:grid lg:grid-cols-3 gap-6">
           {steps.map((step, index) => (
             <ScrollAnimation key={step.number} delay={index * 0.05}>
-              <div className="group flex h-full flex-col justify-between rounded-2xl border border-stone-200/80 bg-white p-6 shadow-sm transition-all duration-300 hover:border-[var(--hafta-ylw-200)] hover:shadow-md">
+              <div className="group flex h-full flex-col justify-between rounded-2xl border border-stone-200/80 bg-white p-3.5 sm:p-5 shadow-sm transition-all duration-300 hover:border-[var(--hafta-ylw-200)] hover:shadow-md">
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-sm font-bold text-[var(--hafta-ylw-950)] shadow-sm transition-transform duration-300 group-hover:scale-105">

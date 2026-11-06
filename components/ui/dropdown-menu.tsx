@@ -57,6 +57,14 @@ function DropdownMenu({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [open, setOpen]);
 
+  // Close on scroll so the fixed-position menu never detaches from its trigger.
+  React.useEffect(() => {
+    if (!open) return;
+    const closeOnScroll = () => setOpen(false);
+    window.addEventListener('scroll', closeOnScroll, true);
+    return () => window.removeEventListener('scroll', closeOnScroll, true);
+  }, [open, setOpen]);
+
   // Close when clicking/tapping outside the trigger and the content
   React.useEffect(() => {
     if (!open) return;
@@ -270,7 +278,7 @@ function DropdownMenuContent({ className, children, align = "end", side = "botto
             }),
       }}
       className={cn(
-        'z-[70] min-w-48 overflow-hidden rounded-lg border border-border bg-white p-1.5 text-popover-foreground shadow-lg',
+        'z-50 flex min-w-48 flex-col gap-1 overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-2 text-popover-foreground shadow-[0_12px_32px_rgba(24,23,0,0.14)]',
         resolvedSide === "top" && 'min-w-0 rounded-2xl p-2 shadow-xl',
         withinWrapper && 'shadow-sm',
         className,
@@ -306,7 +314,7 @@ function DropdownMenuItem({ className, onClick, ...props }: React.ComponentProps
       type="button"
       role="menuitem"
       className={cn(
-        "flex w-full min-h-[40px] cursor-pointer items-center gap-2.5 rounded-xl px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#181700] outline-none transition-colors hover:bg-stone-50 focus:bg-stone-50 disabled:pointer-events-none disabled:opacity-50",
+        "flex w-full min-h-[42px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-[#181700] outline-none transition-colors hover:bg-stone-100 focus:bg-stone-100 disabled:pointer-events-none disabled:opacity-50 sm:text-sm",
         className,
       )}
       onClick={(event) => {

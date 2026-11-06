@@ -6,6 +6,11 @@ export const metadata: Metadata = {
   description: 'Masuk ke akun Hafta Fisioterapi untuk mengakses patient portal Anda.',
 };
 
-export default function LoginPage({ searchParams }: { searchParams: { reason?: string } }) {
-  return <LoginForm reason={searchParams.reason} />;
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reason?: string }>;
+}) {
+  const { reason } = await searchParams;
+  return <LoginForm reason={reason} />;
 }

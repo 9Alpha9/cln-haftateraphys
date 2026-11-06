@@ -9,11 +9,13 @@ const ROLE_LABELS: Record<Role, string> = {
 };
 
 const ROLE_COLORS: Record<Role, string> = {
-  SUPER_ADMIN: 'bg-primary/10 text-primary',
-  ADMIN: 'bg-primary/10 text-primary',
-  THERAPIST: 'bg-primary/10 text-primary',
-  STAFF: 'bg-primary/10 text-primary',
-  USER: 'bg-primary/10 text-primary',
+  SUPER_ADMIN:
+    'border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-100)] text-[#181700]',
+  ADMIN: 'border border-stone-200 bg-stone-100 text-[#181700]',
+  THERAPIST:
+    'border border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]',
+  STAFF: 'border border-blue-200 bg-blue-50 text-blue-700',
+  USER: 'border border-stone-200 bg-stone-50 text-stone-600',
 };
 
 export function getRoleLabel(role: Role): string {

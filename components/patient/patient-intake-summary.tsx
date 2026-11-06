@@ -19,6 +19,7 @@ export type PatientIntakeHistoryItem = {
   currentMedication: string | null;
   allergies: string | null;
   patientGoal: string | null;
+  photos: string | null;
   reviewMessage: string | null;
   reviewedAt: Date | null;
   dataAccuracyAcknowledged: number;
@@ -64,6 +65,20 @@ export const INTAKE_STATUS_META: Record<
   },
 };
 
+function parsePhotos(value: string | null | undefined): IntakeDraftInput['photos'] {
+  if (!value) return [];
+  try {
+    const parsed = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (item): item is { name: string; type: string; size: number; data: string } =>
+        Boolean(item && typeof item.name === 'string' && typeof item.data === 'string'),
+    );
+  } catch {
+    return [];
+  }
+}
+
 export function intakeToFormValues(intake: PatientIntakeHistoryItem): Partial<IntakeDraftInput> {
   return {
     chiefComplaint: intake.chiefComplaint ?? '',
@@ -79,6 +94,7 @@ export function intakeToFormValues(intake: PatientIntakeHistoryItem): Partial<In
     currentMedication: intake.currentMedication ?? '',
     allergies: intake.allergies ?? '',
     patientGoal: intake.patientGoal ?? '',
+    photos: parsePhotos(intake.photos),
     dataAccuracyAcknowledged: intake.dataAccuracyAcknowledged === 1,
   };
 }
@@ -94,7 +110,7 @@ function formatDate(value: Date | null) {
 
 const SUMMARY_SECTIONS = [
   {
-    title: 'Keluhan utama',
+    title: 'Keluhan utama (RPS)',
     fields: [
       ['Keluhan yang dirasakan', 'chiefComplaint'],
       ['Area keluhan', 'affectedArea'],
@@ -112,7 +128,7 @@ const SUMMARY_SECTIONS = [
     ],
   },
   {
-    title: 'Riwayat kesehatan',
+    title: 'Riwayat penyakit dahulu (RPD)',
     fields: [
       ['Riwayat cedera', 'previousInjuryHistory'],
       ['Riwayat operasi', 'surgeryHistory'],
@@ -127,7 +143,7 @@ export function PatientIntakeSummaryContent({ intake }: { intake: PatientIntakeH
   const meta = INTAKE_STATUS_META[intake.status];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <div className="border-b border-stone-200 pb-5">
         <div className="flex flex-wrap items-center gap-2">
           <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${meta.tone}`}>
@@ -153,6 +169,23 @@ export function PatientIntakeSummaryContent({ intake }: { intake: PatientIntakeH
           </div>
         ) : null}
       </div>
+
+      {parsePhotos(intake.photos).length > 0 ? (
+        <section>
+          <h3 className="text-sm font-bold text-[#181700]">Foto kondisi</h3>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {parsePhotos(intake.photos).map((photo, index) => (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                key={`${photo.name}-${index}`}
+                src={photo.data}
+                alt={photo.name}
+                className="h-32 w-full rounded-2xl border border-stone-200 object-cover"
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {SUMMARY_SECTIONS.map((section) => (
         <section key={section.title}>

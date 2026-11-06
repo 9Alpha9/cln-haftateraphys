@@ -28,7 +28,7 @@ export default async function CalendarPage({
   ]);
 
   return (
-    <div className="flex min-h-[calc(100vh-64px)] flex-col gap-6">
+    <div className="flex flex-col gap-4 sm:gap-6">
       <DashboardPageHeader
         title="Jadwal Terapi (Calendar View)"
         description="Pantau dan kelola jadwal sesi terapi mingguan secara detail."

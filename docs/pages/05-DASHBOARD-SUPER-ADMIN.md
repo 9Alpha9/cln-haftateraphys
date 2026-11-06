@@ -263,3 +263,27 @@ Permission matrix editor must not become source-of-truth on client; server valid
 - [ ] dangerous actions use confirmation;
 - [ ] permission changes reflected by server authorization;
 - [ ] tests cover attempted self/other privilege escalation edge cases.
+
+
+## 14. Implementation notes (2026-11-06)
+
+Status aktual yang sudah berjalan:
+
+- daftar pengguna dengan search server-side, pagination, dan page size;
+- status akun `ACTIVE` / `SUSPENDED`;
+- suspend/reactivate dengan konfirmasi, audit, dan pencabutan sesi aktif;
+- role assignment oleh `SUPER_ADMIN`;
+- audit viewer read-only.
+
+Belum termasuk v1:
+
+- `PermissionMatrixEditor` / UI permission management (permission masih code-defined di `lib/permissions/roles.ts`);
+- status `INVITED` / `DISABLED`;
+- resend verification/invite;
+- UI daftar & revoke sesi terpisah (revoke saat ini terjadi lewat suspend);
+- clinical access untuk `SUPER_ADMIN` diberikan eksplisit per grant, bukan otomatis.
+
+Catatan acceptance:
+
+- `SUPER_ADMIN without clinical permission cannot access clinical records` sudah ditegakkan pada permission check dan navigasi; route klinis direct-URL diarahkan kembali ke dashboard.
+- `permission changes reflected by server authorization` berlaku untuk perubahan kode role matrix; belum ada editor runtime.

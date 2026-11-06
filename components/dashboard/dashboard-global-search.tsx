@@ -139,12 +139,12 @@ export function DashboardGlobalSearch({ role }: { role: Role }) {
                   : 'Ketik nama pasien, jadwal terapi, atau modul sistem...'}
               </div>
             ) : isPending ? (
-              <div className="flex items-center justify-center py-6 gap-2 text-xs text-stone-500">
+              <div className="flex items-center justify-center py-4 sm:py-6 gap-2 text-xs text-stone-500">
                 <Loader2 className="h-4 w-4 animate-spin text-[#181700]" />
                 <span>Mencari data...</span>
               </div>
             ) : activeResults.length === 0 ? (
-              <div className="px-3 py-5 text-center text-xs text-stone-500">
+              <div className="px-3 py-3.5 sm:py-5 text-center text-xs text-stone-500">
                 Tidak ada data yang sesuai dengan kata kunci &ldquo;{query}&rdquo;.
               </div>
             ) : (

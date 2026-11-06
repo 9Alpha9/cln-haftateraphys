@@ -5,6 +5,7 @@ import { MoreVertical, FileDown, Loader2, Printer } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
 import { pdf } from '@react-pdf/renderer';
 import { MedicalRecordDocument, type MedicalRecordPdfData } from '@/components/pdf/medical-record-document';
+import { recordClinicalRecordExport } from '@/server/actions/audit-export';
 
 function safeFilePart(value: string) {
   return value.replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, ' ').trim();
@@ -19,6 +20,7 @@ export function useMedicalRecordPdf(record: MedicalRecordPdfData) {
   const openPrintPage = async () => {
     setPrinting(true);
     try {
+      void recordClinicalRecordExport(record.id, 'print');
       const blob = await pdf(<MedicalRecordDocument record={record} />).toBlob();
       const url = URL.createObjectURL(blob);
 
@@ -41,12 +43,14 @@ export function useMedicalRecordPdf(record: MedicalRecordPdfData) {
   const downloadPdf = async () => {
     setLoading(true);
     try {
+      void recordClinicalRecordExport(record.id, 'pdf');
       const blob = await pdf(<MedicalRecordDocument record={record} />).toBlob();
       const url = URL.createObjectURL(blob);
 
       const date = new Date(record.recordedAt);
-      const datePart = date.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
-      const filename = `Hafta Fisioterapi - ${safeFilePart(record.patientName)} - ${record.id.slice(0, 8).toUpperCase()} - ${datePart}.pdf`;
+      const datePart = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const rmPart = safeFilePart(record.medicalRecordNumber || record.id.slice(0, 8).toUpperCase());
+      const filename = `${safeFilePart(record.patientName)}-${rmPart}-${datePart}.pdf`;
 
       const link = document.createElement('a');
       link.href = url;
@@ -101,7 +105,7 @@ export function MedicalRecordActions({ record, className }: { record: MedicalRec
 
       {/* Rule #2: panel absolute menempel di atas tombol, dalam DOM yang sama */}
       {isOpen && (
-        <div className="absolute bottom-full right-0 z-10 mb-2 w-48 origin-bottom-right rounded-2xl border border-stone-200 bg-white p-2 shadow-xl">
+        <div className="absolute bottom-full right-0 z-20 mb-2 flex w-48 origin-bottom-right flex-col gap-1 rounded-2xl border border-stone-200/90 bg-white p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]">
           <button
             type="button"
             onClick={() => {
@@ -109,7 +113,7 @@ export function MedicalRecordActions({ record, className }: { record: MedicalRec
               void openPrintPage();
             }}
             disabled={printing}
-            className="hover:bg-stone-50 cursor-pointer rounded-full font-medium flex items-center gap-2 w-full px-3 py-2 text-left text-xs sm:text-sm text-stone-700 transition-colors"
+            className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-[#181700] sm:text-sm"
           >
             <div className="flex items-center gap-2">
               {printing ? (
@@ -127,7 +131,7 @@ export function MedicalRecordActions({ record, className }: { record: MedicalRec
               void downloadPdf();
             }}
             disabled={loading}
-            className="hover:bg-stone-50 cursor-pointer rounded-full font-medium flex items-center gap-2 w-full px-3 py-2 text-left text-xs sm:text-sm text-stone-700 transition-colors"
+            className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-[#181700] sm:text-sm"
           >
             <div className="flex items-center gap-2">
               {loading ? (

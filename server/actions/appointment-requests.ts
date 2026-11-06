@@ -262,7 +262,9 @@ export async function reschedulePatientAppointment(input: RescheduleAppointmentI
     )
     .limit(1);
   if (pendingReschedule) {
-    throw new Error('Pengajuan perubahan jadwal untuk sesi ini masih menunggu konfirmasi terapis.');
+    throw new Error(
+      'Anda sudah memiliki pengajuan perubahan jadwal yang sedang menunggu konfirmasi dari terapis. Mohon tunggu hingga disetujui.',
+    );
   }
 
   if (

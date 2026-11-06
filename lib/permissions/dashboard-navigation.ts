@@ -87,13 +87,17 @@ const adminNavigation: DashboardNavGroup[] = [
       },
     ],
   },
+  {
+    label: 'Akun Saya',
+    items: [{ label: 'Data Saya', href: '/dashboard/profile', icon: Users }],
+  },
 ];
 
 const patientNavigation: DashboardNavGroup[] = [
   {
     label: 'Main',
     items: [
-      { label: 'Dashboard', href: '/dashboard', icon: ClipboardList },
+      { label: 'Beranda', href: '/dashboard', icon: ClipboardList },
       { label: 'Jadwal', href: '/dashboard/appointments', icon: CalendarDays },
       {
         label: 'Rekam Medis',

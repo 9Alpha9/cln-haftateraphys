@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { canAccessDashboardPath } from '@/lib/permissions/dashboard-routes';
 
 describe('dashboard route access policy', () => {
-  it('keeps patient-only routes restricted to USER', () => {
+  it('allows every role to access their own profile page', () => {
     expect(canAccessDashboardPath('USER', '/dashboard/profile')).toBe(true);
-    expect(canAccessDashboardPath('ADMIN', '/dashboard/profile')).toBe(false);
-    expect(canAccessDashboardPath('SUPER_ADMIN', '/dashboard/profile')).toBe(false);
+    expect(canAccessDashboardPath('THERAPIST', '/dashboard/profile')).toBe(true);
+    expect(canAccessDashboardPath('ADMIN', '/dashboard/profile')).toBe(true);
+    expect(canAccessDashboardPath('SUPER_ADMIN', '/dashboard/profile')).toBe(true);
   });
 
   it('blocks staff routes for patients', () => {

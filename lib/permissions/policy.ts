@@ -38,7 +38,8 @@ export class UnauthenticatedError extends Error {
 }
 
 export function hasPermission(role: Role, permission: Permission): boolean {
-  if (role === 'SUPER_ADMIN') return true;
+  // SUPER_ADMIN is not a wildcard. Clinical access must be granted explicitly
+  // (see MASTER-PRD SA-005 and docs/PERMISSIONS.md).
   const rolePermissions = ROLE_PERMISSIONS[role];
   return rolePermissions?.includes(permission) ?? false;
 }

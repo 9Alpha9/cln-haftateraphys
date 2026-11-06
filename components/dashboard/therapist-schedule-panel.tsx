@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { CalendarClock, Loader2, Save } from 'lucide-react';
+import { CalendarClock, Clock, Loader2, Save } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import {
   TherapistScheduleEditor,
@@ -12,11 +12,25 @@ import type { TherapistScheduleOverview } from '@/server/queries/therapist-sched
 export function TherapistSchedulePanel({
   therapists,
   label = 'Atur Jadwal Kerja',
+  asMenuItem = false,
+  hideTrigger = false,
+  open: openProp,
+  onOpenChange,
 }: {
   therapists: TherapistScheduleOverview[];
   label?: string;
+  asMenuItem?: boolean;
+  hideTrigger?: boolean;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = openProp ?? internalOpen;
+
+  function setIsOpen(value: boolean) {
+    if (openProp === undefined) setInternalOpen(value);
+    onOpenChange?.(value);
+  }
   const [isSaving, setIsSaving] = useState(false);
   const formId = useId();
   const onlyTherapist = therapists.length === 1 ? therapists[0] : null;
@@ -25,14 +39,24 @@ export function TherapistSchedulePanel({
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setIsOpen(true)}
-        className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-200/90 bg-white px-5 text-xs sm:text-[13px] font-semibold text-[#181700] shadow-2xs transition-colors hover:bg-stone-100 whitespace-nowrap shrink-0"
-      >
-        <CalendarClock className="h-4 w-4 shrink-0" />
-        {label}
-      </button>
+      {!hideTrigger ? (
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className={
+            asMenuItem
+              ? 'flex w-full items-center gap-3 rounded-xl bg-transparent px-3.5 py-2.5 text-left text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100 sm:text-[13px]'
+              : 'inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-200/90 bg-white px-4 sm:px-5 text-xs font-semibold text-[#181700] shadow-2xs transition-colors hover:bg-stone-100 whitespace-nowrap shrink-0 sm:text-[13px]'
+          }
+        >
+          {asMenuItem ? (
+            <Clock className="h-4 w-4 shrink-0 text-stone-600" />
+          ) : (
+            <CalendarClock className="h-4 w-4 shrink-0" />
+          )}
+          {label}
+        </button>
+      ) : null}
 
       <GlobalSlideOver
         isOpen={isOpen}
@@ -49,7 +73,7 @@ export function TherapistSchedulePanel({
               type="submit"
               form={formId}
               disabled={isSaving}
-              className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+              className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
             >
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Simpan Jam Kerja

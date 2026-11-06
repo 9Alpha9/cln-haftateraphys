@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
+import { ImageCropModal } from '@/components/ui/image-crop-modal';
 import { updateCurrentPatientProfile } from '@/server/actions/patient-profile';
 import type { PatientProfileInput } from '@/lib/validators/patient-profile';
 import { useWilayahIndonesia } from '@/lib/use-wilayah-indonesia';
@@ -24,6 +25,7 @@ export function PatientProfileForm({
 }) {
   const [pending, startTransition] = useTransition();
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initialAvatarUrl ?? null);
+  const [cropSource, setCropSource] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const {
     provinces,
@@ -53,11 +55,10 @@ export function PatientProfileForm({
       setError('root', { message: 'Format foto harus JPG, PNG, atau WebP.' });
       return;
     }
+    e.target.value = '';
     const reader = new FileReader();
     reader.onload = () => {
-      const dataUrl = String(reader.result ?? '');
-      setAvatarPreview(dataUrl);
-      setValue('avatarKey', dataUrl, { shouldDirty: true });
+      setCropSource(String(reader.result ?? ''));
     };
     reader.readAsDataURL(file);
   }
@@ -85,8 +86,8 @@ export function PatientProfileForm({
           <AlertDescription>{errors.root.message}</AlertDescription>
         </Alert>
       ) : null}
-      <section className="space-y-5">
-        <div className="flex flex-col gap-5 rounded-2xl border border-accent/20 bg-accent/[0.04] p-5 sm:flex-row sm:items-center">
+      <section className="space-y-4 sm:space-y-5">
+        <div className="flex flex-col gap-4 sm:gap-5 rounded-2xl border border-accent/20 bg-accent/[0.04] p-3.5 sm:p-5 sm:flex-row sm:items-center">
           <div className="relative mx-auto sm:mx-0">
             <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white shadow-sm">
               {avatarPreview ? (
@@ -109,14 +110,11 @@ export function PatientProfileForm({
           <div className="flex-1 text-center sm:text-left">
             <h3 className="text-sm font-bold text-foreground">Foto Profil</h3>
             <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-              JPG, PNG maksimal 2MB. Klik ikon kamera untuk mengganti foto.
+              JPG, PNG maksimal 2MB. Klik ikon kamera pada foto untuk mengganti.
             </p>
             <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={onAvatarChange} />
-            <div className="mt-3 flex justify-center gap-2 sm:justify-start">
-              <Button type="button" size="sm" onClick={() => fileRef.current?.click()} className="bg-accent text-accent-foreground hover:bg-accent/90">
-                Pilih Foto
-              </Button>
-              {avatarPreview ? (
+            {avatarPreview ? (
+              <div className="mt-3 flex justify-center sm:justify-start">
                 <Button
                   type="button"
                   variant="ghost"
@@ -129,8 +127,8 @@ export function PatientProfileForm({
                 >
                   Hapus
                 </Button>
-              ) : null}
-            </div>
+              </div>
+            ) : null}
           </div>
         </div>
         <div>
@@ -139,7 +137,7 @@ export function PatientProfileForm({
             Email akun dikelola melalui pengaturan akun dan tidak dapat diubah dari form ini.
           </p>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="fullName">Nama lengkap *</Label>
             <Input
@@ -233,7 +231,7 @@ export function PatientProfileForm({
                 id="addressCity"
                 disabled={pending || !regencies.length || loadingRegencies}
                 defaultValue={initialValues.addressCity ?? ''}
-                className="h-10 w-full cursor-pointer appearance-none rounded-lg border border-stone-200/90 bg-white pl-3 pr-10 text-sm text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 disabled:opacity-50"
+                className="h-10 w-full cursor-pointer appearance-none rounded-xl border border-stone-200/90 bg-white pl-3 pr-10 text-sm text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 disabled:opacity-50"
                 {...register('addressCity')}
                 onChange={(event) => setValue('addressCity', event.target.value)}
               >
@@ -261,7 +259,7 @@ export function PatientProfileForm({
           <h2 className="font-semibold text-foreground">Kontak Darurat</h2>
           <p className="text-sm text-muted-foreground">Isi bila diperlukan untuk kelancaran layanan.</p>
         </div>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="emergencyContactName">Nama kontak</Label>
             <Input id="emergencyContactName" disabled={pending} {...register('emergencyContactName')} />
@@ -281,6 +279,19 @@ export function PatientProfileForm({
           {pending ? 'Menyimpan...' : 'Simpan Data'}
         </Button>
       </div>
+
+      <ImageCropModal
+        isOpen={Boolean(cropSource)}
+        imageSrc={cropSource}
+        title="Atur Foto Profil"
+        description="Geser foto untuk mengatur posisi, lalu perbesar atau perkecil. Hasil crop berbentuk persegi dan ditampilkan sebagai avatar bulat."
+        onCancel={() => setCropSource(null)}
+        onConfirm={(cropped) => {
+          setAvatarPreview(cropped);
+          setValue('avatarKey', cropped, { shouldDirty: true });
+          setCropSource(null);
+        }}
+      />
     </form>
   );
 }

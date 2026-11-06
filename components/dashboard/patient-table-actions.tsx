@@ -4,10 +4,9 @@ import { useState, useTransition, useCallback, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { Archive, Eye, MoreVertical } from 'lucide-react';
+import { Archive, MoreVertical } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { archivePatient } from '@/server/actions/patients';
-import { PatientDetailDrawer } from '@/components/dashboard/patients/patient-detail-drawer';
 import { cn } from '@/lib/utils';
 
 export function PatientTableActions({
@@ -29,7 +28,6 @@ export function PatientTableActions({
   const [showConfirm, setShowConfirm] = useState(false);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0, width: 176, direction: 'bottom' as 'top' | 'bottom' });
   const router = useRouter();
-  const [showDetail, setShowDetail] = useState(false);
   const triggerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -92,11 +90,17 @@ export function PatientTableActions({
     };
     window.addEventListener('keydown', handleEscape);
     window.addEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', closeMenu, true);
+    window.addEventListener('resize', closeMenu);
     return () => {
       window.removeEventListener('keydown', handleEscape);
       window.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', closeMenu, true);
+      window.removeEventListener('resize', closeMenu);
     };
   }, [closeMenu]);
+
+  if (!canArchive) return null;
 
   return (
     <div className="relative inline-flex shrink-0" ref={triggerRef}>
@@ -111,7 +115,7 @@ export function PatientTableActions({
             openMenu();
           }
         }}
-        className="w-9 h-9 min-w-[36px] min-h-[36px] aspect-square p-0 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 inline-flex items-center justify-center shrink-0 cursor-pointer transition-all focus-visible:outline-none focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[#f7f000]/35 gap-0 px-0"
+        className="h-10 w-10 min-w-[40px] min-h-[40px] aspect-square p-0 rounded-full border border-stone-200/90 bg-white text-[#181700] inline-flex shrink-0 cursor-pointer items-center justify-center gap-0 shadow-2xs transition-all hover:bg-stone-100 focus-visible:outline-none focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[#f7f000]/35"
       >
         <MoreVertical className="w-4 h-4 shrink-0 text-[#181700]" />
       </button>
@@ -128,40 +132,26 @@ export function PatientTableActions({
             transform: menuPosition.direction === 'top' ? 'translateY(-100%)' : undefined,
           }}
           className={cn(
-            'z-[60] rounded-2xl bg-white shadow-[0_12px_32px_rgba(24,23,0,0.14)] p-1.5 flex flex-col gap-0.5',
+            'z-20 flex flex-col gap-1 rounded-2xl border border-stone-200/90 bg-white p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]',
             menuPosition.direction === 'top' ? 'origin-bottom-right' : 'origin-top-right',
           )}
         >
           <button
             type="button"
+            disabled={pending}
             onClick={() => {
               closeMenu();
-              setShowDetail(true);
+              setShowConfirm(true);
             }}
-            className="w-full px-3.5 py-2.5 text-xs sm:text-[13px] font-semibold text-[#181700] bg-transparent hover:bg-stone-100 flex items-center gap-3 cursor-pointer transition-colors text-left rounded-xl justify-start"
+            className="group w-full rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold text-[#181700] bg-transparent hover:bg-red-600 hover:text-white flex items-center gap-3 cursor-pointer transition-colors justify-start sm:text-[13px]"
           >
-            <Eye className="w-4 h-4 shrink-0 text-stone-600" />
-            <span className="truncate">Lihat Detail</span>
+            <Archive className="w-4 h-4 shrink-0 text-stone-600 transition-colors group-hover:text-white" />
+            <span className="truncate transition-colors group-hover:text-white">Arsipkan Pasien</span>
           </button>
-          {canArchive ? (
-            <button
-              type="button"
-              disabled={pending}
-              onClick={() => {
-                closeMenu();
-                setShowConfirm(true);
-              }}
-              className="group w-full px-3.5 py-2.5 text-xs sm:text-[13px] font-semibold text-[#181700] bg-transparent hover:bg-red-600 hover:text-white flex items-center gap-3 cursor-pointer transition-colors text-left rounded-xl justify-start"
-            >
-              <Archive className="w-4 h-4 shrink-0 text-stone-600 transition-colors group-hover:text-white" />
-              <span className="truncate transition-colors group-hover:text-white">Arsipkan</span>
-            </button>
-          ) : null}
         </div>,
         document.body,
       )}
 
-      <PatientDetailDrawer isOpen={showDetail} onClose={() => setShowDetail(false)} patientId={patientId} />
       {canArchive && (
         <ConfirmDialog
           isOpen={showConfirm}

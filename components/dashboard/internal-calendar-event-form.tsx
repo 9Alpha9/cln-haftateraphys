@@ -40,13 +40,13 @@ export function InternalCalendarEventForm() {
     });
   }
   return (
-    <form onSubmit={submit} className="space-y-5">
+    <form onSubmit={submit} className="space-y-4 sm:space-y-5">
       {error ? (
         <Alert variant="destructive">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       ) : null}
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="title">Judul event</Label>
           <Input id="title" name="title" required disabled={pending} />
@@ -68,6 +68,7 @@ export function InternalCalendarEventForm() {
             value={scheduledDate}
             onChange={setScheduledDate}
             disabled={pending}
+            disablePast
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -103,15 +104,15 @@ export function InternalCalendarEventForm() {
           id="description"
           name="description"
           disabled={pending}
-          className="flex min-h-28 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:border-accent"
+          className="flex min-h-28 w-full resize-none rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-sm leading-relaxed focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#f7f000]/35"
         />
       </div>
-      <div className="flex items-start gap-3 rounded-lg border border-accent/30 bg-accent/5 p-4 text-sm">
+      <div className="flex items-start gap-3 rounded-xl border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/40 p-3.5 text-sm sm:p-4">
         <input id="patientVisible" type="checkbox" name="patientVisible" className="mt-1 h-4 w-4 shrink-0 accent-[var(--accent)] cursor-pointer" disabled={pending} />
         <span className="select-none">Tampilkan event ini kepada pasien di kalender mereka.</span>
       </div>
       <div className="flex justify-end">
-        <Button type="submit" disabled={pending} className="bg-accent text-accent-foreground hover:bg-accent/90">
+        <Button type="submit" disabled={pending} className="font-bold text-[#181700] shadow-2xs hover:bg-[var(--hafta-ylw-200)]">
           {pending ? 'Menyimpan...' : 'Simpan Event'}
         </Button>
       </div>

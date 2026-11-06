@@ -1,7 +1,7 @@
 ---
 title: Hafta Fisioterapi Security Baseline
-version: 0.1.0
-last_updated: 2026-08-12
+version: 0.2.0
+last_updated: 2026-11-06
 classification: sensitive-application-guidance
 ---
 
@@ -59,7 +59,11 @@ Cookie/session requirements:
 - appropriate SameSite;
 - session rotation/revocation supported;
 - no auth token in localStorage;
-- no role source-of-truth in client state.
+- no role source-of-truth in client state;
+- akun `SUSPENDED` wajib ditolak oleh `requireSession` dan seluruh sesinya dicabut saat suspend;
+- suspend/reactivate wajib tercatat sebagai audit event dan tidak menghapus data klinis;
+- pengguna dapat melihat daftar sesi aktif dan mencabut sesi lain; sesi yang sedang berjalan tidak dapat dicabut dari halaman sesi;
+- pencabutan sesi wajib tercatat sebagai audit event.
 
 ## 5. Authorization
 

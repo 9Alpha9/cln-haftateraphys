@@ -39,7 +39,9 @@ export function LoginForm({ reason }: LoginFormProps) {
       ? 'Sesi Anda telah dikunci otomatis karena tidak ada aktivitas untuk melindungi kerahasiaan data medis. Silakan masuk kembali.'
       : reason === 'closed'
         ? 'Sesi sebelumnya telah berakhir saat browser ditutup. Silakan masuk kembali untuk melanjutkan.'
-        : null;
+        : reason === 'suspended'
+          ? 'Akun Anda sedang ditangguhkan. Hubungi admin Hafta untuk informasi lebih lanjut.'
+          : null;
 
   useEffect(() => {
     const saved = window.localStorage.getItem(REMEMBER_EMAIL_KEY);
@@ -114,6 +116,13 @@ export function LoginForm({ reason }: LoginFormProps) {
           if (errData?.code === 'EMAIL_NOT_VERIFIED') {
             setGeneralError(
               'Email Anda belum diverifikasi. Silakan periksa inbox atau spam untuk tautan verifikasi.'
+            );
+            return;
+          }
+
+          if (errData?.code === 'ACCOUNT_SUSPENDED') {
+            setGeneralError(
+              'Akun Anda sedang ditangguhkan. Hubungi admin Hafta untuk informasi lebih lanjut.'
             );
             return;
           }

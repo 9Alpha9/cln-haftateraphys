@@ -23,6 +23,7 @@ export type PatientPortalAppointment = {
   durationMinutes: number;
   type: string;
   status: string;
+  therapistId: string;
   therapistName: string | null;
   administrativeNote: string | null;
 };
@@ -38,6 +39,8 @@ export type PatientAppointmentRequestView = {
   patientNote: string | null;
   reviewNote: string | null;
   rescheduleAppointmentId: string | null;
+  rescheduleFromDate: string | null;
+  rescheduleFromTime: string | null;
   createdAt: Date;
 };
 
@@ -91,6 +94,7 @@ export async function getPatientPortalAppointments(): Promise<PatientPortalAppoi
       durationMinutes: appointments.durationMinutes,
       type: appointments.type,
       status: appointments.status,
+      therapistId: appointments.therapistId,
       therapistName: users.name,
       administrativeNote: appointments.administrativeNote,
     })
@@ -116,10 +120,14 @@ export async function getPatientAppointmentRequests(): Promise<PatientAppointmen
       patientNote: appointmentRequests.patientNote,
       reviewNote: appointmentRequests.reviewNote,
       rescheduleAppointmentId: appointmentRequests.rescheduleAppointmentId,
+      rescheduleFromDate: appointments.scheduledDate,
+      rescheduleFromTime: appointments.startTime,
       createdAt: appointmentRequests.createdAt,
     })
     .from(appointmentRequests)
+    .innerJoin(patients, eq(appointmentRequests.patientId, patients.id))
     .innerJoin(users, eq(appointmentRequests.therapistId, users.id))
+    .leftJoin(appointments, eq(appointmentRequests.rescheduleAppointmentId, appointments.id))
     .where(eq(appointmentRequests.patientId, patient.id))
     .orderBy(desc(appointmentRequests.createdAt));
 }

@@ -2,9 +2,9 @@
 
 import { useEffect, useId, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Activity, ClipboardList, Eye, Loader2, Lock, Save, Stethoscope, UserRound } from 'lucide-react';
+import { Activity, ClipboardList, Eye, EyeOff, FilePenLine, Loader2, Lock, Save, Stethoscope, UserRound } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
-import { Select } from '@/components/ui/select';
+import { AppSelect } from '@/components/ui/app-select';
 import { useToast } from '@/components/ui/toast';
 import {
   finalizeTherapyProgress,
@@ -66,6 +66,9 @@ export function MedicalRecordFormDrawer({
   onSaved,
 }: Props) {
   const [isSaving, setIsSaving] = useState(false);
+  const [canSubmit, setCanSubmit] = useState(
+    Boolean(record ?? defaultPatientId ?? (patientOptions.length === 1 ? patientOptions[0].id : '')),
+  );
   const formId = useId();
 
   function handleClose() {
@@ -79,15 +82,19 @@ export function MedicalRecordFormDrawer({
       onClose={handleClose}
       size="lg"
       icon={<Activity className="h-5 w-5" />}
-      title={record ? 'Edit Rekam Medis' : 'Tambah Evaluasi'}
-      subtitle={record ? record.patientName : 'Lengkapi indikator klinis dan catatan SOAP'}
+      title={record ? (record.amendedFromId ? 'Edit Amandemen' : 'Edit Rekam Medis') : 'Tambah Rekam Medis'}
+      subtitle={
+        record
+          ? `${record.patientName}${record.amendedFromId ? ` · Amandemen R${record.revisionNumber ?? 2}` : ''}`
+          : 'Lengkapi indikator klinis dan catatan SOAP'
+      }
       footer={
         <div className="flex items-center justify-between gap-3 w-full">
           <button
             type="submit"
             form={formId}
-            disabled={isSaving}
-            className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+            disabled={isSaving || !canSubmit}
+            className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--hafta-ylw-100)]"
           >
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Simpan
@@ -96,7 +103,7 @@ export function MedicalRecordFormDrawer({
             type="button"
             onClick={handleClose}
             disabled={isSaving}
-            className="h-10 sm:h-11 px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
+            className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
           >
             Batal
           </button>
@@ -108,6 +115,7 @@ export function MedicalRecordFormDrawer({
           key={record?.id ?? `new-${defaultPatientId ?? 'record'}`}
           formId={formId}
           onPendingChange={setIsSaving}
+          onPatientReadyChange={setCanSubmit}
           onClose={handleClose}
           record={record}
           patientOptions={patientOptions}
@@ -131,9 +139,11 @@ function MedicalRecordForm({
   onSaved,
   formId,
   onPendingChange,
+  onPatientReadyChange,
 }: Omit<Props, 'isOpen'> & {
   formId: string;
   onPendingChange?: (pending: boolean) => void;
+  onPatientReadyChange?: (ready: boolean) => void;
 }) {
   const router = useRouter();
   const { showToast } = useToast();
@@ -146,11 +156,18 @@ function MedicalRecordForm({
   });
   const [status, setStatus] = useState<'DRAFT' | 'FINALIZED'>(record?.status ?? defaultStatus);
   const [patientVisible, setPatientVisible] = useState(record?.patientVisible ? '1' : '0');
-  const [patientId, setPatientId] = useState(record?.patientId ?? defaultPatientId ?? '');
+  const [patientId, setPatientId] = useState(
+    record?.patientId ?? defaultPatientId ?? (patientOptions.length === 1 ? patientOptions[0].id : ''),
+  );
+  const fieldsDisabled = pending || !patientId;
 
   useEffect(() => {
     onPendingChange?.(pending);
   }, [onPendingChange, pending]);
+
+  useEffect(() => {
+    onPatientReadyChange?.(Boolean(patientId));
+  }, [onPatientReadyChange, patientId]);
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -172,8 +189,10 @@ function MedicalRecordForm({
         functionScore: scores.functionScore,
         anamnesis: String(formData.get('anamnesis') ?? ''),
         physicalExamination: String(formData.get('physicalExamination') ?? ''),
+        medicalHistory: String(formData.get('medicalHistory') ?? ''),
         diagnosis: String(formData.get('diagnosis') ?? ''),
         treatment: String(formData.get('treatment') ?? ''),
+        evaluation: String(formData.get('evaluation') ?? ''),
         followUpPlan: String(formData.get('followUpPlan') ?? ''),
         summary: String(formData.get('summary') ?? ''),
         patientVisible: Number(patientVisible),
@@ -209,9 +228,9 @@ function MedicalRecordForm({
   }
 
   return (
-    <form id={formId} onSubmit={handleSubmit} className="space-y-6">
+    <form id={formId} onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
         {!record && (
-          <div className="rounded-2xl border border-stone-200/90 bg-white p-4">
+          <div className="space-y-3">
             <SectionHeading
               icon={<UserRound className="h-3.5 w-3.5" />}
               title="Pasien"
@@ -226,21 +245,16 @@ function MedicalRecordForm({
               </>
             ) : (
               <div className="mt-3">
-                <Select
+                <AppSelect
                   id="medical-record-patient"
                   name="patientId"
                   value={patientId}
-                  onChange={(event) => setPatientId(event.target.value)}
+                  onChange={setPatientId}
+                  placeholder="Pilih pasien"
                   disabled={pending}
                   required
-                >
-                  <option value="">Pilih pasien</option>
-                  {patientOptions.map((patient) => (
-                    <option key={patient.id} value={patient.id}>
-                      {patient.label}
-                    </option>
-                  ))}
-                </Select>
+                  options={patientOptions.map((patient) => ({ value: patient.id, label: patient.label }))}
+                />
               </div>
             )}
           </div>
@@ -254,7 +268,7 @@ function MedicalRecordForm({
           />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {SCORE_FIELDS.map((field) => (
-            <div key={field.name} className="rounded-2xl border border-stone-200/90 bg-stone-50/60 p-4">
+            <div key={field.name} className="space-y-2">
               <div className="flex items-center justify-between gap-3">
                 <label htmlFor={field.name} className="text-xs font-semibold text-[#181700]">
                   {field.label}
@@ -273,8 +287,8 @@ function MedicalRecordForm({
                 onChange={(event) =>
                   setScores((current) => ({ ...current, [field.name]: Number(event.target.value) }))
                 }
-                disabled={pending}
-                className="mt-4 h-1.5 w-full cursor-pointer accent-[#181700]"
+                disabled={fieldsDisabled}
+                className="mt-4 h-1.5 w-full cursor-pointer accent-[#181700] disabled:cursor-not-allowed disabled:opacity-50"
               />
               <div className="mt-1 flex justify-between font-mono text-[9px] text-stone-400">
                 <span>0</span>
@@ -293,31 +307,35 @@ function MedicalRecordForm({
             description="Finalisasi mengunci rekam medis agar tidak dapat diubah. Ini berbeda dari status sesi 'Selesai' di menu Jadwal. Akses pasien hanya berlaku untuk rekam final yang dibagikan."
           />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-stone-200/90 bg-white p-3">
-              <p className="mb-2 text-[11px] font-medium text-stone-500">Status rekam</p>
+            <div className="space-y-2">
+              <p className="text-[11px] font-medium text-stone-500">Status rekam</p>
               <div className="grid grid-cols-2 gap-1 rounded-full bg-stone-100 p-1">
                 {(['DRAFT', 'FINALIZED'] as const).map((option) => (
                   <button
                     key={option}
                     type="button"
                     onClick={() => setStatus(option)}
-                    disabled={pending}
+                    disabled={fieldsDisabled}
                     className={
                       status === option
-                        ? 'h-8 cursor-pointer rounded-full bg-white text-xs font-bold text-[#181700] shadow-2xs'
-                        : 'h-8 cursor-pointer rounded-full text-xs font-semibold text-stone-500 transition-colors hover:text-[#181700]'
+                        ? 'flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#181700] text-xs font-bold text-white shadow-2xs'
+                        : 'flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-full text-xs font-semibold text-stone-500 transition-colors hover:text-[#181700]'
                     }
                   >
+                    {option === 'DRAFT' ? <FilePenLine className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
                     {option === 'DRAFT' ? 'Draft' : 'Final Terkunci'}
                   </button>
                 ))}
               </div>
+              <p className="text-[10px] leading-relaxed text-stone-500">
+                Draft masih dapat diedit. Final Terkunci menyegel laporan dan tidak dapat diubah lagi.
+              </p>
             </div>
-            <div className="rounded-2xl border border-stone-200/90 bg-white p-3">
-              <p className="mb-2 text-[11px] font-medium text-stone-500">Terlihat oleh</p>
+            <div className="space-y-2">
+              <p className="text-[11px] font-medium text-stone-500">Terlihat oleh</p>
               <div className="grid grid-cols-2 gap-1 rounded-full bg-stone-100 p-1">
                 {[
-                  { value: '0', label: 'Internal', icon: Lock },
+                  { value: '0', label: 'Internal', icon: EyeOff },
                   { value: '1', label: 'Pasien', icon: Eye },
                 ].map((option) => {
                   const Icon = option.icon;
@@ -326,10 +344,10 @@ function MedicalRecordForm({
                       key={option.value}
                       type="button"
                       onClick={() => setPatientVisible(option.value)}
-                      disabled={pending}
+                      disabled={fieldsDisabled}
                       className={
                         patientVisible === option.value
-                          ? 'inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full bg-white text-xs font-bold text-[#181700] shadow-2xs'
+                          ? 'inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full bg-[#181700] text-xs font-bold text-white shadow-2xs'
                           : 'inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full text-xs font-semibold text-stone-500 transition-colors hover:text-[#181700]'
                       }
                     >
@@ -339,6 +357,9 @@ function MedicalRecordForm({
                   );
                 })}
               </div>
+              <p className="text-[10px] leading-relaxed text-stone-500">
+                Internal hanya terlihat oleh terapis dan admin. Pasien menampilkan laporan final di portal pasien.
+              </p>
             </div>
           </div>
         </section>
@@ -347,26 +368,29 @@ function MedicalRecordForm({
           <SectionHeading
             icon={<ClipboardList className="h-3.5 w-3.5" />}
             title="Catatan SOAP"
-            description="Isi temuan dan rencana terapi secara ringkas dan terstruktur."
+            description="SOAP = Subjective (keluhan), Objective (pemeriksaan), Assessment (diagnosa/evaluasi), Plan (tindakan/rencana). Isi sesuai kondisi pasien."
           />
         {[
-          { name: 'anamnesis', label: 'Anamnesis', placeholder: 'Keluhan utama, riwayat, dan faktor pemicu...' },
+          { name: 'anamnesis', label: 'Anamnesa Fisioterapi', placeholder: 'Keluhan utama, riwayat, dan faktor pemicu...' },
           { name: 'physicalExamination', label: 'Pemeriksaan Fisik', placeholder: 'Tanda vital, palpasi, ROM, dan tes spesifik...' },
-          { name: 'diagnosis', label: 'Diagnosis Fisioterapi', placeholder: 'Kesimpulan klinis dan diagnosis fisioterapi...' },
-          { name: 'treatment', label: 'Tindakan', placeholder: 'Modalitas, terapi manual, dan latihan yang diberikan...' },
-          { name: 'followUpPlan', label: 'Rencana Tindak Lanjut', placeholder: 'Edukasi, HEP, dan jadwal kontrol berikutnya...' },
+          { name: 'medicalHistory', label: 'Riwayat Penyakit', placeholder: 'Riwayat penyakit, cedera, operasi, obat, dan alergi...' },
+          { name: 'diagnosis', label: 'Diagnosa', placeholder: 'Kesimpulan klinis dan diagnosis fisioterapi...' },
+          { name: 'treatment', label: 'Terapi / Tindakan', placeholder: 'Modalitas, terapi manual, dan latihan yang diberikan...' },
+          { name: 'evaluation', label: 'Evaluasi', placeholder: 'Perkembangan kondisi dan hasil evaluasi terapi...' },
+          { name: 'followUpPlan', label: 'Keterangan / Rencana Tindak Lanjut', placeholder: 'Edukasi, HEP, dan jadwal kontrol berikutnya...' },
+          { name: 'summary', label: 'Catatan Klinis', placeholder: 'Catatan klinis tambahan yang perlu diketahui...' },
         ].map((field) => (
-          <div key={field.name} className="space-y-2 rounded-2xl border border-stone-200/90 bg-white p-4">
+          <div key={field.name} className="space-y-2">
             <label htmlFor={field.name} className="text-xs font-semibold text-[#181700]">
               {field.label}
             </label>
             <textarea
               id={field.name}
               name={field.name}
-              rows={field.name === 'anamnesis' || field.name === 'physicalExamination' ? 4 : 3}
+              rows={['anamnesis', 'physicalExamination', 'medicalHistory', 'summary'].includes(field.name) ? 4 : 3}
               defaultValue={record?.[field.name as keyof TherapyProgressView] as string | null | undefined ?? ''}
               placeholder={field.placeholder}
-              disabled={pending}
+              disabled={fieldsDisabled}
               className="w-full resize-y rounded-xl border border-stone-200 bg-stone-50/40 px-3.5 py-3 text-sm leading-relaxed text-[#181700] outline-none transition-colors placeholder:text-stone-400 focus:border-[#181700] focus:bg-white focus:ring-4 focus:ring-[var(--hafta-ylw-100)]"
             />
           </div>

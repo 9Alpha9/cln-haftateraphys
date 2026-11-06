@@ -6,6 +6,7 @@ import { getDb } from '@/db';
 import { patients } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { createAuditLog } from '@/lib/audit';
 import { therapyScheduleSchema, type TherapyScheduleInput } from '@/lib/validators/therapy-schedule';
 
 function toNullable(value: string | undefined) {
@@ -21,7 +22,7 @@ function toNullableDate(value: string | undefined) {
 }
 
 export async function updateTherapySchedule(patientId: string, input: TherapyScheduleInput) {
-  const { role } = await requireSession({ redirectToLogin: false });
+  const { session, role } = await requireSession({ redirectToLogin: false });
   if (
     role === 'USER' ||
     !(
@@ -49,6 +50,14 @@ export async function updateTherapySchedule(patientId: string, input: TherapySch
     .returning({ id: patients.id });
 
   if (result.length === 0) throw new Error('Pasien tidak ditemukan.');
+
+  await createAuditLog({
+    action: 'patient.update',
+    targetType: 'patient',
+    targetId: patientId,
+    meta: { section: 'therapy-schedule' },
+    userId: session.user.id,
+  });
 
   revalidatePath('/dashboard');
   revalidatePath(`/dashboard/patients/${patientId}`);

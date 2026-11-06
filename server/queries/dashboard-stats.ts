@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, inArray, or, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, inArray, isNull, or, sql } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { appointments, patientAssignments, patientIntakes, patients, therapyProgressRecords } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
@@ -118,7 +118,13 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     const [compProgress] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(therapyProgressRecords)
-      .where(and(eq(therapyProgressRecords.therapistId, session.user.id), eq(therapyProgressRecords.status, 'FINALIZED')));
+      .where(
+        and(
+          eq(therapyProgressRecords.therapistId, session.user.id),
+          eq(therapyProgressRecords.status, 'FINALIZED'),
+          isNull(therapyProgressRecords.supersededAt),
+        ),
+      );
     completedCount = compProgress?.count ?? 0;
   } else {
     const [compPatients] = await db

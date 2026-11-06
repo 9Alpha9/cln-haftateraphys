@@ -233,7 +233,7 @@ export function TherapistScheduleCalendar({
   ];
 
   return (
-    <section className="rounded-3xl border border-stone-200/80 bg-white p-5 shadow-[0_10px_30px_rgba(24,23,0,0.03)] sm:p-7">
+    <section className="rounded-3xl border border-stone-200/80 bg-white p-3.5 sm:p-5 shadow-[0_10px_30px_rgba(24,23,0,0.03)] sm:p-7">
       {/* Header */}
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="flex min-w-0 items-center gap-3">
@@ -310,7 +310,7 @@ export function TherapistScheduleCalendar({
               onClick={() => setView('list')}
               className={cn(
                 'flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-colors',
-                view === 'list' ? 'bg-white text-[#181700] shadow-sm' : 'text-stone-500'
+                view === 'list' ? 'bg-[#181700] text-white shadow-2xs' : 'text-stone-500'
               )}
             >
               <List className="h-3.5 w-3.5" />
@@ -321,7 +321,7 @@ export function TherapistScheduleCalendar({
               onClick={() => setView('grid')}
               className={cn(
                 'flex h-7 w-7 cursor-pointer items-center justify-center rounded-full transition-colors',
-                view === 'grid' ? 'bg-white text-[#181700] shadow-sm' : 'text-stone-500'
+                view === 'grid' ? 'bg-[#181700] text-white shadow-2xs' : 'text-stone-500'
               )}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
@@ -436,7 +436,7 @@ export function TherapistScheduleCalendar({
 
       {/* Appointment list */}
       {filteredAppointments.length === 0 ? (
-        <div className="mt-5 rounded-2xl border border-dashed border-stone-200 bg-stone-50/60 px-5 py-8 text-center">
+        <div className="mt-5 rounded-2xl border border-dashed border-stone-200 bg-stone-50/60 px-4 sm:px-5 py-8 text-center">
           <p className="text-sm font-semibold text-[#181700]">
             {selectedDate ? 'Belum ada jadwal pada tanggal ini' : 'Belum ada jadwal terapi mendatang'}
           </p>
@@ -614,7 +614,7 @@ export function TherapistScheduleCalendar({
                   setDetailAppointment(null);
                   setEvaluationAppointment(detailAppointment);
                 }}
-                className="w-full h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+                className="w-full h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
               >
                 <FileText className="h-4 w-4 shrink-0" />
                 Mulai Evaluasi Rekam Medis
@@ -646,7 +646,7 @@ export function TherapistScheduleCalendar({
         }
       >
         {detailAppointment ? (
-          <div className="space-y-5">
+          <div className="space-y-4 sm:space-y-5">
             <div>
               <p className="text-xs font-medium text-stone-500">
                 Pasien

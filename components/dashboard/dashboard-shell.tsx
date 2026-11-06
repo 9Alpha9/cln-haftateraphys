@@ -14,7 +14,6 @@ import {
   PanelLeftOpen,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { DashboardGlobalSearch } from '@/components/dashboard/dashboard-global-search';
 import { cn } from '@/lib/utils';
 import { getRoleLabel } from '@/lib/role-utils';
 import { getDashboardNavigation } from '@/lib/permissions/dashboard-navigation';
@@ -128,7 +127,7 @@ export function AdminDashboardShell({
         <div
           className={cn(
             'flex h-[80px] shrink-0 items-center border-b border-stone-800/80',
-            collapsed ? 'justify-center px-2' : 'justify-between px-6'
+            collapsed ? 'justify-center px-2' : 'justify-between px-4 sm:px-6'
           )}
         >
           {!collapsed ? (
@@ -317,7 +316,7 @@ export function AdminDashboardShell({
         )}
       >
         {/* Top header */}
-        <header className="sticky top-0 z-30 flex h-[68px] items-center gap-4 border-b border-stone-200/80 bg-white/90 backdrop-blur-md px-4 lg:px-6">
+        <header className="sticky top-0 z-30 flex h-[68px] items-center gap-4 border-b border-stone-200/80 bg-white/90 backdrop-blur-md px-3 sm:px-6 lg:px-8">
           <Button
             variant="ghost"
             size="icon"
@@ -328,7 +327,6 @@ export function AdminDashboardShell({
           </Button>
 
           {/* Interactive Role-Based Global Command Search */}
-          <DashboardGlobalSearch role={role} />
 
           {/* Right section */}
           <div className="ml-auto flex items-center gap-3">
@@ -374,7 +372,7 @@ export function AdminDashboardShell({
         </header>
 
         {/* Content area */}
-        <main className="flex-1 w-full max-w-[1600px] mx-auto px-5 sm:px-8 pt-6 sm:pt-8 pb-12">{children}</main>
+        <main className="flex-1 w-full max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pt-3 pb-28 lg:pb-10">{children}</main>
 
         {/* Session Security Guard */}
         <SessionSecurityGuard role={role} userId={userEmail ?? 'unknown'} />

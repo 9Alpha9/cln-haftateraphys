@@ -14,9 +14,9 @@ export function PrintFooter({
   showDisclaimer = true,
 }: PrintFooterProps) {
   return (
-    <div className="mt-auto border-t border-slate-200 pt-5 print:border-slate-200">
+    <div className="mt-auto border-t border-stone-200/80 pt-5 print:border-stone-200/80">
       <div className="flex items-end justify-between">
-        <div className="text-[11px] text-slate-400">
+        <div className="text-[11px] text-stone-400">
           {showDisclaimer && (
             <>
               <p>Dokumen ini dicetak secara otomatis dari sistem {clinicName}.</p>

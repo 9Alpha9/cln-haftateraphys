@@ -3,6 +3,9 @@
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { requireSession } from '@/lib/auth/require-session';
 import { getPatientDetail } from '@/server/queries/patient-detail';
+import { getTherapistOptions } from '@/server/queries/patients';
+import { getHomeProgramForPatient } from '@/server/queries/home-programs';
+import { getTreatmentPlanForPatient } from '@/server/queries/treatment-plans';
 import { getScopedTherapyProgress } from '@/server/queries/therapy-progress';
 import { getScopedIntakeForReview } from '@/server/queries/intake-review';
 
@@ -14,7 +17,16 @@ export async function fetchPatientDetailAction(patientId: string) {
     }
 
     const detail = await getPatientDetail(patientId);
-    const progress = await getScopedTherapyProgress({ patientId, pageSize: 50 });
+    const canAssignTherapist = role !== 'USER' && hasPermission(role, PERMISSIONS.PATIENT_ASSIGN);
+    const therapistOptions = canAssignTherapist ? await getTherapistOptions() : [];
+    const canReadProgress = hasPermission(role, PERMISSIONS.PROGRESS_READ);
+    const [progress, homeProgram, treatmentPlan] = await Promise.all([
+      canReadProgress
+        ? getScopedTherapyProgress({ patientId, pageSize: 50 })
+        : Promise.resolve({ items: [] }),
+      canReadProgress ? getHomeProgramForPatient(patientId) : Promise.resolve(null),
+      canReadProgress ? getTreatmentPlanForPatient(patientId) : Promise.resolve(null),
+    ]);
     let intake = null;
     if (hasPermission(role, PERMISSIONS.INTAKE_READ)) {
       try {
@@ -29,7 +41,10 @@ export async function fetchPatientDetailAction(patientId: string) {
       data: {
         ...detail,
         progress: progress.items,
+        homeProgram,
+        treatmentPlan,
         intake,
+        therapistOptions,
         capabilities: {
           canEditSchedule:
             role !== 'USER' &&
@@ -38,6 +53,7 @@ export async function fetchPatientDetailAction(patientId: string) {
           canEditRecord: role !== 'USER' && hasPermission(role, PERMISSIONS.PROGRESS_READ),
           canCreateAppointment: role !== 'USER' && hasPermission(role, PERMISSIONS.APPOINTMENT_CREATE),
           canCompleteProgram: role !== 'USER' && hasPermission(role, PERMISSIONS.PATIENT_COMPLETE_PROGRAM),
+          canAssignTherapist,
         },
       },
     };

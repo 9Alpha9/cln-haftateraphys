@@ -185,7 +185,7 @@ export async function updateAppointment(input: UpdateAppointmentInput) {
 
   const db = getDb();
   const [existing] = await db
-    .select({ id: appointments.id, therapistId: appointments.therapistId })
+    .select({ id: appointments.id, therapistId: appointments.therapistId, status: appointments.status })
     .from(appointments)
     .where(eq(appointments.id, input.appointmentId))
     .limit(1);
@@ -196,6 +196,10 @@ export async function updateAppointment(input: UpdateAppointmentInput) {
 
   if (role === 'THERAPIST' && existing.therapistId !== session.user.id) {
     throw new ForbiddenError();
+  }
+
+  if (existing.status === 'COMPLETED' || existing.status === 'CANCELLED' || existing.status === 'NO_SHOW') {
+    throw new Error('Jadwal yang sudah selesai atau dibatalkan tidak dapat diubah.');
   }
 
   await assertPatientSchedulingScope(input.patientId);

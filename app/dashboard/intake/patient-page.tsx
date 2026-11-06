@@ -1,3 +1,4 @@
+import { ClipboardList } from 'lucide-react';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
 import { PatientIntakePortal } from '@/components/patient/patient-intake-portal';
 import { requireSession } from '@/lib/auth/require-session';
@@ -12,11 +13,12 @@ export default async function PatientIntakePage() {
   const history = await getPatientVisibleIntakeHistory(session.user.id);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       <DashboardPageHeader
         title="Form Awal"
         description="Ceritakan keluhan Anda satu kali per episode. Informasi ini membantu fisioterapis menyiapkan asesmen di klinik dan tidak menggantikan pemeriksaan tenaga berwenang."
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Form Awal' }]}
+        icon={<ClipboardList className="h-6 w-6" />}
       />
       <PatientIntakePortal history={history} />
     </div>

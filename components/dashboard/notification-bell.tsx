@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Bell as AnimatedBell } from '@/components/animate-ui/icons/bell';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import { markAllNotificationsAsRead, markNotificationAsRead } from '@/server/actions/notifications';
 import { cn } from '@/lib/utils';
@@ -64,9 +65,11 @@ function getNotificationIcon(title: string, message?: string | null): LucideIcon
 export function NotificationBell({
   unreadCount = 0,
   initialNotifications = [],
+  className,
 }: {
   unreadCount?: number;
   initialNotifications?: NotificationView[];
+  className?: string;
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -134,10 +137,22 @@ export function NotificationBell({
         onClick={() => {
           if (pathname !== '/dashboard/notifications') setOpen(true);
         }}
-        className="group relative h-10 w-10 rounded-full bg-stone-100 text-[#181700] hover:bg-stone-200/80 transition-colors cursor-pointer"
+        className={cn(
+          'group relative h-11 w-11 cursor-pointer rounded-full text-[#181700] transition-all duration-300 hover:bg-stone-200/80',
+          className ?? 'bg-stone-100',
+        )}
         aria-label="Buka notifikasi"
       >
-        <Bell size={18} strokeWidth={2} aria-hidden="true" className="text-[#181700]" />
+        <AnimatedBell
+          size={18}
+          strokeWidth={2}
+          aria-hidden="true"
+          className="text-[#181700]"
+          animate={count > 0}
+          animateOnTap
+          loop={count > 0}
+          loopDelay={4000}
+        />
         {count > 0 && (
           <span className="absolute -top-1 -right-1 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-[var(--hafta-red-500)] px-1 font-mono text-[10px] font-bold leading-none text-white shadow-xs">
             {count > 99 ? '99+' : count}
@@ -155,15 +170,15 @@ export function NotificationBell({
         subtitle={`${count} pesan belum dibaca`}
         headerTabs={
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5">
+            <div className="inline-flex items-center gap-1 rounded-full bg-[#F4F4F1] p-1">
               <button
                 type="button"
                 onClick={() => setTab('all')}
                 className={cn(
-                  'rounded-full px-3.5 py-1 text-xs font-bold transition-all cursor-pointer',
+                  'inline-flex h-9 cursor-pointer items-center rounded-full px-3.5 text-xs font-semibold transition-colors',
                   tab === 'all'
-                    ? 'bg-[var(--hafta-ylw-100)] text-[#181700] shadow-2xs'
-                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200/70'
+                    ? 'bg-[#181700] text-white shadow-2xs'
+                    : 'text-stone-500 hover:text-[#181700]'
                 )}
               >
                 Semua
@@ -172,10 +187,10 @@ export function NotificationBell({
                 type="button"
                 onClick={() => setTab('unread')}
                 className={cn(
-                  'rounded-full px-3.5 py-1 text-xs font-bold transition-all cursor-pointer',
+                  'inline-flex h-9 cursor-pointer items-center rounded-full px-3.5 text-xs font-semibold transition-colors',
                   tab === 'unread'
-                    ? 'bg-[var(--hafta-ylw-100)] text-[#181700] shadow-2xs'
-                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200/70'
+                    ? 'bg-[#181700] text-white shadow-2xs'
+                    : 'text-stone-500 hover:text-[#181700]'
                 )}
               >
                 Belum Dibaca
@@ -205,8 +220,8 @@ export function NotificationBell({
           </Link>
         }
       >
-        {/* Notification Items List */}
-        <div className="divide-y divide-stone-100 -mx-1">
+        {/* Notification Items — flat list, minimal chrome */}
+        <div>
           {filtered.length === 0 ? (
             <div className="flex min-h-[220px] flex-col items-center justify-center text-center px-4 py-8">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
@@ -218,63 +233,64 @@ export function NotificationBell({
               </p>
             </div>
           ) : (
-            filtered.map((item) => {
-              const Icon = getNotificationIcon(item.title, item.message);
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => !item.isRead && markRead(item.id)}
-                  className={cn(
-                    'group relative flex items-start gap-3.5 p-3.5 rounded-2xl transition-colors cursor-pointer',
-                    item.isRead ? 'hover:bg-stone-50' : 'bg-[#FEFEF6] hover:bg-stone-50/90'
-                  )}
-                >
-                  {/* Icon */}
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-stone-100 text-stone-700 mt-0.5">
-                    <Icon className="h-4.5 w-4.5" />
-                  </div>
-
-                  {/* Text Content */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className={cn('text-xs font-bold truncate', item.isRead ? 'text-stone-700' : 'text-[#181700]')}>
-                        {item.title}
-                      </p>
-                      <span className="font-mono text-[10px] text-stone-400 shrink-0">
-                        {timeAgo(item.createdAt)}
-                      </span>
+            <div className="divide-y divide-stone-100">
+              {filtered.map((item) => {
+                const Icon = getNotificationIcon(item.title, item.message);
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => !item.isRead && markRead(item.id)}
+                    className={cn(
+                      'group flex cursor-pointer items-start gap-2.5 py-3 first:pt-0 last:pb-0',
+                      !item.isRead && 'hover:bg-stone-50/60',
+                    )}
+                  >
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#F7F7F4] text-stone-500">
+                      <Icon className="h-4 w-4" />
                     </div>
 
-                    {item.message && (
-                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-stone-600">
-                        {item.message}
-                      </p>
-                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <p
+                          className={cn(
+                            'flex min-w-0 items-center gap-1.5 truncate text-[11px] leading-snug',
+                            item.isRead ? 'font-medium text-stone-600' : 'font-bold text-[#181700]',
+                          )}
+                        >
+                          {!item.isRead ? (
+                            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--hafta-ylw-400)]" />
+                          ) : null}
+                          <span className="truncate">{item.title}</span>
+                        </p>
+                        <span className="shrink-0 whitespace-nowrap text-[10px] text-stone-400">
+                          {timeAgo(item.createdAt)}
+                        </span>
+                      </div>
 
-                    {item.actionUrl && (
-                      <div className="mt-2.5">
+                      {item.message ? (
+                        <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-stone-500">
+                          {item.message}
+                        </p>
+                      ) : null}
+
+                      {item.actionUrl ? (
                         <Link
                           href={item.actionUrl}
                           onClick={() => {
                             if (!item.isRead) markRead(item.id);
                             setOpen(false);
                           }}
-                          className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-[#181700] hover:underline"
+                          className="mt-1 inline-flex items-center gap-0.5 text-[10px] font-semibold text-stone-500 transition-colors hover:text-[#181700]"
                         >
-                          <span>Lihat Rincian</span>
+                          <span>Lihat rincian</span>
                           <ChevronRight className="h-3 w-3" />
                         </Link>
-                      </div>
-                    )}
+                      ) : null}
+                    </div>
                   </div>
-
-                  {/* Unread Dot Indicator */}
-                  {!item.isRead && (
-                    <span className="h-2 w-2 shrink-0 rounded-full bg-[var(--hafta-ylw-400)] mt-1.5" />
-                  )}
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
         </div>
       </GlobalSlideOver>

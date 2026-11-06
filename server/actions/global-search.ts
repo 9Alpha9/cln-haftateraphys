@@ -1,6 +1,6 @@
 'use server';
 
-import { and, ilike, or, eq, desc } from 'drizzle-orm';
+import { and, ilike, or, eq, desc, isNull } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { patients, appointments, users, profiles, auditLogs, therapyProgressRecords } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
@@ -178,6 +178,7 @@ export async function searchGlobalEntities(query: string): Promise<SearchResultI
               eq(therapyProgressRecords.patientId, pt.id),
               eq(therapyProgressRecords.status, 'FINALIZED'),
               eq(therapyProgressRecords.patientVisible, 1),
+              isNull(therapyProgressRecords.supersededAt),
               or(
                 ilike(therapyProgressRecords.diagnosis, `%${rawQ}%`),
                 ilike(therapyProgressRecords.treatment, `%${rawQ}%`),

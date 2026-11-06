@@ -28,7 +28,7 @@ export default async function IntakePage({
   const canReview = hasPermission(role, PERMISSIONS.INTAKE_REVIEW);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       <DashboardPageHeader
         title="Daftar Intake Pasien"
         description="Kelola dan verifikasi form asesmen awal pasien yang dikirim melalui Patient Portal."

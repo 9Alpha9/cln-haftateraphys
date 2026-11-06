@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useEffect, useId } from 'react';
+import { useState, useTransition, useEffect, useId, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -10,7 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { savePatientIntake, startNewPatientIntake } from '@/server/actions/patient-intakes';
 import type { IntakeDraftInput } from '@/lib/validators/patient-intake';
-import { AlertCircle, Info, ExternalLink } from 'lucide-react';
+import Link from 'next/link';
+import { AlertCircle, ImagePlus, Info, ExternalLink, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type IntakeStatus = 'DRAFT' | 'NEEDS_REVISION' | 'SUBMITTED' | 'UNDER_REVIEW' | 'ACCEPTED' | 'ARCHIVED';
@@ -26,9 +27,10 @@ type IntakeFormProps = {
 };
 
 const steps = [
-  { title: 'Keluhan', description: 'Informasi utama' },
-  { title: 'Aktivitas', description: 'Dampak dan target' },
-  { title: 'Riwayat', description: 'Informasi relevan' },
+  { title: 'Keluhan', description: 'Keluhan utama' },
+  { title: 'RPS', description: 'Riwayat penyakit sekarang' },
+  { title: 'RPD', description: 'Riwayat penyakit dahulu' },
+  { title: 'Target', description: 'Target pemulihan' },
   { title: 'Review', description: 'Konfirmasi kirim' },
 ];
 
@@ -79,8 +81,10 @@ function TextField({
   return (
     <div className="space-y-1.5">
       <Label htmlFor={name} className="text-sm sm:text-base font-bold text-[#181700]">
-        {label}
-        {required ? <span className="text-[var(--hafta-red-600)]"> *</span> : ''}
+        <span>
+          {label}
+          {required ? <span className="text-[var(--hafta-red-600)]">*</span> : null}
+        </span>
       </Label>
       {hint ? <p className="text-xs text-stone-500 leading-normal">{hint}</p> : null}
       {multiline ? (
@@ -108,6 +112,136 @@ function TextField({
         />
       )}
       {error ? <p className="text-xs text-[var(--hafta-red-600)] font-semibold mt-1">{error}</p> : null}
+    </div>
+  );
+}
+
+type IntakePhoto = { name: string; type: string; size: number; data: string };
+
+async function compressIntakePhoto(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    const image = new Image();
+    const url = URL.createObjectURL(file);
+    image.onload = () => {
+      const maxDimension = 1280;
+      const scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(image.width * scale));
+      canvas.height = Math.max(1, Math.round(image.height * scale));
+      const context = canvas.getContext('2d');
+      URL.revokeObjectURL(url);
+      if (!context) {
+        resolve('');
+        return;
+      }
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/jpeg', 0.72));
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve('');
+    };
+    image.src = url;
+  });
+}
+
+function PhotoUploader({
+  photos,
+  onChange,
+  disabled,
+}: {
+  photos: IntakePhoto[];
+  onChange: (photos: IntakePhoto[]) => void;
+  disabled?: boolean;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
+
+  async function handleFiles(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return;
+    setError(null);
+    const files = Array.from(fileList);
+    if (photos.length + files.length > 4) {
+      setError('Maksimal 4 foto.');
+      return;
+    }
+    setProcessing(true);
+    const next = [...photos];
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        setError(`${file.name}: hanya file gambar yang diperbolehkan.`);
+        continue;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setError(`${file.name}: ukuran melebihi 5 MB.`);
+        continue;
+      }
+      const data = await compressIntakePhoto(file);
+      if (!data) {
+        setError(`${file.name}: foto gagal diproses.`);
+        continue;
+      }
+      next.push({ name: file.name, type: 'image/jpeg', size: file.size, data });
+    }
+    onChange(next);
+    setProcessing(false);
+    if (inputRef.current) inputRef.current.value = '';
+  }
+
+  return (
+    <div className="space-y-2">
+      <p className="text-sm font-bold text-[#181700] sm:text-base">
+        Foto kondisi <span className="font-normal text-stone-500">(opsional)</span>
+      </p>
+      <p className="text-xs leading-relaxed text-stone-500">
+        Unggah foto area keluhan bila membantu. Maksimal 4 foto, masing-masing tidak lebih dari 5 MB.
+        Foto akan diteruskan ke fisioterapis.
+      </p>
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        {photos.map((photo, index) => (
+          <div
+            key={`${photo.name}-${index}`}
+            className="relative overflow-hidden rounded-2xl border border-stone-200 bg-[#FAFAF8]"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={photo.data} alt={photo.name} className="h-24 w-full object-cover" />
+            <button
+              type="button"
+              onClick={() => onChange(photos.filter((_, itemIndex) => itemIndex !== index))}
+              disabled={disabled || processing}
+              className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80 disabled:opacity-50"
+              aria-label={`Hapus foto ${photo.name}`}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ))}
+        {photos.length < 4 ? (
+          <button
+            type="button"
+            onClick={() => inputRef.current?.click()}
+            disabled={disabled || processing}
+            className="flex h-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-stone-300 bg-white text-stone-500 transition-colors hover:border-[#181700] hover:text-[#181700] disabled:opacity-50"
+          >
+            <ImagePlus className="h-5 w-5" />
+            <span className="text-[10px] font-semibold">
+              {processing ? 'Memproses...' : 'Tambah foto'}
+            </span>
+          </button>
+        ) : null}
+      </div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        className="hidden"
+        onChange={(event) => handleFiles(event.target.files)}
+      />
+      {error ? (
+        <p className="text-xs font-semibold text-[var(--hafta-red-600)]">{error}</p>
+      ) : null}
     </div>
   );
 }
@@ -151,16 +285,23 @@ export function PatientIntakeForm({
       allergies: '',
       patientGoal: '',
       dataAccuracyAcknowledged: false,
+      privacyConsent: false,
+      mediaConsent: false,
       ...initialValues,
     },
   });
 
   const stepFields: FieldName[][] = [
-    ['chiefComplaint', 'affectedArea', 'onsetDescription', 'triggeringEvent'],
-    ['dailyLimitations', 'patientGoal', 'aggravatingFactors', 'relievingFactors'],
+    ['chiefComplaint', 'affectedArea'],
+    ['onsetDescription', 'triggeringEvent', 'dailyLimitations', 'aggravatingFactors', 'relievingFactors'],
     ['previousInjuryHistory', 'surgeryHistory', 'relevantMedicalHistory', 'currentMedication', 'allergies'],
+    ['patientGoal'],
     ['dataAccuracyAcknowledged'],
   ];
+
+  const [photos, setPhotos] = useState<IntakePhoto[]>(
+    () => (initialValues?.photos as IntakePhoto[] | undefined) ?? [],
+  );
 
   const [rootErrorDetail, setRootErrorDetail] = useState<{
     title: string;
@@ -169,9 +310,31 @@ export function PatientIntakeForm({
     actionHref?: string;
   } | null>(null);
 
+  function scrollFormToTop() {
+    window.requestAnimationFrame(() => {
+      const form = document.getElementById(formId);
+      let node: HTMLElement | null = form?.parentElement ?? null;
+      while (node) {
+        const style = window.getComputedStyle(node);
+        if (
+          (style.overflowY === 'auto' || style.overflowY === 'scroll') &&
+          node.scrollHeight > node.clientHeight
+        ) {
+          node.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+        node = node.parentElement;
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
   async function next() {
     const valid = await trigger(stepFields[step]);
-    if (valid) setStep((current) => Math.min(current + 1, steps.length - 1));
+    if (valid) {
+      setStep((current) => Math.min(current + 1, steps.length - 1));
+      scrollFormToTop();
+    }
   }
 
   function handleConfirmNewVersion() {
@@ -231,10 +394,19 @@ export function PatientIntakeForm({
   }
 
   function save(mode: 'draft' | 'submit') {
-    return handleSubmit((data) =>
+    return handleSubmit((data) => {
+      if (mode === 'submit' && !data.privacyConsent) {
+        setError('privacyConsent', {
+          type: 'manual',
+          message: 'Persetujuan pemrosesan data pasien diperlukan sebelum mengirim.',
+        });
+        setStep(4);
+        scrollFormToTop();
+        return;
+      }
       startTransition(async () => {
         try {
-          await savePatientIntake(data, mode);
+          await savePatientIntake({ ...data, photos }, mode);
           setRootErrorDetail(null);
           router.refresh();
           onSaved?.(mode);
@@ -245,8 +417,8 @@ export function PatientIntakeForm({
               'Terdapat isian yang belum lengkap atau sesi login Anda telah berakhir. Silakan periksa seluruh bagian bertanda bintang dan coba kembali.',
           });
         }
-      }),
-    );
+      });
+    });
   }
 
   useEffect(() => {
@@ -258,34 +430,37 @@ export function PatientIntakeForm({
     }
 
     onFooterChange(
-      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full">
-        <div>
+      <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="order-3 flex items-center gap-2 sm:order-none">
           {step > 0 ? (
             <button
               type="button"
               disabled={pending}
-              onClick={() => setStep((current) => current - 1)}
-              className="w-full sm:w-auto h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:opacity-50"
+              onClick={() => {
+                setStep((current) => current - 1);
+                scrollFormToTop();
+              }}
+              className="h-10 flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full border border-stone-200/90 bg-white px-4 text-xs font-semibold text-[#181700] transition-all hover:bg-stone-100 disabled:opacity-50 sm:h-11 sm:flex-none sm:px-5 sm:text-[13px]"
             >
               Kembali
             </button>
           ) : null}
-        </div>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <button
             type="button"
             disabled={pending}
             onClick={save('draft')}
-            className="w-full sm:w-auto h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:opacity-50"
+            className="h-10 flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full border border-stone-200/90 bg-white px-4 text-xs font-semibold text-[#181700] transition-all hover:bg-stone-100 disabled:opacity-50 sm:h-11 sm:flex-none sm:px-5 sm:text-[13px]"
           >
             Simpan Draft
           </button>
+        </div>
+        <div className="order-1 sm:order-none sm:shrink-0">
           {step < steps.length - 1 ? (
             <button
               type="button"
               disabled={pending}
               onClick={next}
-              className="w-full sm:w-auto h-10 sm:h-11 px-5 sm:px-6 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:opacity-50"
+              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] shadow-2xs transition-all hover:bg-[var(--hafta-ylw-200)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
             >
               Lanjut
             </button>
@@ -294,7 +469,7 @@ export function PatientIntakeForm({
               type="submit"
               form={formId}
               disabled={pending}
-              className="w-full sm:w-auto h-10 sm:h-11 px-5 sm:px-6 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:opacity-50"
+              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] shadow-2xs transition-all hover:bg-[var(--hafta-ylw-200)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
             >
               {pending ? 'Mengirim...' : 'Kirim untuk Ditinjau'}
             </button>
@@ -309,7 +484,7 @@ export function PatientIntakeForm({
   }, [onFooterChange, step, pending, locked, formId]);
 
   return (
-    <form id={formId} className="flex min-h-full flex-col gap-6" onSubmit={save('submit')}>
+    <form id={formId} className="flex min-h-full flex-col gap-4 sm:gap-6" onSubmit={save('submit')}>
       {status ? (
         <Alert className="border-stone-200/80 bg-[#FEFEF6] text-stone-700">
           <AlertDescription className="flex items-center gap-2 text-sm">
@@ -355,7 +530,7 @@ export function PatientIntakeForm({
             type="button"
             disabled={pending}
             onClick={startNewVersion}
-            className="rounded-xl bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-semibold"
+            className="font-bold text-[#181700] shadow-2xs"
           >
             {pending ? 'Membuat...' : 'Isi Form Awal Baru'}
           </Button>
@@ -437,7 +612,7 @@ export function PatientIntakeForm({
       {locked ? (
         <div className="rounded-xl border border-stone-200 bg-white divide-y divide-stone-200 overflow-hidden">
           {/* Section: Keluhan Utama */}
-          <div className="px-5 py-4">
+          <div className="px-4 sm:px-5 py-4">
             <p className="text-xs font-semibold text-stone-500 mb-3">Keluhan Utama</p>
             <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <div>
@@ -460,7 +635,7 @@ export function PatientIntakeForm({
           </div>
 
           {/* Section: Aktivitas & Target */}
-          <div className="px-5 py-4">
+          <div className="px-4 sm:px-5 py-4">
             <p className="text-xs font-semibold text-stone-500 mb-3">Aktivitas & Target</p>
             <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <div>
@@ -483,7 +658,7 @@ export function PatientIntakeForm({
           </div>
 
           {/* Section: Riwayat */}
-          <div className="px-5 py-4">
+          <div className="px-4 sm:px-5 py-4">
             <p className="text-xs font-semibold text-stone-500 mb-3">Riwayat Relevan</p>
             <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <div>
@@ -511,31 +686,31 @@ export function PatientIntakeForm({
         </div>
       ) : null}
 
-      {/* Step 0: Keluhan Utama (edit mode only) */}
+      {/* Step 0: Keluhan Utama */}
       {step === 0 && !locked ? (
-        <section className="space-y-6">
+        <section className="space-y-4 sm:space-y-5">
           <div className="space-y-1">
-            <h2 className="text-base sm:text-lg font-bold text-[#181700]">Keluhan Utama</h2>
-            <p className="text-xs sm:text-sm text-stone-500">
-              Tuliskan dengan kata-kata Anda sendiri sesuai yang dirasakan. Form ini bukan diagnosis medis.
+            <h2 className="text-base font-bold text-[#181700] sm:text-lg">Keluhan Utama</h2>
+            <p className="text-xs leading-relaxed text-stone-500 sm:text-sm">
+              Tuliskan dengan kata-kata Anda sendiri sesuai yang dirasakan. Form ini bukan diagnosis
+              medis.
             </p>
           </div>
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-4 sm:gap-5">
             <TextField
               name="chiefComplaint"
-              label="Keluhan Utama"
+              label="Keluhan utama"
               hint="Ceritakan rasa nyeri, pegal, atau rasa tidak nyaman yang paling mengganggu Anda saat ini."
-              placeholder="Contoh: Pinggang bawah terasa nyeri dan kaku, terutama saat bangun tidur atau setelah duduk lama..."
+              placeholder="Contoh: Nyeri dan kaku di punggung bawah sejak seminggu terakhir."
               required
               multiline
               disabled={pending}
               register={register}
               error={errors.chiefComplaint?.message}
-              className="text-[11px]"
             />
             <TextField
               name="affectedArea"
-              label="Area Tubuh yang Dikeluhkan"
+              label="Area yang dikeluhkan"
               hint="Sebutkan bagian tubuh mana saja yang mengalami keluhan."
               placeholder="Contoh: Punggung bawah, leher sebelah kanan, pundak..."
               required
@@ -543,155 +718,120 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.affectedArea?.message}
-              className="text-[11px]"
             />
+            <PhotoUploader photos={photos} onChange={setPhotos} disabled={pending} />
+          </div>
+        </section>
+      ) : null}
+
+      {/* Step 1: Riwayat Penyakit Sekarang */}
+      {step === 1 && !locked ? (
+        <section className="space-y-4 sm:space-y-5 border-t border-stone-200 pt-6">
+          <div className="space-y-1">
+            <h2 className="text-base font-bold text-[#181700] sm:text-lg">
+              Riwayat Penyakit Sekarang (RPS)
+            </h2>
+            <p className="text-xs leading-relaxed text-stone-500 sm:text-sm">
+              Jelaskan bagaimana keluhan berkembang dan apa yang memengaruhi rasa nyeri Anda.
+            </p>
+          </div>
+          <div className="flex flex-col gap-4 sm:gap-5">
             <TextField
               name="onsetDescription"
-              label="Kapan atau Bagaimana Keluhan Mulai Terasa"
-              hint="Kira-kira sudah berapa lama keluhan ini dirasakan, dan apakah muncul tiba-tiba atau perlahan?"
-              placeholder="Contoh: Sudah terasa sejak 3 bulan lalu, awalnya pegal biasa lalu semakin sering kambuh dalam sebulan terakhir..."
+              label="Kapan dan bagaimana keluhan mulai terasa"
+              hint="Sudah berapa lama keluhan dirasakan, dan apakah muncul tiba-tiba atau perlahan?"
+              placeholder="Contoh: Sejak 3 bulan lalu, awalnya pegal biasa lalu semakin sering kambuh..."
               required
               multiline
               disabled={pending}
               register={register}
               error={errors.onsetDescription?.message}
-              className="text-[11px]"
             />
             <TextField
               name="triggeringEvent"
-              label="Kejadian atau Aktivitas Pemicu"
-              hint="Apakah ada kejadian atau aktivitas tertentu saat keluhan pertama kali muncul?"
-              placeholder="Contoh: Setelah mengangkat beban berat / duduk bekerja di depan laptop berjam-jam..."
+              label="Aktivitas pemicu rasa nyeri"
+              hint="Aktivitas atau kejadian apa yang memicu keluhan muncul?"
+              placeholder="Contoh: Setelah mengangkat beban berat / duduk lama di depan laptop..."
               required
               multiline
               disabled={pending}
               register={register}
               error={errors.triggeringEvent?.message}
-              className="text-[11px]"
             />
-          </div>
-        </section>
-      ) : null}
-
-      {/* Step 1: Aktivitas & Target (edit mode only) */}
-      {step === 1 && !locked ? (
-        <section className="space-y-6 border-t border-stone-200 pt-6">
-          <div className="space-y-1">
-            <h2 className="text-base sm:text-lg font-bold text-[#181700]">Aktivitas & Target Pemulihan</h2>
-            <p className="text-xs sm:text-sm text-stone-500">Bantu tim fisioterapis memahami dampak keluhan pada kehidupan sehari-hari Anda.</p>
-          </div>
-          <div className="flex flex-col gap-5">
             <TextField
               name="dailyLimitations"
-              label="Keterbatasan Aktivitas Sehari-hari"
+              label="Keterbatasan aktivitas sehari-hari"
               hint="Aktivitas apa saja yang terganggu atau sulit dilakukan akibat keluhan ini?"
-              placeholder="Contoh: Sulit membungkuk saat memakai sepatu, tidak nyaman saat menyetir mobil, terganggu saat bekerja..."
+              placeholder="Contoh: Sulit membungkuk, tidak nyaman saat menyetir, terganggu saat bekerja..."
               required
               multiline
               disabled={pending}
               register={register}
               error={errors.dailyLimitations?.message}
-              className="text-[11px]"
-            />
-            <TextField
-              name="patientGoal"
-              label="Target yang Ingin Dicapai"
-              hint="Apa harapan atau tujuan utama Anda setelah mengikuti fisioterapi di Hafta?"
-              placeholder="Contoh: Nyeri hilang tuntas, bisa duduk bekerja dengan nyaman, dan dapat berolahraga kembali tanpa sakit..."
-              required
-              multiline
-              disabled={pending}
-              register={register}
-              error={errors.patientGoal?.message}
-              className="text-[11px]"
             />
             <TextField
               name="aggravatingFactors"
-              label="Hal yang Memperberat Keluhan"
-              hint="Posisi atau gerakan apa yang membuat rasa nyeri semakin bertambah?"
-              placeholder="Contoh: Duduk lebih dari 30 menit, berdiri lama, posisi membungkuk, menaiki tangga..."
+              label="Hal yang memperlambat keluhan"
+              hint="Posisi atau gerakan apa yang membuat rasa nyeri bertambah?"
+              placeholder="Contoh: Duduk lebih dari 30 menit, berdiri lama, membungkuk, menaiki tangga..."
               required
               multiline
               disabled={pending}
               register={register}
               error={errors.aggravatingFactors?.message}
-              className="text-[11px]"
             />
             <TextField
               name="relievingFactors"
-              label="Hal yang Membantu Meredakan"
-              hint="Apa yang biasanya Anda lakukan untuk membuat rasa sakit berkurang atau lebih nyaman?"
-              placeholder="Contoh: Berbaring telentang, kompres air hangat, istirahat jalan santai..."
+              label="Hal yang memperingan keluhan"
+              hint="Apa yang biasanya membuat rasa sakit berkurang atau lebih nyaman?"
+              placeholder="Contoh: Berbaring telentang, kompres hangat, istirahat..."
               required
               multiline
               disabled={pending}
               register={register}
               error={errors.relievingFactors?.message}
-              className="text-[11px]"
             />
           </div>
         </section>
       ) : null}
 
-      {/* Step 2: Riwayat Relevan (edit mode only) */}
+      {/* Step 2: Riwayat Penyakit Dahulu */}
       {step === 2 && !locked ? (
-        <section className="space-y-6 border-t border-stone-200 pt-6">
+        <section className="space-y-4 sm:space-y-5 border-t border-stone-200 pt-6">
           <div className="space-y-1">
-            <h2 className="text-base sm:text-lg font-bold text-[#181700]">Riwayat Kesehatan</h2>
-            <p className="text-xs sm:text-sm text-stone-500">Isi informasi yang Anda ketahui. Jika tidak ada, Anda cukup menulis &quot;Tidak ada&quot;.</p>
+            <h2 className="text-base font-bold text-[#181700] sm:text-lg">
+              Riwayat Penyakit Dahulu (RPD)
+            </h2>
+            <p className="text-xs leading-relaxed text-stone-500 sm:text-sm">
+              Riwayat relevan. Jika tidak ada, cukup tulis &quot;Tidak ada&quot;.
+            </p>
           </div>
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-4 sm:gap-5">
             <TextField
               name="previousInjuryHistory"
-              label="Riwayat Cedera Sebelumnya"
-              hint="Pernahkah Anda mengalami patah tulang, keseleo, atau cedera serupa di masa lalu?"
-              placeholder="Tuliskan jika pernah ada cedera, atau tulis &quot;Tidak ada&quot;."
+              label="Riwayat keluhan di bagian yang sama"
+              hint="Pernahkah Anda mengalami keluhan atau cedera serupa di area tersebut?"
+              placeholder="Tuliskan jika pernah, atau tulis &quot;Tidak ada&quot;."
               required
               multiline
               disabled={pending}
               register={register}
               error={errors.previousInjuryHistory?.message}
-              className="text-[11px]"
             />
             <TextField
               name="surgeryHistory"
-              label="Riwayat Operasi"
-              hint="Pernahkah Anda menjalani tindakan operasi atau pembedahan?"
-              placeholder="Tuliskan jenis operasi dan tahunnya jika ada, atau tulis &quot;Tidak ada&quot;."
+              label="Penanganan riwayat penyakit dahulu"
+              hint="Pernahkah Anda menjalani operasi, terapi, atau penanganan medis sebelumnya?"
+              placeholder="Tuliskan jenis penanganan dan tahunnya, atau tulis &quot;Tidak ada&quot;."
               required
               multiline
               disabled={pending}
               register={register}
               error={errors.surgeryHistory?.message}
-              className="text-[11px]"
-            />
-            <TextField
-              name="relevantMedicalHistory"
-              label="Riwayat Medis yang Relevan"
-              hint="Apakah Anda memiliki riwayat diabetes, hipertensi, saraf, atau penyakit kronis lainnya?"
-              placeholder="Tuliskan riwayat penyakit jika ada, atau tulis &quot;Tidak ada&quot;."
-              required
-              multiline
-              disabled={pending}
-              register={register}
-              error={errors.relevantMedicalHistory?.message}
-              className="text-[11px]"
-            />
-            <TextField
-              name="currentMedication"
-              label="Obat yang Sedang Digunakan"
-              hint="Apakah Anda sedang rutin mengonsumsi obat atau suplemen tertentu?"
-              placeholder="Tuliskan nama obat yang rutin diminum jika ada, atau tulis &quot;Tidak ada&quot;."
-              required
-              multiline
-              disabled={pending}
-              register={register}
-              error={errors.currentMedication?.message}
-              className="text-[11px]"
             />
             <TextField
               name="allergies"
-              label="Riwayat Alergi"
+              label="Alergi yang diketahui"
               hint="Apakah Anda memiliki alergi terhadap obat, plester medis, atau makanan tertentu?"
               placeholder="Tuliskan jika ada alergi, atau tulis &quot;Tidak ada&quot;."
               required
@@ -699,22 +839,68 @@ export function PatientIntakeForm({
               disabled={pending}
               register={register}
               error={errors.allergies?.message}
-              className="text-[11px]"
+            />
+            <TextField
+              name="relevantMedicalHistory"
+              label="Riwayat medis lain yang relevan"
+              hint="Apakah Anda memiliki riwayat diabetes, hipertensi, atau penyakit kronis lainnya?"
+              placeholder="Tuliskan riwayat penyakit jika ada, atau tulis &quot;Tidak ada&quot;."
+              required
+              multiline
+              disabled={pending}
+              register={register}
+              error={errors.relevantMedicalHistory?.message}
+            />
+            <TextField
+              name="currentMedication"
+              label="Obat yang sedang digunakan"
+              hint="Apakah Anda sedang rutin mengonsumsi obat atau suplemen tertentu?"
+              placeholder="Tuliskan nama obat yang rutin diminum, atau tulis &quot;Tidak ada&quot;."
+              required
+              multiline
+              disabled={pending}
+              register={register}
+              error={errors.currentMedication?.message}
             />
           </div>
         </section>
       ) : null}
 
-      {/* Step 3: Review & Kirim */}
+      {/* Step 3: Target Pemulihan */}
       {step === 3 && !locked ? (
-        <section className="space-y-5 border-t border-stone-200 pt-6">
+        <section className="space-y-4 sm:space-y-5 border-t border-stone-200 pt-6">
+          <div className="space-y-1">
+            <h2 className="text-base font-bold text-[#181700] sm:text-lg">Target Pemulihan</h2>
+            <p className="text-xs leading-relaxed text-stone-500 sm:text-sm">
+              Bantu tim fisioterapis memahami hasil yang ingin Anda capai.
+            </p>
+          </div>
+          <div className="flex flex-col gap-4 sm:gap-5">
+            <TextField
+              name="patientGoal"
+              label="Target yang ingin dicapai"
+              hint="Apa harapan atau tujuan utama Anda setelah mengikuti fisioterapi di Hafta?"
+              placeholder="Contoh: Nyeri hilang, bisa duduk bekerja dengan nyaman, dan berolahraga kembali..."
+              required
+              multiline
+              disabled={pending}
+              register={register}
+              error={errors.patientGoal?.message}
+            />
+          </div>
+        </section>
+      ) : null}
+
+      {/* Step 4: Review & Kirim */}
+      {step === 4 && !locked ? (
+        <section className="space-y-4 sm:space-y-5 border-t border-stone-200 pt-6">
           <div className="space-y-1">
             <h2 className="text-base font-bold text-[#181700]">Review & Kirim</h2>
             <p className="text-sm text-stone-500">
               Setelah dikirim, Form Awal akan ditinjau tim Hafta. Anda masih dapat memperbarui jawaban selama proses peninjauan.
             </p>
           </div>
-          <div className="rounded-xl border border-stone-200 bg-[#FEFEF6] p-4 text-sm text-stone-600 space-y-2">
+          <div className="rounded-xl border border-stone-200 bg-[#FEFEF6] p-3 sm:p-4 text-sm text-stone-600 space-y-2">
             <p>
               <strong className="text-[#181700]">Keluhan:</strong> {getValues('chiefComplaint') || 'Belum diisi'}
             </p>
@@ -725,7 +911,47 @@ export function PatientIntakeForm({
               <strong className="text-[#181700]">Target Terapi:</strong> {getValues('patientGoal') || 'Belum diisi'}
             </p>
           </div>
-          <div className="flex items-start align-middle gap-3 p-4 text-sm">
+          <div className="flex items-start gap-3 rounded-xl border border-stone-200 bg-white p-3 sm:p-4 text-sm">
+            <input
+              id="privacyConsent"
+              type="checkbox"
+              className="mt-1 h-4 w-4 shrink-0 accent-[var(--hafta-ylw-200)] cursor-pointer"
+              disabled={pending}
+              {...register('privacyConsent')}
+            />
+            <label htmlFor="privacyConsent" className="select-none text-[#181700] cursor-pointer">
+              Saya menyetujui pemrosesan data pasien sesuai{' '}
+              <Link href="/privacy" className="font-semibold underline underline-offset-2">
+                Kebijakan Privasi
+              </Link>{' '}
+              dan{' '}
+              <Link href="/terms" className="font-semibold underline underline-offset-2">
+                Syarat &amp; Ketentuan
+              </Link>{' '}
+              Hafta Fisioterapi. <span className="text-red-600">*</span>
+            </label>
+          </div>
+          {errors.privacyConsent ? (
+            <p className="text-xs text-[var(--hafta-red-600)] font-medium">
+              {errors.privacyConsent.message}
+            </p>
+          ) : null}
+
+          <div className="flex items-start gap-3 rounded-xl border border-stone-200 bg-white p-3 sm:p-4 text-sm">
+            <input
+              id="mediaConsent"
+              type="checkbox"
+              className="mt-1 h-4 w-4 shrink-0 accent-[var(--hafta-ylw-200)] cursor-pointer"
+              disabled={pending}
+              {...register('mediaConsent')}
+            />
+            <label htmlFor="mediaConsent" className="select-none text-[#181700] cursor-pointer">
+              Saya mengizinkan publikasi media (foto/video) untuk dokumentasi dan edukasi Hafta.
+              Opsional dan terpisah dari persetujuan layanan.
+            </label>
+          </div>
+
+          <div className="flex items-start gap-3 rounded-xl border border-stone-200 bg-white p-3 sm:p-4 text-sm">
             <input
               id="dataAccuracyAcknowledged"
               type="checkbox"
@@ -745,15 +971,18 @@ export function PatientIntakeForm({
 
       {/* Action Buttons (Render inline only when drawer footer is not used) */}
       {!locked && !onFooterChange ? (
-        <div className="sticky bottom-0 z-10 mt-auto -mx-5 -mb-5 flex flex-col-reverse gap-3 border-t border-stone-200 bg-[#FEFEF6] px-5 py-3.5 sm:-mx-6 sm:-mb-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="sticky bottom-0 z-10 mt-auto -mx-3.5 -mb-3.5 flex flex-col-reverse gap-3 border-t border-stone-200 bg-[#FEFEF6] px-3.5 py-3.5 sm:-mx-5 sm:-mb-5 sm:px-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div>
             {step > 0 ? (
               <Button
                 type="button"
                 variant="outline"
                 disabled={pending}
-                onClick={() => setStep((current) => current - 1)}
-                className="rounded-xl border border-stone-200 bg-white text-[#181700] hover:bg-[var(--hafta-ylw-50)] hover:text-[#181700]"
+                onClick={() => {
+                setStep((current) => current - 1);
+                scrollFormToTop();
+              }}
+                className="border border-stone-200 bg-white font-semibold text-[#181700] hover:bg-stone-50 hover:text-[#181700]"
               >
                 Kembali
               </Button>
@@ -765,7 +994,7 @@ export function PatientIntakeForm({
               variant="outline"
               disabled={pending}
               onClick={save('draft')}
-              className="rounded-xl border border-stone-200 bg-white text-[#181700] hover:bg-[var(--hafta-ylw-50)] hover:text-[#181700]"
+              className="border border-stone-200 bg-white font-semibold text-[#181700] hover:bg-stone-50 hover:text-[#181700]"
             >
               Simpan Draft
             </Button>
@@ -774,7 +1003,7 @@ export function PatientIntakeForm({
                 type="button"
                 disabled={pending}
                 onClick={next}
-                className="rounded-xl bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-semibold shadow-xs"
+                className="shadow-2xs"
               >
                 Lanjut
               </Button>
@@ -782,7 +1011,7 @@ export function PatientIntakeForm({
               <Button
                 type="submit"
                 disabled={pending}
-                className="rounded-xl bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-semibold shadow-xs"
+                className="shadow-2xs"
               >
                 {pending ? 'Mengirim...' : 'Kirim untuk Ditinjau'}
               </Button>

@@ -66,7 +66,7 @@ export default async function IntakeReviewDetailPage({ params }: { params: Promi
 
   if (!intake) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-5">
         <DashboardPageHeader
           title="Form Awal"
           description="Belum ada Form Awal yang dapat ditinjau."
@@ -82,7 +82,7 @@ export default async function IntakeReviewDetailPage({ params }: { params: Promi
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       <DashboardPageHeader
         title={`Form Awal · ${intake.patientName}`}
         description=""
@@ -100,7 +100,7 @@ export default async function IntakeReviewDetailPage({ params }: { params: Promi
         <CardHeader>
           <CardTitle>Informasi Pasien</CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-5 sm:grid-cols-2">
+        <CardContent className="grid gap-4 sm:gap-5 sm:grid-cols-2">
           {fields.map(([label, key]) => (
             <div key={key} className="space-y-1">
               <p className="text-sm font-semibold text-foreground">{label}</p>

@@ -7,51 +7,118 @@ export type Holiday = {
   type: HolidayType;
 };
 
+type HolidaySeed = [month: number, day: number, name: string, type: HolidayType];
+
+function buildYear(entries: HolidaySeed[]): Holiday[] {
+  return entries.map(([month, day, name, type]) => ({ month, day, name, type }));
+}
+
 /**
- * Hari libur nasional & agama Indonesia.
- * Libur bergerak (Idul Fitri, dll.) diisi per rentang tahun.
- * Update setiap tahun sebelum awal tahun baru.
+ * Hari libur nasional & cuti bersama Indonesia.
+ *
+ * Sumber:
+ * - 2025: SKB 3 Menteri Nomor 1017/2/2 Tahun 2024 + perubahan (18 Agustus 2025).
+ * - 2026: SKB 3 Menteri Tahun 2026 (dataset resmi libur-nasional).
+ * - 2027: SKB 3 Menteri Nomor 1205/3/2 Tahun 2026.
+ *
+ * `libur` = cuti bersama, `agama` = hari besar keagamaan, `nasional` = hari besar nasional.
  */
-export const HOLIDAYS: Holiday[] = [
-  // ─── Tetap (setiap tahun) ─────────────────────────────────
-  { month: 1, day: 1, name: 'Tahun Baru Masehi', type: 'nasional' },
-  { month: 1, day: 28, name: 'Isra Mi\'raj Nabi Muhammad SAW', type: 'agama' },
-  { month: 1, day: 29, name: 'Tahun Baru Imlek', type: 'agama' },
-  { month: 2, day: 3, name: 'Hari Lunar Baru (Cap Go Meh)', type: 'agama' },
-  { month: 2, day: 28, name: 'Hari Raya Nyepi (Tahun Baru Saka)', type: 'agama' },
-  { month: 3, day: 1, name: 'Hari Libur Nyepi', type: 'libur' },
-  { month: 3, day: 3, name: 'Hari Raya Waisak', type: 'agama' },
-  { month: 3, day: 29, name: 'Kenaikan Isa Almasih', type: 'agama' },
-  { month: 3, day: 31, name: 'Hari Raya Idul Fitri 1447 H', type: 'agama' },
-  { month: 4, day: 1, name: 'Hari Raya Idul Fitri 1447 H (Cuti)', type: 'libur' },
-  { month: 4, day: 2, name: 'Hari Raya Idul Fitri 1447 H (Cuti)', type: 'libur' },
-  { month: 4, day: 3, name: 'Hari Raya Idul Fitri 1447 H (Cuti)', type: 'libur' },
-  { month: 4, day: 4, name: 'Hari Raya Idul Fitri 1447 H (Cuti)', type: 'libur' },
-  { month: 4, day: 6, name: 'Hari Raya Idul Fitri 1447 H (Cuti)', type: 'libur' },
-  { month: 4, day: 7, name: 'Hari Raya Idul Fitri 1447 H (Cuti)', type: 'libur' },
-  { month: 5, day: 1, name: 'Hari Buruh Internasional', type: 'nasional' },
-  { month: 5, day: 12, name: 'Hari Raya Waisak (Cuti)', type: 'libur' },
-  { month: 5, day: 14, name: 'Kenaikan Isa Almasih (Cuti)', type: 'libur' },
-  { month: 5, day: 29, name: 'Hari Raya Idul Adha 1447 H', type: 'agama' },
-  { month: 5, day: 30, name: 'Hari Raya Idul Adha 1447 H (Cuti)', type: 'libur' },
-  { month: 6, day: 1, name: 'Hari Lahir Pancasila', type: 'nasional' },
-  { month: 6, day: 7, name: 'Tahun Baru Islam 1 Muharram 1449 H', type: 'agama' },
-  { month: 6, day: 8, name: 'Tahun Baru Islam (Cuti)', type: 'libur' },
-  { month: 7, day: 6, name: 'Hari Raya Maulid Nabi Muhammad SAW', type: 'agama' },
-  { month: 7, day: 7, name: 'Maulid Nabi (Cuti)', type: 'libur' },
-  { month: 8, day: 17, name: 'Hari Kemerdekaan RI', type: 'nasional' },
-  { month: 8, day: 18, name: 'Hari Kemerdekaan RI (Cuti)', type: 'libur' },
-  { month: 8, day: 27, name: 'Tahun Baru Imlek (Cuti)', type: 'libur' },
-  { month: 10, day: 25, name: 'Hari Sumpah Pemuda', type: 'nasional' },
-  { month: 11, day: 2, name: 'Hari Raya Maulid Nabi (Cuti)', type: 'libur' },
-  { month: 11, day: 25, name: 'Hari Natal', type: 'agama' },
-  { month: 11, day: 26, name: 'Hari Natal (Cuti)', type: 'libur' },
-  { month: 12, day: 24, name: 'Malam Natal', type: 'libur' },
-];
+export const HOLIDAYS_BY_YEAR: Record<number, Holiday[]> = {
+  2025: buildYear([
+    [1, 1, 'Tahun Baru 2025 Masehi', 'nasional'],
+    [1, 27, 'Isra Mikraj Nabi Muhammad SAW', 'agama'],
+    [1, 28, 'Cuti Bersama Tahun Baru Imlek', 'libur'],
+    [1, 29, 'Tahun Baru Imlek 2576 Kongzili', 'agama'],
+    [3, 28, 'Cuti Bersama Hari Suci Nyepi', 'libur'],
+    [3, 29, 'Hari Suci Nyepi (Tahun Baru Saka 1947)', 'agama'],
+    [3, 31, 'Idul Fitri 1446 Hijriah', 'agama'],
+    [4, 1, 'Idul Fitri 1446 Hijriah', 'agama'],
+    [4, 2, 'Cuti Bersama Idul Fitri', 'libur'],
+    [4, 3, 'Cuti Bersama Idul Fitri', 'libur'],
+    [4, 4, 'Cuti Bersama Idul Fitri', 'libur'],
+    [4, 7, 'Cuti Bersama Idul Fitri', 'libur'],
+    [4, 18, 'Wafat Yesus Kristus', 'agama'],
+    [4, 20, 'Kebangkitan Yesus Kristus (Paskah)', 'agama'],
+    [5, 1, 'Hari Buruh Internasional', 'nasional'],
+    [5, 12, 'Hari Raya Waisak 2596 BE', 'agama'],
+    [5, 13, 'Cuti Bersama Hari Raya Waisak', 'libur'],
+    [5, 29, 'Kenaikan Yesus Kristus', 'agama'],
+    [5, 30, 'Cuti Bersama Kenaikan Yesus Kristus', 'libur'],
+    [6, 1, 'Hari Lahir Pancasila', 'nasional'],
+    [6, 6, 'Idul Adha 1446 Hijriah', 'agama'],
+    [6, 9, 'Cuti Bersama Idul Adha', 'libur'],
+    [6, 27, '1 Muharam Tahun Baru Islam 1447 Hijriah', 'agama'],
+    [8, 17, 'Proklamasi Kemerdekaan', 'nasional'],
+    [8, 18, 'Cuti Bersama Hari Kemerdekaan', 'libur'],
+    [9, 5, 'Maulid Nabi Muhammad SAW', 'agama'],
+    [12, 25, 'Kelahiran Yesus Kristus (Natal)', 'agama'],
+    [12, 26, 'Cuti Bersama Kelahiran Yesus Kristus', 'libur'],
+  ]),
+  2026: buildYear([
+    [1, 1, 'Tahun Baru 2026 Masehi', 'nasional'],
+    [1, 16, 'Isra Mikraj Nabi Muhammad SAW', 'agama'],
+    [2, 16, 'Cuti Bersama Tahun Baru Imlek', 'libur'],
+    [2, 17, 'Tahun Baru Imlek 2577 Kongzili', 'agama'],
+    [3, 18, 'Cuti Bersama Hari Suci Nyepi', 'libur'],
+    [3, 19, 'Hari Suci Nyepi (Tahun Baru Saka 1948)', 'agama'],
+    [3, 20, 'Cuti Bersama Idul Fitri', 'libur'],
+    [3, 21, 'Idul Fitri 1447 Hijriah', 'agama'],
+    [3, 22, 'Idul Fitri 1447 Hijriah', 'agama'],
+    [3, 23, 'Cuti Bersama Idul Fitri', 'libur'],
+    [3, 24, 'Cuti Bersama Idul Fitri', 'libur'],
+    [4, 3, 'Wafat Yesus Kristus', 'agama'],
+    [4, 5, 'Kebangkitan Yesus Kristus (Paskah)', 'agama'],
+    [5, 1, 'Hari Buruh Internasional', 'nasional'],
+    [5, 14, 'Kenaikan Yesus Kristus', 'agama'],
+    [5, 15, 'Cuti Bersama Kenaikan Yesus Kristus', 'libur'],
+    [5, 27, 'Idul Adha 1447 Hijriah', 'agama'],
+    [5, 28, 'Cuti Bersama Idul Adha', 'libur'],
+    [5, 31, 'Hari Raya Waisak 2570 BE', 'agama'],
+    [6, 1, 'Hari Lahir Pancasila', 'nasional'],
+    [6, 16, '1 Muharam Tahun Baru Islam 1448 Hijriah', 'agama'],
+    [8, 17, 'Proklamasi Kemerdekaan', 'nasional'],
+    [8, 25, 'Maulid Nabi Muhammad SAW', 'agama'],
+    [12, 24, 'Cuti Bersama Kelahiran Yesus Kristus', 'libur'],
+    [12, 25, 'Kelahiran Yesus Kristus (Natal)', 'agama'],
+  ]),
+  2027: buildYear([
+    [1, 1, 'Tahun Baru 2027 Masehi', 'nasional'],
+    [1, 5, 'Isra Mikraj Nabi Muhammad SAW 1448 Hijriah', 'agama'],
+    [2, 5, 'Cuti Bersama Tahun Baru Imlek', 'libur'],
+    [2, 6, 'Tahun Baru Imlek 2578 Kongzili', 'agama'],
+    [3, 8, 'Hari Suci Nyepi (Tahun Baru Saka 1949)', 'agama'],
+    [3, 9, 'Cuti Bersama Idul Fitri', 'libur'],
+    [3, 10, 'Idul Fitri 1448 Hijriah', 'agama'],
+    [3, 11, 'Idul Fitri 1448 Hijriah', 'agama'],
+    [3, 12, 'Cuti Bersama Idul Fitri', 'libur'],
+    [3, 15, 'Cuti Bersama Idul Fitri', 'libur'],
+    [3, 25, 'Cuti Bersama Wafat Yesus Kristus', 'libur'],
+    [3, 26, 'Wafat Yesus Kristus', 'agama'],
+    [3, 28, 'Kebangkitan Yesus Kristus (Paskah)', 'agama'],
+    [5, 1, 'Hari Buruh Internasional', 'nasional'],
+    [5, 6, 'Kenaikan Yesus Kristus', 'agama'],
+    [5, 17, 'Idul Adha 1448 Hijriah', 'agama'],
+    [5, 18, 'Cuti Bersama Idul Adha', 'libur'],
+    [5, 19, 'Cuti Bersama Hari Raya Waisak', 'libur'],
+    [5, 20, 'Hari Raya Waisak 2571 BE', 'agama'],
+    [6, 1, 'Hari Lahir Pancasila', 'nasional'],
+    [6, 6, '1 Muharam Tahun Baru Islam 1449 Hijriah', 'agama'],
+    [8, 15, 'Maulid Nabi Muhammad SAW', 'agama'],
+    [8, 17, 'Proklamasi Kemerdekaan', 'nasional'],
+    [12, 24, 'Cuti Bersama Kelahiran Yesus Kristus', 'libur'],
+    [12, 25, 'Kelahiran Yesus Kristus (Natal)', 'agama'],
+    [12, 26, 'Isra Mikraj Nabi Muhammad SAW 1449 Hijriah', 'agama'],
+  ]),
+};
+
+/** Sebagian tahun belum tersedia di dataset lokal (mis. 2028+). */
+export function getHolidaysForYear(year: number): Holiday[] {
+  return HOLIDAYS_BY_YEAR[year] ?? [];
+}
 
 /**
  * Cek apakah tanggal tertentu adalah hari libur.
  */
-export function getHoliday(month: number, day: number): Holiday | undefined {
-  return HOLIDAYS.find((h) => h.month === month && h.day === day);
+export function getHoliday(year: number, month: number, day: number): Holiday | undefined {
+  return getHolidaysForYear(year).find((h) => h.month === month && h.day === day);
 }

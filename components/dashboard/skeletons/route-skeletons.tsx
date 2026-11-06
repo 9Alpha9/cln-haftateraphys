@@ -14,6 +14,7 @@ export type RouteSkeletonVariant =
   | 'patient-detail'
   | 'form'
   | 'appointments'
+  | 'patient-appointments'
   | 'calendar'
   | 'progress'
   | 'profile'
@@ -29,9 +30,9 @@ export type RouteSkeletonVariant =
 
 function PatientsSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeaderSkeleton action="double" />
-      <SkeletonPanel className="rounded-2xl p-5">
+      <SkeletonPanel className="rounded-2xl p-3.5 sm:p-5">
         <SkeletonBlock className="h-5 w-32 rounded-md bg-stone-200" />
         <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <SkeletonBlock className="h-10 w-full rounded-xl bg-stone-100 sm:w-64" />
@@ -50,11 +51,11 @@ function PatientsSkeleton() {
 
 function PatientDetailSkeleton() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
       <PageHeaderSkeleton />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[0, 1, 2, 3].map((item) => (
-          <SkeletonPanel key={item} className="h-32 rounded-xl p-5">
+          <SkeletonPanel key={item} className="h-32 rounded-xl p-3.5 sm:p-5">
             <div className="flex items-center justify-between">
               <SkeletonBlock className="h-4 w-20 rounded-md bg-stone-200/80" />
               <SkeletonBlock className="h-5 w-5 rounded-md bg-stone-100" />
@@ -64,9 +65,9 @@ function PatientDetailSkeleton() {
           </SkeletonPanel>
         ))}
       </div>
-      <SkeletonPanel className="rounded-xl p-5">
+      <SkeletonPanel className="rounded-xl p-3.5 sm:p-5">
         <SkeletonBlock className="h-5 w-40 rounded-md bg-stone-200" />
-        <div className="mt-5 grid gap-5 sm:grid-cols-2">
+        <div className="mt-5 grid gap-4 sm:gap-5 sm:grid-cols-2">
           {[0, 1, 2, 3, 4, 5].map((item) => (
             <div key={item} className="space-y-2">
               <SkeletonLine className="w-24" />
@@ -75,7 +76,7 @@ function PatientDetailSkeleton() {
           ))}
         </div>
       </SkeletonPanel>
-      <SkeletonPanel className="rounded-xl p-5">
+      <SkeletonPanel className="rounded-xl p-3.5 sm:p-5">
         <SkeletonBlock className="h-5 w-36 rounded-md bg-stone-200" />
         <div className="mt-5 space-y-4">
           <SkeletonBlock className="h-11 w-full rounded-xl bg-stone-100" />
@@ -91,9 +92,9 @@ function PatientDetailSkeleton() {
 
 function FormSkeleton() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
       <PageHeaderSkeleton action="single" />
-      <SkeletonPanel className="rounded-xl p-5">
+      <SkeletonPanel className="rounded-xl p-3.5 sm:p-5">
         <SkeletonBlock className="h-5 w-32 rounded-md bg-stone-200" />
         <SkeletonLine className="mt-3 w-2/3 bg-stone-100" />
         <div className="mt-6">
@@ -104,11 +105,53 @@ function FormSkeleton() {
   );
 }
 
+function PatientAppointmentsSkeleton() {
+  return (
+    <div className="space-y-4">
+      <PageHeaderSkeleton />
+      <SkeletonPanel className="rounded-3xl p-3 sm:p-5">
+        <div className="flex items-center justify-between gap-2">
+          <SkeletonBlock className="h-3 w-16 bg-stone-200/80" />
+          <SkeletonBlock className="h-8 w-28 rounded-full bg-stone-100" />
+        </div>
+        <SkeletonBlock className="mt-2 h-5 w-40 bg-stone-200/70" />
+        <SkeletonLine className="mt-2 w-64 max-w-full" />
+        <div className="mt-4 flex items-center justify-between gap-2">
+          <SkeletonBlock className="h-9 w-9 rounded-full bg-stone-100" />
+          <SkeletonBlock className="h-8 w-28 rounded-full bg-stone-100" />
+          <SkeletonBlock className="h-9 w-9 rounded-full bg-stone-100" />
+        </div>
+        <div className="mx-auto mt-4 grid w-full max-w-[460px] grid-cols-7 gap-1.5 sm:gap-2">
+          {Array.from({ length: 35 }).map((_, index) => (
+            <SkeletonBlock key={index} className="h-[58px] rounded-xl bg-stone-100" />
+          ))}
+        </div>
+      </SkeletonPanel>
+      <SkeletonPanel className="rounded-3xl p-4 sm:p-5">
+        <SkeletonBlock className="h-4 w-28 bg-stone-200/80" />
+        <SkeletonLine className="mt-2 w-52" />
+        <div className="mt-4 space-y-4">
+          {[0, 1, 2, 3].map((item) => (
+            <div key={item} className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex-1 space-y-2">
+                <SkeletonBlock className="h-4 w-40 max-w-full bg-stone-200/70" />
+                <SkeletonLine className="w-28" />
+                <SkeletonLine className="w-24 bg-stone-100" />
+              </div>
+              <SkeletonBlock className="h-8 w-20 shrink-0 rounded-full bg-stone-100" />
+            </div>
+          ))}
+        </div>
+      </SkeletonPanel>
+    </div>
+  );
+}
+
 function AppointmentsSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeaderSkeleton action="double" />
-      <SkeletonPanel className="h-24 rounded-2xl p-5">
+      <SkeletonPanel className="h-24 rounded-2xl p-3.5 sm:p-5">
         <div className="flex items-center gap-4">
           <SkeletonBlock className="h-11 w-11 rounded-full bg-stone-100" />
           <div className="flex-1 space-y-2">
@@ -121,7 +164,7 @@ function AppointmentsSkeleton() {
       <ToolbarSkeleton tabs={4} search={false} />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {[0, 1, 2, 3, 4, 5].map((item) => (
-          <SkeletonPanel key={item} className="h-56 rounded-2xl p-5">
+          <SkeletonPanel key={item} className="h-56 rounded-2xl p-3.5 sm:p-5">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <SkeletonBlock className="h-5 w-32 rounded-md bg-stone-200" />
@@ -146,7 +189,7 @@ function AppointmentsSkeleton() {
 
 function CalendarSkeleton() {
   return (
-    <div className="flex min-h-[calc(100vh-64px)] flex-col gap-6">
+    <div className="flex min-h-[calc(100vh-64px)] flex-col gap-4 sm:gap-6">
       <PageHeaderSkeleton />
       <div className="flex flex-1 flex-col gap-4">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
@@ -181,12 +224,12 @@ function CalendarSkeleton() {
 
 function ProgressSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeaderSkeleton action="single" />
       <ToolbarSkeleton tabs={4} />
       <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
         {[0, 1, 2, 3, 4, 5].map((item) => (
-          <SkeletonPanel key={item} className="h-64 rounded-2xl p-5">
+          <SkeletonPanel key={item} className="h-64 rounded-2xl p-3.5 sm:p-5">
             <div className="flex items-start justify-between">
               <div className="space-y-2">
                 <SkeletonBlock className="h-5 w-36 rounded-md bg-stone-200" />
@@ -212,11 +255,11 @@ function ProgressSkeleton() {
 
 function ProfileSkeleton() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
       <PageHeaderSkeleton />
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12">
         <aside className="space-y-4 lg:col-span-4">
-          <SkeletonPanel className="rounded-3xl p-5 sm:p-6">
+          <SkeletonPanel className="rounded-3xl p-4 sm:p-5">
             <div className="flex items-start gap-4">
               <SkeletonBlock className="h-24 w-24 shrink-0 rounded-full bg-stone-200" />
               <div className="flex-1 space-y-2 pt-1">
@@ -241,14 +284,14 @@ function ProfileSkeleton() {
           </SkeletonPanel>
         </aside>
         <section className="min-w-0 overflow-hidden rounded-3xl border border-stone-200 bg-white lg:col-span-8">
-          <div className="border-b border-stone-200 p-5 sm:p-6">
+          <div className="border-b border-stone-200 p-4 sm:p-5">
             <SkeletonBlock className="h-6 w-40 rounded-md bg-stone-200" />
             <SkeletonLine className="mt-3 w-64 max-w-full bg-stone-100" />
           </div>
-          <div className="p-5 sm:p-8">
+          <div className="p-3.5 sm:p-8">
             <FormFieldsSkeleton fields={8} />
           </div>
-          <div className="flex flex-col-reverse gap-3 border-t border-stone-100 bg-[#FAFAF8] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+          <div className="flex flex-col-reverse gap-3 border-t border-stone-100 bg-[#FAFAF8] px-4 sm:px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
             <SkeletonLine className="w-48 bg-stone-200/50" />
             <div className="flex gap-2">
               <SkeletonBlock className="h-10 w-24 rounded-full bg-white" />
@@ -263,12 +306,12 @@ function ProfileSkeleton() {
 
 function IntakeSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeaderSkeleton />
       <ToolbarSkeleton tabs={3} />
       <div className="space-y-4">
         {[0, 1, 2, 3].map((item) => (
-          <SkeletonPanel key={item} className="rounded-2xl p-5">
+          <SkeletonPanel key={item} className="rounded-2xl p-3.5 sm:p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <SkeletonBlock className="h-11 w-11 shrink-0 rounded-full bg-stone-100" />
               <div className="min-w-0 flex-1 space-y-2">
@@ -289,12 +332,12 @@ function IntakeSkeleton() {
 
 function IntakeReviewSkeleton() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
       <PageHeaderSkeleton />
       <SkeletonBlock className="h-10 w-48 rounded-lg bg-stone-100" />
-      <SkeletonPanel className="rounded-xl p-5">
+      <SkeletonPanel className="rounded-xl p-3.5 sm:p-5">
         <SkeletonBlock className="h-5 w-40 rounded-md bg-stone-200" />
-        <div className="mt-5 grid gap-5 sm:grid-cols-2">
+        <div className="mt-5 grid gap-4 sm:gap-5 sm:grid-cols-2">
           {[0, 1, 2, 3, 4, 5, 6, 7].map((item) => (
             <div key={item} className="space-y-2">
               <SkeletonLine className="w-28" />
@@ -303,7 +346,7 @@ function IntakeReviewSkeleton() {
           ))}
         </div>
       </SkeletonPanel>
-      <SkeletonPanel className="rounded-xl p-5">
+      <SkeletonPanel className="rounded-xl p-3.5 sm:p-5">
         <SkeletonBlock className="h-5 w-36 rounded-md bg-stone-200" />
         <div className="mt-5 space-y-3">
           <SkeletonBlock className="h-11 w-full rounded-xl bg-stone-100" />
@@ -319,9 +362,9 @@ function IntakeReviewSkeleton() {
 
 function PatientIntakeSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeaderSkeleton />
-      <SkeletonPanel className="rounded-3xl p-5 sm:p-6">
+      <SkeletonPanel className="rounded-3xl p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3">
           <div className="space-y-2">
             <SkeletonBlock className="h-5 w-44 rounded-md bg-stone-200" />
@@ -334,7 +377,7 @@ function PatientIntakeSkeleton() {
             <SkeletonBlock key={item} className="h-2 flex-1 rounded-full bg-stone-100" />
           ))}
         </div>
-        <div className="mt-7 space-y-5">
+        <div className="mt-7 space-y-4 sm:space-y-5">
           <SkeletonBlock className="h-5 w-52 rounded-md bg-stone-200" />
           <FormFieldsSkeleton fields={4} />
         </div>
@@ -348,9 +391,9 @@ function PatientIntakeSkeleton() {
 
 function HistorySkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeaderSkeleton />
-      <SkeletonPanel className="rounded-3xl p-5 sm:p-6">
+      <SkeletonPanel className="rounded-3xl p-4 sm:p-5">
         <div className="flex items-center justify-between gap-3 border-b border-stone-200 pb-4">
           <div className="flex items-center gap-2.5">
             <SkeletonBlock className="h-9 w-9 rounded-full bg-stone-100" />
@@ -369,7 +412,7 @@ function HistorySkeleton() {
 
 function NotificationsSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeaderSkeleton />
       <section className="overflow-hidden border-y border-stone-200 bg-white">
         {Array.from({ length: 7 }, (_, item) => (
@@ -389,11 +432,11 @@ function NotificationsSkeleton() {
 
 function SettingsSkeleton() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
       <PageHeaderSkeleton />
       <div className="grid gap-4 sm:grid-cols-2">
         {[0, 1, 2, 3].map((item) => (
-          <SkeletonPanel key={item} className="rounded-xl p-5">
+          <SkeletonPanel key={item} className="rounded-xl p-3.5 sm:p-5">
             <div className="flex items-center justify-between">
               <SkeletonBlock className="h-4 w-28 rounded-md bg-stone-200/80" />
               <SkeletonBlock className="h-4 w-4 rounded-md bg-stone-100" />
@@ -409,10 +452,10 @@ function SettingsSkeleton() {
 
 function SecuritySkeleton() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
       <PageHeaderSkeleton />
       {[0, 1].map((item) => (
-        <SkeletonPanel key={item} className="rounded-xl p-5">
+        <SkeletonPanel key={item} className="rounded-xl p-3.5 sm:p-5">
           <SkeletonBlock className="h-5 w-40 rounded-md bg-stone-200" />
           <SkeletonLine className="mt-3 w-2/3 bg-stone-100" />
           <div className="mt-5 space-y-4">
@@ -427,7 +470,7 @@ function SecuritySkeleton() {
 
 function AuditLogsSkeleton() {
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
+    <div className="mx-auto max-w-7xl space-y-4 sm:space-y-6">
       <PageHeaderSkeleton />
       <SkeletonPanel className="overflow-hidden rounded-xl">
         <div className="border-b border-stone-200 bg-white p-4">
@@ -454,9 +497,9 @@ function AuditLogsSkeleton() {
 
 function UsersSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <PageHeaderSkeleton action="single" />
-      <SkeletonPanel className="rounded-xl p-5">
+      <SkeletonPanel className="rounded-xl p-3.5 sm:p-5">
         <SkeletonBlock className="h-5 w-36 rounded-md bg-stone-200" />
         <div className="mt-5">
           <TableRowsSkeleton rows={7} columns={6} />

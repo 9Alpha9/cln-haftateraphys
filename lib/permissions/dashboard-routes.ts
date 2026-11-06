@@ -14,7 +14,7 @@ const USER_LIST_ROLES: readonly Role[] = ['SUPER_ADMIN', 'ADMIN', 'STAFF'];
 
 const ROUTE_RULES: readonly DashboardRouteRule[] = [
   { pattern: /^\/dashboard$/, roles: ALL_ROLES },
-  { pattern: /^\/dashboard\/profile(?:\/|$)/, roles: ['USER'] },
+  { pattern: /^\/dashboard\/profile(?:\/|$)/, roles: ALL_ROLES },
   { pattern: /^\/dashboard\/patients(?:\/|$)/, roles: STAFF_ROLES },
   { pattern: /^\/dashboard\/calendar-events(?:\/|$)/, roles: ADMIN_ROLES },
   { pattern: /^\/dashboard\/calendar(?:\/|$)/, roles: STAFF_ROLES },

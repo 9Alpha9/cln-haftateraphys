@@ -405,3 +405,13 @@ Do not split every field into separate component without reuse/value.
 - [ ] account security page works with auth provider;
 - [ ] all sensitive error states are safe;
 - [ ] authorization tests pass.
+
+
+## Implementation notes — Intake consent (2026-11-06)
+
+- Form Awal memiliki dua persetujuan terpisah:
+  - persetujuan pemrosesan data pasien (wajib saat submit, tautan ke Kebijakan Privasi dan Syarat & Ketentuan);
+  - persetujuan publikasi media (opsional, tidak dibundel dengan persetujuan layanan).
+- Draft dapat disimpan tanpa persetujuan privasi; submit ditolak sampai persetujuan diberikan.
+- Waktu persetujuan disimpan pada `privacy_consent_at`.
+- Reviewer intake dapat melihat status persetujuan pada tab/grup **Persetujuan Pasien**.

@@ -81,23 +81,28 @@ export function FolderTabPanel({
       {/* ── TRUE FOLDER TABS ── */}
       <div
         role="tablist"
-        className="grid grid-cols-3 items-end gap-0.5 bg-stone-200/60 px-1.5 pt-2 sm:gap-1 sm:px-3"
+        aria-label="Kategori ringkasan"
+        className="flex items-end gap-1 overflow-x-auto bg-stone-200/60 px-1.5 pt-2 sm:gap-1.5 sm:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {tabs.map((tab) => {
           const isActive = tab.id === activeTabId;
+          const tabId = `folder-tab-${uid}-${tab.id}`;
+          const panelId = `folder-panel-${uid}-${tab.id}`;
 
           return (
             <button
               key={tab.id}
+              id={tabId}
               type="button"
               role="tab"
               aria-selected={isActive}
+              aria-controls={panelId}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                'relative flex min-w-0 items-center justify-center gap-1 px-1.5 py-2.5 text-[11px] font-semibold transition-colors cursor-pointer select-none sm:gap-1.5 sm:px-2.5 sm:text-xs',
+                'relative flex min-h-10 min-w-[88px] flex-1 basis-0 cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-t-[20px] px-2.5 py-2.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#181700] sm:min-h-11 sm:gap-2 sm:px-3 sm:text-[13px]',
                 isActive
-                  ? 'z-10 rounded-t-[24px] bg-white text-[#181700]'
-                  : 'rounded-t-[20px] bg-stone-100/90 text-stone-600 hover:bg-stone-200/60'
+                  ? 'z-10 rounded-t-[24px] bg-white text-[#181700] shadow-[0_-1px_0_rgba(24,23,0,0.04)]'
+                  : 'bg-stone-100/80 text-stone-600 hover:bg-stone-200/70'
               )}
             >
               {isActive && (
@@ -139,12 +144,17 @@ export function FolderTabPanel({
       </div>
 
       {/* ── BADAN KARTU ── */}
-      <div className="bg-white p-4 sm:p-5">
+      <div
+        id={`folder-panel-${uid}-${activeTabId}`}
+        role="tabpanel"
+        aria-labelledby={`folder-tab-${uid}-${activeTabId}`}
+        className="bg-white p-3 sm:p-5"
+      >
         {/* Header utama */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-2xl font-bold tracking-tight text-[#181700] sm:text-[26px]">
-              {/* {totalValue} */}
+<p className="text-base font-bold tracking-tight text-[#181700] sm:text-lg">
+                {/* {totalValue} */}
               {/* <sup className="ml-1 align-super text-[10px] font-semibold tracking-[0.14em] text-stone-400">
                 {totalLabel}
               </sup> */}
@@ -169,9 +179,9 @@ export function FolderTabPanel({
 
         {/* Sub-card ringkasan */}
         {summaryVisible && (
-          <div className="mt-5 rounded-3xl bg-[#F7F7F5] p-5 sm:p-6">
+          <div className="mt-5 rounded-3xl bg-[#F7F7F5] p-3 sm:p-4">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-sm font-bold tracking-normal text-[#181700] sm:text-base">
+              <h3 className="text-base font-bold tracking-tight text-[#181700] sm:text-lg">
                 {summaryTitle}
               </h3>
               {listActionHref ? (
@@ -283,7 +293,7 @@ export function FolderTabPanel({
         )}
 
         {/* Daftar tindakan */}
-        <div className="mt-5 rounded-3xl bg-[#F7F7F5] p-5">
+        <div className="mt-5 rounded-3xl bg-[#F7F7F5] p-3 sm:p-4">
           <div className="mb-4 flex items-center justify-between gap-3">
             <h3 className="text-base font-semibold text-[#181700]">{listTitle}</h3>
             {listActionHref ? (
@@ -298,36 +308,27 @@ export function FolderTabPanel({
           </div>
 
           {items.length === 0 ? (
-            <div className="py-6 text-center text-xs text-stone-400">{emptyMessage}</div>
+            <div className="py-4 sm:py-6 text-center text-xs text-stone-400">{emptyMessage}</div>
           ) : (
             <div className="space-y-4">
               {items.map((item, index) => (
-                <div key={item.id} className="flex items-start justify-between gap-3">
-                  <div className="flex min-w-0 items-start gap-3">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#EFEFED] text-xs font-semibold text-stone-600">
-                      {index + 1}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="break-words text-[12px] font-bold leading-tight text-[#181700]">
+                <div key={item.id} className="flex flex-col gap-1 w-full py-1 first:pt-0 last:pb-0">
+                  <div className="flex items-center justify-between gap-2 w-full">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <span className="flex h-6 w-6 aspect-square shrink-0 items-center justify-center rounded-full bg-stone-200/80 text-[11px] font-bold text-[#181700]">
+                        {index + 1}
+                      </span>
+                      <span className="text-xs sm:text-sm font-bold text-[#181700] truncate">
                         {item.title}
-                      </p>
-                      <p className="break-words text-xs text-stone-400 pt-1">{item.subtitle}</p>
+                      </span>
+                    </div>
+                    <div className="shrink-0 flex items-center gap-1.5 text-[11px] text-stone-500 whitespace-nowrap">
+                      <span className="font-bold text-[#181700]">{item.time}</span>
+                      <span className="capitalize">{item.kind}</span>
                     </div>
                   </div>
-
-                  <div className="w-24 shrink-0 text-right">
-                    <div className="mb-1 ml-auto flex w-16 items-center gap-1">
-                      <span className="h-1 w-5 rounded-full bg-[var(--hafta-ylw-100)]" />
-                      <span className="h-0.5 flex-1 border-b-2 border-dotted border-stone-400" />
-                    </div>
-                    <div className="flex items-center justify-end gap-1">
-                      <span className="text-[10px] font-bold leading-none text-[#181700] sm:text-xs">
-                        {item.time}
-                      </span>
-                      <span className="text-[10px] font-medium capitalize text-stone-400">
-                        {item.kind}
-                      </span>
-                    </div>
+                  <div className="pl-9 w-full text-xs leading-relaxed text-stone-600 break-words">
+                    {item.subtitle}
                   </div>
                 </div>
               ))}

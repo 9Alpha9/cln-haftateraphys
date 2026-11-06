@@ -74,10 +74,12 @@ export function IntakeHistoryActions({
       const blob = await pdf(<IntakeHistoryDocument data={data} />).toBlob();
       const url = URL.createObjectURL(blob);
 
-      const datePart = submittedAt
-        ? new Date(submittedAt).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })
+      const dateValue = data.submittedAt ? new Date(data.submittedAt) : submittedAt ? new Date(submittedAt) : null;
+      const datePart = dateValue
+        ? `${dateValue.getFullYear()}-${String(dateValue.getMonth() + 1).padStart(2, '0')}-${String(dateValue.getDate()).padStart(2, '0')}`
         : '';
-      const filename = `Hafta Fisioterapi - ${safeFilePart(patientName)} - Form Awal - ${datePart}.pdf`;
+      const rmPart = safeFilePart(data.medicalRecordNumber || '-');
+      const filename = `${safeFilePart(data.patientName || patientName)}-${rmPart}-${datePart}.pdf`;
 
       const link = document.createElement('a');
       link.href = url;

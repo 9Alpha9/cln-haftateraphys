@@ -60,22 +60,33 @@ type DatePickerProps = {
   id?: string;
   name?: string;
   className?: string;
+  /** Earliest selectable date in YYYY-MM-DD format. */
+  minDate?: string;
+  /** Prevent selecting dates before today. */
+  disablePast?: boolean;
 };
 
 const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
-  ({ value, onChange, disabled, required, placeholder = 'Pilih tanggal', id, name, className }, ref) => {
+  ({ value, onChange, disabled, required, placeholder = 'Pilih tanggal', id, name, className, minDate, disablePast }, ref) => {
     const [open, setOpen] = React.useState(false);
     const selectedDate = parseDate(value);
     const [viewDate, setViewDate] = React.useState<Date>(selectedDate ?? new Date());
-
+    const effectiveMinDate = minDate ?? (disablePast ? toDateString(new Date()) : undefined);
+    const minDateValue = effectiveMinDate ? new Date(`${effectiveMinDate}T00:00:00`) : null;
     const viewYear = viewDate.getFullYear();
     const viewMonth = viewDate.getMonth();
+    const canGoPrev =
+      !minDateValue ||
+      new Date(viewYear, viewMonth, 1).getTime() >
+        new Date(minDateValue.getFullYear(), minDateValue.getMonth(), 1).getTime();
     const daysInMonth = getDaysInMonth(viewYear, viewMonth);
     const firstDay = getFirstDayOfMonth(viewYear, viewMonth);
 
     function selectDay(day: number) {
       const selected = new Date(viewYear, viewMonth, day);
-      onChange?.(toDateString(selected));
+      const selectedKey = toDateString(selected);
+      if (effectiveMinDate && selectedKey < effectiveMinDate) return;
+      onChange?.(selectedKey);
       setOpen(false);
     }
 
@@ -111,8 +122,8 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
               disabled={disabled}
               onClick={() => !disabled && setOpen(true)}
               className={cn(
-                'flex h-10 w-full items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-left text-sm transition-colors outline-none cursor-pointer',
-                'hover:border-accent focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[#f7f000]/35',
+                'flex h-10 w-full items-center gap-2 rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-left text-sm transition-colors outline-none cursor-pointer',
+                'hover:border-stone-300 focus:border-[#181700] focus:outline-none focus:ring-4 focus:ring-[#f7f000]/35',
                 'disabled:cursor-not-allowed disabled:opacity-50',
                 !value && 'text-muted-foreground',
                 className,
@@ -130,7 +141,8 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
               <button
                 type="button"
                 onClick={prevMonth}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                disabled={!canGoPrev}
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -182,19 +194,23 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
                 const dateStr = toDateString(new Date(viewYear, viewMonth, day));
                 const isSelected = value === dateStr;
                 const isToday = toDateString(new Date()) === dateStr;
-                const holiday = getHoliday(viewMonth + 1, day);
+                const holiday = getHoliday(viewYear, viewMonth + 1, day);
                 const dayOfWeek = new Date(viewYear, viewMonth, day).getDay();
                 const isSunday = dayOfWeek === 0;
+                const isDisabled = Boolean(effectiveMinDate && dateStr < effectiveMinDate);
 
                 return (
                   <div key={day} className="relative flex flex-col items-center">
                     <button
                       type="button"
                       onClick={() => selectDay(day)}
+                      disabled={isDisabled}
+                      aria-disabled={isDisabled}
                       title={holiday ? `${holiday.name} (${HOLIDAY_LABEL[holiday.type]})` : undefined}
                       className={cn(
                         'flex h-9 w-9 items-center justify-center rounded-lg text-sm transition-colors',
                         'hover:bg-accent hover:text-accent-foreground',
+                        isDisabled && 'cursor-not-allowed opacity-30 hover:bg-transparent disabled:hover:text-inherit',
                         isSelected && 'bg-accent text-accent-foreground font-bold',
                         !isSelected && isToday && 'font-bold text-[#e27409] border border-[#e27409] underline underline-offset-2 flex h-9 w-9 items-center justify-center rounded-lg text-sm transition-colors',
                         holiday && !isSelected && 'text-red-600 font-semibold',

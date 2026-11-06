@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
+import { AppSelect } from '@/components/ui/app-select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { useToast } from '@/components/ui/toast';
 import { updateAppointment } from '@/server/actions/appointments';
@@ -89,8 +89,8 @@ export function AppointmentEditForm({
   }
 
   return (
-    <form id={formId} onSubmit={onSubmit} className="space-y-5">
-      <div className="grid gap-5 sm:grid-cols-2">
+    <form id={formId} onSubmit={onSubmit} className="space-y-4 sm:space-y-5">
+      <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <Label>Pasien</Label>
           <input type="hidden" name="patientId" value={appointment.patientId} />
@@ -100,20 +100,15 @@ export function AppointmentEditForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="therapistId">Terapis</Label>
-          <Select
+          <AppSelect
             id="therapistId"
             name="therapistId"
             required
+            placeholder="Pilih terapis"
             defaultValue={appointment.therapistId}
             disabled={pending || therapistOptions.length === 0}
-          >
-            <option value="">Pilih terapis</option>
-            {therapistOptions.map((therapist) => (
-              <option key={therapist.id} value={therapist.id}>
-                {therapist.label}
-              </option>
-            ))}
-          </Select>
+            options={therapistOptions.map((therapist) => ({ value: therapist.id, label: therapist.label }))}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="scheduledDate">Tanggal</Label>
@@ -123,59 +118,56 @@ export function AppointmentEditForm({
             value={scheduledDate}
             onChange={setScheduledDate}
             disabled={pending}
+            disablePast
           />
         </div>
         <div className="space-y-2">
           <Label htmlFor="startTime">Waktu Mulai</Label>
-          <Select
+          <AppSelect
             id="startTime"
             name="startTime"
             required
+            placeholder="Pilih jam"
             defaultValue={startTimeValue}
             disabled={pending}
-          >
-            <option value="">Pilih jam</option>
-            {(['pagi', 'siang', 'sore', 'malam'] as const).map((period) => (
-              <optgroup key={period} label={PERIOD_LABEL[period]}>
-                {TIME_OPTIONS.filter((t) => t.period === period).map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </Select>
+            groups={(['pagi', 'siang', 'sore', 'malam'] as const).map((period) => ({
+              label: PERIOD_LABEL[period],
+              options: TIME_OPTIONS.filter((t) => t.period === period).map((t) => ({
+                value: t.value,
+                label: t.label,
+              })),
+            }))}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="durationMinutes">Durasi</Label>
-          <Select
+          <AppSelect
             id="durationMinutes"
             name="durationMinutes"
+            placeholder="Pilih durasi"
             defaultValue={String(appointment.durationMinutes)}
             required
             disabled={pending}
-          >
-            <option value="">Pilih durasi</option>
-            {[15, 30, 45, 60, 90, 120].map((min) => (
-              <option key={min} value={min}>
-                {min} menit
-              </option>
-            ))}
-          </Select>
+            options={[15, 30, 45, 60, 90, 120].map((min) => ({
+              value: String(min),
+              label: `${min} menit`,
+            }))}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="type">Jenis</Label>
-          <Select
+          <AppSelect
             id="type"
             name="type"
             defaultValue={appointment.type}
             disabled={pending}
-          >
-            <option value="INITIAL_ASSESSMENT">Assessment Awal</option>
-            <option value="THERAPY_SESSION">Sesi Terapi</option>
-            <option value="FOLLOW_UP">Tindak Lanjut</option>
-            <option value="EVALUATION">Evaluasi</option>
-          </Select>
+            options={[
+              { value: 'INITIAL_ASSESSMENT', label: 'Assessment Awal' },
+              { value: 'THERAPY_SESSION', label: 'Sesi Terapi' },
+              { value: 'FOLLOW_UP', label: 'Tindak Lanjut' },
+              { value: 'EVALUATION', label: 'Evaluasi' },
+            ]}
+          />
         </div>
       </div>
       <div className="space-y-2">

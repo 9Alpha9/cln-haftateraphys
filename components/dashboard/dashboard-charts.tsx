@@ -234,7 +234,7 @@ export function DashboardCharts({ initialStats, role }: { initialStats: Dashboar
       {/* ── 3 CHARTS DALAM 1 BARIS (Tren 2-kolom, Donut 1-kolom, Bar 1-kolom) ── */}
       <div className="grid gap-3.5 grid-cols-1 lg:grid-cols-4 items-stretch">
         {/* Chart 1: Tren Janji Temu */}
-        <div className="lg:col-span-2 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm flex flex-col justify-between">
+        <div className="lg:col-span-2 rounded-2xl border border-stone-200/90 bg-white p-3.5 sm:p-5 shadow-sm flex flex-col justify-between">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2.5">
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--hafta-ylw-100)] text-[#181700] shadow-2xs">
@@ -290,7 +290,7 @@ export function DashboardCharts({ initialStats, role }: { initialStats: Dashboar
         </div>
 
         {/* Chart 2: Status Pasien (Donut) */}
-        <div className="lg:col-span-1 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm flex flex-col justify-between">
+        <div className="lg:col-span-1 rounded-2xl border border-stone-200/90 bg-white p-3.5 sm:p-5 shadow-sm flex flex-col justify-between">
           <div className="flex items-center gap-2.5 mb-4">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--hafta-ble-50)] text-[var(--hafta-ble-600)] shadow-2xs">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.25}>
@@ -348,7 +348,7 @@ export function DashboardCharts({ initialStats, role }: { initialStats: Dashboar
         </div>
 
         {/* Chart 3: Status Janji Temu (Bar) */}
-        <div className="lg:col-span-1 rounded-2xl border border-stone-200/90 bg-white p-5 shadow-sm flex flex-col justify-between">
+        <div className="lg:col-span-1 rounded-2xl border border-stone-200/90 bg-white p-3.5 sm:p-5 shadow-sm flex flex-col justify-between">
           <div className="flex items-center gap-2.5 mb-4">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-600)] shadow-2xs">
               <CalendarCheck2 className="h-4 w-4" />

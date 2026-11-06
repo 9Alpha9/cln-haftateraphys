@@ -7,7 +7,9 @@ import {
   ChevronDown,
   ChevronRight,
   ClipboardList,
+  Dumbbell,
   FileText,
+  Filter,
   HeartPulse,
   Stethoscope,
   Target,
@@ -16,8 +18,17 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { MedicalRecordActions } from '@/components/dashboard/medical-record-actions';
+import { PaginationBar } from '@/components/ui/pagination-bar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import type { PatientMedicalRecordSummary, TherapyProgressView } from '@/server/queries/therapy-progress';
+import type { HomeProgramView } from '@/server/queries/home-programs';
+import type { TreatmentPlanView } from '@/server/queries/treatment-plans';
 
 type TabKey = 'medis' | 'riwayat' | 'diagnosis' | 'tindakan' | 'dokumen';
 
@@ -95,7 +106,7 @@ function DateBadge({ date }: { date: Date }) {
 
 function EmptyState({ icon: Icon, title, description }: { icon: LucideIcon; title: string; description: string }) {
   return (
-    <div className="flex flex-col items-center px-5 py-14 text-center">
+    <div className="flex flex-col items-center px-4 sm:px-5 py-10 sm:py-14 text-center">
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
         <Icon className="h-5 w-5" />
       </span>
@@ -108,13 +119,18 @@ function EmptyState({ icon: Icon, title, description }: { icon: LucideIcon; titl
 export function PatientMedicalRecordView({
   patient,
   records,
+  homeProgram = null,
+  treatmentPlan = null,
 }: {
   patient: PatientMedicalRecordSummary | null;
   records: TherapyProgressView[];
+  homeProgram?: HomeProgramView | null;
+  treatmentPlan?: TreatmentPlanView | null;
 }) {
   const [activeTab, setActiveTab] = useState<TabKey>('medis');
   const [selectedRecordId, setSelectedRecordId] = useState(records[0]?.id ?? '');
-  const [showAllVisits, setShowAllVisits] = useState(false);
+  const [visitPage, setVisitPage] = useState(1);
+  const [visitsPerPage, setVisitsPerPage] = useState(3);
 
   const latestRecord = records[0] ?? null;
   const selectedRecord = useMemo(
@@ -122,7 +138,12 @@ export function PatientMedicalRecordView({
     [latestRecord, records, selectedRecordId],
   );
   const firstRecord = records[records.length - 1] ?? null;
-  const visibleVisits = showAllVisits ? records : records.slice(0, 5);
+  const visitPageCount = Math.max(1, Math.ceil(records.length / visitsPerPage));
+  const safeVisitPage = Math.min(visitPage, visitPageCount);
+  const visibleVisits = records.slice(
+    (safeVisitPage - 1) * visitsPerPage,
+    safeVisitPage * visitsPerPage,
+  );
   const chronologicalRecords = useMemo(
     () =>
       [...records].sort(
@@ -152,11 +173,11 @@ export function PatientMedicalRecordView({
   }
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-          <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--hafta-ylw-50)] text-xl font-bold text-[#181700] ring-1 ring-stone-200">
+    <div className="space-y-4 sm:space-y-6">
+      <section className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
+        <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-5">
+          <div className="flex min-w-0 items-start gap-3.5 sm:items-center sm:gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--hafta-ylw-50)] text-lg font-bold text-[#181700] ring-1 ring-stone-200 sm:h-16 sm:w-16 sm:text-xl">
               {patient?.avatarKey ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={patient.avatarKey} alt="Foto profil" className="h-full w-full object-cover" />
@@ -165,17 +186,19 @@ export function PatientMedicalRecordView({
               )}
             </div>
             <div className="min-w-0">
-              <h2 className="truncate text-lg font-bold text-[#181700]">{patient?.fullName ?? 'Pasien'}</h2>
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-stone-500">
-                <span className="rounded-full bg-[var(--hafta-ylw-50)] px-2.5 py-0.5 font-semibold text-[#181700]">
-                  {patient?.caseStatus ? `Kasus: ${patient.caseStatus}` : 'Pasien aktif'}
-                </span>
-                <span>No. RM {patient?.medicalRecordNumber ?? patient?.id?.slice(0, 10).toUpperCase() ?? '-'}</span>
-              </div>
+              <h2 className="truncate text-base font-bold text-[#181700] sm:text-lg">
+                {patient?.fullName ?? 'Pasien'}
+              </h2>
+              <p className="mt-0.5 truncate text-xs text-stone-500">
+                No. RM {patient?.medicalRecordNumber ?? patient?.id?.slice(0, 10).toUpperCase() ?? '-'}
+              </p>
+              <span className="mt-2 inline-flex w-fit rounded-full bg-[var(--hafta-ylw-50)] px-2.5 py-0.5 text-[11px] font-semibold text-[#181700]">
+                {patient?.caseStatus ? `Kasus: ${patient.caseStatus}` : 'Pasien aktif'}
+              </span>
             </div>
           </div>
 
-          <dl className="grid grid-cols-2 gap-x-8 gap-y-3 border-t border-stone-100 pt-4 text-sm sm:ml-auto sm:border-l sm:border-t-0 sm:pl-8 sm:pt-0">
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-3 rounded-2xl bg-[#FBFBFA] p-3.5 text-sm sm:ml-auto sm:shrink-0 sm:gap-x-8 sm:rounded-none sm:bg-transparent sm:p-0 sm:pl-8 sm:border-l sm:border-stone-100">
             <div>
               <dt className="text-[11px] text-stone-500">Usia</dt>
               <dd className="mt-0.5 font-bold text-[#181700]">{age !== null ? `${age} tahun` : '-'}</dd>
@@ -200,41 +223,153 @@ export function PatientMedicalRecordView({
         </div>
       </section>
 
+      {treatmentPlan ? (
+        <section className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
+          <div className="flex flex-wrap items-start justify-between gap-2 border-b border-stone-100 pb-3">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+                <Target className="h-5 w-5" />
+              </span>
+              <div>
+                <h2 className="text-sm font-bold text-[#181700]">Rencana Terapi</h2>
+                <p className="text-[11px] text-stone-500">
+                  Tujuan dan intervensi yang disusun fisioterapis Anda
+                </p>
+              </div>
+            </div>
+            <span className="rounded-full border border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)] px-2.5 py-0.5 text-[10px] font-bold text-[var(--hafta-grn-700)]">
+              Aktif
+            </span>
+          </div>
+
+          <div className="mt-3 space-y-2.5 text-sm">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wide text-stone-400">
+                Tujuan
+              </p>
+              <p className="mt-1 whitespace-pre-wrap text-[#181700]">{treatmentPlan.goals}</p>
+            </div>
+            <div className="border-t border-stone-100 pt-2.5">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-stone-400">
+                Intervensi
+              </p>
+              <p className="mt-1 whitespace-pre-wrap text-[#181700]">
+                {treatmentPlan.interventions}
+              </p>
+            </div>
+            {treatmentPlan.reviewIntervalText || treatmentPlan.reviewAt ? (
+              <p className="border-t border-stone-100 pt-2.5 text-[11px] text-stone-500">
+                Evaluasi:{' '}
+                {[
+                  treatmentPlan.reviewIntervalText,
+                  treatmentPlan.reviewAt ? formatShortDate(treatmentPlan.reviewAt) : null,
+                ]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </p>
+            ) : null}
+            {treatmentPlan.precautions ? (
+              <p className="rounded-xl bg-amber-50 px-3 py-2 text-[11px] text-amber-800">
+                Perhatian: {treatmentPlan.precautions}
+              </p>
+            ) : null}
+          </div>
+        </section>
+      ) : null}
+
+      {homeProgram ? (
+        <section className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
+          <div className="flex flex-wrap items-start justify-between gap-2 border-b border-stone-100 pb-3">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+                <Dumbbell className="h-5 w-5" />
+              </span>
+              <div>
+                <h2 className="text-sm font-bold text-[#181700]">Program Latihan Mandiri</h2>
+                <p className="text-[11px] text-stone-500">
+                  {homeProgram.startsAt
+                    ? `Mulai ${formatShortDate(homeProgram.startsAt)}${
+                        homeProgram.endsAt ? ` · sampai ${formatShortDate(homeProgram.endsAt)}` : ''
+                      }`
+                    : 'Latihan yang dianjurkan fisioterapis Anda'}
+                </p>
+              </div>
+            </div>
+            <span className="rounded-full border border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)] px-2.5 py-0.5 text-[10px] font-bold text-[var(--hafta-grn-700)]">
+              Aktif
+            </span>
+          </div>
+
+          <ul className="mt-3 space-y-2">
+            {homeProgram.items.map((item, index) => (
+              <li key={item.id} className="rounded-2xl bg-[#FBFBFA] p-3">
+                <p className="text-xs font-bold text-[#181700]">
+                  {index + 1}. {item.name}
+                </p>
+                <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-stone-600">
+                  {item.instruction}
+                </p>
+                <div className="mt-1.5 flex flex-wrap gap-1.5 text-[10px] font-semibold text-stone-600">
+                  {item.sets ? (
+                    <span className="rounded-full bg-white px-2 py-0.5">{item.sets} set</span>
+                  ) : null}
+                  {item.repetitions ? (
+                    <span className="rounded-full bg-white px-2 py-0.5">
+                      {item.repetitions} repetisi
+                    </span>
+                  ) : null}
+                  {item.durationSeconds ? (
+                    <span className="rounded-full bg-white px-2 py-0.5">
+                      {item.durationSeconds} detik
+                    </span>
+                  ) : null}
+                  {item.frequencyText ? (
+                    <span className="rounded-full bg-white px-2 py-0.5">{item.frequencyText}</span>
+                  ) : null}
+                </div>
+                {item.precaution ? (
+                  <p className="mt-1.5 text-[10px] text-amber-800">Perhatian: {item.precaution}</p>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
       <nav
-        className="rounded-3xl border border-stone-200 bg-stone-100/90 p-1.5 sm:border-0 sm:bg-transparent sm:p-0"
         aria-label="Bagian rekam medis"
+        className="flex items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-white px-3 py-2"
       >
-        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-          {TABS.map(({ key, label, icon: Icon }) => {
-            const isActive = activeTab === key;
-            return (
-              <button
-                key={key}
-                type="button"
-                onClick={() => setActiveTab(key)}
-                aria-pressed={isActive}
-                className={cn(
-                  'flex min-w-0 cursor-pointer items-center justify-center gap-2 rounded-2xl border px-3 py-2.5 text-[11px] font-semibold transition-colors sm:h-10 sm:rounded-full sm:px-3.5 sm:text-xs',
-                  key === 'dokumen' && 'col-span-2 sm:col-span-1',
-                  isActive
-                    ? 'border-[#181700] bg-[#181700] text-white'
-                    : 'border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:text-[#181700]',
-                )}
-              >
-                <Icon
-                  className={cn(
-                    'h-3.5 w-3.5 shrink-0',
-                    isActive ? 'text-[var(--hafta-ylw-100)]' : 'text-stone-400',
-                  )}
-                />
-                <span className="truncate">{label}</span>
-              </button>
-            );
-          })}
+        <div className="min-w-0">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-stone-400">
+            Tampilan
+          </p>
+          <p className="truncate text-xs font-bold text-[#181700]">
+            {TABS.find((tab) => tab.key === activeTab)?.label ?? 'Rekam Medis'}
+          </p>
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="inline-flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3.5 text-[11px] font-semibold text-[#181700] transition-colors hover:bg-stone-50">
+            <Filter className="h-3.5 w-3.5" />
+            Filter
+            <ChevronDown className="h-3.5 w-3.5" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            {TABS.map(({ key, label, icon: Icon }) => (
+              <DropdownMenuItem
+                key={key}
+                onClick={() => setActiveTab(key)}
+                className={cn('my-0.5 gap-2', activeTab === key && 'bg-stone-100 font-semibold')}
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </nav>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
+      <div className="grid gap-4 sm:gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
         <main className="min-w-0">
           {records.length === 0 ? (
             <section className="rounded-3xl border border-stone-200 bg-white">
@@ -245,7 +380,7 @@ export function PatientMedicalRecordView({
               />
             </section>
           ) : activeTab === 'medis' && selectedRecord ? (
-            <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
+            <section className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
               <header className="flex items-center justify-between gap-4 border-b border-stone-200 pb-5">
                 <div className="flex items-center gap-3.5">
                   <DateBadge date={selectedRecord.recordedAt} />
@@ -261,7 +396,7 @@ export function PatientMedicalRecordView({
                 </div>
               </header>
 
-              <div className="py-5">
+              <div className="py-3.5 sm:py-5">
                 <h4 className="text-xs font-semibold text-stone-500">Parameter fisik</h4>
                 <dl className="mt-3 grid grid-cols-2 gap-3">
                   {[
@@ -291,7 +426,7 @@ export function PatientMedicalRecordView({
                       },
                     };
                     return (
-                      <div key={key} className="min-w-0 rounded-2xl border border-stone-200/90 bg-[#FAFAF8] p-4">
+                      <div key={key} className="min-w-0 rounded-2xl border border-stone-200/90 bg-[#FAFAF8] p-3 sm:p-4">
                         <div className="flex items-start justify-between gap-2">
                           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#181700] ring-1 ring-stone-200">
                             <Icon className="h-4 w-4" />
@@ -351,7 +486,7 @@ export function PatientMedicalRecordView({
               ) : null}
             </section>
           ) : activeTab === 'riwayat' ? (
-            <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
+            <section className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
               <div className="flex items-start justify-between gap-3 border-b border-stone-200 pb-4">
                 <div>
                   <h3 className="text-base font-bold text-[#181700]">Riwayat Kunjungan</h3>
@@ -384,19 +519,20 @@ export function PatientMedicalRecordView({
                   </button>
                 ))}
               </div>
-              {records.length > 5 ? (
-                <button
-                  type="button"
-                  onClick={() => setShowAllVisits((current) => !current)}
-                  className="mt-3 inline-flex cursor-pointer items-center gap-1.5 text-xs font-semibold text-[#181700] underline-offset-4 hover:underline"
-                >
-                  {showAllVisits ? 'Tampilkan lebih sedikit' : `Lihat seluruh ${records.length} kunjungan`}
-                  <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', showAllVisits && 'rotate-180')} />
-                </button>
-              ) : null}
+              <PaginationBar
+                page={safeVisitPage}
+                pageCount={visitPageCount}
+                pageSize={visitsPerPage}
+                pageSizeOptions={[3, 5, 10]}
+                onPageChange={setVisitPage}
+                onPageSizeChange={(size) => {
+                  setVisitsPerPage(size);
+                  setVisitPage(1);
+                }}
+              />
             </section>
           ) : activeTab === 'diagnosis' ? (
-            <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
+            <section className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
               <h3 className="text-base font-bold text-[#181700]">Diagnosis & Anamnesis</h3>
               <p className="mt-1 text-xs text-stone-500">Ringkasan diagnosis dari setiap evaluasi fisioterapis.</p>
               <div className="mt-2 divide-y divide-stone-100">
@@ -424,7 +560,7 @@ export function PatientMedicalRecordView({
               </div>
             </section>
           ) : activeTab === 'tindakan' ? (
-            <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
+            <section className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
               <h3 className="text-base font-bold text-[#181700]">Tindakan Terapi</h3>
               <p className="mt-1 text-xs text-stone-500">Pemeriksaan dan tindakan yang dilakukan pada setiap sesi.</p>
               <div className="mt-2 divide-y divide-stone-100">
@@ -452,7 +588,7 @@ export function PatientMedicalRecordView({
               </div>
             </section>
           ) : (
-            <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
+            <section className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
               <h3 className="text-base font-bold text-[#181700]">Dokumen & Cetak</h3>
               <p className="mt-1 text-xs text-stone-500">Unduh atau cetak ringkasan rekam medis yang telah dibagikan.</p>
               <div className="mt-2 divide-y divide-stone-100">
@@ -478,7 +614,7 @@ export function PatientMedicalRecordView({
         </main>
 
         <aside className="space-y-4 xl:sticky xl:top-[88px] xl:self-start">
-          <section className="rounded-3xl border border-stone-200 bg-white p-5">
+          <section className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
             <h2 className="text-sm font-bold text-[#181700]">Ringkasan Terapi</h2>
             <dl className="mt-3 divide-y divide-stone-100 text-sm">
               <SummaryRow label="Status kasus" value={patient?.caseStatus ?? 'Aktif'} />
@@ -507,7 +643,7 @@ export function PatientMedicalRecordView({
           </section>
 
           {patient?.therapistNote ? (
-            <section className="rounded-3xl bg-[var(--hafta-ylw-50)]/55 p-5">
+            <section className="rounded-3xl bg-[var(--hafta-ylw-50)]/55 p-3.5 sm:p-5">
               <h2 className="text-sm font-bold text-[#181700]">Catatan fisioterapis</h2>
               <p className="mt-2 text-sm leading-relaxed text-[#181700]">{patient.therapistNote}</p>
               <p className="mt-3 text-[11px] text-stone-500">
@@ -517,7 +653,7 @@ export function PatientMedicalRecordView({
             </section>
           ) : null}
 
-          <section className="rounded-3xl border border-stone-200 bg-white p-5">
+          <section className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
             <h2 className="text-sm font-bold text-[#181700]">Tim Terapi</h2>
             <div className="mt-3 flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">

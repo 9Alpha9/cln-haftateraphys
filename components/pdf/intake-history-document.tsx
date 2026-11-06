@@ -12,7 +12,7 @@ const s = StyleSheet.create({
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     borderBottomWidth: 1,
     borderBottomColor: '#e2e8f0',
     paddingBottom: 16,
@@ -20,13 +20,14 @@ const s = StyleSheet.create({
   },
   headerLeft: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   logo: {
-    width: 100,
-    height: 40,
-    objectFit: 'cover',
-    marginRight: 10,
+    width: 120,
+    height: 56,
+    objectFit: 'contain',
+    marginRight: 12,
+    alignSelf: 'flex-start',
   },
   clinicBlock: {},
   clinicName: {
@@ -45,12 +46,12 @@ const s = StyleSheet.create({
   badge: {
     fontSize: 8,
     fontFamily: 'Helvetica-Bold',
-    color: '#065f46',
-    backgroundColor: '#ecfdf5',
+    color: '#181700',
+    backgroundColor: '#ffffff',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#a8a29e',
   },
   recordId: {
     fontSize: 8,
@@ -225,7 +226,8 @@ export function IntakeHistoryDocument({ data }: { data: IntakeHistoryPdfData }) 
       <Page size="A4" style={s.page}>
         <View style={s.header} fixed>
           <View style={s.headerLeft}>
-            <Image src={logoUrl} style={s.logo} />
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
+          <Image src={logoUrl} style={s.logo} />
             <View style={s.clinicBlock}>
               <Text style={s.clinicName}>HAFTA FISIOTERAPI</Text>
               <Text style={s.clinicDetail}>Klinik & Layanan Terapi Fisik Profesional</Text>

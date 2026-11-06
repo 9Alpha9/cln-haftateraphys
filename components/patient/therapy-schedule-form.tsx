@@ -49,7 +49,7 @@ export function TherapyScheduleForm({ patientId, initialValues }: Props) {
 
   return (
     <form
-      className="space-y-5"
+      className="space-y-4 sm:space-y-5"
       onSubmit={handleSubmit((data) =>
         startTransition(async () => {
           try {
@@ -83,6 +83,7 @@ export function TherapyScheduleForm({ patientId, initialValues }: Props) {
                 value={field.value ?? ''}
                 onChange={field.onChange}
                 disabled={pending}
+                disablePast
               />
             )}
           />
@@ -120,7 +121,7 @@ export function TherapyScheduleForm({ patientId, initialValues }: Props) {
       </div>
 
       <div className="flex justify-end border-t border-border pt-4">
-        <Button type="submit" size="sm" disabled={pending || !isDirty}>
+        <Button type="submit" size="sm" disabled={pending || !isDirty} className="sm:h-11">
           {pending ? 'Menyimpan...' : (
             <>
               <Save className="mr-1.5 h-3.5 w-3.5" />

@@ -40,7 +40,7 @@ export function ServicesDetailSection() {
               <ScrollReveal key={service.id} delay={index * 0.08} className="h-full">
                 <article
                   id={service.id}
-                  className="group flex h-full scroll-mt-24 flex-col justify-between rounded-3xl border border-stone-200/90 bg-white p-5 shadow-[0_4px_20px_rgba(24,23,0,0.03)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--hafta-ylw-400)]/60 hover:shadow-[0_14px_30px_rgba(24,23,0,0.07)] sm:p-7"
+                  className="group flex h-full scroll-mt-24 flex-col justify-between rounded-3xl border border-stone-200/90 bg-white p-3.5 sm:p-5 shadow-[0_4px_20px_rgba(24,23,0,0.03)] transition-all duration-300 hover:-translate-y-1 hover:border-[var(--hafta-ylw-400)]/60 hover:shadow-[0_14px_30px_rgba(24,23,0,0.07)] sm:p-7"
                 >
                   <div>
                     {/* Top Media Bar: Foto Model Rasio 16:10 + Badge Nomor & Ikon */}
@@ -133,7 +133,7 @@ export function ServicesDetailSection() {
                     </span>
                     <Link
                       href={`/layanan/${service.id}`}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-5 py-2.5 text-xs font-bold text-[var(--hafta-ylw-950)] shadow-2xs transition-all duration-200 hover:bg-[var(--hafta-ylw-200)] hover:shadow-xs sm:w-auto"
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 sm:px-5 py-2.5 text-xs font-bold text-[var(--hafta-ylw-950)] shadow-2xs transition-all duration-200 hover:bg-[var(--hafta-ylw-200)] hover:shadow-xs sm:w-auto"
                     >
                       <span>Lihat Detail Layanan</span>
                       <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />

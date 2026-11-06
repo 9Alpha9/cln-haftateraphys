@@ -533,3 +533,34 @@ components/patient/
 - [ ] export default denied and audited;
 - [ ] sensitive list views minimize data;
 - [ ] authorization tests cover every clinical mutation family.
+
+
+## Implementation notes (2026-11-06)
+
+- Rekam `FINALIZED` terkunci; tombol Edit diganti **Amandemen**.
+- Amandemen membuat draft revisi (`amended_from_id`, `revision_number`) dengan alasan wajib minimal 10 karakter.
+- Draft amandemen dapat diedit dan difinalisasi. Finalisasi menandai rekam asal `superseded_at`; rekam asal tetap tersimpan dan tidak dihapus.
+- Daftar rekam aktif tidak menampilkan record yang sudah superseded.
+- Audit event: `progress.amend`, `progress.update`, `progress.finalize`.
+
+
+## Implementation notes — Home Program (2026-11-06)
+
+- Tab **Program Latihan** tersedia di detail pasien.
+- Terapis/Admin dapat membuat hingga 20 latihan per program.
+- Field per latihan: nama, instruksi, set, repetisi, durasi, frekuensi, dan precaution.
+- Visibilitas: `Internal` atau `Pasien`; pasien hanya melihat program `ACTIVE` dengan `patient_visible = 1`.
+- Menyimpan program mengganti daftar item lama (v1) dan menulis audit `home_program.save`.
+- Pasien melihat program aktif pada halaman Rekam Medis.
+- Treatment plan terpisah belum dibuat; `treatment_plan_id` masih kosong.
+
+
+## Implementation notes — Rencana Terapi (2026-11-06)
+
+- Tab **Rencana Terapi** tersedia di detail pasien.
+- Field v1: tujuan, rencana intervensi, interval evaluasi, tanggal evaluasi, precaution.
+- Status: `DRAFT` / `ACTIVE`; visibilitas: `Internal` / `Pasien`.
+- Satu rencana terbaru per pasien disimpan pada `treatment_plans`; menyimpan ulang akan memperbarui rencana tersebut.
+- Pasien hanya melihat rencana `ACTIVE` dengan `patient_visible = 1`.
+- Audit event: `treatment_plan.save`.
+- Assessment tetap menyatu di rekam medis; treatment plan kini terpisah.

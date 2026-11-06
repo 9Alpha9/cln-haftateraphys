@@ -14,7 +14,7 @@ export default async function AddUserPage() {
   const backLabel = isSuperAdmin ? 'Manajemen Pengguna' : 'Pasien';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       <DashboardPageHeader
         title={isSuperAdmin ? 'Tambah Pengguna' : 'Daftarkan Pasien'}
         description={isSuperAdmin ? 'Buat akun pengguna baru.' : 'Buat akun portal untuk pasien baru.'}

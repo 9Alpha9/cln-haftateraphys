@@ -107,7 +107,7 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
 
   if (!current) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <NotchedCard
           variant="accent"
           icon={ClipboardList}
@@ -126,6 +126,17 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
           activeIntake={activeIntake}
           mode={mode}
           onEdit={() => setMode('edit')}
+        />
+
+        <ConfirmDialog
+          isOpen={showCloseConfirm}
+          title="Batalkan Pengisian Form?"
+          description="Anda memiliki isian form yang belum disimpan. Jika batal, data yang telah Anda isi akan hilang dan tidak akan dikirimkan."
+          confirmLabel="Ya, Batalkan"
+          cancelLabel="Tetap Isi Form"
+          variant="destructive"
+          onConfirm={handleCloseConfirm}
+          onCancel={() => setShowCloseConfirm(false)}
         />
       </div>
     );
@@ -163,7 +174,7 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
             showRings
           />
 
-          <div className="rounded-3xl border border-stone-200/90 bg-white p-5 sm:p-6">
+          <div className="rounded-3xl border border-stone-200/90 bg-white p-3.5 sm:p-5">
             <h3 className="text-sm font-bold text-[#181700]">Ringkasan episode</h3>
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex items-start justify-between gap-3 border-b border-stone-100 pb-3">
@@ -192,7 +203,7 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
         </div>
 
         {canStartEpisode ? (
-          <div className="flex flex-col gap-3 rounded-2xl border border-stone-200/90 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-bold text-[#181700]">Punya keluhan baru di area berbeda?</p>
               <p className="mt-1 text-xs leading-relaxed text-stone-500">
@@ -311,7 +322,7 @@ function IntakeDrawer({
             <button
               type="button"
               onClick={onEdit}
-              className="w-full h-11 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all px-5"
+              className="w-full h-11 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all px-4 sm:px-5"
             >
               <PencilLine className="h-4 w-4" />
               Perbarui Jawaban

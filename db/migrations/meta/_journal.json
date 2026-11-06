@@ -162,6 +162,48 @@
       "when": 1792751216265,
       "tag": "0022_auto_medical_record_number",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1793821130042,
+      "tag": "0023_married_tomorrow_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1794000000000,
+      "tag": "0024_therapy_progress_medical_history_evaluation",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1794100000000,
+      "tag": "0025_user_suspension",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1794200000000,
+      "tag": "0026_therapy_progress_amendment",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1794300000000,
+      "tag": "0027_patient_intake_consent",
+      "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1794400000000,
+      "tag": "0028_treatment_plans",
+      "breakpoints": true
     }
   ]
 }

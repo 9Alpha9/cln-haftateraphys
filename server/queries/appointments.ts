@@ -1,6 +1,6 @@
 import { and, asc, count, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { appointmentNotificationReads, appointments, patients, users } from '@/db/schema';
+import { appointmentNotificationReads, appointments, patients, profiles, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 
@@ -12,6 +12,7 @@ export type AppointmentView = {
   type: string;
   status: string;
   patientName: string;
+  patientImage: string | null;
   therapistName: string | null;
   isNew: boolean;
 };
@@ -27,6 +28,7 @@ export type AppointmentDetail = {
   status: string;
   administrativeNote: string | null;
   patientName: string;
+  patientImage: string | null;
   therapistName: string | null;
 };
 
@@ -47,11 +49,13 @@ export async function getAppointmentById(appointmentId: string): Promise<Appoint
       status: appointments.status,
       administrativeNote: appointments.administrativeNote,
       patientName: patients.fullName,
+      patientImage: profiles.avatarKey,
       therapistName: users.name,
     })
     .from(appointments)
     .innerJoin(patients, eq(appointments.patientId, patients.id))
     .innerJoin(users, eq(appointments.therapistId, users.id))
+    .leftJoin(profiles, eq(profiles.userId, patients.userId))
     .where(
       role === 'THERAPIST'
         ? and(eq(appointments.id, appointmentId), eq(appointments.therapistId, session.user.id))
@@ -73,12 +77,25 @@ export async function getScopedAppointments(page = 1, pageSize = 6) {
       : role === 'SUPER_ADMIN'
         ? eq(appointments.createdBy, session.user.id)
         : eq(appointments.therapistId, session.user.id);
-  const [totalResult] = await db
-    .select({ value: count() })
-    .from(appointments)
-    .innerJoin(patients, eq(appointments.patientId, patients.id))
-    .where(where);
-  const totalPages = Math.max(1, Math.ceil(totalResult.value / pageSize));
+  const [totalRows, statusRows] = await Promise.all([
+    db
+      .select({ value: count() })
+      .from(appointments)
+      .innerJoin(patients, eq(appointments.patientId, patients.id))
+      .where(where),
+    db
+      .select({ status: appointments.status, value: count() })
+      .from(appointments)
+      .innerJoin(patients, eq(appointments.patientId, patients.id))
+      .where(where)
+      .groupBy(appointments.status),
+  ]);
+  const statusCounts = statusRows.reduce<Record<string, number>>((acc, row) => {
+    acc[row.status] = Number(row.value);
+    return acc;
+  }, {});
+  const total = Number(totalRows[0]?.value ?? 0);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.min(Math.max(1, page), totalPages);
   const rawItems = await db
     .select({
@@ -89,12 +106,14 @@ export async function getScopedAppointments(page = 1, pageSize = 6) {
       type: appointments.type,
       status: appointments.status,
       patientName: patients.fullName,
+      patientImage: profiles.avatarKey,
       therapistName: users.name,
       readId: appointmentNotificationReads.id,
     })
     .from(appointments)
     .innerJoin(patients, eq(appointments.patientId, patients.id))
     .innerJoin(users, eq(appointments.therapistId, users.id))
+    .leftJoin(profiles, eq(profiles.userId, patients.userId))
     .leftJoin(
       appointmentNotificationReads,
       and(
@@ -112,7 +131,7 @@ export async function getScopedAppointments(page = 1, pageSize = 6) {
     isNew: readId === null,
   }));
 
-  return { items, currentPage, totalPages, total: totalResult.value };
+  return { items, currentPage, totalPages, total, statusCounts };
 }
 
 export async function assertPatientSchedulingScope(patientId: string) {

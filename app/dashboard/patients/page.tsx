@@ -1,48 +1,53 @@
 import { Users } from 'lucide-react';
 import { CreatePatientFormModal } from '@/components/dashboard/create-patient-form-modal';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { PatientTableClient } from '@/components/dashboard/patients/patient-table-client';
 import { PatientListFilters } from '@/components/dashboard/patient-list-filters';
 import { PatientListTabs } from '@/components/dashboard/patient-list-tabs';
+import { PaginationBar } from '@/components/ui/pagination-bar';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS, requirePermission } from '@/lib/permissions';
 import { cn } from '@/lib/utils';
-import { getPatientsList, getUnlinkedUserPatients } from '@/server/queries/patients';
+import { getPatientsList, getTherapistOptions, getUnlinkedUserPatients } from '@/server/queries/patients';
 
-function hrefFor(page: number, search: string, status: string) {
-  const params = new URLSearchParams({ page: String(page) });
+function buildHrefTemplate(search: string, status: string, therapist: string, perPage: number) {
+  const params = new URLSearchParams();
   if (search) params.set('q', search);
   if (status) params.set('status', status);
-  return `/dashboard/patients?${params.toString()}`;
+  if (therapist) params.set('therapist', therapist);
+  params.set('perPage', String(perPage));
+  return `/dashboard/patients?${params.toString()}&page={page}`;
 }
 
 export default async function PatientsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; q?: string; status?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    q?: string;
+    status?: string;
+    therapist?: string;
+    perPage?: string;
+  }>;
 }) {
   const { role } = await requireSession({ redirectToLogin: true });
   await requirePermission(PERMISSIONS.PATIENT_LIST);
   const params = await searchParams;
   const search = params.q?.trim() ?? '';
   const status = params.status ?? '';
-  const result = await getPatientsList(Number(params.page) || 1, 10, search, status);
+  const therapist = params.therapist ?? '';
+  const perPageParam = Number(params.perPage);
+  const perPage = [4, 10, 25, 50].includes(perPageParam) ? perPageParam : 4;
+  const [result, therapistOptions] = await Promise.all([
+    getPatientsList(Number(params.page) || 1, perPage, search, status, therapist),
+    getTherapistOptions(),
+  ]);
   const canCreate = hasPermission(role, PERMISSIONS.PATIENT_CREATE);
   const canArchive = hasPermission(role, PERMISSIONS.PATIENT_ARCHIVE);
   const unlinkedUsers = canCreate ? await getUnlinkedUserPatients() : [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       <DashboardPageHeader
         title="Daftar Pasien"
         description="Pasien yang sudah terhubung dengan akun portal."
@@ -65,65 +70,51 @@ export default async function PatientsPage({
         }
       />
 
-      {/* Content */}
-      <div>
-        <Card className="rounded-2xl border-stone-200/90 shadow-sm overflow-visible">
-          <CardHeader className="gap-4">
-            <PatientListTabs active="active" />
-            <PatientListFilters initialSearch={search} initialStatus={status} />
-          </CardHeader>
-          <CardContent>
-            {result.items.length === 0 ? (
-              <div className="flex min-h-48 flex-col items-center justify-center text-center">
-                <Users className="h-10 w-10 text-[#92400e]/70" />
-                <p className="mt-4 font-semibold text-foreground">Tidak ada pasien ditemukan</p>
-                <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                  Ubah pencarian atau filter, atau tambahkan akun USER sebagai pasien.
-                </p>
-              </div>
-            ) : (
-              <>
-                <p className="mb-3 text-sm text-muted-foreground">
-                  Menampilkan {(result.currentPage - 1) * 10 + 1}–{Math.min(result.currentPage * 10, result.total)} dari{' '}
-                  {result.total} pasien
-                </p>
-                <PatientTableClient
-                  items={result.items}
-                  currentPage={result.currentPage}
-                  canArchive={canArchive}
-                />
-                {result.totalPages > 1 ? (
-                  <Pagination className="mt-6">
-                    <PaginationContent>
-                      <PaginationItem>
-                        {result.currentPage > 1 ? (
-                          <PaginationPrevious href={hrefFor(result.currentPage - 1, search, status)}>
-                            Sebelumnya
-                          </PaginationPrevious>
-                        ) : null}
-                      </PaginationItem>
-                      {Array.from({ length: result.totalPages }, (_, index) => index + 1).map((item) => (
-                        <PaginationItem key={item}>
-                          <PaginationLink href={hrefFor(item, search, status)} isActive={item === result.currentPage}>
-                            {item}
-                          </PaginationLink>
-                        </PaginationItem>
-                      ))}
-                      <PaginationItem>
-                        {result.currentPage < result.totalPages ? (
-                          <PaginationNext href={hrefFor(result.currentPage + 1, search, status)}>
-                            Berikutnya
-                          </PaginationNext>
-                        ) : null}
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                ) : null}
-              </>
-            )}
-          </CardContent>
-        </Card>
+      <div className="space-y-3">
+        <PatientListTabs active="active" />
+        <PatientListFilters
+          initialSearch={search}
+          initialStatus={status}
+          initialTherapist={therapist}
+          therapistOptions={therapistOptions}
+        />
       </div>
+
+      {result.items.length === 0 ? (
+        <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+            <Users className="h-6 w-6" />
+          </span>
+          <p className="mt-3 text-sm font-bold text-[#181700]">Tidak ada pasien ditemukan</p>
+          <p className="mt-1 max-w-sm text-xs text-stone-500">
+            Ubah pencarian atau filter, atau tambahkan akun USER sebagai pasien.
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          <p className="text-xs text-stone-500 sm:text-[13px]">
+            Menampilkan {(result.currentPage - 1) * perPage + 1}–{Math.min(result.currentPage * perPage, result.total)} dari{' '}
+            {result.total} pasien
+          </p>
+          <PatientTableClient
+            items={result.items}
+            currentPage={result.currentPage}
+            pageSize={perPage}
+            canArchive={canArchive}
+          />
+          <PaginationBar
+            page={result.currentPage}
+            pageCount={result.totalPages}
+            hrefTemplate={buildHrefTemplate(search, status, therapist, perPage)}
+            pageSize={perPage}
+            pageSizeOptions={[4, 10, 25, 50]}
+            pageSizeHrefTemplate={buildHrefTemplate(search, status, therapist, 0)
+              .replace('perPage=0', 'perPage={size}')
+              .replace('page={page}', 'page=1')}
+            className="mt-4"
+          />
+        </div>
+      )}
     </div>
   );
 }

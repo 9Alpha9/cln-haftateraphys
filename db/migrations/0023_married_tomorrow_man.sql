@@ -1,0 +1,1 @@
+ALTER TABLE "patient_intakes" ADD COLUMN "photos" text;

@@ -1,6 +1,7 @@
-import { and, eq, or } from 'drizzle-orm';
+import { and, eq, isNull, or } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { patients } from '@/db/schema/patients';
+import { patientAssignments } from '@/db/schema/patients';
 import { requireSession } from '@/lib/auth/require-session';
 import { type Permission } from './constants';
 import { ForbiddenError, hasPermission } from './policy';
@@ -36,6 +37,24 @@ export async function requirePatientAccess(patientId: string, permission: Permis
 
   if (!patient) {
     throw new ForbiddenError();
+  }
+
+  if (role === 'THERAPIST') {
+    const [assignment] = await db
+      .select({ id: patientAssignments.id })
+      .from(patientAssignments)
+      .where(
+        and(
+          eq(patientAssignments.patientId, patient.id),
+          eq(patientAssignments.staffUserId, session.user.id),
+          isNull(patientAssignments.activeUntil),
+        ),
+      )
+      .limit(1);
+
+    if (!assignment) {
+      throw new ForbiddenError();
+    }
   }
 
   return patient;

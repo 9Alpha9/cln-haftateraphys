@@ -56,7 +56,7 @@ export function IntakeReviewActions({
     );
   if (status !== 'UNDER_REVIEW') return null;
   return (
-    <div className="space-y-4 rounded-xl border border-[#E9E2D8] bg-white p-5">
+    <div className="space-y-4 rounded-xl border border-[#E9E2D8] bg-white p-3.5 sm:p-5">
       <div>
         <p className="font-semibold text-[#1F2937]">Keputusan Review</p>
         <p className="mt-1 text-sm text-[#6B7280]">
@@ -83,22 +83,15 @@ export function IntakeReviewActions({
           />
         </div>
       ) : null}
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        {canRequestRevision ? (
-          <Button
-            variant="outline"
-            disabled={pending}
-            onClick={() => run('request-revision')}
-          >
-            Minta Perbaikan
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        {canAccept ? (
+          <Button disabled={pending} onClick={() => run('accept')}>
+            {pending ? 'Memproses...' : 'Terima Form Awal'}
           </Button>
         ) : null}
-        {canAccept ? (
-          <Button
-            disabled={pending}
-            onClick={() => run('accept')}
-          >
-            {pending ? 'Memproses...' : 'Terima Form Awal'}
+        {canRequestRevision ? (
+          <Button variant="outline" disabled={pending} onClick={() => run('request-revision')}>
+            Minta Perbaikan
           </Button>
         ) : null}
       </div>

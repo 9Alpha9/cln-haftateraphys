@@ -2,7 +2,7 @@ import { desc, eq } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { appointments, patients, profiles, users } from '@/db/schema';
 import { PERMISSIONS, requirePatientAccess } from '@/lib/permissions';
-import { getPatientTherapist } from '@/server/queries/patients';
+import { getAssignedTherapistId, getPatientTherapist } from '@/server/queries/patients';
 
 export type PatientDetailSession = {
   id: string;
@@ -25,8 +25,9 @@ export async function getPatientDetail(patientId: string) {
     .where(eq(users.id, patient.userId))
     .limit(1);
 
-  const [therapistName, sessions] = await Promise.all([
+  const [therapistName, assignedTherapistId, sessions] = await Promise.all([
     getPatientTherapist(patientId),
+    getAssignedTherapistId(patientId),
     db
       .select({
         id: appointments.id,
@@ -48,7 +49,9 @@ export async function getPatientDetail(patientId: string) {
     patient,
     email: account?.email ?? null,
     phone: account?.phone ?? null,
+    avatarKey: account?.avatarKey ?? null,
     therapistName,
+    assignedTherapistId,
     sessions: sessions satisfies PatientDetailSession[],
   };
 }

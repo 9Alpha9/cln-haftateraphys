@@ -1,6 +1,6 @@
-import { and, count, desc, eq, ilike, or, sql } from 'drizzle-orm';
+import { and, count, desc, eq, ilike, isNull, or, sql } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { patientAssignments, patients, profiles, therapyProgressRecords, users } from '@/db/schema';
+import { patientAssignments, patientIntakes, patients, profiles, therapyProgressRecords, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 
@@ -16,18 +16,25 @@ export type TherapyProgressView = {
   functionScore: number;
   anamnesis: string | null;
   physicalExamination: string | null;
+  medicalHistory: string | null;
   diagnosis: string | null;
   treatment: string | null;
+  evaluation: string | null;
   followUpPlan: string | null;
   summary: string | null;
   status: 'DRAFT' | 'FINALIZED';
   patientVisible: boolean;
+  amendedFromId?: string | null;
+  revisionNumber?: number;
+  amendmentReason?: string | null;
+  supersededAt?: Date | null;
   medicalRecordNumber?: string | null;
   visitNumber?: number;
   gender?: string | null;
   patientDob?: Date | null;
   patientPhone?: string | null;
   patientAddress?: string | null;
+  patientAvatarKey?: string | null;
 };
 
 export type TherapyProgressDetail = TherapyProgressView & {
@@ -51,6 +58,7 @@ export async function getTherapyProgressById(id: string): Promise<TherapyProgres
       patientUserId: patients.userId,
       therapistId: therapyProgressRecords.therapistId,
       patientName: patients.fullName,
+      patientAvatarKey: profiles.avatarKey,
       medicalRecordNumber: patients.medicalRecordNumber,
       gender: patients.gender,
       patientDob: patients.dateOfBirth,
@@ -65,12 +73,24 @@ export async function getTherapyProgressById(id: string): Promise<TherapyProgres
       functionScore: therapyProgressRecords.functionScore,
       anamnesis: therapyProgressRecords.anamnesis,
       physicalExamination: therapyProgressRecords.physicalExamination,
+      medicalHistory: sql<string | null>`coalesce(${therapyProgressRecords.medicalHistory}, (
+        select ${patientIntakes.relevantMedicalHistory}
+        from ${patientIntakes}
+        where ${patientIntakes.patientId} = ${therapyProgressRecords.patientId}
+        order by ${patientIntakes.version} desc
+        limit 1
+      ))`,
       diagnosis: therapyProgressRecords.diagnosis,
       treatment: therapyProgressRecords.treatment,
+      evaluation: therapyProgressRecords.evaluation,
       followUpPlan: therapyProgressRecords.followUpPlan,
       summary: therapyProgressRecords.summary,
       status: therapyProgressRecords.status,
       patientVisible: therapyProgressRecords.patientVisible,
+      amendedFromId: therapyProgressRecords.amendedFromId,
+      revisionNumber: therapyProgressRecords.revisionNumber,
+      amendmentReason: therapyProgressRecords.amendmentReason,
+      supersededAt: therapyProgressRecords.supersededAt,
     })
     .from(therapyProgressRecords)
     .innerJoin(patients, eq(therapyProgressRecords.patientId, patients.id))
@@ -83,7 +103,10 @@ export async function getTherapyProgressById(id: string): Promise<TherapyProgres
 
   if (
     role === 'USER' &&
-    (row.patientUserId !== session.user.id || row.status !== 'FINALIZED' || row.patientVisible !== 1)
+    (row.patientUserId !== session.user.id ||
+      row.status !== 'FINALIZED' ||
+      row.patientVisible !== 1 ||
+      row.supersededAt)
   ) {
     return null;
   }
@@ -216,11 +239,13 @@ export async function getScopedTherapyProgress(
       id: therapyProgressRecords.id,
       patientId: therapyProgressRecords.patientId,
       patientName: patients.fullName,
+      patientAvatarKey: profiles.avatarKey,
       medicalRecordNumber: patients.medicalRecordNumber,
       visitNumber: sql<number>`(
         select count(*)::int + 1
         from ${therapyProgressRecords} as prior
         where prior.patient_id = ${therapyProgressRecords.patientId}
+          and prior.amended_from_id is null
           and prior.recorded_at < ${therapyProgressRecords.recordedAt}
       )`,
       gender: patients.gender,
@@ -235,12 +260,24 @@ export async function getScopedTherapyProgress(
       functionScore: therapyProgressRecords.functionScore,
       anamnesis: therapyProgressRecords.anamnesis,
       physicalExamination: therapyProgressRecords.physicalExamination,
+      medicalHistory: sql<string | null>`coalesce(${therapyProgressRecords.medicalHistory}, (
+        select ${patientIntakes.relevantMedicalHistory}
+        from ${patientIntakes}
+        where ${patientIntakes.patientId} = ${therapyProgressRecords.patientId}
+        order by ${patientIntakes.version} desc
+        limit 1
+      ))`,
       diagnosis: therapyProgressRecords.diagnosis,
       treatment: therapyProgressRecords.treatment,
+      evaluation: therapyProgressRecords.evaluation,
       followUpPlan: therapyProgressRecords.followUpPlan,
       summary: therapyProgressRecords.summary,
       status: therapyProgressRecords.status,
       patientVisible: therapyProgressRecords.patientVisible,
+      amendedFromId: therapyProgressRecords.amendedFromId,
+      revisionNumber: therapyProgressRecords.revisionNumber,
+      amendmentReason: therapyProgressRecords.amendmentReason,
+      supersededAt: therapyProgressRecords.supersededAt,
     })
     .from(therapyProgressRecords)
     .innerJoin(patients, eq(therapyProgressRecords.patientId, patients.id))
@@ -259,7 +296,7 @@ export async function getScopedTherapyProgress(
     );
   }
 
-  const filters = [scopeFilter];
+  const filters = [scopeFilter, isNull(therapyProgressRecords.supersededAt)];
   if (isPatient) {
     filters.push(eq(therapyProgressRecords.status, 'FINALIZED'));
     filters.push(eq(therapyProgressRecords.patientVisible, 1));

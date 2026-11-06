@@ -1,22 +1,35 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Activity,
+  CalendarDays,
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  FileText,
+  FilePenLine,
+  Filter,
+  History,
+  LayoutList,
+  Lock,
   Eye,
   EyeOff,
   Pencil,
-  FileText,
   Stethoscope,
   MoreVertical,
   Printer,
   FileDown,
   Search,
+  Trash2,
+  X,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
+import { PaginationBar } from '@/components/ui/pagination-bar';
 import { MedicalRecordActions, useMedicalRecordPdf } from '@/components/dashboard/medical-record-actions';
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
+import { ProgressAmendmentDialog } from '@/components/dashboard/progress/progress-amendment-dialog';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
 import { cn } from '@/lib/utils';
 
@@ -45,6 +58,7 @@ interface MedicalRecordCardProps {
   canEdit: boolean;
   onSelect: (record: TherapyProgressView) => void;
   onEdit: (record: TherapyProgressView) => void;
+  onAmend: (record: TherapyProgressView) => void;
 }
 
 function MedicalRecordCard({
@@ -52,167 +66,89 @@ function MedicalRecordCard({
   canEdit,
   onSelect,
   onEdit,
+  onAmend,
 }: MedicalRecordCardProps) {
   const { openPrintPage, downloadPdf } = useMedicalRecordPdf(record);
   const [showRecordMenu, setShowRecordMenu] = useState(false);
   const isFinal = record.status === 'FINALIZED';
+  const isAmendment = Boolean(record.amendedFromId);
+  const revision = record.revisionNumber ?? 1;
   const dateStr = new Date(record.recordedAt).toLocaleDateString('id-ID', {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
   });
 
+  const initials = record.patientName
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('');
+
   return (
     <article
       key={record.id}
       onClick={() => onSelect(record)}
-      className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-2xs transition-all duration-200 hover:border-stone-300 cursor-pointer"
+      className="group relative flex cursor-pointer flex-col justify-between rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(24,23,0,0.09)] sm:p-5"
     >
       <div>
-        {/* Baris Atas: Nama Pasien & Status Badges */}
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <h3 className="truncate text-base font-bold text-[#181700] group-hover:text-[var(--hafta-ylw-950)]">
+          <div className="flex min-w-0 items-start gap-3">
+            {record.patientAvatarKey ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={record.patientAvatarKey}
+                alt={record.patientName}
+                className="h-11 w-11 shrink-0 rounded-2xl object-cover ring-1 ring-stone-200"
+              />
+            ) : (
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-xs font-bold text-[#181700] shadow-2xs">
+                {initials || 'RM'}
+              </span>
+            )}
+            <div className="min-w-0">
+              <h3 className="truncate text-sm font-bold text-[#181700] group-hover:text-[var(--hafta-ylw-950)] sm:text-base">
                 {record.patientName}
               </h3>
-              {record.medicalRecordNumber ? (
+              <div className="mt-1 flex flex-wrap items-center gap-1.5">
                 <span
-                  className="shrink-0 rounded-full bg-stone-100 px-2 py-0.5 font-mono text-[10px] font-bold text-[#181700]"
-                  title="Nomor Rekam Medis"
+                  className={cn(
+                    'inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold',
+                    isFinal
+                      ? 'border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]'
+                      : 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-[var(--hafta-org-700)]',
+                  )}
                 >
-                  {record.medicalRecordNumber}
+                  {isFinal ? (
+                    <Lock className="h-2.5 w-2.5" />
+                  ) : (
+                    <FilePenLine className="h-2.5 w-2.5" />
+                  )}
+                  {isFinal
+                    ? `Final Terkunci${revision > 1 ? ` · R${revision}` : ''}`
+                    : isAmendment
+                      ? `Draft Amandemen · R${revision}`
+                      : 'Draft'}
                 </span>
-              ) : null}
-            </div>
-            <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-stone-500 font-medium">
-              <span>
-                {dateStr} • Oleh: {record.therapistName || 'Terapis'}
-              </span>
-              {record.visitNumber ? (
-                <span className="rounded-full border border-stone-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600">
-                  Kunjungan Ke-{record.visitNumber}
-                </span>
-              ) : null}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-1.5 shrink-0">
-            {/* Status Badge */}
-            <span
-              className={cn(
-                'rounded-full px-2 py-0.5 font-mono text-[10px] font-bold border',
-                isFinal
-                  ? 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)] border-[var(--hafta-grn-200)]'
-                  : 'bg-[var(--hafta-org-50)] text-[var(--hafta-org-700)] border-[var(--hafta-org-200)]'
-              )}
-            >
-              {isFinal ? 'Final Terkunci' : 'Draft'}
-            </span>
-
-            {/* Visibility Badge */}
-            <span
-              className={cn(
-                'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border',
-                record.patientVisible
-                  ? 'bg-stone-50 text-stone-700 border-stone-200'
-                  : 'bg-amber-50 text-amber-800 border-amber-200'
-              )}
-              title={record.patientVisible ? 'Dapat dilihat oleh pasien di portal' : 'Akses internal terapis'}
-            >
-              {record.patientVisible ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-              <span>{record.patientVisible ? 'Pasien' : 'Internal'}</span>
-            </span>
-          </div>
-        </div>
-
-        {/* 4 Metrik Klinis Ringkas dengan Visual Bar */}
-        <div className="py-2.5 my-2.5 border-y border-stone-100 grid grid-cols-4 gap-2">
-          <div className="text-center">
-            <span className="block text-[11px] text-stone-500">Nyeri</span>
-            <span className="text-xs font-bold text-[#181700]">{record.painScore}</span>
-            <div className="mt-1 h-1 w-full bg-stone-100 overflow-hidden">
-              <div
-                className={cn('h-full', getScoreColor('pain', record.painScore).split(' ')[0])}
-                style={{ width: `${Math.min(100, record.painScore * 10)}%` }}
-              />
+                {revision > 1 ? (
+                  <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-800">
+                    Amandemen R{revision}
+                  </span>
+                ) : null}
+              </div>
             </div>
           </div>
 
-          <div className="text-center">
-            <span className="block text-[11px] text-stone-500">ROM</span>
-            <span className="text-xs font-bold text-[#181700]">{record.rangeOfMotionScore}</span>
-            <div className="mt-1 h-1 w-full bg-stone-100 overflow-hidden">
-              <div
-                className={cn('h-full', getScoreColor('rom', record.rangeOfMotionScore).split(' ')[0])}
-                style={{ width: `${Math.min(100, record.rangeOfMotionScore * 10)}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="text-center">
-            <span className="block text-[11px] text-stone-500">Kekuatan</span>
-            <span className="text-xs font-bold text-[#181700]">{record.strengthScore}</span>
-            <div className="mt-1 h-1 w-full bg-stone-100 overflow-hidden">
-              <div
-                className={cn('h-full', getScoreColor('strength', record.strengthScore).split(' ')[0])}
-                style={{ width: `${Math.min(100, record.strengthScore * 10)}%` }}
-              />
-            </div>
-          </div>
-
-          <div className="text-center">
-            <span className="block text-[11px] text-stone-500">Fungsi</span>
-            <span className="text-xs font-bold text-[#181700]">{record.functionScore}</span>
-            <div className="mt-1 h-1 w-full bg-stone-100 overflow-hidden">
-              <div
-                className={cn('h-full', getScoreColor('function', record.functionScore).split(' ')[0])}
-                style={{ width: `${Math.min(100, record.functionScore * 10)}%` }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Ringkasan Diagnosis & Tindakan (1 blok kompak, lewat jika kosong) */}
-        {(record.diagnosis || record.treatment) && (
-          <div className="mt-3 rounded-xl bg-[#F8F8F5] px-3.5 py-2.5 text-xs space-y-1">
-            <div className="line-clamp-1 font-medium text-[#181700]">
-              Diagnosis: {record.diagnosis || '-'}
-            </div>
-            <div className="line-clamp-1 text-stone-600">
-              Tindakan: {record.treatment || '-'}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Footer Baris Aksi — 1 Baris Kompak di Semua Layar */}
-      <div className="pt-3 mt-3 border-t border-stone-100 flex items-center justify-between gap-2" onClick={(e) => e.stopPropagation()}>
-        <button
-          type="button"
-          onClick={() => onSelect(record)}
-          className="h-9 px-4 rounded-full bg-[#181700] hover:bg-[var(--hafta-ylw-100)] text-white hover:text-[#181700] text-xs font-bold inline-flex items-center justify-center gap-1.5 cursor-pointer transition-colors shrink-0 whitespace-nowrap"
-        >
-          Lihat Detail SOAP
-        </button>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {canEdit && (
-            <button
-              type="button"
-              onClick={() => onEdit(record)}
-              className="h-9 px-3.5 rounded-full bg-white hover:bg-stone-100 border border-stone-200/90 text-[#181700] text-xs font-semibold inline-flex items-center justify-center gap-1.5 cursor-pointer shrink-0 whitespace-nowrap"
-            >
-              <Pencil className="h-3.5 w-3.5" />
-              <span>Edit</span>
-            </button>
-          )}
-          <div className="relative inline-flex shrink-0">
+          <div
+            className="relative shrink-0"
+            onClick={(event) => event.stopPropagation()}
+          >
             <button
               type="button"
               aria-label="Menu opsi rekam medis"
               onClick={() => setShowRecordMenu((prev) => !prev)}
-              className="w-9 h-9 aspect-square rounded-full border border-stone-200/90 bg-white hover:bg-stone-100 flex items-center justify-center cursor-pointer shrink-0"
+              className="inline-flex h-9 w-9 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white text-[#181700] shadow-2xs transition-colors hover:bg-stone-100"
             >
               <MoreVertical className="h-4 w-4 shrink-0" />
             </button>
@@ -225,17 +161,17 @@ function MedicalRecordCard({
                   className="fixed inset-0 z-10 cursor-default"
                   onClick={() => setShowRecordMenu(false)}
                 />
-                <div className="absolute bottom-full right-0 z-20 mb-2 w-48 origin-bottom-right rounded-2xl border border-stone-200 bg-white p-2 shadow-xl">
+                <div className="absolute right-0 top-full z-20 mt-2 w-48 origin-top-right rounded-2xl border border-stone-200/90 bg-white p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]">
                   <button
                     type="button"
                     onClick={() => {
                       setShowRecordMenu(false);
                       void openPrintPage();
                     }}
-                    className="hover:bg-stone-50 cursor-pointer rounded-full font-medium flex items-center gap-2 w-full px-3 py-2 text-left text-xs sm:text-sm text-stone-700 transition-colors"
+                    className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-100 sm:text-sm"
                   >
                     <Printer className="h-3.5 w-3.5 shrink-0 text-stone-500" />
-                    <span className="font-medium text-xs">Print Rekam Medis</span>
+                    <span className="text-xs font-medium">Print Rekam Medis</span>
                   </button>
                   <button
                     type="button"
@@ -243,16 +179,107 @@ function MedicalRecordCard({
                       setShowRecordMenu(false);
                       void downloadPdf();
                     }}
-                    className="hover:bg-stone-50 cursor-pointer rounded-full font-medium flex items-center gap-2 w-full px-3 py-2 text-left text-xs sm:text-sm text-stone-700 transition-colors"
+                    className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-100 sm:text-sm"
                   >
                     <FileDown className="h-3.5 w-3.5 shrink-0 text-stone-500" />
-                    <span className="font-medium text-xs">Unduh PDF</span>
+                    <span className="text-xs font-medium">Unduh PDF</span>
                   </button>
                 </div>
               </>
             )}
           </div>
         </div>
+
+        <div className="mt-3 space-y-2.5 rounded-2xl bg-[#FBFBFA] p-3 text-xs text-stone-600">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            <span className="inline-flex items-center gap-1.5 font-mono text-[11px]">
+              No. RM {record.medicalRecordNumber ?? '-'}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <CalendarDays className="h-3.5 w-3.5 shrink-0 text-stone-400" />
+              {dateStr}
+            </span>
+            <span className="inline-flex min-w-0 items-center gap-1.5">
+              <Stethoscope className="h-3.5 w-3.5 shrink-0 text-stone-400" />
+              <span className="truncate">{record.therapistName || 'Terapis'}</span>
+            </span>
+            {record.visitNumber ? (
+              <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600">
+                Kunjungan {record.visitNumber}
+              </span>
+            ) : null}
+            <span
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                record.patientVisible ? 'bg-white text-stone-600' : 'bg-amber-50 text-amber-800',
+              )}
+              title={
+                record.patientVisible
+                  ? 'Dapat dilihat oleh pasien di portal'
+                  : 'Akses internal terapis'
+              }
+            >
+              {record.patientVisible ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+              <span>{record.patientVisible ? 'Terlihat pasien' : 'Internal'}</span>
+            </span>
+          </div>
+
+          <div className="grid grid-cols-4 gap-2">
+            {[
+              { label: 'Nyeri', key: 'pain' as const, value: record.painScore },
+              { label: 'ROM', key: 'rom' as const, value: record.rangeOfMotionScore },
+              { label: 'Kekuatan', key: 'strength' as const, value: record.strengthScore },
+              { label: 'Fungsi', key: 'function' as const, value: record.functionScore },
+            ].map((metric) => (
+              <div key={metric.key} className="rounded-xl bg-white/70 px-2 py-2 text-center">
+                <span className="block text-[10px] text-stone-500">{metric.label}</span>
+                <span className="text-xs font-bold text-[#181700]">{metric.value}</span>
+                <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-stone-200/70">
+                  <div
+                    className={cn('h-full', getScoreColor(metric.key, metric.value).split(' ')[0])}
+                    style={{ width: `${Math.min(100, metric.value * 10)}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {(record.diagnosis || record.treatment) && (
+            <div className="space-y-1 pt-0.5">
+              <div className="line-clamp-1 font-medium text-[#181700]">
+                Diagnosis: {record.diagnosis || '-'}
+              </div>
+              <div className="line-clamp-1 text-stone-600">
+                Tindakan: {record.treatment || '-'}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div
+        className="mt-3 flex items-center gap-2"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={() => onSelect(record)}
+          className="inline-flex h-10 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)]"
+        >
+          <Eye className="h-3.5 w-3.5 shrink-0" />
+          Lihat Detail SOAP
+        </button>
+
+        {canEdit ? (
+          <button
+            type="button"
+            onClick={() => (isFinal ? onAmend(record) : onEdit(record))}
+            className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-stone-200/90 bg-white px-3.5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100"
+          >
+            {isFinal ? <FilePenLine className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
+            <span>{isFinal ? 'Amandemen' : 'Edit'}</span>
+          </button>
+        ) : null}
       </div>
     </article>
   );
@@ -267,32 +294,106 @@ export function ProgressManagementView({
   const router = useRouter();
   const [selectedRecord, setSelectedRecord] = useState<TherapyProgressView | null>(null);
   const [editingRecord, setEditingRecord] = useState<TherapyProgressView | null>(null);
+  const [amendmentRecord, setAmendmentRecord] = useState<TherapyProgressView | null>(null);
   const [search, setSearch] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'FINALIZED' | 'DRAFT'>('ALL');
   const [visibilityFilter, setVisibilityFilter] = useState<'ALL' | 'VISIBLE' | 'INTERNAL'>('ALL');
   const [activeTab, setActiveTab] = useState<'soap' | 'metrics'>('soap');
+  const [recordPage, setRecordPage] = useState(1);
+  const [recordPageSize, setRecordPageSize] = useState(4);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [history, setHistory] = useState<string[]>([]);
+  const filterRef = useRef<HTMLDivElement>(null);
+  const historyTimerRef = useRef<number | null>(null);
+  const SEARCH_HISTORY_KEY = 'hafta:progress-search-history';
 
   const hasQuery = search.trim().length > 0;
 
-  const quickPatients = (() => {
-    const seen = new Map<string, { patientId: string; rm: string | null; name: string }>();
-    for (const rec of initialRecords) {
-      if (!seen.has(rec.patientId)) {
-        seen.set(rec.patientId, {
-          patientId: rec.patientId,
-          rm: rec.medicalRecordNumber ?? null,
-          name: rec.patientName,
-        });
+  useEffect(() => {
+    let stored: string[] = [];
+    try {
+      const raw = window.localStorage.getItem(SEARCH_HISTORY_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(parsed)) stored = parsed.filter((item): item is string => typeof item === 'string');
+    } catch {
+      stored = [];
+    }
+    const initial = initialSearch.trim();
+    if (initial) {
+      stored = [initial, ...stored.filter((item) => item.toLowerCase() !== initial.toLowerCase())].slice(0, 6);
+    }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setHistory(stored);
+  }, [SEARCH_HISTORY_KEY, initialSearch]);
+
+  useEffect(() => {
+    function onPointerDown(event: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setFilterOpen(false);
       }
     }
-    return [...seen.values()].slice(0, 5);
-  })();
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setFilterOpen(false);
+    }
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (historyTimerRef.current) window.clearTimeout(historyTimerRef.current);
+    };
+  }, []);
+
+  function storeHistory(next: string[]) {
+    try {
+      window.localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(next));
+    } catch {
+      // ignore storage failures
+    }
+  }
+
+  function pushHistory(value: string) {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    setHistory((prev) => {
+      const next = [trimmed, ...prev.filter((item) => item.toLowerCase() !== trimmed.toLowerCase())].slice(0, 6);
+      storeHistory(next);
+      return next;
+    });
+  }
+
+  function removeHistory(value: string) {
+    setHistory((prev) => {
+      const next = prev.filter((item) => item !== value);
+      storeHistory(next);
+      return next;
+    });
+  }
+
+  function clearHistory() {
+    setHistory([]);
+    try {
+      window.localStorage.removeItem(SEARCH_HISTORY_KEY);
+    } catch {
+      // ignore storage failures
+    }
+  }
 
   function applySearch(value: string) {
     setSearch(value);
+    setRecordPage(1);
     const trimmed = value.trim();
+    pushHistory(trimmed);
     router.push(trimmed ? `/dashboard/progress?q=${encodeURIComponent(trimmed)}` : '/dashboard/progress');
   }
+
+  const activeFilterCount =
+    (statusFilter !== 'ALL' ? 1 : 0) + (visibilityFilter !== 'ALL' ? 1 : 0);
 
   // Real-time filtering
   const filtered = initialRecords.filter((rec) => {
@@ -316,199 +417,260 @@ export function ProgressManagementView({
     return true;
   });
 
+  const recordPageCount = Math.max(1, Math.ceil(filtered.length / recordPageSize));
+  const safeRecordPage = Math.min(recordPage, recordPageCount);
+  const visibleRecords = filtered.slice(
+    (safeRecordPage - 1) * recordPageSize,
+    safeRecordPage * recordPageSize,
+  );
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
     <div className="space-y-3">
         {/* Baris 1: Search + Aksi Cari/Reset */}
-        <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center">
-          <div className="relative w-full">
+        <div className="flex w-full items-center gap-2">
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
             <input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSearch(value);
+                setRecordPage(1);
+                if (historyTimerRef.current) window.clearTimeout(historyTimerRef.current);
+                if (value.trim().length >= 2) {
+                  historyTimerRef.current = window.setTimeout(() => pushHistory(value), 800);
+                }
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') applySearch(search);
               }}
-              placeholder="Cari berdasarkan Nomor Rekam Medis (No. RM), Nama Pasien, atau Diagnosis..."
-              className="h-11 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-4 text-xs text-[#181700] placeholder:text-stone-400 outline-none transition-all focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35 shadow-2xs"
+              placeholder="Cari No. RM, nama pasien, atau diagnosis..."
+              className="h-10 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-10 text-xs text-[#181700] shadow-2xs outline-none transition-all placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35 sm:text-[13px]"
             />
-            <svg
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400 pointer-events-none"
-              xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-            </svg>
-          </div>
-
-          {hasQuery ? (
-            <div className="flex shrink-0 gap-2">
+            {search ? (
               <button
                 type="button"
-                onClick={() => applySearch(search)}
-                className="inline-flex h-11 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#181700] px-5 text-xs font-bold text-white transition-colors hover:bg-[var(--hafta-ylw-100)] hover:text-[#181700]"
-              >
-                <Search className="h-3.5 w-3.5" />
-                Cari
-              </button>
-              <button
-                type="button"
+                aria-label="Bersihkan kata kunci"
                 onClick={() => applySearch('')}
-                className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100"
+                className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-stone-100 hover:text-[#181700]"
               >
-                Reset
+                <X className="h-3.5 w-3.5" />
               </button>
-            </div>
-          ) : null}
-        </div>
-
-        {/* Baris 2: Segmented Status Track + Visibility Switcher — hanya setelah ada kata kunci */}
-        {hasQuery ? (
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-          {/* Segmented Pill Track Status */}
-          <div className="grid grid-cols-3 sm:inline-flex items-center gap-0 bg-stone-100/90 p-1 rounded-full w-full sm:w-auto">
-            <button
-              type="button"
-              onClick={() => setStatusFilter('ALL')}
-              className={cn(
-                'rounded-full py-2 px-3.5 text-xs text-center transition-all cursor-pointer',
-                statusFilter === 'ALL'
-                  ? 'bg-[#181700] text-white font-bold shadow-2xs'
-                  : 'text-stone-600 hover:text-[#181700] font-medium'
-              )}
-            >
-              Semua ({initialRecords.length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter('FINALIZED')}
-              className={cn(
-                'rounded-full py-2 px-3.5 text-xs text-center transition-all cursor-pointer',
-                statusFilter === 'FINALIZED'
-                  ? 'bg-[#181700] text-white font-bold shadow-2xs'
-                  : 'text-stone-600 hover:text-[#181700] font-medium'
-              )}
-            >
-              Final ({initialRecords.filter((r) => r.status === 'FINALIZED').length})
-            </button>
-            <button
-              type="button"
-              onClick={() => setStatusFilter('DRAFT')}
-              className={cn(
-                'rounded-full py-2 px-3.5 text-xs text-center transition-all cursor-pointer',
-                statusFilter === 'DRAFT'
-                  ? 'bg-[#181700] text-white font-bold shadow-2xs'
-                  : 'text-stone-600 hover:text-[#181700] font-medium'
-              )}
-            >
-              Draft ({initialRecords.filter((r) => r.status === 'DRAFT').length})
-            </button>
+            ) : null}
           </div>
 
-          {/* Visibility Switcher */}
-          <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
+          <div ref={filterRef} className="relative ml-auto shrink-0">
             <button
               type="button"
-              onClick={() => setVisibilityFilter(visibilityFilter === 'VISIBLE' ? 'ALL' : 'VISIBLE')}
+              onClick={() => setFilterOpen((open) => !open)}
+              aria-expanded={filterOpen}
+              aria-haspopup="menu"
               className={cn(
-                'h-9 rounded-full border px-4 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all',
-                visibilityFilter === 'VISIBLE'
-                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                  : 'bg-white border-stone-200/90 text-stone-500 hover:border-stone-300'
+                'inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold shadow-2xs transition-colors focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#f7f000]/35 sm:px-4 sm:text-[13px]',
+                activeFilterCount > 0
+                  ? 'border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] text-[#181700]'
+                  : 'border-stone-200/90 bg-white text-[#181700] hover:bg-stone-100',
               )}
             >
-              <Eye className="h-3.5 w-3.5" />
-              <span>Akses Pasien</span>
+              <Filter className="h-4 w-4 shrink-0 text-stone-500" />
+              <span>Filter</span>
+              {activeFilterCount > 0 ? (
+                <span className="rounded-full bg-[#181700] px-1.5 py-0.5 text-[10px] font-bold text-white">
+                  {activeFilterCount}
+                </span>
+              ) : null}
+              <ChevronDown className="h-3.5 w-3.5 shrink-0 text-stone-400" />
             </button>
-            <button
-              type="button"
-              onClick={() => setVisibilityFilter(visibilityFilter === 'INTERNAL' ? 'ALL' : 'INTERNAL')}
-              className={cn(
-                'h-9 rounded-full border px-4 text-xs font-semibold flex items-center justify-center gap-1.5 cursor-pointer transition-all',
-                visibilityFilter === 'INTERNAL'
-                  ? 'bg-amber-100 text-amber-800 border-amber-300'
-                  : 'bg-white border-stone-200/90 text-stone-500 hover:border-stone-300'
-              )}
-            >
-              <EyeOff className="h-3.5 w-3.5" />
-              <span>Internal Terapis</span>
-            </button>
+
+            {filterOpen ? (
+              <div className="absolute right-0 top-full z-20 mt-2 flex w-56 flex-col gap-1 rounded-2xl border border-stone-200/90 bg-white p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]">
+                <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+                  Status
+                </p>
+                {([
+                  { value: 'ALL' as const, label: 'Semua', icon: LayoutList },
+                  { value: 'FINALIZED' as const, label: 'Final', icon: CheckCircle2 },
+                  { value: 'DRAFT' as const, label: 'Draft', icon: FileText },
+                ]).map((option) => {
+                  const selected = statusFilter === option.value;
+                  const Icon = option.icon;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        setStatusFilter(option.value);
+                        setRecordPage(1);
+                        setFilterOpen(false);
+                      }}
+                      className={cn(
+                        'flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors',
+                        selected
+                          ? 'border-stone-200 bg-[#F4F4F1] font-bold text-[#181700]'
+                          : 'border-transparent font-medium text-stone-600 hover:bg-stone-100 hover:text-[#181700]',
+                      )}
+                    >
+                      <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-[#181700]' : 'text-stone-400')} />
+                      <span className="flex-1">{option.label}</span>
+                      {selected ? <Check className="h-3.5 w-3.5 text-[#181700]" /> : null}
+                    </button>
+                  );
+                })}
+
+                <div className="my-1.5 h-px bg-stone-100" />
+                <p className="px-2.5 pb-1 pt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+                  Visibilitas
+                </p>
+                {([
+                  { value: 'ALL' as const, label: 'Semua akses', icon: Eye },
+                  { value: 'VISIBLE' as const, label: 'Akses Pasien', icon: Eye },
+                  { value: 'INTERNAL' as const, label: 'Internal Terapis', icon: EyeOff },
+                ]).map((option) => {
+                  const selected = visibilityFilter === option.value;
+                  const Icon = option.icon;
+                  return (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        setVisibilityFilter(option.value);
+                        setRecordPage(1);
+                        setFilterOpen(false);
+                      }}
+                      className={cn(
+                        'flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors',
+                        selected
+                          ? 'border-stone-200 bg-[#F4F4F1] font-bold text-[#181700]'
+                          : 'border-transparent font-medium text-stone-600 hover:bg-stone-100 hover:text-[#181700]',
+                      )}
+                    >
+                      <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-[#181700]' : 'text-stone-400')} />
+                      <span className="flex-1">{option.label}</span>
+                      {selected ? <Check className="h-3.5 w-3.5 text-[#181700]" /> : null}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
         </div>
-        ) : null}
+
       </div>
 
       {/* ── 2. COMPACT CLINICAL REKAM MEDIS CARDS GRID ── */}
       {!hasQuery ? (
-        <div className="space-y-6">
-          {quickPatients.length > 0 ? (
+        <div className="space-y-4 sm:space-y-6">
+          {history.length > 0 ? (
             <div className="space-y-2">
-              <p className="text-xs font-semibold text-stone-500">Cepat pilih pasien</p>
-              <div className="flex flex-wrap gap-2">
-                {quickPatients.map((patient) => (
-                  <button
-                    key={patient.patientId}
-                    type="button"
-                    onClick={() => applySearch(patient.rm ?? patient.name)}
-                    className="cursor-pointer rounded-full border border-stone-200/90 bg-white px-3.5 py-1.5 text-xs font-semibold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-50)]"
+              <div className="flex items-center justify-between gap-2">
+                <p className="flex items-center gap-1.5 text-xs font-semibold text-stone-500">
+                  <History className="h-3.5 w-3.5" />
+                  Riwayat pencarian
+                </p>
+                <button
+                  type="button"
+                  onClick={clearHistory}
+                  className="inline-flex cursor-pointer items-center gap-1 text-[11px] font-semibold text-stone-400 transition-colors hover:text-[var(--hafta-red-600)]"
+                >
+                  <Trash2 className="h-3 w-3" />
+                  Hapus semua
+                </button>
+              </div>
+
+              <div className="space-y-2">
+                {history.map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-2 rounded-2xl border border-stone-200/70 bg-white p-2.5"
                   >
-                    {patient.rm ? `[${patient.rm}] • ${patient.name}` : patient.name}
-                  </button>
+                    <History className="h-4 w-4 shrink-0 text-stone-400" />
+                    <button
+                      type="button"
+                      onClick={() => applySearch(item)}
+                      className="min-w-0 flex-1 truncate text-left text-xs font-semibold text-[#181700] hover:underline"
+                    >
+                      {item}
+                    </button>
+                    <button
+                      type="button"
+                      aria-label={`Hapus riwayat ${item}`}
+                      onClick={() => removeHistory(item)}
+                      className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-stone-100 hover:text-[#181700]"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 ))}
               </div>
             </div>
           ) : null}
 
-          <div className="rounded-3xl border border-stone-200/90 bg-white px-6 py-16 text-center">
-            <span className="mx-auto flex h-11 w-11 aspect-square items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
-              <Search className="h-5 w-5" />
+          <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+              <Search className="h-6 w-6" />
             </span>
-            <h3 className="mt-4 text-sm font-bold text-[#181700]">
+            <h3 className="mt-3 text-sm font-bold text-[#181700]">
               Cari Pasien untuk Menampilkan Rekam Medis
             </h3>
-            <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-stone-500">
+            <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-stone-500">
               Masukkan Nomor Rekam Medis (No. RM), Nama Pasien, atau Diagnosis pada kolom pencarian di atas
               untuk membuka riwayat evaluasi SOAP tanpa menumpuk ratusan data.
             </p>
           </div>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <p className="text-xs text-stone-500">
             <span className="font-bold text-[#181700]">{filtered.length}</span> rekam medis ditemukan
           </p>
 
           {filtered.length === 0 ? (
-            <div className="rounded-3xl border border-stone-200/90 bg-white px-6 py-16 text-center">
-              <span className="mx-auto flex h-11 w-11 aspect-square items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
-                <Search className="h-5 w-5" />
+            <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+                <Search className="h-6 w-6" />
               </span>
-              <h3 className="mt-4 text-sm font-bold text-[#181700]">
+              <h3 className="mt-3 text-sm font-bold text-[#181700]">
                 Tidak ditemukan rekam medis untuk kata kunci tersebut
               </h3>
-              <p className="mx-auto mt-2 max-w-md text-xs leading-relaxed text-stone-500">
+              <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-stone-500">
                 Periksa kembali No. RM, nama pasien, atau diagnosis yang Anda ketik.
               </p>
               <button
                 type="button"
                 onClick={() => applySearch('')}
-                className="mt-5 inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100"
+                className="mt-5 inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white px-4 sm:px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100"
               >
                 Bersihkan Pencarian
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 w-full">
-              {filtered.map((record) => (
-                <MedicalRecordCard
-                  key={record.id}
-                  record={record}
-                  canEdit={canEdit}
-                  onSelect={() => setSelectedRecord(record)}
-                  onEdit={() => setEditingRecord(record)}
-                />
-              ))}
-            </div>
+            <>
+              <div className="grid w-full grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+                {visibleRecords.map((record) => (
+                  <MedicalRecordCard
+                    key={record.id}
+                    record={record}
+                    canEdit={canEdit}
+                    onSelect={() => setSelectedRecord(record)}
+                    onEdit={() => setEditingRecord(record)}
+                    onAmend={() => setAmendmentRecord(record)}
+                  />
+                ))}
+              </div>
+              <PaginationBar
+                page={safeRecordPage}
+                pageCount={recordPageCount}
+                pageSize={recordPageSize}
+                pageSizeOptions={[4, 10, 25]}
+                onPageChange={setRecordPage}
+                onPageSizeChange={(size) => {
+                  setRecordPageSize(size);
+                  setRecordPage(1);
+                }}
+              />
+            </>
           )}
         </div>
       )}
@@ -529,6 +691,11 @@ export function ProgressManagementView({
                 year: 'numeric',
               })}{' '}
               • Fisioterapis: {selectedRecord.therapistName || '-'}
+              {selectedRecord.amendmentReason ? (
+                <span className="mt-1 block">
+                  Amandemen: {selectedRecord.amendmentReason}
+                </span>
+              ) : null}
             </span>
           ) : undefined
         }
@@ -542,7 +709,15 @@ export function ProgressManagementView({
                   : 'bg-amber-50 text-amber-800 border-amber-200'
               )}
             >
-              {selectedRecord.status === 'FINALIZED' ? 'Final Terkunci' : 'Draft'}
+              {selectedRecord.status === 'FINALIZED'
+                ? `Final Terkunci${
+                    (selectedRecord.revisionNumber ?? 1) > 1
+                      ? ` · R${selectedRecord.revisionNumber}`
+                      : ''
+                  }`
+                : selectedRecord.amendedFromId
+                  ? `Draft Amandemen · R${selectedRecord.revisionNumber ?? 1}`
+                  : 'Draft'}
             </span>
           ) : null
         }
@@ -583,15 +758,23 @@ export function ProgressManagementView({
                   onClick={() => {
                     const record = selectedRecord;
                     setSelectedRecord(null);
-                    setEditingRecord(record);
+                    if (record.status === 'FINALIZED') {
+                      setAmendmentRecord(record);
+                    } else {
+                      setEditingRecord(record);
+                    }
                   }}
-                  className="h-10 sm:h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
                 >
-                  <Pencil className="h-3.5 w-3.5" />
-                  <span>Edit</span>
+                  {selectedRecord.status === 'FINALIZED' ? (
+                    <FilePenLine className="h-3.5 w-3.5" />
+                  ) : (
+                    <Pencil className="h-3.5 w-3.5" />
+                  )}
+                  <span>{selectedRecord.status === 'FINALIZED' ? 'Amandemen' : 'Edit'}</span>
                 </button>
               )}
-              <MedicalRecordActions record={selectedRecord as any} />
+              <MedicalRecordActions record={selectedRecord} />
             </div>
           ) : null
         }
@@ -599,7 +782,7 @@ export function ProgressManagementView({
         {selectedRecord && (
           <div>
             {/* Standalone Full-bleed Edge Banner */}
-            <div className="-mx-5 -mt-5 sm:-mx-6 sm:-mt-5 border-b border-stone-200/80 bg-[#FEFEF6] px-5 py-4 sm:px-6 sm:py-4.5 text-xs text-stone-600">
+            <div className="-mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-4 border-b border-stone-200/80 bg-[#FEFEF6] px-3.5 py-3.5 sm:px-6 sm:py-4.5 text-xs text-stone-600">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200/60 pb-2">
                 <span className="font-bold text-[#181700]">Diagnosis Klinis Fisioterapi</span>
                 <span className="flex items-center gap-1 font-semibold text-stone-500">
@@ -613,11 +796,11 @@ export function ProgressManagementView({
               </p>
             </div>
 
-            <div className="mt-6 space-y-5">
+            <div className="mt-6 space-y-4 sm:space-y-5">
               {activeTab === 'soap' ? (
                 <>
                   {/* Subjective (Anamnesis) */}
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-4.5 shadow-2xs space-y-1.5">
+                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 shadow-2xs space-y-1.5">
                     <span className="font-bold text-xs text-[#181700] block">
                       S — Subjective (Anamnesis &amp; Keluhan Pasien)
                     </span>
@@ -627,7 +810,7 @@ export function ProgressManagementView({
                   </div>
 
                   {/* Objective (Pemeriksaan Fisik) */}
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-4.5 shadow-2xs space-y-1.5">
+                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 shadow-2xs space-y-1.5">
                     <span className="font-bold text-xs text-[#181700] block">
                       O — Objective (Pemeriksaan Fisik, Palpasi, &amp; Tes Spesifik)
                     </span>
@@ -649,7 +832,7 @@ export function ProgressManagementView({
                   </div>
 
                   {/* Plan (Tindakan Terapi) */}
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-4.5 shadow-2xs space-y-1.5">
+                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 shadow-2xs space-y-1.5">
                     <span className="font-bold text-xs text-[#181700] block">
                       P — Plan (Modalitas, Terapi Manual, &amp; Intervensi Latihan)
                     </span>
@@ -659,7 +842,7 @@ export function ProgressManagementView({
                   </div>
 
                   {/* Home Exercise & Follow up */}
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-4.5 shadow-2xs space-y-1.5">
+                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 shadow-2xs space-y-1.5">
                     <span className="font-bold text-xs text-[#181700] block">
                       Rencana Tindak Lanjut &amp; Edukasi Mandiri (HEP)
                     </span>
@@ -671,7 +854,7 @@ export function ProgressManagementView({
               ) : (
                 /* Tab Metrik & Indikator Fungsional */
                 <div className="space-y-4">
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-5 shadow-2xs space-y-4">
+                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3.5 sm:p-5 shadow-2xs space-y-4">
                     <h4 className="font-bold text-xs text-[#181700]">
                       Perkembangan Skor Fungsional Sesi Ini
                     </h4>
@@ -747,6 +930,13 @@ export function ProgressManagementView({
           </div>
         )}
       </GlobalSlideOver>
+
+      {amendmentRecord ? (
+        <ProgressAmendmentDialog
+          record={amendmentRecord}
+          onClose={() => setAmendmentRecord(null)}
+        />
+      ) : null}
 
       <MedicalRecordFormDrawer
         isOpen={Boolean(editingRecord)}

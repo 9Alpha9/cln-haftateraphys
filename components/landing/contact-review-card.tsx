@@ -10,7 +10,7 @@ export function ContactReviewCard({ review }: { review: FeaturableReview }) {
   const showPhoto = Boolean(review.profilePhotoUrl && !imageError);
 
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-6 shadow-xs">
+    <div className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-3.5 sm:p-5 shadow-xs">
       <div>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 text-[var(--hafta-ylw-950)]">

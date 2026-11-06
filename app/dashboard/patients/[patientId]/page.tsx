@@ -20,7 +20,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
   const therapist = await getPatientTherapist(patient.id);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
         <DashboardPageHeader
           title="Detail Pasien"
           description={`ID pasien: ${patient.id}`}
@@ -33,55 +33,55 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
         />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="relative overflow-hidden rounded-xl border border-border bg-white p-5 shadow-sm opacity-70">
+          <div className="relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 opacity-70">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-foreground">Profil</span>
               <User className="h-5 w-5 text-muted-foreground" />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">Detail profil pasien di bawah</p>
             <div className="mt-4 flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Terbuka di bawah</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">Terbuka di bawah</span>
             </div>
           </div>
 
           <Link
             href={`/dashboard/patients/${patient.id}/intake`}
-            className="group relative overflow-hidden rounded-xl border border-border bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-accent/40 hover:shadow-md"
+            className="group relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-[0_12px_40px_rgba(24,23,0,0.09)]"
           >
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-foreground group-hover:text-[#92400e] transition-colors">Intake</span>
-              <ClipboardList className="h-5 w-5 text-muted-foreground group-hover:text-[#92400e] transition-colors" />
+              <span className="text-sm font-semibold text-foreground group-hover:text-[#181700] transition-colors">Intake</span>
+              <ClipboardList className="h-5 w-5 text-muted-foreground group-hover:text-[#181700] transition-colors" />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">Form awal dan keluhan pasien</p>
             <div className="mt-4 flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#92400e] group-hover:underline">Buka Intake &rarr;</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#181700] group-hover:underline">Buka Intake &rarr;</span>
             </div>
           </Link>
 
-          <div className="relative overflow-hidden rounded-xl border border-border bg-white p-5 shadow-sm opacity-65">
+          <div className="relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 opacity-65">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-foreground">Assessment</span>
               <FileText className="h-5 w-5 text-muted-foreground" />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">Evaluasi klinis lengkap</p>
             <div className="mt-4 flex items-center justify-between">
-              <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Segera Hadir</span>
+              <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-stone-500">Segera Hadir</span>
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-xl border border-border bg-white p-5 shadow-sm opacity-65">
+          <div className="relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 opacity-65">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-foreground">Sesi</span>
               <Activity className="h-5 w-5 text-muted-foreground" />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">Riwayat sesi terapi</p>
             <div className="mt-4 flex items-center justify-between">
-              <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">Segera Hadir</span>
+              <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-stone-500">Segera Hadir</span>
             </div>
           </div>
         </div>
 
-        <Card>
+        <Card className="rounded-3xl border border-stone-200/70 ring-0 shadow-[0_8px_30px_rgba(24,23,0,0.05)]">
           <CardHeader>
             <CardTitle>Informasi Pasien</CardTitle>
           </CardHeader>
@@ -146,7 +146,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-3xl border border-stone-200/70 ring-0 shadow-[0_8px_30px_rgba(24,23,0,0.05)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CalendarDays className="h-5 w-5 text-muted-foreground" />

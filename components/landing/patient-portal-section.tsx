@@ -70,14 +70,14 @@ export function PatientPortalSection() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/login"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-6 text-sm font-semibold text-[var(--hafta-ylw-950)] shadow-sm transition-colors hover:bg-[var(--hafta-ylw-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-100)]"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-4 sm:px-6 text-sm font-semibold text-[var(--hafta-ylw-950)] shadow-sm transition-colors hover:bg-[var(--hafta-ylw-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-100)]"
                 >
                   Masuk Patient Portal
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   href="/register"
-                  className="inline-flex h-11 items-center justify-center rounded-xl border border-stone-300 bg-white px-6 text-sm font-semibold text-stone-800 transition-colors hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
+                  className="inline-flex h-11 items-center justify-center rounded-xl border border-stone-300 bg-white px-4 sm:px-6 text-sm font-semibold text-stone-800 transition-colors hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400"
                 >
                   Daftar Akun Baru
                 </Link>
@@ -87,7 +87,7 @@ export function PatientPortalSection() {
 
           <ScrollAnimation direction="right" delay={0.2}>
             <div className="relative mx-auto w-full max-w-xl lg:mx-0">
-              <div className="relative aspect-square overflow-hidden rounded-2xl border border-stone-200/70 bg-white p-6 shadow-[0_12px_40px_rgba(24,23,0,0.06)]">
+              <div className="relative aspect-square overflow-hidden rounded-2xl border border-stone-200/70 bg-white p-3.5 sm:p-5 shadow-[0_12px_40px_rgba(24,23,0,0.06)]">
                 <Image
                   src="/images/portals/portals.png"
                   alt="Ilustrasi Patient Portal Hafta Fisioterapi"

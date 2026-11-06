@@ -149,7 +149,7 @@ export function ActivityPanel({
                 className={cn(
                   'flex-1 rounded-lg py-1 text-center font-semibold text-xs transition-all cursor-pointer',
                   therapistTab === 'all'
-                    ? 'bg-white text-[#181700] shadow-2xs font-bold'
+                    ? 'bg-[#181700] text-white shadow-2xs font-bold'
                     : 'text-stone-500 hover:text-stone-800'
                 )}
               >
@@ -161,7 +161,7 @@ export function ActivityPanel({
                 className={cn(
                   'flex-1 rounded-lg py-1 text-center font-semibold text-xs transition-all cursor-pointer',
                   therapistTab === 'appointment'
-                    ? 'bg-white text-[#181700] shadow-2xs font-bold'
+                    ? 'bg-[#181700] text-white shadow-2xs font-bold'
                     : 'text-stone-500 hover:text-stone-800'
                 )}
               >
@@ -173,7 +173,7 @@ export function ActivityPanel({
                 className={cn(
                   'flex-1 rounded-lg py-1 text-center font-semibold text-xs transition-all cursor-pointer',
                   therapistTab === 'progress'
-                    ? 'bg-white text-[#181700] shadow-2xs font-bold'
+                    ? 'bg-[#181700] text-white shadow-2xs font-bold'
                     : 'text-stone-500 hover:text-stone-800'
                 )}
               >
@@ -188,7 +188,7 @@ export function ActivityPanel({
                 className={cn(
                   'flex-1 rounded-lg py-1 text-center font-semibold text-xs transition-all cursor-pointer',
                   adminTab === 'all'
-                    ? 'bg-white text-[#181700] shadow-2xs font-bold'
+                    ? 'bg-[#181700] text-white shadow-2xs font-bold'
                     : 'text-stone-500 hover:text-stone-800'
                 )}
               >
@@ -200,7 +200,7 @@ export function ActivityPanel({
                 className={cn(
                   'flex-1 rounded-lg py-1 text-center font-semibold text-xs transition-all cursor-pointer',
                   adminTab === 'clinical'
-                    ? 'bg-white text-[#181700] shadow-2xs font-bold'
+                    ? 'bg-[#181700] text-white shadow-2xs font-bold'
                     : 'text-stone-500 hover:text-stone-800'
                 )}
               >
@@ -212,7 +212,7 @@ export function ActivityPanel({
                 className={cn(
                   'flex-1 rounded-lg py-1 text-center font-semibold text-xs transition-all cursor-pointer',
                   adminTab === 'system'
-                    ? 'bg-white text-[#181700] shadow-2xs font-bold'
+                    ? 'bg-[#181700] text-white shadow-2xs font-bold'
                     : 'text-stone-500 hover:text-stone-800'
                 )}
               >

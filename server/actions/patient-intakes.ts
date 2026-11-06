@@ -8,6 +8,7 @@ import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { intakeDraftSchema, intakeSubmitSchema, type IntakeDraftInput } from '@/lib/validators/patient-intake';
 import { notifyUser } from '@/server/notify';
+import { createAuditLog } from '@/lib/audit';
 
 type IntakeSubmissionMode = 'draft' | 'submit';
 
@@ -136,6 +137,7 @@ export async function savePatientIntake(input: IntakeDraftInput, mode: IntakeSub
       status: patientIntakes.status,
       version: patientIntakes.version,
       submittedAt: patientIntakes.submittedAt,
+      privacyConsentAt: patientIntakes.privacyConsentAt,
     })
     .from(patientIntakes)
     .where(eq(patientIntakes.patientId, patient.id))
@@ -174,7 +176,13 @@ export async function savePatientIntake(input: IntakeDraftInput, mode: IntakeSub
     currentMedication: toNullable(data.currentMedication),
     allergies: toNullable(data.allergies),
     patientGoal: toNullable(data.patientGoal),
+    photos: data.photos && data.photos.length > 0 ? JSON.stringify(data.photos) : null,
     dataAccuracyAcknowledged: data.dataAccuracyAcknowledged ? 1 : 0,
+    privacyConsent: data.privacyConsent ? 1 : 0,
+    privacyConsentAt: data.privacyConsent
+      ? latestIntake?.privacyConsentAt ?? new Date()
+      : null,
+    mediaConsent: data.mediaConsent ? 1 : 0,
     status: targetStatus as 'DRAFT' | 'SUBMITTED' | 'UNDER_REVIEW',
     submittedAt:
       mode === 'submit'
@@ -185,18 +193,31 @@ export async function savePatientIntake(input: IntakeDraftInput, mode: IntakeSub
     updatedAt: new Date(),
   };
 
+  let intakeId = latestIntake?.id;
   if (latestIntake) {
     await db
       .update(patientIntakes)
       .set(payload)
       .where(and(eq(patientIntakes.id, latestIntake.id), eq(patientIntakes.patientId, patient.id)));
   } else {
-    await db.insert(patientIntakes).values({
-      ...payload,
-      patientId: patient.id,
-      version: targetVersion,
-    });
+    const [created] = await db
+      .insert(patientIntakes)
+      .values({
+        ...payload,
+        patientId: patient.id,
+        version: targetVersion,
+      })
+      .returning({ id: patientIntakes.id });
+    intakeId = created.id;
   }
+
+  await createAuditLog({
+    action: mode === 'submit' ? 'intake.submit' : 'intake.draft',
+    targetType: 'patient_intake',
+    targetId: intakeId,
+    meta: { patientId: patient.id, status: targetStatus, mode },
+    userId: session.user.id,
+  });
 
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/intake');

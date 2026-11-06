@@ -52,8 +52,8 @@ export function CreateUserForm({ canCreateStaffAccounts }: { canCreateStaffAccou
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
-      <div className="grid gap-5 sm:grid-cols-2">
+    <form onSubmit={onSubmit} className="space-y-4 sm:space-y-5">
+      <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="name">Nama Lengkap</Label>
           <Input
@@ -87,7 +87,7 @@ export function CreateUserForm({ canCreateStaffAccounts }: { canCreateStaffAccou
               minLength={12}
               placeholder="Minimal 12 karakter"
               disabled={pending}
-              className="flex h-10 w-full min-w-0 rounded-lg border border-input bg-background px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 pr-10"
+              className="flex h-10 w-full min-w-0 rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[#f7f000]/35 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 pr-10"
             />
             <button
               type="button"
@@ -142,12 +142,12 @@ export function CreateUserForm({ canCreateStaffAccounts }: { canCreateStaffAccou
         )}
       </div>
 
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-        <Button type="button" variant="outline" onClick={() => router.back()} disabled={pending}>
-          Batal
-        </Button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Button type="submit" disabled={pending}>
           {pending ? 'Membuat...' : 'Buat Akun'}
+        </Button>
+        <Button type="button" variant="outline" onClick={() => router.back()} disabled={pending}>
+          Batal
         </Button>
       </div>
     </form>

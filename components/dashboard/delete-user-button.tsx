@@ -57,16 +57,16 @@ export function DeleteUserButton({ userId, userName, disabled = false }: DeleteU
           <DialogHeader>
             <DialogTitle>Hapus akun permanen?</DialogTitle>
             <DialogDescription>
-              Seluruh data milik <span className="font-semibold">{userName}</span> (rekam pasien, janji temu, home
-              program, dan lainnya) akan dihapus permanen dan tidak dapat dipulihkan.
+              Akun <span className="font-semibold">{userName}</span> hanya dapat dihapus permanen jika tidak
+              memiliki rekam klinis, intake, atau appointment. Akun dengan riwayat tersebut harus ditangguhkan.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)} disabled={pending}>
-              Batal
-            </Button>
             <Button variant="destructive" onClick={handleConfirm} disabled={pending}>
               {pending ? 'Menghapus...' : 'Hapus permanen'}
+            </Button>
+            <Button variant="outline" onClick={() => setOpen(false)} disabled={pending}>
+              Batal
             </Button>
           </DialogFooter>
         </DialogContent>

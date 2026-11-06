@@ -52,7 +52,7 @@ export function PageHeaderSkeleton({ action = 'none', className }: HeaderSkeleto
         <SkeletonBlock className="h-3 w-24 rounded-md bg-stone-100" />
       </div>
 
-      <div className="mt-4 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mt-4 flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 items-start gap-3">
           <SkeletonBlock className="h-11 w-11 shrink-0 rounded-full bg-stone-200" />
           <div className="min-w-0 flex-1 space-y-2">
@@ -130,7 +130,7 @@ export function TableRowsSkeleton({ rows = 6, columns = 5 }: { rows?: number; co
 
 export function FormFieldsSkeleton({ fields = 6 }: { fields?: number }) {
   return (
-    <div className="grid gap-5 sm:grid-cols-2">
+    <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
       {Array.from({ length: fields }, (_, index) => (
         <div key={index} className={cn('space-y-2', index === fields - 1 && fields % 2 === 1 && 'sm:col-span-2')}>
           <SkeletonLine className="w-24" />

@@ -1,16 +1,9 @@
 import { Terminal, AlertCircle, Info, CheckCircle, XCircle } from 'lucide-react';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
 import { Card, CardContent } from '@/components/ui/card';
+import { PaginationBar } from '@/components/ui/pagination-bar';
 import { PERMISSIONS, requirePermission } from '@/lib/permissions';
 import { getAuditLogs } from '@/server/queries/audit-logs';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
 
 function getActionIcon(action: string) {
   if (action.includes('ERROR') || action.includes('FAIL') || action.includes('REJECT')) {
@@ -44,7 +37,7 @@ function getActionColor(action: string) {
   if (action.includes('LOGIN') || action.includes('LOGOUT')) {
     return 'text-[#92400e] bg-accent/15 border-accent/30';
   }
-  return 'text-slate-600 bg-slate-50 border-slate-200';
+  return 'text-stone-600 bg-stone-50 border-stone-200';
 }
 
 function formatMeta(meta: Record<string, unknown> | null): string {
@@ -54,13 +47,15 @@ function formatMeta(meta: Record<string, unknown> | null): string {
   return entries.map(([key, value]) => `${key}: ${typeof value === 'string' ? value : JSON.stringify(value)}`).join(', ');
 }
 
-export default async function AuditLogsPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+export default async function AuditLogsPage({ searchParams }: { searchParams: Promise<{ page?: string; perPage?: string }> }) {
   await requirePermission(PERMISSIONS.AUDIT_READ);
   const params = await searchParams;
-  const result = await getAuditLogs(Number(params.page) || 1);
+  const perPageParam = Number(params.perPage);
+  const perPage = [10, 25, 50, 100].includes(perPageParam) ? perPageParam : 10;
+  const result = await getAuditLogs(Number(params.page) || 1, perPage);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       <DashboardPageHeader
         title="Log Audit"
         description="Pantau aktivitas dan perubahan data sistem."
@@ -70,10 +65,12 @@ export default async function AuditLogsPage({ searchParams }: { searchParams: Pr
       <Card className="border-border/60 bg-white overflow-hidden">
         <CardContent className="p-0">
           {result.items.length === 0 ? (
-            <div className="flex min-h-64 flex-col items-center justify-center p-6 text-center">
-              <Terminal className="h-10 w-10 text-muted-foreground/50" />
-              <p className="mt-4 font-medium text-foreground">Belum ada log audit</p>
-              <p className="mt-1 text-sm text-muted-foreground">Aktivitas sistem akan tercatat di sini.</p>
+            <div className="flex min-h-64 flex-col items-center justify-center p-3.5 text-center sm:p-5">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+                <Terminal className="h-6 w-6" />
+              </span>
+              <p className="mt-3 text-sm font-bold text-[#181700]">Belum ada log audit</p>
+              <p className="mt-1 max-w-sm text-xs text-stone-500">Aktivitas sistem akan tercatat di sini.</p>
             </div>
           ) : (
             <div className="max-h-[900px] overflow-y-auto">
@@ -139,36 +136,14 @@ export default async function AuditLogsPage({ searchParams }: { searchParams: Pr
           )}
         </CardContent>
       </Card>
-      {result.total > result.pageSize && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              {result.page > 1 ? (
-                <PaginationPrevious href={`/dashboard/audit-logs?page=${result.page - 1}`}>
-                  Sebelumnya
-                </PaginationPrevious>
-              ) : null}
-            </PaginationItem>
-            {Array.from({ length: Math.min(result.totalPages, 5) }, (_, index) => index + 1).map((item) => (
-              <PaginationItem key={item}>
-                <PaginationLink
-                  href={`/dashboard/audit-logs?page=${item}`}
-                  isActive={item === result.page}
-                >
-                  {item}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              {result.page < result.totalPages ? (
-                <PaginationNext href={`/dashboard/audit-logs?page=${result.page + 1}`}>
-                  Berikutnya
-                </PaginationNext>
-              ) : null}
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
+      <PaginationBar
+        page={result.page}
+        pageCount={result.totalPages}
+        hrefTemplate={`/dashboard/audit-logs?page={page}&perPage=${perPage}`}
+        pageSize={perPage}
+        pageSizeOptions={[10, 25, 50, 100]}
+        pageSizeHrefTemplate="/dashboard/audit-logs?page=1&perPage={size}"
+      />
     </div>
   );
 }

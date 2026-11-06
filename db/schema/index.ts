@@ -8,6 +8,7 @@ export * from './therapist-schedules';
 export * from './internal-calendar-events';
 export * from './notifications';
 export * from './home-programs';
+export * from './treatment-plans';
 export * from './patient-intakes';
 export * from './therapy-progress';
 export * from './audit-logs';

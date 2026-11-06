@@ -1,6 +1,6 @@
 import { and, count, desc, eq, ilike, inArray } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { patientIntakes, patients } from '@/db/schema';
+import { patientIntakes, patients, profiles } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission } from '@/lib/permissions';
 import { PERMISSIONS } from '@/lib/permissions/constants';
@@ -42,6 +42,7 @@ export async function getReviewableIntakes(page = 1, pageSize = 10, search = '',
       id: patientIntakes.id,
       patientId: patients.id,
       patientName: patients.fullName,
+      avatarKey: profiles.avatarKey,
       status: patientIntakes.status,
       affectedArea: patientIntakes.affectedArea,
       submittedAt: patientIntakes.submittedAt,
@@ -49,6 +50,7 @@ export async function getReviewableIntakes(page = 1, pageSize = 10, search = '',
     })
     .from(patientIntakes)
     .innerJoin(patients, eq(patientIntakes.patientId, patients.id))
+    .leftJoin(profiles, eq(profiles.userId, patients.userId))
     .where(where)
     .orderBy(desc(patientIntakes.updatedAt))
     .limit(pageSize)
@@ -69,6 +71,7 @@ export async function getScopedIntakeForReview(patientId: string) {
       id: patientIntakes.id,
       patientId: patientIntakes.patientId,
       patientName: patients.fullName,
+      avatarKey: profiles.avatarKey,
       status: patientIntakes.status,
       chiefComplaint: patientIntakes.chiefComplaint,
       affectedArea: patientIntakes.affectedArea,
@@ -83,11 +86,18 @@ export async function getScopedIntakeForReview(patientId: string) {
       currentMedication: patientIntakes.currentMedication,
       allergies: patientIntakes.allergies,
       patientGoal: patientIntakes.patientGoal,
+      photos: patientIntakes.photos,
+      dataAccuracyAcknowledged: patientIntakes.dataAccuracyAcknowledged,
+      privacyConsent: patientIntakes.privacyConsent,
+      privacyConsentAt: patientIntakes.privacyConsentAt,
+      mediaConsent: patientIntakes.mediaConsent,
+      medicalRecordNumber: patients.medicalRecordNumber,
       reviewMessage: patientIntakes.reviewMessage,
       submittedAt: patientIntakes.submittedAt,
     })
     .from(patientIntakes)
     .innerJoin(patients, eq(patientIntakes.patientId, patients.id))
+    .leftJoin(profiles, eq(profiles.userId, patients.userId))
     .where(eq(patientIntakes.patientId, patientId))
     .orderBy(desc(patientIntakes.version))
     .limit(1);

@@ -283,7 +283,7 @@ export function SessionSecurityGuard({
     <>
       <div
         className={cn(
-          'fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 transition-opacity duration-200 ease-in-out',
+          'fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-5 transition-opacity duration-200 ease-in-out',
           warningVisible
             ? 'opacity-100 pointer-events-auto bg-[#181700]/45 backdrop-blur-[2px]'
             : 'opacity-0 pointer-events-none',
@@ -292,15 +292,16 @@ export function SessionSecurityGuard({
         aria-modal="true"
         aria-label="Peringatan sesi akan berakhir"
         aria-hidden={!warningVisible}
+        inert={!warningVisible}
       >
         <div
           className={cn(
-            'rounded-3xl bg-white border border-stone-200/90 p-6 shadow-2xl max-w-md w-full mx-4 sm:mx-0 transition-all duration-200 ease-in-out',
+            'mx-4 w-full max-w-md rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_18px_50px_rgba(24,23,0,0.18)] transition-all duration-200 ease-in-out sm:mx-0 sm:p-5',
             warningVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95 translate-y-4',
           )}
         >
           <div className="flex flex-col items-center gap-4">
-            <div className="flex h-11 w-11 aspect-square items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-[#181700] shrink-0">
+            <div className="flex h-12 w-12 aspect-square items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700] shadow-2xs shrink-0">
               <ShieldAlert className="h-6 w-6" />
             </div>
             <h2 className="text-base sm:text-lg font-bold text-[#181700] text-center">
@@ -315,7 +316,7 @@ export function SessionSecurityGuard({
             </div>
           </div>
 
-          <div className="mt-6 flex items-center justify-between gap-3 w-full pt-5 border-t border-stone-100">
+          <div className="mt-5 flex w-full flex-col gap-2 border-t border-stone-100 pt-4 sm:flex-row-reverse sm:gap-3">
             <button
               type="button"
               onClick={() => {
@@ -325,7 +326,7 @@ export function SessionSecurityGuard({
                 countdownRef.current = null;
                 resetIdleTimerRef.current?.();
               }}
-              className="h-11 px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all flex-1 shrink-0"
+              className="inline-flex h-10 flex-1 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-all hover:bg-[var(--hafta-ylw-200)] active:scale-[0.99] sm:h-11"
             >
               <CheckCircle2 className="h-4 w-4 shrink-0" />
               Tetap Masuk
@@ -333,7 +334,7 @@ export function SessionSecurityGuard({
             <button
               type="button"
               onClick={() => forceLogout('idle')}
-              className="h-11 px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all flex-1 shrink-0"
+              className="inline-flex h-10 flex-1 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-200/90 bg-white px-4 text-xs font-semibold text-[#181700] transition-all hover:bg-stone-100 active:scale-[0.99] sm:h-11"
             >
               <LogOut className="h-4 w-4 shrink-0" />
               Keluar Sekarang

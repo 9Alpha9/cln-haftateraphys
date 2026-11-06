@@ -95,7 +95,7 @@ export function AppointmentCalendar({
   }
 
   return (
-    <section className="rounded-2xl border border-[#E8ECEB] bg-white p-5 shadow-sm">
+    <section className="rounded-2xl border border-[#E8ECEB] bg-white p-3.5 sm:p-5 shadow-sm">
       <div className="flex flex-col gap-3 border-b border-[#E8ECEB] pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-hafta-ylw-50">
@@ -116,7 +116,7 @@ export function AppointmentCalendar({
           </Button>
         </div>
       </div>
-      <div className="mt-4 grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(15rem,.65fr)]">
+      <div className="mt-4 grid gap-4 sm:gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(15rem,.65fr)]">
         <div>
           <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-[#9CA3AF]">
             {weekdayLabels.map((label, index) => (

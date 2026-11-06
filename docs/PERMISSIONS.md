@@ -1,7 +1,7 @@
 ---
 title: Hafta Fisioterapi Permissions
-version: 0.1.0
-last_updated: 2026-08-12
+version: 0.2.0
+last_updated: 2026-11-06
 ---
 
 # Permissions and Authorization
@@ -90,38 +90,95 @@ Default = DENY.
 
 ## 3. Role baseline
 
+Role yang ada di implementasi: `SUPER_ADMIN`, `ADMIN`, `THERAPIST`, `STAFF`, `USER`.
+
 Legend:
 
-- Y = baseline yes
-- S = scoped/conditional
-- N = default denied
+- Y = diberikan secara baseline
+- S = diberikan dengan scope/condition
+- N = tidak diberikan
+- own = hanya resource milik sendiri dan patient-visible
 
-| Permission                  | SUPER_ADMIN | ADMIN/THERAPIST | ADMIN/STAFF |             USER |
-| --------------------------- | ----------: | --------------: | ----------: | ---------------: |
-| patient:list                |           S |               S |           S |                N |
-| patient:read                |           S |               S |   S-minimum |              own |
-| patient:create              |           Y |               S |           S |                N |
-| patient:update-demographics |           S |               S |           S |      own-limited |
-| patient:assign              |           Y |               S |           N |                N |
-| patient:archive             |           S |             N/S |           N |                N |
-| patient:export              |  S-explicit |      S-explicit |           N |       own-policy |
-| intake:read                 |           S |               S |   S-minimum |              own |
-| intake:create-own           |           N |               N |           N |                Y |
-| intake:update-own-draft     |           N |               N |           N |                Y |
-| intake:review               |         N/S |        Y-scoped |   S-minimum |                N |
-| assessment:read             |    explicit |        Y-scoped |           N |      visible-own |
-| assessment:create           |    explicit |        Y-scoped |           N |                N |
-| assessment:update-draft     |    explicit |  Y-owner/scoped |           N |                N |
-| assessment:finalize         |    explicit |  Y-owner/scoped |           N |                N |
-| assessment:amend            |    explicit |  Y-owner/scoped |           N |                N |
-| treatment-plan:*            |    explicit |          scoped |           N | read-visible-own |
-| session:*                   |    explicit |          scoped |           N | read-visible-own |
-| role:assign                 |           Y |               N |           N |                N |
-| permission:manage           |           Y |               N |           N |                N |
-| audit:read                  |           Y |     N/S-limited |           N |                N |
-| settings:manage             |           Y |               N |           N |                N |
+### 3.1 Matriks permission
 
-`SUPER_ADMIN` clinical permissions are explicit, not implied.
+| Permission | SUPER_ADMIN | ADMIN | THERAPIST | STAFF | USER |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| patient:list | Y | Y | Y | Y | N |
+| patient:read | Y | Y | Y | Y | own |
+| patient:create | Y | Y | Y | Y | N |
+| patient:update-demographics | Y | Y | N | Y | own-limited |
+| patient:assign | Y | Y | N | N | N |
+| patient:archive | Y | Y | Y | Y | N |
+| patient:export | Y | N | N | N | own-policy |
+| patient:complete-program | N | Y | Y | N | N |
+| intake:read | Y | Y | Y | Y | own |
+| intake:create-own | N | N | N | N | Y |
+| intake:update-own-draft | N | N | N | N | Y |
+| intake:review | N | Y | Y | N | N |
+| intake:request-revision | N | Y | Y | N | N |
+| intake:accept | N | Y | Y | N | N |
+| intake:archive | Y | N | N | N | N |
+| assessment:read | N | Y | Y | N | visible-own |
+| assessment:create | N | Y | Y | N | N |
+| assessment:update-draft | N | Y | Y | N | N |
+| assessment:finalize | N | Y | Y | N | N |
+| assessment:amend | N | Y | Y | N | N |
+| treatment-plan:read | N | Y | Y | N | visible-own |
+| treatment-plan:create | N | Y | Y | N | N |
+| treatment-plan:update-draft | N | Y | Y | N | N |
+| treatment-plan:finalize | N | Y | Y | N | N |
+| treatment-plan:amend | N | Y | Y | N | N |
+| session:read | N | Y | Y | N | visible-own |
+| session:create | N | Y | Y | N | N |
+| session:update-draft | N | Y | Y | N | N |
+| session:finalize | N | Y | Y | N | N |
+| session:amend | N | Y | Y | N | N |
+| document:list | N | Y | Y | Y | N |
+| document:upload | N | Y | N | N | N |
+| document:read | N | Y | Y | Y | N |
+| document:download | N | Y | Y | N | N |
+| document:archive | N | Y | N | N | N |
+| appointment:list | Y | Y | Y | Y | own |
+| appointment:read | Y | Y | Y | Y | own |
+| appointment:create | Y | Y | Y | Y | N |
+| appointment:update | Y | Y | Y | Y | N |
+| appointment:cancel | Y | Y | Y | Y | own-request |
+| appointment:reschedule | Y | Y | Y | Y | own-request |
+| appointment:complete | Y | Y | Y | Y | N |
+| calendar-event:read | Y | Y | Y | Y | Y |
+| calendar-event:manage | Y | Y | N | N | N |
+| progress:read | N | Y | Y | N | own |
+| user:list | Y | Y | N | Y | N |
+| user:read | Y | Y | N | Y | N |
+| user:create | Y | Y | Y | N | N |
+| user:suspend | Y | N | N | N | N |
+| user:reactivate | Y | N | N | N | N |
+| role:assign | Y | N | N | N | N |
+| permission:manage | Y | N | N | N | N |
+| audit:read | Y | Y | N | N | N |
+| settings:manage | Y | N | N | N | N |
+
+Catatan:
+
+- `SUPER_ADMIN` **bukan wildcard**. Permission klinis (`progress:read`, `assessment:*`, `session:*`, `document:upload`) tidak otomatis diberikan dan harus menjadi explicit grant pada perubahan terpisah.
+- `user:create` untuk `ADMIN`/`THERAPIST` dibatasi server-side: hanya boleh membuat akun `USER`. Hanya `SUPER_ADMIN` yang dapat membuat akun staf.
+- `audit:read` untuk `ADMIN` masih berlaku saat ini; jika Hafta ingin membatasi ke `SUPER_ADMIN`, ubah role matrix dan test.
+- `progress:read` untuk `USER` hanya mengembalikan record `FINALIZED` dengan `patient_visible = true`.
+- `appointment:cancel`/`reschedule` untuk `USER` hanya melalui flow appointment request, bukan akses langsung ke record.
+
+### 3.2 Account status
+
+Status akun terpisah dari role:
+
+- `ACTIVE` — default; dapat login sesuai role.
+- `SUSPENDED` — tidak dapat login; semua sesi aktif dihapus; data tetap tersimpan.
+
+Aturan:
+
+- Hanya `SUPER_ADMIN` dengan `user:suspend`/`user:reactivate` yang dapat mengubah status.
+- Tidak boleh menangguhkan akun sendiri.
+- Setiap perubahan status menulis audit `user.suspend`/`user.reactivate`.
+- Reactivate mengembalikan status `ACTIVE` tanpa mengubah role atau data klinis.
 
 ## 4. Resource scope checks
 
@@ -133,17 +190,26 @@ resource.patient.userId === session.user.id;
 
 and field/record must be patient-visible.
 
-### ADMIN/THERAPIST
+### SUPER_ADMIN
 
-Typical policy:
+Administration only by default. Clinical access requires an explicit permission grant; it is never implied by the Super Admin role.
+
+### ADMIN
+
+Administrative + operational clinical permissions sesuai role matrix. Akses klinis tetap wajib melewati permission check; enforcement assignment per pasien masih parsial dan perlu diperketat sebelum production.
+
+### THERAPIST
+
+Implementasi v1 menegakkan:
 
 ```text
 active patient assignment
-OR approved coverage permission
 AND clinical permission
 ```
 
-### ADMIN/STAFF
+Scope ini berlaku pada daftar pasien, pilihan pasien, detail pasien, rekam medis, rencana terapi, dan home program. Terapis tidak dapat membuka pasien yang tidak di-assign meskipun mengetahui URL-nya.
+
+### STAFF
 
 Can view administrative subset only. Clinical notes hidden unless explicit clinical responsibility is later introduced.
 

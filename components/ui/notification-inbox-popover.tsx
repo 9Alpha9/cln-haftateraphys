@@ -135,7 +135,7 @@ function NotificationInboxPopover() {
           {/* Notifications List */}
           <div className="max-h-80 overflow-y-auto">
             {filtered.length === 0 ? (
-              <div className="px-3 py-6 text-center text-sm text-muted-foreground">
+              <div className="px-3 py-4 sm:py-6 text-center text-sm text-muted-foreground">
                 No notifications
               </div>
             ) : (

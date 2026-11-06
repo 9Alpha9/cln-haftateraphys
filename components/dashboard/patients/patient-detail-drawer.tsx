@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react';
 import {
   Activity,
+  CalendarDays,
   CalendarPlus,
   CheckCircle2,
   ClipboardList,
+  Dumbbell,
   Eye,
   FileText,
   Loader2,
@@ -14,26 +16,67 @@ import {
   UserRound,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
+import { PaginationBar } from '@/components/ui/pagination-bar';
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
 import { NewAppointmentButton } from '@/components/dashboard/appointments/new-appointment-button';
 import { TherapyScheduleForm } from '@/components/patient/therapy-schedule-form';
+import { TherapistAssignControl } from '@/components/dashboard/patients/therapist-assign-control';
+import { HomeProgramPanel } from '@/components/dashboard/patients/home-program-panel';
+import { TreatmentPlanPanel } from '@/components/dashboard/patients/treatment-plan-panel';
 import { CompleteProgramButton } from '@/components/dashboard/patients/complete-program-button';
 import { fetchPatientDetailAction } from '@/server/actions/patient-detail';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
 import { cn } from '@/lib/utils';
 
 type DetailData = Extract<Awaited<ReturnType<typeof fetchPatientDetailAction>>, { ok: true }>['data'];
-type TabKey = 'profile' | 'intake' | 'assessment' | 'session';
+type TabKey = 'profile' | 'plan' | 'program' | 'intake' | 'assessment' | 'session';
 
-const TABS: { key: TabKey; label: string }[] = [
-  { key: 'profile', label: 'Profil & Program' },
-  { key: 'intake', label: 'Intake Awal' },
-  { key: 'assessment', label: 'Assessment' },
-  { key: 'session', label: 'Sesi' },
+const TABS: {
+  key: TabKey;
+  label: string;
+  description: string;
+  icon: typeof Activity;
+}[] = [
+  {
+    key: 'profile',
+    label: 'Profil & Program',
+    description: 'Identitas, terapis, dan pengaturan program.',
+    icon: UserRound,
+  },
+  {
+    key: 'plan',
+    label: 'Rencana Terapi',
+    description: 'Tujuan, intervensi, dan jadwal evaluasi.',
+    icon: ClipboardList,
+  },
+  {
+    key: 'program',
+    label: 'Program Latihan',
+    description: 'Latihan mandiri yang dibagikan ke pasien.',
+    icon: Dumbbell,
+  },
+  {
+    key: 'intake',
+    label: 'Intake Awal',
+    description: 'Form awal dan status peninjauannya.',
+    icon: FileText,
+  },
+  {
+    key: 'assessment',
+    label: 'Assessment',
+    description: 'Catatan SOAP dan evaluasi klinis.',
+    icon: Activity,
+  },
+  {
+    key: 'session',
+    label: 'Sesi',
+    description: 'Riwayat dan jadwal sesi terapi.',
+    icon: CalendarDays,
+  },
 ];
 
 const ACTION_BUTTON =
-  'h-10 sm:h-11 px-5 rounded-full text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0';
+  'h-10 sm:h-11 px-4 sm:px-5 rounded-full text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0';
 const ACTION_PRIMARY =
   'font-bold bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] shadow-2xs';
 const ACTION_SECONDARY =
@@ -49,6 +92,18 @@ function genderLabel(value: string | null) {
   if (value === 'FEMALE') return 'Perempuan';
   if (value === 'OTHER') return 'Lainnya';
   return '-';
+}
+
+function intakeStatusLabel(value: string) {
+  const labels: Record<string, string> = {
+    DRAFT: 'Draf',
+    SUBMITTED: 'Menunggu Ditinjau',
+    UNDER_REVIEW: 'Sedang Ditinjau',
+    NEEDS_REVISION: 'Perlu Revisi',
+    ACCEPTED: 'Diterima',
+    ARCHIVED: 'Diarsipkan',
+  };
+  return labels[value] ?? value.replaceAll('_', ' ');
 }
 
 function statusLabel(value: string) {
@@ -83,9 +138,11 @@ function sessionStatusClass(value: string) {
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl border border-stone-200/80 bg-stone-50/40 p-3">
-      <p className="text-xs font-medium text-stone-500">{label}</p>
-      <p className="mt-1 break-words text-sm font-medium text-[#181700]">{value || '-'}</p>
+    <div className="min-w-0">
+      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">{label}</p>
+      <p className="mt-0.5 break-words text-xs font-semibold leading-relaxed text-[#181700] sm:text-sm">
+        {value || '-'}
+      </p>
     </div>
   );
 }
@@ -98,6 +155,9 @@ function MetricBars({ records, field, label }: { records: TherapyProgressView[];
         <p className="text-xs font-medium text-stone-500">{label}</p>
         <span className="font-mono text-sm font-bold text-[#181700]">{latest ? `${latest[field]}/10` : '-'}</span>
       </div>
+      <p className="mt-1 text-[10px] font-medium text-stone-400">
+        {latest ? `Data per ${formatDate(latest.recordedAt)}` : 'Belum ada data evaluasi'}
+      </p>
       <div className="mt-3 flex h-12 items-end gap-1">
         {records.length === 0 ? (
           <div className="h-1 w-full rounded-full bg-stone-100" />
@@ -115,12 +175,15 @@ function MetricBars({ records, field, label }: { records: TherapyProgressView[];
           ))
         )}
       </div>
+      <p className="mt-2 text-[10px] text-stone-400">Menampilkan hingga 10 evaluasi terakhir.</p>
     </div>
   );
 }
 
 export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: boolean; onClose: () => void; patientId: string }) {
   const [activeTab, setActiveTab] = useState<TabKey>('profile');
+  const [assessmentPage, setAssessmentPage] = useState(1);
+  const ASSESSMENT_PAGE_SIZE = 4;
   const [rawData, setRawData] = useState<DetailData | null>(null);
   const [error, setError] = useState<{ patientId: string; message: string } | null>(null);
   const [editingRecord, setEditingRecord] = useState<TherapyProgressView | null>(null);
@@ -159,6 +222,12 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
     data?.sessions.filter((session) => session.status === 'SCHEDULED' || session.status === 'CONFIRMED')
       .length ?? 0;
   const patientOptions = patient ? [{ id: patient.id, label: patient.fullName }] : [];
+  const assessmentPageCount = Math.max(1, Math.ceil(progress.length / ASSESSMENT_PAGE_SIZE));
+  const safeAssessmentPage = Math.min(assessmentPage, assessmentPageCount);
+  const visibleAssessments = progress.slice(
+    (safeAssessmentPage - 1) * ASSESSMENT_PAGE_SIZE,
+    safeAssessmentPage * ASSESSMENT_PAGE_SIZE,
+  );
 
   function closeDrawer() {
     setActiveTab('profile');
@@ -171,34 +240,65 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
         isOpen={isOpen}
         onClose={closeDrawer}
         size="lg"
-        icon={<UserRound className="h-5 w-5" />}
+        icon={
+          data?.avatarKey ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={data.avatarKey} alt={patient?.fullName ?? 'Pasien'} className="h-full w-full rounded-full object-cover" />
+          ) : (
+            <UserRound className="h-5 w-5" />
+          )
+        }
         title={patient?.fullName ?? 'Detail Pasien'}
         subtitle={
           patient
-            ? `${patient.caseStatus} • ${data?.therapistName ?? 'Belum ada terapis'} • RM ${
+            ? `${patient.caseStatus} • ${data?.therapistName ?? 'Belum ada terapis'} • No. RM ${
                 patient.medicalRecordNumber ?? 'Belum ditetapkan'
               }`
             : 'Memuat data pasien...'
         }
         headerTabs={
-          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar" role="tablist" aria-label="Detail pasien">
-            {TABS.map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                role="tab"
-                aria-selected={activeTab === tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={cn(
-                  'shrink-0 cursor-pointer rounded-full px-3 py-1.5 text-xs font-semibold transition-colors',
-                  activeTab === tab.key
-                    ? 'bg-[var(--hafta-ylw-100)] text-[#181700]'
-                    : 'bg-stone-100 text-stone-600 hover:bg-stone-200',
-                )}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div
+            className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-0.5 no-scrollbar"
+            role="tablist"
+            aria-label="Detail pasien"
+          >
+            {TABS.map((tab) => {
+              const Icon = tab.icon;
+              const active = activeTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={cn(
+                    'flex min-w-[148px] max-w-[190px] shrink-0 snap-start cursor-pointer flex-col items-start gap-1 rounded-2xl border px-3 py-2 text-left transition-colors',
+                    active
+                      ? 'border-[#181700] bg-[#181700] text-white shadow-2xs'
+                      : 'border-stone-200/80 bg-white text-stone-600 hover:bg-stone-50',
+                  )}
+                >
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold leading-tight">
+                    <Icon
+                      className={cn(
+                        'h-3.5 w-3.5 shrink-0',
+                        active ? 'text-[var(--hafta-ylw-100)]' : 'text-stone-500',
+                      )}
+                    />
+                    {tab.label}
+                  </span>
+                  <span
+                    className={cn(
+                      'text-[10px] leading-snug',
+                      active ? 'text-white/70' : 'text-stone-500',
+                    )}
+                  >
+                    {tab.description}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         }
         footer={
@@ -233,12 +333,12 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                       className="fixed inset-0 z-10 cursor-default"
                       onClick={() => setShowProgramMenu(false)}
                     />
-                    <div className="absolute bottom-full right-0 z-20 mb-2 w-56 origin-bottom-right rounded-2xl border border-stone-200 bg-white p-2 shadow-xl">
+                    <div className="absolute bottom-full right-0 z-20 mb-2 w-56 origin-bottom-right rounded-2xl border border-stone-200/90 bg-white p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]">
                       {data.capabilities.canCreateAppointment ? (
                         <span onClick={(e) => e.stopPropagation()}>
                           <NewAppointmentButton
                             defaultPatientId={patient.id}
-                            className="flex w-full cursor-pointer items-center rounded-full px-3 py-2 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50 gap-2 bg-transparent border-0 shadow-none justify-start h-auto"
+                            className="flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-0 bg-transparent px-3 py-2.5 text-left text-xs font-semibold text-stone-700 shadow-none transition-colors hover:bg-stone-100 hover:text-[#181700] [&>span]:w-full [&>span]:justify-start"
                           >
                             <CalendarPlus className="h-3.5 w-3.5 shrink-0 text-stone-500" />
                             <span>Jadwalkan Sesi Baru</span>
@@ -252,7 +352,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                             patientId={patient.id}
                             patientName={patient.fullName}
                             onCompleted={() => setReloadToken((token) => token + 1)}
-                            className="flex w-full cursor-pointer items-center rounded-full px-3 py-2 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-50 gap-2 bg-transparent border-0 shadow-none justify-start h-auto"
+                            className="flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-0 bg-transparent px-3 py-2.5 text-left text-xs font-semibold text-stone-700 shadow-none transition-colors hover:bg-stone-100 hover:text-[#181700] [&>span]:w-full [&>span]:justify-start"
                           />
                         </span>
                       ) : null}
@@ -276,16 +376,37 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
             <p className="max-w-sm text-xs text-stone-500">{currentError ?? 'Silakan coba lagi.'}</p>
           </div>
         ) : activeTab === 'profile' ? (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="space-y-3 sm:space-y-5">
+            <div className="rounded-2xl border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/35 p-3.5 sm:p-4">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-500">
+                Terapis Pendamping
+              </p>
+              <p className="mt-1 text-sm font-bold text-[#181700] sm:text-base">
+                {data.therapistName ?? 'Belum ada terapis'}
+              </p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-stone-500">
+                Terapis utama yang mendampingi program terapi pasien ini.
+              </p>
+              {data.capabilities.canAssignTherapist ? (
+                <TherapistAssignControl
+                  patientId={patient.id}
+                  currentTherapistId={data.assignedTherapistId ?? null}
+                  options={data.therapistOptions}
+                />
+              ) : null}
+            </div>
+
+            <div className="rounded-2xl border border-stone-200/70 bg-white p-4 sm:p-5">
+              <div className="grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2">
               <InfoRow label="Nomor Rekam Medis" value={patient.medicalRecordNumber ?? '-'} />
               <InfoRow label="Status Kasus" value={patient.caseStatus} />
               <InfoRow label="Jenis Kelamin" value={genderLabel(patient.gender)} />
               <InfoRow label="Tanggal Lahir" value={formatDate(patient.dateOfBirth)} />
               <InfoRow label="Pekerjaan" value={patient.occupation ?? '-'} />
               <InfoRow label="Telepon" value={data.phone ?? '-'} />
-              <InfoRow label="Email" value={data.email ?? '-'} />
-              <InfoRow label="Terapis" value={data.therapistName ?? '-'} />
+              <div className="sm:col-span-2">
+                <InfoRow label="Email" value={data.email ?? '-'} />
+              </div>
               <div className="sm:col-span-2">
                 <InfoRow label="Alamat" value={patient.addressLine ?? '-'} />
               </div>
@@ -297,10 +418,11 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                     .join(' • ') || '-'}
                 />
               </div>
+              </div>
             </div>
 
-            <div className="rounded-2xl border border-stone-200/90 bg-white p-4 sm:p-5">
-              <div className="mb-4 flex items-center gap-2">
+            <div className="rounded-2xl border border-stone-200/70 bg-white p-3.5 sm:p-5">
+              <div className="mb-3 flex items-center gap-2 sm:mb-4">
                 <ClipboardList className="h-4 w-4 text-stone-500" />
                 <h3 className="text-sm font-bold text-[#181700]">Program Terapi</h3>
               </div>
@@ -338,37 +460,74 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
               </div>
             ) : null}
           </div>
+        ) : activeTab === 'plan' ? (
+          <TreatmentPlanPanel
+            patientId={patient.id}
+            patientName={patient.fullName}
+            initialPlan={data.treatmentPlan}
+            canManage={data.capabilities.canEditRecord}
+            onSaved={() => setReloadToken((token) => token + 1)}
+          />
+        ) : activeTab === 'program' ? (
+          <HomeProgramPanel
+            patientId={patient.id}
+            patientName={patient.fullName}
+            initialProgram={data.homeProgram}
+            canManage={data.capabilities.canEditRecord}
+            onSaved={() => setReloadToken((token) => token + 1)}
+          />
         ) : activeTab === 'intake' ? (
           data.intake ? (
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-stone-200/90 bg-stone-50/50 p-4">
-                <div>
-                  <p className="text-xs font-medium text-stone-500">Status intake</p>
-                  <p className="text-sm font-bold text-[#181700]">{data.intake.status}</p>
+            <div className="space-y-3">
+              <div className="w-full rounded-2xl border border-stone-200/70 bg-[#FBFBFA] p-3.5 sm:p-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+                      Status Intake
+                    </p>
+                    <span className="mt-1.5 inline-flex rounded-full border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] px-2.5 py-1 text-[11px] font-bold text-[#181700]">
+                      {intakeStatusLabel(data.intake.status)}
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-500">
+                    Dikirim {formatDate(data.intake.submittedAt)}
+                  </p>
                 </div>
-                <p className="text-xs text-stone-500">Dikirim {formatDate(data.intake.submittedAt)}</p>
               </div>
-              {[
-                ['Keluhan utama', data.intake.chiefComplaint],
-                ['Area terdampak', data.intake.affectedArea],
-                ['Awal keluhan', data.intake.onsetDescription],
-                ['Pemicu', data.intake.triggeringEvent],
-                ['Faktor memperberat', data.intake.aggravatingFactors],
-                ['Faktor meringankan', data.intake.relievingFactors],
-                ['Keterbatasan harian', data.intake.dailyLimitations],
-                ['Riwayat cedera', data.intake.previousInjuryHistory],
-                ['Riwayat operasi', data.intake.surgeryHistory],
-                ['Riwayat medis', data.intake.relevantMedicalHistory],
-                ['Obat saat ini', data.intake.currentMedication],
-                ['Alergi', data.intake.allergies],
-                ['Tujuan pasien', data.intake.patientGoal],
-                ['Catatan review', data.intake.reviewMessage],
-              ].map(([label, value]) => (
-                <div key={label} className="rounded-2xl border border-stone-200/90 bg-white p-4">
-                  <p className="text-xs font-medium text-stone-500">{label}</p>
-                  <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-[#181700]">{value || '-'}</p>
+
+              <div className="rounded-2xl border border-stone-200/70 bg-white p-3.5 sm:p-4">
+                <div className="mb-3 flex items-center gap-2">
+                  <ClipboardList className="h-4 w-4 text-stone-500" />
+                  <h3 className="text-sm font-bold text-[#181700]">Ringkasan Intake</h3>
                 </div>
-              ))}
+                <dl className="space-y-3.5">
+                  {[
+                    ['Keluhan utama', data.intake.chiefComplaint],
+                    ['Area terdampak', data.intake.affectedArea],
+                    ['Awal keluhan', data.intake.onsetDescription],
+                    ['Pemicu', data.intake.triggeringEvent],
+                    ['Faktor memperberat', data.intake.aggravatingFactors],
+                    ['Faktor meringankan', data.intake.relievingFactors],
+                    ['Keterbatasan harian', data.intake.dailyLimitations],
+                    ['Riwayat cedera', data.intake.previousInjuryHistory],
+                    ['Riwayat operasi', data.intake.surgeryHistory],
+                    ['Riwayat medis', data.intake.relevantMedicalHistory],
+                    ['Obat saat ini', data.intake.currentMedication],
+                    ['Alergi', data.intake.allergies],
+                    ['Tujuan pasien', data.intake.patientGoal],
+                    ['Catatan review', data.intake.reviewMessage],
+                  ].map(([label, value]) => (
+                    <div key={label} className="min-w-0">
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-stone-400">
+                        {label}
+                      </dt>
+                      <dd className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-[#181700] sm:text-sm">
+                        {value || '-'}
+                      </dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
             </div>
           ) : (
             <div className="flex min-h-[360px] flex-col items-center justify-center gap-2 text-center">
@@ -378,10 +537,17 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
             </div>
           )
         ) : activeTab === 'assessment' ? (
-          <div className="space-y-5">
-            <p className="text-xs text-stone-500">{progress.length} catatan assessment</p>
+          <div className="space-y-4 sm:space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-1.5">
+              <p className="text-xs text-stone-500">{progress.length} catatan assessment</p>
+              {progress[0] ? (
+                <p className="text-[10px] text-stone-400">
+                  Evaluasi terbaru {formatDate(progress[0].recordedAt)}
+                </p>
+              ) : null}
+            </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
               <MetricBars records={chronologicalProgress} field="painScore" label="Nyeri (VAS)" />
               <MetricBars records={chronologicalProgress} field="rangeOfMotionScore" label="ROM" />
               <MetricBars records={chronologicalProgress} field="strengthScore" label="Kekuatan" />
@@ -395,9 +561,10 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                 <p className="text-xs text-stone-500">Catat assessment pertama untuk memulai pemantauan.</p>
               </div>
             ) : (
-              <div className="space-y-3">
-                {progress.map((record) => (
-                  <article key={record.id} className="rounded-2xl border border-stone-200/90 bg-white p-4">
+              <>
+                <div className="space-y-3">
+                  {visibleAssessments.map((record) => (
+                  <article key={record.id} className="rounded-2xl border border-stone-200/70 bg-white p-3.5 sm:p-4">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
                         <p className="text-sm font-bold text-[#181700]">{formatDate(record.recordedAt)}</p>
@@ -439,13 +606,19 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                         </button>
                       )}
                     </div>
-                  </article>
-                ))}
-              </div>
+                    </article>
+                  ))}
+                </div>
+                <PaginationBar
+                  page={safeAssessmentPage}
+                  pageCount={assessmentPageCount}
+                  onPageChange={setAssessmentPage}
+                />
+              </>
             )}
           </div>
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-4 sm:space-y-5">
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
               <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4">
                 <p className="text-[11px] font-medium text-stone-500 sm:text-xs">Total sesi</p>
@@ -477,11 +650,11 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                       new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime(),
                   )
                   .map((session, index) => (
-                    <article key={session.id} className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-stone-200/90 bg-white p-4">
+                    <article key={session.id} className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-stone-200/70 bg-white p-3.5 sm:p-4">
                       <div>
                         <p className="text-sm font-bold text-[#181700]">Kunjungan Ke-{index + 1}</p>
                         <p className="mt-0.5 text-xs text-stone-500">
-                          {formatDate(session.scheduledDate)} • {session.startTime} • {session.durationMinutes} menit • {session.therapistName ?? '-'}
+                          {formatDate(session.scheduledDate)} • {session.startTime} WIB • {session.durationMinutes} menit • {session.therapistName ?? '-'}
                         </p>
                         <p className="mt-1 text-xs text-stone-600">{sessionTypeLabel(session.type)}</p>
                       </div>

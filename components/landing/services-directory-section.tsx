@@ -152,7 +152,7 @@ export function ServicesDirectorySection() {
           <div className="lg:col-span-8">
             <ScrollReveal
               key={activeService.id}
-              className="rounded-3xl border border-stone-200/90 bg-white p-5 shadow-sm sm:p-6 lg:p-8"
+              className="rounded-3xl border border-stone-200/90 bg-white p-3.5 sm:p-5 shadow-sm sm:p-6 lg:p-8"
             >
               {/* Header Panel: Ikon Terkunci Rapi di Kanan Atas Sejajar Judul pada SEMUA Layar */}
               <div className="flex items-start justify-between gap-4 border-b border-stone-100 pb-5 sm:pb-6">
@@ -249,7 +249,7 @@ export function ServicesDirectorySection() {
                   href={`https://wa.me/6281232932872?text=Halo%20Hafta%20Fisioterapi,%20saya%20ingin%20konsultasi%20mengenai%20layanan%20${encodeURIComponent(activeService.title)}.`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-950)] px-5 py-3 text-xs font-bold text-white shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-100)] hover:text-[var(--hafta-ylw-950)] sm:w-auto sm:py-2.5"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-950)] px-4 sm:px-5 py-3 text-xs font-bold text-white shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-100)] hover:text-[var(--hafta-ylw-950)] sm:w-auto sm:py-2.5"
                 >
                   <MessageCircle className="h-4 w-4" />
                   Konsultasikan Keluhan Ini

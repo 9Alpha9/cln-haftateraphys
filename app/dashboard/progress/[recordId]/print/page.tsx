@@ -11,15 +11,14 @@ function calculateAge(dob: Date | string | null | undefined): string {
   const today = new Date();
   let age = today.getFullYear() - birthDate.getFullYear();
   const m = today.getMonth() - birthDate.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-    age--;
-  }
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
   return `${age} tahun`;
 }
 
 function formatGender(gender: string | null | undefined): string {
   if (gender === 'MALE') return 'Laki-laki';
   if (gender === 'FEMALE') return 'Perempuan';
+  if (gender === 'OTHER') return 'Lainnya';
   return gender || '-';
 }
 
@@ -34,9 +33,7 @@ export default async function PrintMedicalRecordPage({
   const { mode = 'print' } = await searchParams;
   const record = await getTherapyProgressById(recordId);
 
-  if (!record) {
-    notFound();
-  }
+  if (!record) notFound();
 
   const formattedDate = new Date(record.recordedAt).toLocaleDateString('id-ID', {
     weekday: 'long',
@@ -44,156 +41,139 @@ export default async function PrintMedicalRecordPage({
     month: 'long',
     year: 'numeric',
   });
-
-  const dobFormatted = record.patientDob
-    ? new Date(record.patientDob).toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric',
-      })
-    : null;
+  const scoreSummary = `Nyeri ${record.painScore}/10 · ROM ${record.rangeOfMotionScore}/10 · Kekuatan ${record.strengthScore}/10 · Fungsi ${record.functionScore}/10`;
 
   return (
-    <div className="min-h-screen bg-slate-50 p-4 sm:p-8 print:bg-white print:p-0">
-      <PrintTrigger mode={mode} patientName={record.patientName} recordId={record.id} recordedAt={record.recordedAt} />
-      <div className="mx-auto max-w-3xl min-h-[calc(100vh-8rem)] print:min-h-screen flex flex-col rounded-xl border border-slate-200 bg-white p-8 shadow-sm print:max-w-none print:rounded-none print:border-none print:p-0 print:shadow-none">
-        {/* Kop Surat Header */}
-        <div className="flex items-center justify-between border-b-2 border-accent/30 pb-5">
-          <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-stone-50 p-4 sm:p-8 print:bg-white print:p-0">
+      <PrintTrigger mode={mode} patientName={record.patientName} recordId={record.id} recordedAt={record.recordedAt} medicalRecordNumber={record.medicalRecordNumber} />
+      <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-3xl flex-col border border-stone-200/70 bg-white p-6 shadow-[0_8px_30px_rgba(24,23,0,0.05)] print:max-w-none print:min-h-screen print:print:border-none print:p-0 print:shadow-none sm:p-8">
+        <div className="flex flex-col gap-4 border-b border-stone-300 pb-5 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex items-start gap-4">
             <Image
               src="/images/logos/logos-text.png"
               alt="Hafta Fisioterapi"
               width={140}
               height={60}
-              className="h-18 w-auto object-cover"
+              className="self-start h-14 w-auto shrink-0 object-contain object-left-top"
               priority
             />
             <div>
-              <h1 className="text-xl font-bold text-slate-900">HAFTA FISIOTERAPI</h1>
-              <p className="text-xs text-slate-500 font-medium">Klinik & Layanan Terapi Fisik Profesional</p>
-              <p className="text-xs text-slate-500">Jl. Pd. Sidokare Indah No.AE-13, Sidokare, Sidoarjo 61214 • WhatsApp: 0812-3293-2872</p>
+              <h1 className="text-xl font-bold text-[#181700]">HAFTA FISIOTERAPI</h1>
+              <p className="text-xs font-medium text-stone-500">Klinik & Layanan Terapi Fisik Profesional</p>
+              <p className="text-xs text-stone-500">Jl. Pd. Sidokare Indah No.AE-13, Sidokare, Sidoarjo 61214 • WhatsApp: 0812-3293-2872</p>
             </div>
           </div>
-          <div className="text-right">
-            <span className="rounded bg-accent/15 px-3 py-1 text-xs font-bold text-[#92400e] print:border print:border-accent/30">
-              REKAM MEDIS RESMI
+          <div className="sm:text-right">
+            <span className="inline-flex border border-stone-300 bg-white px-3 py-1 text-[10px] font-bold text-[#181700]">
+              REKAM MEDIS FISIOTERAPI
             </span>
-            <p className="mt-2 font-mono text-xs text-slate-400">ID: {record.id.slice(0, 8).toUpperCase()}</p>
+            <p className="mt-2 font-mono text-[10px] text-stone-400">ID: {record.id.slice(0, 8).toUpperCase()}</p>
           </div>
         </div>
 
-        {/* Identitas Pasien & Waktu Pelayanan */}
-        <div className="mt-6 rounded-lg bg-slate-50 p-4 print:bg-slate-50">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">Data Pasien & Waktu Pelayanan</h2>
-          <div className="mt-3 grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-xs text-slate-500 block">Nama Pasien</span>
-              <span className="font-semibold text-slate-900">{record.patientName}</span>
+        <section className="mt-6">
+          <h2 className="mb-2 border-l-2 border-stone-400 pl-2 text-xs font-bold uppercase tracking-wider text-[#181700]">
+            Identitas Pasien
+          </h2>
+          <div className="grid grid-cols-1 gap-px overflow-hidden border border-stone-200/80 bg-stone-200/80 text-sm sm:grid-cols-2">
+            <div className="bg-white p-3">
+              <span className="block text-[10px] font-medium text-stone-500">No. RM</span>
+              <span className="mt-0.5 block font-mono text-sm font-bold text-[#181700]">{record.medicalRecordNumber || '-'}</span>
             </div>
-            <div>
-              <span className="text-xs text-slate-500 block">No. Rekam Medis</span>
-              <span className="font-semibold text-slate-900">{record.medicalRecordNumber || '-'}</span>
+            <div className="bg-white p-3">
+              <span className="block text-[10px] font-medium text-stone-500">Nama Pasien</span>
+              <span className="mt-0.5 block font-bold text-[#181700]">{record.patientName}</span>
             </div>
-            <div>
-              <span className="text-xs text-slate-500 block">Umur / Tanggal Lahir</span>
-              <span className="text-slate-800">
-                {calculateAge(record.patientDob)} {dobFormatted ? `(${dobFormatted})` : ''}
-              </span>
+            <div className="bg-white p-3">
+              <span className="block text-[10px] font-medium text-stone-500">Umur</span>
+              <span className="mt-0.5 block text-[#181700]">{calculateAge(record.patientDob)}</span>
             </div>
-            <div>
-              <span className="text-xs text-slate-500 block">Jenis Kelamin</span>
-              <span className="text-slate-800">{formatGender(record.gender)}</span>
+            <div className="bg-white p-3">
+              <span className="block text-[10px] font-medium text-stone-500">Jenis Kelamin</span>
+              <span className="mt-0.5 block text-[#181700]">{formatGender(record.gender)}</span>
             </div>
-            <div>
-              <span className="text-xs text-slate-500 block">Nomor Telepon / HP</span>
-              <span className="text-slate-800">{record.patientPhone || '-'}</span>
+            <div className="bg-white p-3 sm:col-span-2">
+              <span className="block text-[10px] font-medium text-stone-500">Alamat</span>
+              <span className="mt-0.5 block text-[#181700]">{record.patientAddress || '-'}</span>
             </div>
-            <div>
-              <span className="text-xs text-slate-500 block">Terapis Penanggung Jawab</span>
-              <span className="font-semibold text-slate-900">{record.therapistName || 'Terapis Hafta'}</span>
+            <div className="bg-white p-3">
+              <span className="block text-[10px] font-medium text-stone-500">Nomor HP</span>
+              <span className="mt-0.5 block text-[#181700]">{record.patientPhone || '-'}</span>
             </div>
-            <div className="col-span-2">
-              <span className="text-xs text-slate-500 block">Alamat Domisili Pasien</span>
-              <span className="text-slate-800">{record.patientAddress || '-'}</span>
+            <div className="bg-white p-3">
+              <span className="block text-[10px] font-medium text-stone-500">Terapis</span>
+              <span className="mt-0.5 block font-semibold text-[#181700]">{record.therapistName || 'Terapis Hafta'}</span>
             </div>
-            <div className="col-span-2">
-              <span className="text-xs text-slate-500 block">Tanggal Pelayanan</span>
-              <span className="font-semibold text-slate-900">{formattedDate}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Skor Evaluasi Fisik */}
-        <div className="mt-6">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Ringkasan Parameter Fisik</h2>
-          <div className="grid grid-cols-4 gap-3 text-center">
-            <div className="rounded-lg border border-slate-200 p-3">
-              <span className="text-xs text-slate-500 block">Skor Nyeri</span>
-              <span className="text-lg font-bold text-slate-900 mt-1 block">{record.painScore} <span className="text-xs font-normal text-slate-400">/ 10</span></span>
-            </div>
-            <div className="rounded-lg border border-slate-200 p-3">
-              <span className="text-xs text-slate-500 block">Lingkup Gerak (ROM)</span>
-              <span className="text-lg font-bold text-slate-900 mt-1 block">{record.rangeOfMotionScore} <span className="text-xs font-normal text-slate-400">/ 10</span></span>
-            </div>
-            <div className="rounded-lg border border-slate-200 p-3">
-              <span className="text-xs text-slate-500 block">Kekuatan Otot</span>
-              <span className="text-lg font-bold text-slate-900 mt-1 block">{record.strengthScore} <span className="text-xs font-normal text-slate-400">/ 10</span></span>
-            </div>
-            <div className="rounded-lg border border-slate-200 p-3">
-              <span className="text-xs text-slate-500 block">Fungsi Tubuh</span>
-              <span className="text-lg font-bold text-slate-900 mt-1 block">{record.functionScore} <span className="text-xs font-normal text-slate-400">/ 10</span></span>
+            <div className="bg-white p-3 sm:col-span-2">
+              <span className="block text-[10px] font-medium text-stone-500">Tanggal Pemeriksaan</span>
+              <span className="mt-0.5 block font-semibold text-[#181700]">{formattedDate}</span>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Isian Klinis Terstruktur */}
-        <div className="mt-6 space-y-4">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 border-b pb-1">Catatan & Diagnosa Klinis</h2>
+        <section className="mt-6">
+          <h2 className="mb-2 border-l-2 border-stone-400 pl-2 text-xs font-bold uppercase tracking-wider text-[#181700]">
+            3. Anamnesa Fisioterapi
+          </h2>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-800">{record.anamnesis || '-'}</p>
+          {record.physicalExamination ? (
+            <>
+              <h3 className="mt-3 text-[11px] font-bold text-stone-600">Pemeriksaan Fisik</h3>
+              <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed text-stone-800">{record.physicalExamination}</p>
+            </>
+          ) : null}
+        </section>
 
-          {record.anamnesis && (
-            <div>
-              <h3 className="text-xs font-bold text-slate-700">1. Anamnesis (Keluhan Utama & Riwayat)</h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-800">{record.anamnesis}</p>
-            </div>
-          )}
+        <section className="mt-5">
+          <h2 className="mb-2 border-l-2 border-stone-400 pl-2 text-xs font-bold uppercase tracking-wider text-[#181700]">
+            4. Diagnosa
+          </h2>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-800">{record.diagnosis || '-'}</p>
+        </section>
 
-          {record.physicalExamination && (
-            <div>
-              <h3 className="text-xs font-bold text-slate-700">2. Pemeriksaan Fisik & Penunjang</h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-800">{record.physicalExamination}</p>
-            </div>
-          )}
+        <section className="mt-5">
+          <h2 className="mb-2 border-l-2 border-stone-400 pl-2 text-xs font-bold uppercase tracking-wider text-[#181700]">
+            5. Riwayat Penyakit
+          </h2>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-800">{record.medicalHistory || '-'}</p>
+        </section>
 
-          {record.diagnosis && (
-            <div>
-              <h3 className="text-xs font-bold text-slate-700">3. Diagnosis Fisioterapi</h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-800 font-semibold">{record.diagnosis}</p>
-            </div>
-          )}
+        <section className="mt-5">
+          <h2 className="mb-2 border-l-2 border-stone-400 pl-2 text-xs font-bold uppercase tracking-wider text-[#181700]">
+            6. Catatan Klinis
+          </h2>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-stone-800">{record.summary || '-'}</p>
+        </section>
 
-          {record.treatment && (
-            <div>
-              <h3 className="text-xs font-bold text-slate-700">4. Pengobatan & Tindakan Diberikan</h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-800">{record.treatment}</p>
-            </div>
-          )}
+        <section className="mt-5">
+          <h2 className="mb-2 border-l-2 border-stone-400 pl-2 text-xs font-bold uppercase tracking-wider text-[#181700]">
+            7. Penatalaksanaan
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-left text-xs">
+              <thead>
+                <tr className="bg-stone-100">
+                  <th className="border border-stone-200 px-3 py-2 font-bold text-stone-700">Tanggal</th>
+                  <th className="border border-stone-200 px-3 py-2 font-bold text-stone-700">Terapi</th>
+                  <th className="border border-stone-200 px-3 py-2 font-bold text-stone-700">Evaluasi</th>
+                  <th className="border border-stone-200 px-3 py-2 font-bold text-stone-700">Keterangan</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="border border-stone-200 px-3 py-2 align-top text-stone-800">{formattedDate}</td>
+                  <td className="border border-stone-200 px-3 py-2 align-top whitespace-pre-wrap text-stone-800">{record.treatment || '-'}</td>
+                  <td className="border border-stone-200 px-3 py-2 align-top text-stone-800">
+                    {record.evaluation ? <span className="block whitespace-pre-wrap">{record.evaluation}</span> : null}
+                    <span className="mt-1 block text-[11px] text-stone-500">{scoreSummary}</span>
+                  </td>
+                  <td className="border border-stone-200 px-3 py-2 align-top whitespace-pre-wrap text-stone-800">{record.followUpPlan || record.summary || '-'}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-          {record.followUpPlan && (
-            <div>
-              <h3 className="text-xs font-bold text-slate-700">5. Rencana Tindak Lanjut & Edukasi</h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-800">{record.followUpPlan}</p>
-            </div>
-          )}
-
-          {record.summary && (
-            <div>
-              <h3 className="text-xs font-bold text-slate-700">6. Ringkasan Tambahan</h3>
-              <p className="mt-1 text-sm leading-relaxed text-slate-800">{record.summary}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Tanda Tangan & Paraf Terapis */}
         <PrintFooter signerRole="Terapis Penanggung Jawab," signerName={record.therapistName || 'Terapis Hafta'} />
       </div>
     </div>

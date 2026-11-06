@@ -80,15 +80,15 @@ export function SidebarAccountMenu({
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
-              className="pointer-events-none fixed inset-x-4 bottom-28 z-50 rounded-2xl border border-border bg-white p-2 shadow-xl lg:pointer-events-auto lg:absolute lg:inset-x-auto lg:bottom-0 lg:left-[calc(100%+26px)] lg:w-56 lg:max-w-[calc(100vw-1rem)] lg:rounded-xl"
+              className="pointer-events-none fixed inset-x-4 bottom-28 z-50 flex flex-col gap-1 rounded-2xl border border-stone-200/90 bg-white p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)] lg:pointer-events-auto lg:absolute lg:inset-x-auto lg:bottom-0 lg:left-[calc(100%+26px)] lg:w-56 lg:max-w-[calc(100vw-1rem)]"
               role="menu"
             >
-              <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Akun</p>
+              <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">Akun</p>
               <motion.button
                 type="button"
                 role="menuitem"
                 onClick={() => run(onProfile)}
-                className="cursor-pointer flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-surface"
+                className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 text-left text-sm text-[#181700] transition-colors hover:bg-stone-100"
               >
                 <User className="h-4 w-4" /> Profil
               </motion.button>
@@ -96,7 +96,7 @@ export function SidebarAccountMenu({
                 type="button"
                 role="menuitem"
                 onClick={() => run(onSettings)}
-                className="cursor-pointer flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-surface"
+                className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 text-left text-sm text-[#181700] transition-colors hover:bg-stone-100"
               >
                 <Settings className="h-4 w-4" /> Pengaturan
               </motion.button>
@@ -104,7 +104,7 @@ export function SidebarAccountMenu({
                 type="button"
                 role="menuitem"
                 onClick={() => run(onSecurity)}
-                className="cursor-pointer flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm hover:bg-surface"
+                className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 text-left text-sm text-[#181700] transition-colors hover:bg-stone-100"
               >
                 <ShieldCheck className="h-4 w-4" /> Keamanan
               </motion.button>
@@ -116,7 +116,7 @@ export function SidebarAccountMenu({
                   setOpen(false);
                   setLogoutModalOpen(true);
                 }}
-                className="cursor-pointer flex min-h-11 w-full items-center gap-2.5 rounded-lg px-3 text-left text-sm text-destructive hover:bg-destructive/5"
+                className="flex min-h-11 w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 text-left text-sm text-destructive transition-colors hover:bg-destructive/5"
               >
                 <LogOut className="h-4 w-4" /> Keluar
               </motion.button>

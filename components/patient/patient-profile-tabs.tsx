@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import {
   CalendarDays,
   Camera,
+  Check,
   ChevronRight,
   HeartHandshake,
   Lock,
@@ -19,7 +20,9 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChangePasswordForm } from '@/components/dashboard/change-password-form';
+import { SessionManager } from '@/components/dashboard/session-manager';
 import { DatePicker } from '@/components/ui/date-picker';
+import { ImageCropModal } from '@/components/ui/image-crop-modal';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
@@ -98,6 +101,7 @@ export function PatientProfileTabs({
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initialAvatarUrl ?? null);
+  const [cropSource, setCropSource] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<SectionId>('identitas');
   const fileRef = useRef<HTMLInputElement>(null);
   const {
@@ -151,46 +155,22 @@ export function PatientProfileTabs({
     if (match) setSelectedProvinceId(match.id);
   }, [initialValues.addressProvince, provinces, selectedProvinceId, setSelectedProvinceId]);
 
-  function compressImage(file: File, maxWidth = 256, quality = 0.7): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const image = new window.Image();
-      image.onload = () => {
-        const scale = Math.min(1, maxWidth / Math.max(image.width, image.height));
-        const width = Math.round(image.width * scale);
-        const height = Math.round(image.height * scale);
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const context = canvas.getContext('2d');
-        if (!context) return reject(new Error('Canvas tidak tersedia'));
-        context.drawImage(image, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/jpeg', quality));
-      };
-      image.onerror = () => reject(new Error('Gagal memuat gambar'));
-      const reader = new FileReader();
-      reader.onload = () => {
-        image.src = String(reader.result);
-      };
-      reader.onerror = () => reject(new Error('Gagal membaca file'));
-      reader.readAsDataURL(file);
-    });
-  }
-
-  async function onAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function onAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
+    event.target.value = '';
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
       toast.error('Format foto harus JPG, PNG, atau WebP.');
       return;
     }
-    try {
-      const dataUrl = await compressImage(file);
-      setAvatarPreview(dataUrl);
-      setValue('avatarKey', dataUrl, { shouldDirty: true });
-      toast.success('Foto siap disimpan. Klik Simpan Perubahan.');
-    } catch {
-      toast.error('Gagal memproses foto.');
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Ukuran foto maksimal 10MB.');
+      return;
     }
+    const reader = new FileReader();
+    reader.onload = () => setCropSource(String(reader.result ?? ''));
+    reader.onerror = () => toast.error('Gagal membaca file.');
+    reader.readAsDataURL(file);
   }
 
   function onSubmit(data: PatientProfileInput) {
@@ -228,9 +208,9 @@ export function PatientProfileTabs({
   const ActiveSectionIcon = activeSectionMeta.icon;
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+    <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12">
       <aside className="min-w-0 space-y-4 lg:col-span-4 lg:sticky lg:top-[88px] lg:self-start">
-        <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
+        <section className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
           <div className="flex items-start gap-4">
             <div className="relative h-24 w-24 shrink-0">
               <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-[#FAFAF8] text-2xl font-bold text-[#181700] ring-1 ring-stone-200">
@@ -265,21 +245,36 @@ export function PatientProfileTabs({
                 <Mail className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{email}</span>
               </p>
-              <span
-                className={cn(
-                  'mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold',
-                  emailVerified
-                    ? 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]'
-                    : 'bg-[var(--hafta-org-50)] text-[var(--hafta-org-700)]',
-                )}
-              >
-                <ShieldCheck className="h-3 w-3" />
-                {emailVerified ? 'Akun terverifikasi' : 'Email belum diverifikasi'}
-              </span>
+              {avatarPreview ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAvatarPreview(null);
+                    setValue('avatarKey', '', { shouldDirty: true });
+                    if (fileRef.current) fileRef.current.value = '';
+                    toast.success('Foto dihapus. Klik Simpan Perubahan untuk menerapkan.');
+                  }}
+                  className="mt-2 cursor-pointer text-[11px] font-semibold text-stone-500 transition-colors hover:text-red-600"
+                >
+                  Hapus Foto
+                </button>
+              ) : null}
             </div>
           </div>
 
-          <dl className="mt-5 grid grid-cols-2 gap-3 rounded-2xl bg-[#FAFAF8] p-4">
+          <span
+            className={cn(
+              'mt-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-bold',
+              emailVerified
+                ? 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]'
+                : 'bg-[var(--hafta-org-50)] text-[var(--hafta-org-700)]',
+            )}
+          >
+            <ShieldCheck className="h-3 w-3 shrink-0" />
+            {emailVerified ? 'Akun terverifikasi' : 'Email belum diverifikasi'}
+          </span>
+
+          <dl className="mt-5 grid grid-cols-2 gap-2.5 sm:gap-3 rounded-2xl bg-[#FAFAF8] p-3 sm:p-4">
             <div>
               <dt className="text-[10px] font-medium uppercase tracking-wide text-stone-400">No. RM</dt>
               <dd className="mt-1 font-mono text-xs font-bold text-[#181700]">
@@ -355,26 +350,43 @@ export function PatientProfileTabs({
       </aside>
 
       <section className="flex min-w-0 flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white lg:col-span-8">
-        <div className="border-b border-stone-200 p-5 sm:p-6">
-          <div className="grid grid-cols-2 gap-1.5 rounded-2xl bg-stone-100 p-1.5 lg:hidden" role="tablist" aria-label="Bagian profil">
-            {SECTIONS.map(({ id, label, icon: Icon }) => {
+        <div className="border-b border-stone-200 p-3.5 sm:p-5">
+          <div className="overflow-hidden rounded-2xl border border-stone-200 lg:hidden">
+            {SECTIONS.map(({ id, label, description, icon: Icon }, index) => {
               const isActive = activeSection === id;
               return (
                 <button
                   key={id}
                   type="button"
-                  role="tab"
-                  aria-selected={isActive}
                   onClick={() => setActiveSection(id)}
+                  aria-current={isActive ? 'true' : undefined}
                   className={cn(
-                    'flex min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-xl px-2 py-2 text-[11px] font-semibold transition-colors',
-                    isActive
-                      ? 'bg-[#181700] text-white'
-                      : 'bg-white text-stone-500 hover:text-[#181700]',
+                    'flex w-full cursor-pointer items-center gap-3 px-3.5 py-3 text-left transition-colors',
+                    index > 0 && 'border-t border-stone-100',
+                    isActive ? 'bg-[#FAFAF8]' : 'bg-white hover:bg-stone-50',
                   )}
                 >
-                  <Icon className={cn('h-3.5 w-3.5 shrink-0', isActive && 'text-[var(--hafta-ylw-100)]')} />
-                  <span className="truncate">{label}</span>
+                  <span
+                    className={cn(
+                      'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
+                      isActive
+                        ? 'bg-[#181700] text-[var(--hafta-ylw-100)]'
+                        : 'bg-stone-100 text-stone-500',
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs font-bold text-[#181700]">{label}</span>
+                    <span className="mt-0.5 block truncate text-[10px] text-stone-500">
+                      {description}
+                    </span>
+                  </span>
+                  {isActive ? (
+                    <Check className="h-4 w-4 shrink-0 text-[#181700]" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 shrink-0 text-stone-300" />
+                  )}
                 </button>
               );
             })}
@@ -394,14 +406,15 @@ export function PatientProfileTabs({
         </div>
 
         {activeSection === 'keamanan' ? (
-          <div className="p-5 sm:p-8">
+          <div className="p-3.5 sm:p-8">
             <ChangePasswordForm />
+            <SessionManager />
           </div>
         ) : (
           <form className="flex flex-1 flex-col" onSubmit={handleSubmit(onSubmit)}>
-            <div className="flex-1 p-5 sm:p-8">
+            <div className="flex-1 p-3.5 sm:p-8">
               {activeSection === 'identitas' ? (
-                <div className="grid gap-5 sm:grid-cols-2">
+                <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
                   <Field label="Nama lengkap" error={errors.fullName?.message}>
                     <Input
                       disabled={pending}
@@ -476,7 +489,7 @@ export function PatientProfileTabs({
               ) : null}
 
               {activeSection === 'alamat' ? (
-                <div className="grid gap-5 sm:grid-cols-2">
+                <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
                   <Field label="Provinsi">
                     <Controller
                       control={control}
@@ -552,7 +565,7 @@ export function PatientProfileTabs({
               ) : null}
 
               {activeSection === 'darurat' ? (
-                <div className="grid gap-5 sm:grid-cols-2">
+                <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
                   <Field label="Nama kontak">
                     <Input
                       disabled={pending}
@@ -585,7 +598,7 @@ export function PatientProfileTabs({
               ) : null}
             </div>
 
-            <footer className="flex flex-col-reverse gap-3 border-t border-stone-100 bg-[#FAFAF8] px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+            <footer className="flex flex-col-reverse gap-3 border-t border-stone-100 bg-[#FAFAF8] px-4 sm:px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
               <p className="text-[11px] text-stone-400">
                 {isDirty ? 'Ada perubahan yang belum disimpan.' : 'Data profil Anda tersimpan dengan aman.'}
               </p>
@@ -595,14 +608,14 @@ export function PatientProfileTabs({
                   variant="outline"
                   disabled={pending || !isDirty}
                   onClick={resetForm}
-                  className="h-10 w-full whitespace-nowrap rounded-full border-stone-200 px-5 text-xs font-semibold sm:w-auto"
+                  className="h-10 w-full whitespace-nowrap rounded-full border-stone-200 px-4 text-xs font-semibold sm:h-11 sm:w-auto sm:px-5"
                 >
                   Reset
                 </Button>
                 <Button
                   type="submit"
                   disabled={pending || !isDirty}
-                  className="h-10 w-full gap-2 whitespace-nowrap rounded-full bg-[#181700] px-5 text-xs font-bold text-white hover:bg-[var(--hafta-ylw-100)] hover:text-[#181700] sm:w-auto"
+                  className="h-10 w-full gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs hover:bg-[var(--hafta-ylw-200)] sm:h-11 sm:w-auto sm:px-5"
                 >
                   {pending ? <CalendarDays className="h-4 w-4 animate-pulse" /> : <Save className="h-4 w-4" />}
                   {pending ? 'Menyimpan...' : 'Simpan Perubahan'}
@@ -612,6 +625,20 @@ export function PatientProfileTabs({
           </form>
         )}
       </section>
+
+      <ImageCropModal
+        isOpen={Boolean(cropSource)}
+        imageSrc={cropSource}
+        title="Atur Foto Profil"
+        description="Geser foto untuk mengatur posisi, lalu perbesar atau perkecil. Hasil crop berbentuk persegi dan ditampilkan sebagai avatar bulat."
+        onCancel={() => setCropSource(null)}
+        onConfirm={(cropped) => {
+          setAvatarPreview(cropped);
+          setValue('avatarKey', cropped, { shouldDirty: true });
+          setCropSource(null);
+          toast.success('Foto siap disimpan. Klik Simpan Perubahan.');
+        }}
+      />
     </div>
   );
 }

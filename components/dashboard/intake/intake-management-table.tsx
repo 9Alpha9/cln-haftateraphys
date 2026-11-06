@@ -13,17 +13,30 @@ import {
   Clock,
   Sparkles,
   Activity,
+  Filter,
+  ChevronDown,
+  X,
+  LayoutList,
+  Check,
+  CheckCircle2,
 } from 'lucide-react';
 import { NotchedCard } from '@/components/ui/notched-card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { archivePatientIntake } from '@/server/actions/intake-review';
 import { IntakeDetailDrawer } from '@/components/dashboard/intake/intake-detail-drawer';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export type IntakeRowItem = {
   id: string;
   patientId: string;
   patientName: string;
+  avatarKey?: string | null;
   status: string;
   affectedArea: string | null;
   submittedAt: Date | null;
@@ -147,71 +160,89 @@ export function IntakeManagementTable({
   const countAccepted = items.filter((i) => i.status === 'ACCEPTED').length;
 
   return (
-    <div className="space-y-6">
-      {/* ── 1. CONTROL BAR (STATUS FILTER TABS + REAL-TIME SEARCH) ── */}
-      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        {/* Status Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 no-scrollbar">
-          <button
-            type="button"
-            onClick={() => setStatusFilter('ALL')}
-            className={cn(
-              'rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer whitespace-nowrap',
-              statusFilter === 'ALL'
-                ? 'bg-[#181700] text-white shadow-2xs'
-                : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300'
-            )}
-          >
-            Semua ({items.length})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter('PENDING')}
-            className={cn(
-              'rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer whitespace-nowrap',
-              statusFilter === 'PENDING'
-                ? 'bg-[#181700] text-white shadow-2xs'
-                : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300'
-            )}
-          >
-            Perlu Ditinjau ({countPending})
-          </button>
-          <button
-            type="button"
-            onClick={() => setStatusFilter('ACCEPTED')}
-            className={cn(
-              'rounded-xl px-4 py-2 text-xs font-bold transition-all cursor-pointer whitespace-nowrap',
-              statusFilter === 'ACCEPTED'
-                ? 'bg-[#181700] text-white shadow-2xs'
-                : 'border border-stone-200 bg-white text-stone-600 hover:border-stone-300'
-            )}
-          >
-            Diterima ({countAccepted})
-          </button>
-        </div>
-
-        {/* Real-time Search Input */}
-        <div className="relative w-full sm:w-72">
+    <div className="space-y-4 sm:space-y-6">
+      {/* ── 1. CONTROL BAR (SEARCH + FILTER DROPDOWN) ── */}
+      <div className="flex items-center gap-2">
+        <div className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari pasien atau keluhan..."
-            className="h-10 w-full rounded-xl border border-stone-200/90 bg-white pl-9 pr-3 text-xs text-[#181700] placeholder:text-stone-400 outline-none transition-all focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/30 shadow-2xs"
+            className="h-10 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-10 text-xs text-[#181700] shadow-2xs outline-none transition-all placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35 sm:text-[13px]"
           />
+          {searchQuery ? (
+            <button
+              type="button"
+              aria-label="Bersihkan pencarian"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-stone-100 hover:text-[#181700]"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          ) : null}
         </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            className={cn(
+              'ml-auto inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold shadow-2xs transition-colors focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#f7f000]/35 sm:px-4 sm:text-[13px]',
+              statusFilter !== 'ALL'
+                ? 'border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] text-[#181700]'
+                : 'border-stone-200/90 bg-white text-[#181700] hover:bg-stone-100',
+            )}
+          >
+            <Filter className="h-4 w-4 shrink-0 text-stone-500" />
+            <span>Filter</span>
+            <span className="rounded-full bg-[#181700] px-1.5 py-0.5 text-[10px] font-bold text-white">
+              {statusFilter === 'ALL'
+                ? items.length
+                : statusFilter === 'PENDING'
+                  ? countPending
+                  : countAccepted}
+            </span>
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-stone-400" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            {[
+              { value: 'ALL' as const, label: `Semua (${items.length})`, icon: LayoutList },
+              { value: 'PENDING' as const, label: `Perlu Ditinjau (${countPending})`, icon: Clock },
+              { value: 'ACCEPTED' as const, label: `Diterima (${countAccepted})`, icon: CheckCircle2 },
+            ].map((option) => {
+              const Icon = option.icon;
+              const selected = statusFilter === option.value;
+              return (
+                <DropdownMenuItem
+                  key={option.value}
+                  onClick={() => setStatusFilter(option.value)}
+                  className={cn(
+                    'gap-2.5',
+                    selected && 'border border-stone-200 bg-[#F4F4F1] font-bold',
+                  )}
+                >
+                  <Icon className="h-4 w-4 shrink-0 text-stone-500" />
+                  <span className="flex-1">{option.label}</span>
+                  {selected ? <Check className="h-3.5 w-3.5" /> : null}
+                </DropdownMenuItem>
+              );
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* ── 2. INTERACTIVE CLINICAL INTAKE CARDS (GLOBAL INVERTED OUTLINE NOTCHEDCARD) ── */}
       {filteredItems.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-stone-200 bg-white p-12 text-center">
-          <ClipboardList className="mx-auto h-10 w-10 text-stone-300" />
+        <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+            <ClipboardList className="h-6 w-6" />
+          </span>
           <h3 className="mt-3 text-sm font-bold text-[#181700]">Tidak ada data intake yang cocok</h3>
-          <p className="mt-1 text-xs text-stone-500">Silakan ubah filter status atau kata kunci pencarian Anda.</p>
+          <p className="mt-1 max-w-sm text-xs text-stone-500">
+            Silakan ubah filter status atau kata kunci pencarian Anda.
+          </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
           {filteredItems.map((item) => {
             const initial = item.patientName ? item.patientName.slice(0, 1).toUpperCase() : 'P';
             const status = statusBadgeStyles[item.status] ?? statusBadgeStyles.SUBMITTED;
@@ -231,9 +262,18 @@ export function IntakeManagementTable({
                 key={item.id}
                 variant={cardVariant}
                 icon={
-                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#181700] font-bold text-xs text-[var(--hafta-ylw-100)] shadow-2xs">
-                    {initial}
-                  </span>
+                  item.avatarKey ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={item.avatarKey}
+                      alt={item.patientName}
+                      className="h-11 w-11 rounded-2xl object-cover ring-1 ring-stone-200"
+                    />
+                  ) : (
+                    <span className={cn('flex h-11 w-11 items-center justify-center rounded-2xl font-bold text-xs shadow-2xs', isNewIntake ? 'bg-[#181700] text-[var(--hafta-ylw-100)]' : 'bg-[var(--hafta-ylw-50)] text-[#181700]')}>
+                      {initial}
+                    </span>
+                  )
                 }
                 badge={
                   <div className="flex items-center gap-1.5">
@@ -262,18 +302,21 @@ export function IntakeManagementTable({
                     ID Pasien: {item.patientId.slice(0, 8)}
                   </span>
                 }
-                buttonText="Buka Detail"
+                buttonText="Lihat Detail"
                 onClick={() => handleOpenDetail(item.patientId, item.patientName)}
                 className="h-full min-h-[290px]"
               >
                 {/* ── CARD BODY DETAIL SECTION ── */}
                 <div className="mt-4 space-y-2.5 pt-3 border-t border-current/10 text-xs">
                   {/* Area Keluhan */}
-                  <div className="flex items-center justify-between">
-                    <span className={cn('font-medium', isNewIntake ? 'text-[#181700]/80' : 'text-stone-500')}>
-                      Area Keluhan:
+                  <div className="space-y-1">
+                    <span className={cn('block font-medium', isNewIntake ? 'text-[#181700]/80' : 'text-stone-500')}>
+                      Area Keluhan
                     </span>
-                    <span className="inline-flex rounded-lg bg-stone-100/90 px-2.5 py-0.5 text-xs font-bold capitalize text-[#181700]">
+                    <span
+                      title={item.affectedArea || 'Keluhan Umum'}
+                      className="block max-w-full whitespace-normal break-words rounded-lg bg-stone-100/90 px-2.5 py-1.5 text-xs font-bold capitalize leading-snug text-[#181700]"
+                    >
                       {item.affectedArea || 'Keluhan Umum'}
                     </span>
                   </div>

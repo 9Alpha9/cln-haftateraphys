@@ -7,6 +7,7 @@ import { patients, profiles } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { notifyUser } from '@/server/notify';
+import { createAuditLog } from '@/lib/audit';
 import { patientProfileSchema, type PatientProfileInput } from '@/lib/validators/patient-profile';
 
 function toNullable(value: string | undefined) {
@@ -87,6 +88,14 @@ export async function updateCurrentPatientProfile(input: PatientProfileInput) {
         updatedAt: new Date(),
       },
     });
+
+  await createAuditLog({
+    action: 'patient.update',
+    targetType: 'patient',
+    targetId: patient?.id,
+    meta: { selfService: true },
+    userId: session.user.id,
+  });
 
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/profile');

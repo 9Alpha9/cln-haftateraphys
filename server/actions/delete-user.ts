@@ -4,7 +4,7 @@ import { eq, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { getDb } from '@/db';
-import { profiles, users } from '@/db/schema';
+import { appointments, patientIntakes, patients, profiles, therapyProgressRecords, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { recordAudit } from '@/server/audit';
@@ -57,6 +57,48 @@ export async function deleteUser(input: unknown): Promise<DeleteUserResult> {
       if ((superAdmins?.count ?? 0) <= 1) {
         return { ok: false, error: 'Tidak dapat menghapus Super Admin terakhir.' };
       }
+    }
+
+    // Clinical records must never be hard-deleted. Accounts with a clinical
+    // footprint can only be suspended, not deleted.
+    const [ownedPatient] = await db
+      .select({ id: patients.id })
+      .from(patients)
+      .where(eq(patients.userId, userId))
+      .limit(1);
+    if (ownedPatient) {
+      return {
+        ok: false,
+        error:
+          'Akun pasien memiliki data klinis dan tidak dapat dihapus permanen. Gunakan penangguhan akun.',
+      };
+    }
+
+    const [progressFootprint] = await db
+      .select({ value: sql<number>`count(*)::int` })
+      .from(therapyProgressRecords)
+      .where(
+        sql`${therapyProgressRecords.therapistId} = ${userId} OR ${therapyProgressRecords.finalizedBy} = ${userId}`,
+      );
+    const [intakeFootprint] = await db
+      .select({ value: sql<number>`count(*)::int` })
+      .from(patientIntakes)
+      .where(eq(patientIntakes.reviewedBy, userId));
+    const [appointmentFootprint] = await db
+      .select({ value: sql<number>`count(*)::int` })
+      .from(appointments)
+      .where(sql`${appointments.therapistId} = ${userId} OR ${appointments.createdBy} = ${userId}`);
+
+    if (
+      (progressFootprint?.value ?? 0) > 0 ||
+      (intakeFootprint?.value ?? 0) > 0 ||
+      (appointmentFootprint?.value ?? 0) > 0
+    ) {
+      return {
+        ok: false,
+        error:
+          'Akun ini memiliki riwayat klinis/operasional. Hapus permanen diblokir; gunakan penangguhan akun.',
+      };
     }
 
     // Delete all related data using raw SQL to bypass constraints

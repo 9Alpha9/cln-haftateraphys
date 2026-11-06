@@ -6,6 +6,8 @@ export function Sonner() {
   return (
     <SonnerToaster
       position="top-right"
+      offset={{ top: 80 }}
+      mobileOffset={{ top: 76 }}
       richColors
       closeButton
       toastOptions={{

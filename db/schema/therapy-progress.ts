@@ -1,4 +1,4 @@
-import { index, integer, pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { index, integer, pgEnum, pgTable, text, timestamp, uuid, type AnyPgColumn } from 'drizzle-orm/pg-core';
 import { patients } from './patients';
 import { appointments } from './appointments';
 import { users } from './auth';
@@ -21,14 +21,24 @@ export const therapyProgressRecords = pgTable(
     functionScore: integer('function_score').notNull(),
     anamnesis: text('anamnesis'),
     physicalExamination: text('physical_examination'),
+    medicalHistory: text('medical_history'),
     diagnosis: text('diagnosis'),
     treatment: text('treatment'),
+    evaluation: text('evaluation'),
     followUpPlan: text('follow_up_plan'),
     summary: text('summary'),
     status: therapyProgressStatusEnum('status').default('DRAFT').notNull(),
     patientVisible: integer('patient_visible').default(0).notNull(),
     finalizedAt: timestamp('finalized_at', { withTimezone: true }),
     finalizedBy: uuid('finalized_by').references(() => users.id, { onDelete: 'set null' }),
+    // Amendment/versioning: a correction creates a new revision instead of
+    // mutating a finalized record. The superseded original stays immutable.
+    amendedFromId: uuid('amended_from_id').references((): AnyPgColumn => therapyProgressRecords.id, {
+      onDelete: 'restrict',
+    }),
+    revisionNumber: integer('revision_number').default(1).notNull(),
+    amendmentReason: text('amendment_reason'),
+    supersededAt: timestamp('superseded_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
   },
@@ -36,5 +46,6 @@ export const therapyProgressRecords = pgTable(
     index('therapy_progress_records_patient_recorded_at_idx').on(table.patientId, table.recordedAt),
     index('therapy_progress_records_therapist_idx').on(table.therapistId),
     index('therapy_progress_records_appointment_idx').on(table.appointmentId),
+    index('therapy_progress_records_amended_from_idx').on(table.amendedFromId),
   ],
 );

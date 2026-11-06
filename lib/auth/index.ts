@@ -1,7 +1,10 @@
 import { betterAuth } from 'better-auth';
+import { APIError } from 'better-auth/api';
+import { eq } from 'drizzle-orm';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { getDb } from '@/db';
 import { accounts, sessions, users, verifications } from '@/db/schema';
+import { createAuditLog } from '@/lib/audit';
 
 function createAuth() {
   return betterAuth({
@@ -29,6 +32,45 @@ function createAuth() {
     session: {
       expiresIn: 60 * 60 * 24 * 7,
       updateAge: 60 * 60 * 24,
+    },
+    databaseHooks: {
+      session: {
+        create: {
+          before: async (session) => {
+            const [account] = await getDb()
+              .select({ suspendedAt: users.suspendedAt })
+              .from(users)
+              .where(eq(users.id, session.userId))
+              .limit(1);
+            if (account?.suspendedAt) {
+              throw APIError.from('FORBIDDEN', {
+                message: 'Akun Anda sedang ditangguhkan.',
+                code: 'ACCOUNT_SUSPENDED',
+              });
+            }
+          },
+          after: async (session) => {
+            await createAuditLog({
+              action: 'user.login',
+              targetType: 'session',
+              targetId: session.id,
+              meta: { userId: session.userId },
+              userId: session.userId,
+            });
+          },
+        },
+        delete: {
+          after: async (session) => {
+            await createAuditLog({
+              action: 'user.logout',
+              targetType: 'session',
+              targetId: session.id,
+              meta: { userId: session.userId },
+              userId: session.userId,
+            });
+          },
+        },
+      },
     },
     trustedOrigins: [process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'],
   });

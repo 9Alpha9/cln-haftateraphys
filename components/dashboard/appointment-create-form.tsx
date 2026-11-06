@@ -4,7 +4,7 @@ import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
+import { AppSelect } from '@/components/ui/app-select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { useToast } from '@/components/ui/toast';
 import { createAppointment } from '@/server/actions/appointments';
@@ -92,35 +92,30 @@ export function AppointmentCreateForm({
   }
 
   return (
-    <form id={formId} onSubmit={onSubmit} className="space-y-5">
-      <div className="grid gap-5 sm:grid-cols-2">
+    <form id={formId} onSubmit={onSubmit} className="space-y-4 sm:space-y-5">
+      <div className="grid gap-4 sm:gap-5 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="patientId">Pasien</Label>
-          <Select
+          <AppSelect
             id="patientId"
             name="patientId"
             required
             defaultValue={defaultPatientId ?? ''}
+            placeholder="Pilih pasien"
             disabled={pending || patientOptions.length === 0}
-          >
-            <option value="">Pilih pasien</option>
-            {patientOptions.map((patient) => (
-              <option key={patient.id} value={patient.id}>
-                {patient.label}
-              </option>
-            ))}
-          </Select>
+            options={patientOptions.map((patient) => ({ value: patient.id, label: patient.label }))}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="therapistId">Terapis</Label>
-          <Select id="therapistId" name="therapistId" required disabled={pending || therapistOptions.length === 0}>
-            <option value="">Pilih terapis</option>
-            {therapistOptions.map((therapist) => (
-              <option key={therapist.id} value={therapist.id}>
-                {therapist.label}
-              </option>
-            ))}
-          </Select>
+          <AppSelect
+            id="therapistId"
+            name="therapistId"
+            required
+            placeholder="Pilih terapis"
+            disabled={pending || therapistOptions.length === 0}
+            options={therapistOptions.map((therapist) => ({ value: therapist.id, label: therapist.label }))}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="scheduledDate">Tanggal</Label>
@@ -130,42 +125,55 @@ export function AppointmentCreateForm({
             value={scheduledDate}
             onChange={setScheduledDate}
             disabled={pending}
+            disablePast
           />
         </div>
         <div className="space-y-2">
           <Label htmlFor="startTime">Waktu Mulai</Label>
-          <Select id="startTime" name="startTime" required disabled={pending} defaultValue={defaultTime ?? ''}>
-            <option value="">Pilih jam</option>
-            {(['pagi', 'siang', 'sore', 'malam'] as const).map((period) => (
-              <optgroup key={period} label={PERIOD_LABEL[period]}>
-                {TIME_OPTIONS.filter((t) => t.period === period).map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </optgroup>
-            ))}
-          </Select>
+          <AppSelect
+            id="startTime"
+            name="startTime"
+            required
+            placeholder="Pilih jam"
+            disabled={pending}
+            defaultValue={defaultTime ?? ''}
+            groups={(['pagi', 'siang', 'sore', 'malam'] as const).map((period) => ({
+              label: PERIOD_LABEL[period],
+              options: TIME_OPTIONS.filter((t) => t.period === period).map((t) => ({
+                value: t.value,
+                label: t.label,
+              })),
+            }))}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="durationMinutes">Durasi</Label>
-          <Select id="durationMinutes" name="durationMinutes" defaultValue="60" disabled={pending}>
-            <option value="">Pilih durasi</option>
-            {[15, 30, 45, 60, 90, 120].map((min) => (
-              <option key={min} value={min}>
-                {min} menit
-              </option>
-            ))}
-          </Select>
+          <AppSelect
+            id="durationMinutes"
+            name="durationMinutes"
+            defaultValue="60"
+            placeholder="Pilih durasi"
+            disabled={pending}
+            options={[15, 30, 45, 60, 90, 120].map((min) => ({
+              value: String(min),
+              label: `${min} menit`,
+            }))}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor="type">Jenis</Label>
-          <Select id="type" name="type" disabled={pending}>
-            <option value="INITIAL_ASSESSMENT">Assessment Awal</option>
-            <option value="THERAPY_SESSION">Sesi Terapi</option>
-            <option value="FOLLOW_UP">Tindak Lanjut</option>
-            <option value="EVALUATION">Evaluasi</option>
-          </Select>
+          <AppSelect
+            id="type"
+            name="type"
+            defaultValue="INITIAL_ASSESSMENT"
+            disabled={pending}
+            options={[
+              { value: 'INITIAL_ASSESSMENT', label: 'Assessment Awal' },
+              { value: 'THERAPY_SESSION', label: 'Sesi Terapi' },
+              { value: 'FOLLOW_UP', label: 'Tindak Lanjut' },
+              { value: 'EVALUATION', label: 'Evaluasi' },
+            ]}
+          />
         </div>
       </div>
       <div className="space-y-2">
@@ -174,7 +182,7 @@ export function AppointmentCreateForm({
           id="administrativeNote"
           name="administrativeNote"
           disabled={pending}
-          className="flex min-h-28 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm leading-relaxed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="flex min-h-28 w-full resize-none rounded-xl border border-stone-200/90 bg-white px-3 py-2 text-sm leading-relaxed text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35"
         />
       </div>
     </form>

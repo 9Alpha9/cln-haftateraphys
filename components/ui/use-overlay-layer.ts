@@ -36,7 +36,7 @@ function unregister(id: string) {
 
 const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
-export function useOverlayLayer(isOpen: boolean) {
+export function useOverlayLayer(isOpen: boolean, baseZIndex = 40) {
   const id = useId();
   const currentRevision = useSyncExternalStore(subscribe, getRevision, () => 0);
   void currentRevision;
@@ -49,7 +49,7 @@ export function useOverlayLayer(isOpen: boolean) {
 
   const index = openOverlays.indexOf(id);
   const isTopmost = index >= 0 && index === openOverlays.length - 1;
-  const zIndex = 40 + Math.max(index, 0) * 2;
+  const zIndex = baseZIndex + Math.max(index, 0) * 2;
 
   return { isTopmost, zIndex };
 }

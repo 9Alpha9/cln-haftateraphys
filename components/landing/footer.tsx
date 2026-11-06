@@ -115,7 +115,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/10 py-6">
+        <div className="border-t border-white/10 py-4 sm:py-6">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <div className="flex-1 text-center sm:text-left">
               <p className="text-xs text-stone-400">

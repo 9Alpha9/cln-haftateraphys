@@ -53,3 +53,16 @@ describe('therapy completion permissions', () => {
     expect(ROLE_PERMISSIONS.SUPER_ADMIN).not.toContain(PERMISSIONS.PATIENT_COMPLETE_PROGRAM);
   });
 });
+
+describe('super admin permission model', () => {
+  it('does not treat SUPER_ADMIN as a wildcard', async () => {
+    const { hasPermission } = await import('@/lib/permissions/policy');
+    expect(hasPermission('SUPER_ADMIN', PERMISSIONS.SETTINGS_MANAGE)).toBe(true);
+    expect(hasPermission('SUPER_ADMIN', PERMISSIONS.USER_SUSPEND)).toBe(true);
+    expect(hasPermission('SUPER_ADMIN', PERMISSIONS.PATIENT_LIST)).toBe(true);
+    // Clinical access must be an explicit grant (SA-005).
+    expect(hasPermission('SUPER_ADMIN', PERMISSIONS.PROGRESS_READ)).toBe(false);
+    expect(hasPermission('SUPER_ADMIN', PERMISSIONS.ASSESSMENT_READ)).toBe(false);
+    expect(hasPermission('SUPER_ADMIN', PERMISSIONS.SESSION_READ)).toBe(false);
+  });
+});

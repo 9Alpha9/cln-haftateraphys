@@ -2,11 +2,9 @@
 
 import { usePathname } from 'next/navigation';
 import { PatientDashboardShell } from '@/components/patient/patient-dashboard-shell';
-import { AdminDashboardShell } from '@/components/dashboard/dashboard-shell';
 import type { NotificationView } from "@/components/dashboard/notification-bell";
 import type { Role } from '@/lib/permissions/roles';
-
-const ADMIN_ROLES = ['SUPER_ADMIN', 'ADMIN', 'THERAPIST', 'STAFF'];
+import type { DashboardNavCounts } from '@/server/queries/nav-counts';
 
 export function DashboardShellRouter({
   children,
@@ -16,7 +14,7 @@ export function DashboardShellRouter({
   avatarUrl,
   unreadCount,
   recentNotifications,
-  intakePendingCount = 0,
+  navCounts,
 }: {
   children: React.ReactNode;
   role: Role;
@@ -25,21 +23,13 @@ export function DashboardShellRouter({
   avatarUrl?: string | null;
   unreadCount?: number;
   recentNotifications?: NotificationView[];
-  intakePendingCount?: number;
+  navCounts?: DashboardNavCounts;
 }) {
   const pathname = usePathname();
   if (pathname.endsWith('/print')) return <>{children}</>;
 
-  if (ADMIN_ROLES.includes(role)) {
-    return (
-      <AdminDashboardShell role={role} userName={userName} userEmail={userEmail} avatarUrl={avatarUrl} unreadCount={unreadCount} recentNotifications={recentNotifications} intakePendingCount={intakePendingCount}>
-        {children}
-      </AdminDashboardShell>
-    );
-  }
-
   return (
-    <PatientDashboardShell role={role} userName={userName} userEmail={userEmail} avatarUrl={avatarUrl} unreadCount={unreadCount} recentNotifications={recentNotifications}>
+    <PatientDashboardShell role={role} userName={userName} userEmail={userEmail} avatarUrl={avatarUrl} unreadCount={unreadCount} recentNotifications={recentNotifications} navCounts={navCounts}>
       {children}
     </PatientDashboardShell>
   );

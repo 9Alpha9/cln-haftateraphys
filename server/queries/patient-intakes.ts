@@ -26,6 +26,7 @@ export async function getCurrentPatientIntake(userId: string) {
       currentMedication: patientIntakes.currentMedication,
       allergies: patientIntakes.allergies,
       patientGoal: patientIntakes.patientGoal,
+      photos: patientIntakes.photos,
       dataAccuracyAcknowledged: patientIntakes.dataAccuracyAcknowledged,
     })
     .from(patientIntakes)
@@ -57,6 +58,7 @@ export async function getPatientVisibleIntakeHistory(userId: string) {
       currentMedication: patientIntakes.currentMedication,
       allergies: patientIntakes.allergies,
       patientGoal: patientIntakes.patientGoal,
+      photos: patientIntakes.photos,
       reviewMessage: patientIntakes.reviewMessage,
       reviewedAt: patientIntakes.reviewedAt,
       dataAccuracyAcknowledged: patientIntakes.dataAccuracyAcknowledged,

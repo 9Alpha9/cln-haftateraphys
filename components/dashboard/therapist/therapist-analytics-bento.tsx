@@ -29,9 +29,11 @@ type RangeOption = '7d' | '14d' | '30d';
 export function TherapistAnalyticsBento({
   stats,
   isTherapist = true,
+  panel = 'all',
 }: {
   stats: DashboardStats;
   isTherapist?: boolean;
+  panel?: 'all' | 'trend' | 'status';
 }) {
   const [range, setRange] = useState<RangeOption>('14d');
 
@@ -58,16 +60,27 @@ export function TherapistAnalyticsBento({
 
   const totalPatients = Math.max(1, patientPieData.reduce((a, b) => a + b.value, 0));
 
+  const appointmentStatusLabels: Record<string, string> = {
+    SCHEDULED: 'Terjadwal',
+    IN_PROGRESS: 'Berjalan',
+    COMPLETED: 'Selesai',
+    CANCELLED: 'Dibatalkan',
+    NO_SHOW: 'Tidak hadir',
+    RESCHEDULED: 'Dijadwalkan ulang',
+  };
+
   const apptBarData = stats.appointmentsByStatus.map((a) => ({
-    name: a.status === 'SCHEDULED' ? 'Terjadwal' : a.status === 'IN_PROGRESS' ? 'Berjalan' : a.status === 'COMPLETED' ? 'Selesai' : 'Batal',
+    name: appointmentStatusLabels[a.status] ?? a.status,
     value: a.count,
     color: statusColors[a.status] ?? '#A8A29E',
   }));
 
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 items-stretch">
+    <div className={cn(panel === 'all' ? 'grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-12 items-stretch' : 'w-full')}>
+      {panel !== 'status' ? (
+        <>
       {/* ── 1. GRAFIK UTAMA: TREN SESI & EVALUASI KLINIS (7 KOLOM) ── */}
-      <div className="lg:col-span-7 rounded-3xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+      <div className={cn("rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-sm flex flex-col justify-between", panel === 'all' && "lg:col-span-7")}>
         {/* Header Baris Atas */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-stone-100 pb-4">
           <div className="flex items-center gap-3">
@@ -91,7 +104,7 @@ export function TherapistAnalyticsBento({
               onClick={() => setRange('7d')}
               className={cn(
                 'rounded-full px-3 py-1 font-mono text-[11px] font-bold transition-all cursor-pointer',
-                range === '7d' ? 'bg-white text-[#181700] shadow-2xs' : 'text-stone-500 hover:text-stone-800'
+                range === '7d' ? 'bg-[#181700] text-white shadow-2xs' : 'text-stone-500 hover:text-stone-800'
               )}
             >
               7 Hari
@@ -101,7 +114,7 @@ export function TherapistAnalyticsBento({
               onClick={() => setRange('14d')}
               className={cn(
                 'rounded-full px-3 py-1 font-mono text-[11px] font-bold transition-all cursor-pointer',
-                range === '14d' ? 'bg-white text-[#181700] shadow-2xs' : 'text-stone-500 hover:text-stone-800'
+                range === '14d' ? 'bg-[#181700] text-white shadow-2xs' : 'text-stone-500 hover:text-stone-800'
               )}
             >
               14 Hari
@@ -174,8 +187,13 @@ export function TherapistAnalyticsBento({
         </div>
       </div>
 
+        </>
+      ) : null}
+
+      {panel !== 'trend' ? (
+        <>
       {/* ── 2. STATUS PASIEN & DISTRIBUSI SESI (5 KOLOM BENTO) ── */}
-      <div className="lg:col-span-5 rounded-3xl border border-stone-200/90 bg-white p-5 sm:p-6 shadow-sm flex flex-col justify-between">
+      <div className={cn("rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-sm flex flex-col justify-between", panel === 'all' && "lg:col-span-5")}>
         <div className="flex items-center justify-between border-b border-stone-100 pb-4">
           <div className="flex items-center gap-3">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-[#181700]">
@@ -189,11 +207,26 @@ export function TherapistAnalyticsBento({
         </div>
 
         {/* Donut Chart & Distribution Bar */}
-        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-5 flex-1">
+        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-5 flex-1">
           {/* Donut Chart */}
           <div className="relative h-28 w-28 shrink-0">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
+                <Tooltip
+                  cursor={false}
+                  contentStyle={{
+                    borderRadius: '16px',
+                    backgroundColor: '#fff',
+                    border: '1px solid #E7E5E4',
+                    boxShadow: '0 8px 24px rgba(24,23,0,0.08)',
+                    fontSize: '12px',
+                  }}
+                  itemStyle={{ color: '#181700', fontWeight: 600 }}
+                  formatter={(value, name) => [
+                    `${value} pasien (${Math.round((Number(value) / totalPatients) * 100)}%)`,
+                    name,
+                  ]}
+                />
                 <Pie
                   data={patientPieData.length > 0 ? patientPieData : [{ name: 'Belum Ada', value: 1, color: '#E7E5E4' }]}
                   dataKey="value"
@@ -277,6 +310,9 @@ export function TherapistAnalyticsBento({
           </div>
         </div>
       </div>
+        </>
+      ) : null}
+
     </div>
   );
 }

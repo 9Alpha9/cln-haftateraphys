@@ -4,7 +4,7 @@ function NotchedCardSkeleton({ accent = false }: { accent?: boolean }) {
   return (
     <div
       aria-hidden="true"
-      className={`animate-pulse rounded-[26px] border p-5 shadow-sm ${
+      className={`animate-pulse rounded-[26px] border p-3.5 sm:p-5 shadow-sm ${
         accent ? 'border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/60' : 'border-stone-200 bg-white'
       }`}
     >
@@ -24,17 +24,17 @@ function NotchedCardSkeleton({ accent = false }: { accent?: boolean }) {
 
 export function PatientDashboardSkeleton() {
   return (
-    <div className="w-full space-y-6">
+    <div className="w-full space-y-4 sm:space-y-6">
       <PageHeaderSkeleton action="double" />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        <div className="min-w-0 space-y-6 lg:col-span-8">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12">
+        <div className="min-w-0 space-y-4 sm:space-y-6 lg:col-span-8">
           <section className="grid gap-4 xl:grid-cols-2">
             <NotchedCardSkeleton accent />
             <NotchedCardSkeleton />
           </section>
 
-          <SkeletonPanel className="p-5 sm:p-6">
+          <SkeletonPanel className="p-4 sm:p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="space-y-2">
                 <SkeletonBlock className="h-5 w-44 rounded-md bg-stone-200" />
@@ -58,7 +58,7 @@ export function PatientDashboardSkeleton() {
         </div>
 
         <aside className="min-w-0 lg:col-span-4">
-          <SkeletonPanel className="p-5">
+          <SkeletonPanel className="p-3.5 sm:p-5">
             <div className="flex items-center justify-between gap-3">
               <div className="space-y-2">
                 <SkeletonLine className="w-24 bg-stone-100" />
@@ -88,10 +88,10 @@ export function PatientDashboardSkeleton() {
 
 export function StaffDashboardSkeleton() {
   return (
-    <div className="flex min-h-full flex-col gap-6 xl:flex-row">
-      <div className="min-w-0 flex-1 space-y-6">
+    <div className="flex min-h-full flex-col gap-4 sm:gap-6 xl:flex-row">
+      <div className="min-w-0 flex-1 space-y-4 sm:space-y-6">
         <header className="border-b border-stone-200 pb-6">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="min-w-0 space-y-2.5">
               <SkeletonBlock className="h-9 w-64 max-w-full rounded-lg bg-stone-200" />
               <SkeletonLine className="w-96 max-w-full" />
@@ -121,7 +121,7 @@ export function StaffDashboardSkeleton() {
           ))}
         </div>
 
-        <SkeletonPanel className="h-72 rounded-2xl p-5">
+        <SkeletonPanel className="h-72 rounded-2xl p-3.5 sm:p-5">
           <div className="flex items-center justify-between">
             <SkeletonBlock className="h-5 w-48 rounded-md bg-stone-200" />
             <SkeletonBlock className="h-8 w-28 rounded-full bg-stone-100" />
@@ -134,12 +134,12 @@ export function StaffDashboardSkeleton() {
         </SkeletonPanel>
 
         <SkeletonPanel className="rounded-2xl">
-          <div className="border-b border-stone-100 p-5">
+          <div className="border-b border-stone-100 p-3.5 sm:p-5">
             <SkeletonBlock className="h-5 w-44 rounded-md bg-stone-200" />
           </div>
           <div className="divide-y divide-stone-100">
             {[0, 1, 2, 3].map((item) => (
-              <div key={item} className="flex items-center gap-4 p-5">
+              <div key={item} className="flex items-center gap-4 p-3.5 sm:p-5">
                 <SkeletonBlock className="h-11 w-11 shrink-0 rounded-full bg-stone-100" />
                 <div className="min-w-0 flex-1 space-y-2">
                   <SkeletonBlock className="h-4 w-48 max-w-full rounded-md bg-stone-200/80" />
@@ -152,9 +152,9 @@ export function StaffDashboardSkeleton() {
         </SkeletonPanel>
       </div>
 
-      <aside className="flex w-full shrink-0 flex-col gap-5 self-start xl:w-[330px]">
+      <aside className="flex w-full shrink-0 flex-col gap-4 sm:gap-5 self-start xl:w-[330px]">
         <SkeletonBlock className="h-12 w-full rounded-2xl bg-stone-200" />
-        <SkeletonPanel className="p-5">
+        <SkeletonPanel className="p-3.5 sm:p-5">
           <div className="flex items-center justify-between">
             <SkeletonBlock className="h-5 w-32 rounded-md bg-stone-200" />
             <SkeletonBlock className="h-8 w-8 rounded-full bg-stone-100" />

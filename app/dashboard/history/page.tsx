@@ -33,7 +33,7 @@ export default async function HistoryPage() {
 
   if (role !== 'USER') {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-5">
         <DashboardPageHeader
           title="Riwayat Terapi"
           description="Pilih pasien dari daftar pasien untuk melihat riwayat."
@@ -41,6 +41,7 @@ export default async function HistoryPage() {
             { label: 'Dashboard', href: '/dashboard' },
             { label: 'Riwayat' },
           ]}
+          icon={<CalendarDays className="h-6 w-6" />}
         />
       </div>
     );
@@ -49,7 +50,7 @@ export default async function HistoryPage() {
   const history = await getPatientVisibleIntakeHistory(session.user.id);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       <DashboardPageHeader
         title="Riwayat Terapi"
         description="Semua Form Awal yang pernah Anda buat, termasuk episode keluhan sebelumnya."
@@ -57,27 +58,28 @@ export default async function HistoryPage() {
           { label: 'Dashboard', href: '/dashboard' },
           { label: 'Riwayat' },
         ]}
+        icon={<CalendarDays className="h-6 w-6" />}
       />
 
       {history.length === 0 ? (
-        <section className="flex flex-col items-center rounded-3xl border border-stone-200 bg-white px-6 py-16 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
-            <ClipboardList className="h-5 w-5" />
+        <section className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+            <ClipboardList className="h-6 w-6" />
           </span>
-          <h2 className="mt-4 text-sm font-bold text-[#181700]">Belum ada riwayat form</h2>
+          <h2 className="mt-3 text-sm font-bold text-[#181700]">Belum ada riwayat form</h2>
           <p className="mt-1 max-w-sm text-xs leading-relaxed text-stone-500">
             Form keluhan awal yang Anda kirim akan tercatat di sini sebagai riwayat episode terapi.
           </p>
           <Link
             href="/dashboard/intake"
-            className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-5 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-ylw-200)]"
+            className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-ylw-200)]"
           >
             Isi Form Awal
             <ArrowUpRight className="h-4 w-4" />
           </Link>
         </section>
       ) : (
-        <section className="rounded-3xl border border-stone-200 bg-white p-5 sm:p-6">
+        <section className="rounded-3xl border border-stone-200 bg-white p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3 border-b border-stone-200 pb-4">
             <div className="flex items-center gap-2.5">
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
@@ -130,7 +132,7 @@ export default async function HistoryPage() {
                     {isEditable ? (
                       <Link
                         href="/dashboard/intake"
-                        className="inline-flex h-8 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] px-3.5 text-[11px] font-bold text-[#181700] hover:bg-[var(--hafta-ylw-200)]"
+                        className="inline-flex h-10 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs hover:bg-[var(--hafta-ylw-200)]"
                       >
                         Buka Form
                       </Link>

@@ -10,22 +10,26 @@ export function PrintTrigger({
   patientName,
   recordId,
   recordedAt,
+  medicalRecordNumber,
   backHref = '/dashboard/progress',
 }: {
   mode: 'print' | 'pdf';
   patientName: string;
   recordId: string;
   recordedAt: Date;
+  medicalRecordNumber?: string | null;
   backHref?: string;
 }) {
   useEffect(() => {
-    const datePart = recordedAt.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const fileName = `Hafta Fisioterapi-${patientName}-${recordId.slice(0, 8).toUpperCase()}-${datePart}`;
+    const dateValue = new Date(recordedAt);
+    const datePart = `${dateValue.getFullYear()}-${String(dateValue.getMonth() + 1).padStart(2, '0')}-${String(dateValue.getDate()).padStart(2, '0')}`;
+    const rmPart = medicalRecordNumber || recordId.slice(0, 8).toUpperCase();
+    const fileName = `${patientName}-${rmPart}-${datePart}`;
     document.title = fileName;
 
     const timer = window.setTimeout(() => window.print(), 500);
     return () => window.clearTimeout(timer);
-  }, [patientName, recordId, recordedAt]);
+  }, [patientName, recordId, recordedAt, medicalRecordNumber]);
 
   return (
     <div className="mx-auto mb-6 flex max-w-3xl items-center justify-between print:hidden">

@@ -19,7 +19,7 @@ export function PrintSignature({ role = 'Hafta Fisioterapi', name, className = '
 
   return (
     <div className={`text-center w-56 ${className}`}>
-      <p className="text-xs text-slate-500">{role},</p>
+      <p className="text-xs text-stone-500">{role},</p>
       <div
         className="h-28 w-56 mx-auto bg-contain bg-no-repeat bg-center print:bg-contain"
         style={{
@@ -31,7 +31,7 @@ export function PrintSignature({ role = 'Hafta Fisioterapi', name, className = '
         aria-label="Tanda Tangan"
       />
       {name && (
-        <p className="text-sm font-bold text-slate-900 border-t border-slate-300 pt-1">{name}</p>
+        <p className="text-sm font-bold text-[#181700] border-t border-stone-300 pt-1">{name}</p>
       )}
     </div>
   );

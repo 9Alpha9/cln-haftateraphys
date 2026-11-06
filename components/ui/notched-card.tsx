@@ -189,7 +189,7 @@ export function NotchedCard({
 
       {/* ── 2. CARD CONTENT ── */}
       <div
-        className="relative z-10 flex flex-1 flex-col justify-between p-5 sm:p-6"
+        className="relative z-10 flex flex-1 flex-col justify-between p-3.5 sm:p-5"
         style={{ paddingBottom: nh + 20 }}
       >
         <div>

@@ -63,7 +63,7 @@ export function ChangePasswordForm() {
             onChange={(e) => setCurrentPassword(e.target.value)}
             disabled={pending}
             required
-            className="flex h-10 w-full min-w-0 rounded-lg border border-input bg-background px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 pr-10"
+            className="flex h-10 w-full min-w-0 rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[#f7f000]/35 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 pr-10"
           />
           <button
             type="button"
@@ -85,7 +85,7 @@ export function ChangePasswordForm() {
             onChange={(e) => setNewPassword(e.target.value)}
             disabled={pending}
             required
-            className="flex h-10 w-full min-w-0 rounded-lg border border-input bg-background px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 pr-10"
+            className="flex h-10 w-full min-w-0 rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[#f7f000]/35 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 pr-10"
           />
           <button
             type="button"
@@ -107,7 +107,7 @@ export function ChangePasswordForm() {
             onChange={(e) => setConfirmPassword(e.target.value)}
             disabled={pending}
             required
-            className="flex h-10 w-full min-w-0 rounded-lg border border-input bg-background px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 pr-10"
+            className="flex h-10 w-full min-w-0 rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[#f7f000]/35 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 pr-10"
           />
           <button
             type="button"
@@ -119,7 +119,7 @@ export function ChangePasswordForm() {
           </button>
         </div>
       </div>
-      <Button type="submit" disabled={pending}>
+      <Button type="submit" disabled={pending} className="h-10 sm:h-11">
         <KeyRound className="h-4 w-4" aria-hidden="true" />
         {pending ? 'Menyimpan...' : 'Ubah Kata Sandi'}
       </Button>

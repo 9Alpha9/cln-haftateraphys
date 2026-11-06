@@ -4,29 +4,21 @@ import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-heade
 import { requirePermission, PERMISSIONS } from '@/lib/permissions';
 import { getNotificationsPage } from '@/server/queries/notifications';
 import { NotificationList } from '@/components/dashboard/notification-list';
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from '@/components/ui/pagination';
+import { PaginationBar } from '@/components/ui/pagination-bar';
 
 export default async function NotificationsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; perPage?: string }>;
 }) {
   await requirePermission(PERMISSIONS.APPOINTMENT_LIST);
-  const { page } = await searchParams;
-  const result = await getNotificationsPage(Number(page) || 1);
-
-  const hrefFor = (pageNumber: number) =>
-    `/dashboard/notifications?${new URLSearchParams({ page: String(pageNumber) }).toString()}`;
+  const { page, perPage: perPageParam } = await searchParams;
+  const perPageNumber = Number(perPageParam);
+  const perPage = [10, 20, 50].includes(perPageNumber) ? perPageNumber : 10;
+  const result = await getNotificationsPage(Number(page) || 1, perPage);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       <DashboardPageHeader
         title="Pusat Notifikasi"
         description="Riwayat aktivitas dan pemberitahuan penting untuk akun Anda."
@@ -34,49 +26,30 @@ export default async function NotificationsPage({
         icon={<Bell className="h-7 w-7 text-hafta-ylw-900" strokeWidth={2.25} />}
       />
 
-      <section className="overflow-hidden border-y border-[#E5E7EB] bg-white">
-        {result.items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center px-4 py-16 text-center">
-            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#F1F5F9] text-[#64748B]">
-              <Inbox className="h-7 w-7" strokeWidth={2} />
-            </div>
-            <p className="text-[15px] font-bold text-[#111827]">Belum Ada Notifikasi</p>
-            <p className="mt-1 max-w-sm text-[13px] text-[#6B7280]">
-              Semua pembaruan jadwal, rekam medis, dan aktivitas akun akan muncul di sini.
-            </p>
-          </div>
-        ) : (
-          <NotificationList items={result.items} />
-        )}
-      </section>
-
-      {result.totalPages > 1 && (
-        <div className="flex justify-center pt-2">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href={result.page > 1 ? hrefFor(result.page - 1) : hrefFor(1)}
-                  aria-disabled={result.page <= 1}
-                />
-              </PaginationItem>
-              {Array.from({ length: result.totalPages }, (_, i) => i + 1).map((pageNumber) => (
-                <PaginationItem key={pageNumber}>
-                  <PaginationLink href={hrefFor(pageNumber)} isActive={pageNumber === result.page}>
-                    {pageNumber}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-              <PaginationItem>
-                <PaginationNext
-                  href={result.page < result.totalPages ? hrefFor(result.page + 1) : hrefFor(result.totalPages)}
-                  aria-disabled={result.page >= result.totalPages}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
+      {result.items.length === 0 ? (
+        <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+            <Inbox className="h-6 w-6" />
+          </span>
+          <p className="mt-3 text-sm font-bold text-[#181700]">Belum Ada Notifikasi</p>
+          <p className="mt-1 max-w-sm text-xs text-stone-500">
+            Semua pembaruan jadwal, rekam medis, dan aktivitas akun akan muncul di sini.
+          </p>
         </div>
+      ) : (
+        <section className="overflow-hidden rounded-3xl border border-stone-200/70 bg-white shadow-[0_8px_30px_rgba(24,23,0,0.05)]">
+          <NotificationList items={result.items} />
+        </section>
       )}
+
+      <PaginationBar
+        page={result.page}
+        pageCount={result.totalPages}
+        hrefTemplate={`/dashboard/notifications?page={page}&perPage=${perPage}`}
+        pageSize={perPage}
+        pageSizeOptions={[10, 20, 50]}
+        pageSizeHrefTemplate="/dashboard/notifications?page=1&perPage={size}"
+      />
     </div>
   );
 }

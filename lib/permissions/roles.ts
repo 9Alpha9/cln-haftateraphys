@@ -14,7 +14,17 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     PERMISSIONS.PATIENT_READ,
     PERMISSIONS.PATIENT_CREATE,
     PERMISSIONS.PATIENT_ARCHIVE,
-    // Administration only. Clinical permissions require an explicit future grant.
+    PERMISSIONS.PATIENT_UPDATE_DEMOGRAPHICS,
+    PERMISSIONS.PATIENT_ASSIGN,
+    PERMISSIONS.PATIENT_EXPORT,
+    // Operational scheduling (administrative, not clinical documentation).
+    PERMISSIONS.APPOINTMENT_CREATE,
+    PERMISSIONS.APPOINTMENT_UPDATE,
+    PERMISSIONS.APPOINTMENT_CANCEL,
+    PERMISSIONS.APPOINTMENT_RESCHEDULE,
+    PERMISSIONS.APPOINTMENT_COMPLETE,
+    // Administration only. Clinical permissions require an explicit future grant
+    // and are intentionally absent here (SA-005).
     // Administration
     PERMISSIONS.USER_CREATE,
     PERMISSIONS.USER_LIST,

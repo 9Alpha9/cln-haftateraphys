@@ -83,7 +83,7 @@ export function AboutSection() {
                 />
               </div>
 
-              <div className="absolute -bottom-2 right-2 sm:bottom-0 sm:right-0 rounded-2xl border border-white/10 bg-[var(--hafta-ylw-950)] px-5 py-3.5 text-white shadow-xl flex items-center gap-3">
+              <div className="absolute -bottom-2 right-2 sm:bottom-0 sm:right-0 rounded-2xl border border-white/10 bg-[var(--hafta-ylw-950)] px-4 sm:px-5 py-3.5 text-white shadow-xl flex items-center gap-3">
                 <span className="text-3xl sm:text-4xl font-extrabold text-[var(--hafta-ylw-100)]">5+</span>
                 <div className="text-xs leading-tight font-medium text-stone-200">
                   <p className="font-bold text-white text-sm">Tahun Pengalaman</p>
