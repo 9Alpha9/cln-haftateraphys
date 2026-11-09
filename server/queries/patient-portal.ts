@@ -49,6 +49,8 @@ export type AvailabilitySlot = {
   endTime: string;
   therapistId: string;
   therapistName: string;
+  /** False when the slot is already booked or already passed today. */
+  isAvailable: boolean;
 };
 
 export type AvailabilityDate = {
@@ -133,8 +135,9 @@ export async function getPatientAppointmentRequests(): Promise<PatientAppointmen
 }
 
 export async function getPatientBookingAvailability(days = 75): Promise<AvailabilityDate[]> {
-  const { patient } = await getOwnPatient();
-  if (!patient) return [];
+  // Slot terapis bersifat global. Pasien yang baru mendaftar dan belum punya
+  // baris `patients` tetap harus bisa melihat slot dan mengajukan jadwal.
+  await getOwnPatient();
 
   const db = getDb();
   const today = new Date();
@@ -224,8 +227,7 @@ export async function getPatientBookingAvailability(days = 75): Promise<Availabi
               const bookingEnd = bookingStart + booking.durationMinutes;
               return start < bookingEnd && end > bookingStart;
             });
-          if (hasConflict) continue;
-          if (key === startKey && start <= nowMinutes) continue;
+          const isPast = key === startKey && start <= nowMinutes;
 
           seen.add(slotKey);
           slots.push({
@@ -233,6 +235,7 @@ export async function getPatientBookingAvailability(days = 75): Promise<Availabi
             endTime: formatTime(end),
             therapistId: therapist.id,
             therapistName: therapist.name || 'Fisioterapis Hafta',
+            isAvailable: !hasConflict && !isPast,
           });
         }
       }

@@ -115,6 +115,21 @@ Email terdaftar tetapi password salah.
 - do not store password in React state longer than needed;
 - no credential logging.
 
+### Registration completion
+
+Email verification is currently disabled in the auth configuration. After a
+successful registration the patient is signed in and the success screen sends
+them directly to `/dashboard` to create their first therapy booking. Do not ask
+the patient to check their inbox for a verification link unless email
+verification is enabled again.
+
+### Direct dashboard access
+
+An unauthenticated visitor who opens `/dashboard` is redirected to
+`/register?reason=portal`. The register page explains that dashboard access
+requires an account and provides a clear link to `/login` for patients who
+already registered.
+
 ### Redirect
 
 After successful login:

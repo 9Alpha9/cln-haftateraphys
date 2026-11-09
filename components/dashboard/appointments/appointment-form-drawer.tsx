@@ -3,6 +3,7 @@
 import { useId, useState } from 'react';
 import { CalendarPlus, Loader2, Save } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
+import { SkeletonBlock, SkeletonLine } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { AppointmentCreateForm } from '@/components/dashboard/appointment-create-form';
 
 type SelectOption = { id: string; label: string };
@@ -69,9 +70,23 @@ export function AppointmentFormDrawer({
       }
     >
       {loading ? (
-        <div className="flex min-h-56 flex-col items-center justify-center gap-3 text-stone-500">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <p className="text-xs font-medium">Memuat data pasien dan terapis...</p>
+        <div className="space-y-4" aria-busy="true" aria-label="Memuat data appointment">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[0, 1, 2, 3].map((item) => (
+              <div key={item} className="space-y-2">
+                <SkeletonLine className="w-24 bg-stone-100" />
+                <SkeletonBlock className="h-10 w-full rounded-xl bg-stone-100" />
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2">
+            <SkeletonLine className="w-24 bg-stone-100" />
+            <SkeletonBlock className="h-24 w-full rounded-xl bg-stone-100" />
+          </div>
+          <div className="flex justify-end gap-2">
+            <SkeletonBlock className="h-10 w-28 rounded-full bg-stone-200" />
+            <SkeletonBlock className="h-10 w-28 rounded-full bg-stone-100" />
+          </div>
         </div>
       ) : (
         isOpen && (

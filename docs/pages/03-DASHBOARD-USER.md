@@ -89,6 +89,40 @@ else if intake submitted -> Menunggu review
 else -> show recent patient-visible status
 ```
 
+#### B2. Direct therapy booking
+
+When the patient has no active appointment and no pending request, the dashboard
+shows a direct booking panel above the therapy calendar:
+
+1. pick an available date;
+2. pick an available time slot;
+3. pick an available therapist;
+4. submit the request.
+
+Rules:
+
+- availability is fetched server-side from active therapist schedules;
+- full dates and full time slots are rendered in red, disabled, and explained
+  briefly to the patient;
+- the date strip can be scrolled horizontally with visible previous/next
+  controls;
+- a newly registered patient may book before completing intake; the patient
+  record is created on the first booking request;
+- the patient is never instructed to contact the clinic merely to create a
+  first booking; an empty availability state offers a reload action instead;
+- validation and authorization remain server-side;
+- on a first visit with no appointment and no request, only the direct booking
+  panel is shown; the therapy calendar is hidden to avoid duplicate date
+  pickers;
+- after a request is submitted, the booking panel is replaced by the request
+  status and the therapy calendar, so the patient does not submit duplicate
+  requests from the same dashboard;
+- a pending new booking is labelled "Jadwal terapi baru", never "Sesi
+  tambahan";
+- the patient can cancel a pending request from the dashboard status dialog;
+- the "Hari ini" checklist shows every activity and becomes scrollable after
+  four rows, with a visible scroll indicator.
+
 #### C. Intake status
 
 Status:

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import { PaginationBar } from '@/components/ui/pagination-bar';
+import { SkeletonBlock, SkeletonLine, SkeletonPanel } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
 import { NewAppointmentButton } from '@/components/dashboard/appointments/new-appointment-button';
 import { TherapyScheduleForm } from '@/components/patient/therapy-schedule-form';
@@ -365,9 +366,34 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
         }
       >
         {!data && !currentError ? (
-          <div className="flex min-h-[420px] flex-col items-center justify-center gap-3 text-stone-500">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <p className="text-sm">Memuat detail pasien...</p>
+          <div className="space-y-3 sm:space-y-5" aria-busy="true" aria-label="Memuat detail pasien">
+            <SkeletonPanel className="rounded-2xl p-3.5 sm:p-4">
+              <SkeletonLine className="w-28 bg-stone-100" />
+              <SkeletonBlock className="mt-2 h-5 w-44 rounded-md bg-stone-200" />
+              <SkeletonLine className="mt-2 w-64 max-w-full bg-stone-100" />
+              <SkeletonBlock className="mt-3 h-10 w-full rounded-xl bg-stone-100 sm:w-64" />
+            </SkeletonPanel>
+            <SkeletonPanel className="rounded-2xl p-4 sm:p-5">
+              <div className="grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2">
+                {[0, 1, 2, 3, 4, 5].map((item) => (
+                  <div key={item} className="space-y-2">
+                    <SkeletonLine className="w-24 bg-stone-100" />
+                    <SkeletonBlock className="h-4 w-40 max-w-full rounded-md bg-stone-100" />
+                  </div>
+                ))}
+              </div>
+            </SkeletonPanel>
+            <SkeletonPanel className="rounded-2xl p-3.5 sm:p-5">
+              <SkeletonBlock className="h-5 w-36 rounded-md bg-stone-200" />
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                {[0, 1, 2, 3].map((item) => (
+                  <div key={item} className="space-y-2">
+                    <SkeletonLine className="w-24 bg-stone-100" />
+                    <SkeletonBlock className="h-10 w-full rounded-xl bg-stone-100" />
+                  </div>
+                ))}
+              </div>
+            </SkeletonPanel>
           </div>
         ) : currentError || !data || !patient ? (
           <div className="flex min-h-[420px] flex-col items-center justify-center gap-2 text-center">

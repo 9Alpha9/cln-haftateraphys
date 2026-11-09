@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import { Loader2, Monitor, ShieldOff } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { SkeletonBlock, SkeletonLine } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { useToast } from '@/components/ui/toast';
 import {
   listUserSessions,
@@ -135,9 +136,16 @@ export function SessionManager() {
       </div>
 
       {loading ? (
-        <div className="mt-3 flex items-center gap-2 text-xs text-stone-500">
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          Memuat sesi…
+        <div className="mt-3 space-y-3" aria-busy="true" aria-label="Memuat sesi">
+          {[0, 1].map((item) => (
+            <div key={item} className="flex items-start gap-2.5 py-2.5">
+              <SkeletonBlock className="h-8 w-8 shrink-0 rounded-xl bg-stone-100" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <SkeletonBlock className="h-3 w-44 max-w-full rounded-md bg-stone-200/80" />
+                <SkeletonLine className="w-56 max-w-full bg-stone-100" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : error ? (
         <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>

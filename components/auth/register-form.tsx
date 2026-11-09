@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Loader2, MailCheck, AlertCircle } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { PasswordField } from '@/components/auth/password-field';
 import { AuthAlert } from '@/components/auth/auth-alert';
@@ -20,7 +20,7 @@ type RegisterFieldErrors = {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export function RegisterForm() {
+export function RegisterForm({ reason }: { reason?: string | null }) {
   const [isPending, startTransition] = useTransition();
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<RegisterFieldErrors>({});
@@ -125,22 +125,28 @@ export function RegisterForm() {
     return (
       <div className="space-y-5 text-center">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-100)] text-[#181700] shadow-xs">
-          <MailCheck className="size-8" aria-hidden="true" />
+          <CheckCircle2 className="size-8" aria-hidden="true" />
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-[#181700]">
-          Pendaftaran Berhasil
+          Akun Berhasil Dibuat
         </h2>
         <p className="text-xs leading-relaxed text-stone-600 sm:text-sm">
-          Kami telah mengirimkan tautan verifikasi ke email Anda. Silakan periksa inbox (atau folder spam) untuk
-          mengaktifkan akun Patient Portal Anda.
+          Akun pasien Anda sudah aktif. Lanjutkan ke dashboard untuk memilih tanggal, jam, dan
+          fisioterapis untuk sesi terapi pertama Anda.
         </p>
-        <div className="pt-2">
+        <div className="space-y-3 pt-2">
           <Link
-            href="/login"
+            href="/dashboard"
             className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-sm font-bold text-[#181700] shadow-xs transition-colors hover:bg-[var(--hafta-ylw-200)]"
           >
-            Masuk ke Halaman Login
+            Lanjutkan ke Dashboard
           </Link>
+          <p className="text-xs text-stone-500">
+            Ingin masuk dengan akun lain?{' '}
+            <Link href="/login" className="font-bold text-[#181700] underline underline-offset-2">
+              Masuk di sini
+            </Link>
+          </p>
         </div>
       </div>
     );
@@ -171,6 +177,26 @@ export function RegisterForm() {
           Lengkapi data singkat di bawah ini untuk memudahkan proses asesmen awal dan pemantauan terapi Anda di klinik.
         </p>
       </div>
+
+      {reason === 'portal' ? (
+        <div
+          role="status"
+          className="mb-6 rounded-2xl border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] p-4"
+        >
+          <p className="text-sm font-bold text-[#181700]">Akses dashboard memerlukan akun</p>
+          <p className="mt-1 text-xs leading-relaxed text-stone-700">
+            Buat akun pasien untuk membuka dashboard dan mengajukan jadwal terapi. Sudah punya
+            akun?{' '}
+            <Link
+              href="/login"
+              className="font-bold text-[#181700] underline decoration-[var(--hafta-ylw-300)] decoration-2 underline-offset-2 hover:no-underline"
+            >
+              Masuk di sini
+            </Link>
+            .
+          </p>
+        </div>
+      ) : null}
 
       {generalError && (
         <div className="mb-5">

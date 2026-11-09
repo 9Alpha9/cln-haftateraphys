@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState, useTransition } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   AlertTriangle,
@@ -161,12 +160,19 @@ export function PatientTherapyCalendar({
     ? (requestsByDate.get(selectedDate) ?? []).filter((request) => request.status === 'PENDING')
     : [];
   const availableTimes = useMemo(
-    () => Array.from(new Set((selectedAvailability?.slots ?? []).map((slot) => slot.startTime))).sort(),
+    () =>
+      Array.from(
+        new Set(
+          (selectedAvailability?.slots ?? [])
+            .filter((slot) => slot.isAvailable)
+            .map((slot) => slot.startTime),
+        ),
+      ).sort(),
     [selectedAvailability],
   );
   const effectiveTime = selectedTime && availableTimes.includes(selectedTime) ? selectedTime : null;
   const therapistsForTime = (selectedAvailability?.slots ?? []).filter(
-    (slot) => slot.startTime === effectiveTime,
+    (slot) => slot.startTime === effectiveTime && slot.isAvailable,
   );
   const currentTherapistSlot = reschedulingAppointment
     ? therapistsForTime.find((slot) => slot.therapistId === reschedulingAppointment.therapistId)
@@ -267,7 +273,7 @@ export function PatientTherapyCalendar({
           });
           showToast(
             'success',
-            'Pengajuan ubah jadwal berhasil dikirim. Menunggu konfirmasi (ACC) dari fisioterapis.',
+            'Pengajuan ubah jadwal berhasil dikirim. Menunggu konfirmasi dari fisioterapis.',
           );
           setReschedulingAppointment(null);
         } else {
@@ -350,12 +356,8 @@ export function PatientTherapyCalendar({
 
       {showAvailability && availability.length === 0 ? (
         <div className="rounded-2xl bg-[var(--hafta-ylw-50)]/45 px-4 py-3 text-xs leading-relaxed text-[#181700]">
-          Belum ada slot tersedia. Fisioterapis Anda mungkin belum terhubung atau jadwal kerjanya belum diatur.
-          Silakan{' '}
-          <Link href="/kontak" className="font-semibold underline underline-offset-2 hover:no-underline">
-            hubungi tim Hafta
-          </Link>{' '}
-          untuk penjadwalan.
+          Belum ada jadwal terapis yang tersedia saat ini. Silakan muat ulang halaman beberapa
+          saat lagi.
         </div>
       ) : null}
 
@@ -377,32 +379,53 @@ export function PatientTherapyCalendar({
                 ['SCHEDULED', 'CONFIRMED', 'COMPLETED'].includes(appointment.status),
               );
               const slots = showAvailability ? availabilityMap.get(key)?.slots ?? [] : [];
+              const availableSlots = slots.filter((slot) => slot.isAvailable);
               const pendingRequests = (requestsByDate.get(key) ?? []).filter((request) => request.status === 'PENDING');
               const isSelected = selectedDate === key;
               const isToday = key === todayKey;
-              const unavailable = isPast || isSunday || Boolean(holiday);
+              const isFullDay =
+                showAvailability &&
+                !isPast &&
+                !isSunday &&
+                !holiday &&
+                slots.length > 0 &&
+                availableSlots.length === 0;
+              const unavailable = isPast || isSunday || Boolean(holiday) || isFullDay;
               const isHoliday = Boolean(holiday);
-
+              const isDateSelectable = !(isFullDay && own.length === 0 && pendingRequests.length === 0);
 
               return (
                 <button
                   type="button"
                   key={key}
-                  title={holiday?.name ?? (isSunday ? 'Minggu' : isToday ? 'Hari ini' : undefined)}
+                  title={
+                    holiday?.name ??
+                    (isSunday
+                      ? 'Minggu'
+                      : isFullDay
+                        ? 'Semua slot pada tanggal ini sudah penuh'
+                        : isToday
+                          ? 'Hari ini'
+                          : undefined)
+                  }
+                  disabled={!isDateSelectable}
                   onClick={() => selectDate(key)}
                   className={cn(
-                    'flex min-h-[58px] w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-1 py-2 text-sm font-bold transition-all lg:min-h-[76px]',
+                    'flex min-h-[58px] w-full flex-col items-center justify-center gap-1 rounded-xl border px-1 py-2 text-sm font-bold transition-all lg:min-h-[76px]',
+                    isDateSelectable ? 'cursor-pointer' : 'cursor-not-allowed',
                     own.length > 0
                       ? 'border-[#181700] bg-[#181700] text-white'
                       : pendingRequests.length > 0
                         ? 'border-2 border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)] text-[#181700]'
-                        : slots.length > 0 && !unavailable
-                          ? 'border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/70 text-[#181700]'
-                          : unavailable
-                            ? isSunday || holiday
-                              ? 'border-transparent text-[var(--hafta-red-400)]'
-                              : 'border-transparent text-stone-300'
-                            : 'border-transparent text-stone-600 hover:bg-stone-50',
+                        : isFullDay
+                          ? 'border-red-200 bg-red-50 text-red-700'
+                          : availableSlots.length > 0 && !unavailable
+                            ? 'border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/70 text-[#181700]'
+                            : unavailable
+                              ? isSunday || holiday
+                                ? 'border-transparent text-[var(--hafta-red-400)]'
+                                : 'border-transparent text-stone-300'
+                              : 'border-transparent text-stone-600 hover:bg-stone-50',
                     isToday && !isSelected && 'ring-1 ring-[#181700]/25',
                     isSelected && 'ring-2 ring-[#181700] ring-offset-2 ring-offset-white',
                   )}
@@ -424,8 +447,10 @@ export function PatientTherapyCalendar({
                     </span>
                   ) : pendingRequests.length > 0 ? (
                     <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-400)]" />
-                  ) : slots.length > 0 && !unavailable ? (
+                  ) : availableSlots.length > 0 && !unavailable ? (
                     <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-grn-500)]" />
+                  ) : isFullDay ? (
+                    <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
                   ) : (
                     <span className="h-1.5 w-1.5 rounded-full bg-transparent" />
                   )}
@@ -433,9 +458,11 @@ export function PatientTherapyCalendar({
                     <span className="hidden max-w-full truncate text-[9px] font-semibold text-[var(--hafta-ylw-100)] lg:block">
                       {own.length} sesi
                     </span>
-                  ) : slots.length > 0 && !unavailable ? (
+                  ) : isFullDay ? (
+                    <span className="hidden text-[9px] font-semibold text-red-600 lg:block">Penuh</span>
+                  ) : availableSlots.length > 0 && !unavailable ? (
                     <span className="hidden max-w-full truncate text-[9px] font-medium text-[#181700]/70 lg:block">
-                      {slots.length} slot
+                      {availableSlots.length} slot
                     </span>
                   ) : null}
                 </button>
@@ -448,10 +475,10 @@ export function PatientTherapyCalendar({
               <span className="h-2.5 w-2.5 rounded-full bg-[#181700]" /> Sesi Anda
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-red-400)]" /> Hari Libur / Minggu
+              <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-red-400)]" /> Hari Libur / Minggu / Penuh
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full border-2 border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)]" /> Menunggu ACC
+              <span className="h-2.5 w-2.5 rounded-full border-2 border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)]" /> Menunggu konfirmasi
             </span>
             {showAvailability ? (
               <span className="inline-flex items-center gap-1.5">
@@ -562,7 +589,7 @@ export function PatientTherapyCalendar({
                         </span>
                         <div>
                           <p className="text-xs font-bold text-[#181700]">
-                            {request.rescheduleFromDate ? 'Perubahan jadwal' : 'Sesi tambahan'}
+                            {request.rescheduleFromDate ? 'Perubahan jadwal' : 'Jadwal terapi baru'}
                           </p>
                           <p className="text-[10px] text-stone-500">
                             Diajukan {formatShortDate(dateKey(request.createdAt))}
@@ -722,7 +749,7 @@ export function PatientTherapyCalendar({
                     <div className="grid grid-cols-2 gap-2">
                       {availableTimes.map((time) => {
                         const slots = (selectedAvailability?.slots ?? []).filter(
-                          (slot) => slot.startTime === time,
+                          (slot) => slot.startTime === time && slot.isAvailable,
                         );
                         return (
                           <button
@@ -745,8 +772,8 @@ export function PatientTherapyCalendar({
                       })}
                     </div>
                     {availableTimes.length === 0 ? (
-                      <p className="text-[11px] text-stone-500">
-                        Tidak ada jam tersedia pada tanggal ini.
+                      <p className="rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-[11px] leading-relaxed text-red-700">
+                        Semua jam pada tanggal ini sudah penuh. Silakan pilih tanggal lain.
                       </p>
                     ) : null}
                   </>

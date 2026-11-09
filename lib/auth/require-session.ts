@@ -21,6 +21,13 @@ export async function requireSession(options?: { redirectToLogin?: boolean }) {
 
   if (!session?.user?.id) {
     if (options?.redirectToLogin) {
+      // Dashboard adalah pintu masuk pasien. Pengunjung tanpa akun diarahkan
+      // untuk membuat akun terlebih dahulu, dengan tautan login tersedia di
+      // halaman pendaftaran bagi pasien yang sudah memiliki akun.
+      const pathname = (await headers()).get('x-pathname') ?? '';
+      if (pathname.startsWith('/dashboard')) {
+        redirect('/register?reason=portal');
+      }
       redirect('/login');
     }
     throw new UnauthenticatedError();

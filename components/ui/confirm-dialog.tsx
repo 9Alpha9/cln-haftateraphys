@@ -13,6 +13,8 @@ export type ConfirmDialogProps = {
   isOpen: boolean;
   title: string;
   description?: ReactNode;
+  /** Content rendered below the header, aligned to the dialog padding. */
+  details?: ReactNode;
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: "default" | "destructive";
@@ -30,6 +32,7 @@ export function ConfirmDialog({
   isOpen,
   title,
   description,
+  details,
   confirmLabel = "Lanjutkan",
   cancelLabel = "Batal",
   variant = "default",
@@ -119,7 +122,7 @@ export function ConfirmDialog({
             role="dialog"
             aria-modal="true"
             aria-labelledby={titleId}
-            aria-describedby={description ? descriptionId : undefined}
+            aria-describedby={description || details ? descriptionId : undefined}
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -154,6 +157,11 @@ export function ConfirmDialog({
                   ) : null}
                 </div>
               </div>
+              {details ? (
+                <div id={description ? undefined : descriptionId} className="mt-4">
+                  {details}
+                </div>
+              ) : null}
             </div>
             <div className="flex flex-col gap-2 border-t border-stone-100 bg-[#FAFAF8] px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-5 sm:py-4">
               <Button

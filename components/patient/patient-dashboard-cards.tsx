@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CalendarClock, FileHeart, ShieldCheck, TrendingUp, X } from 'lucide-react';
+import { CalendarClock, ChevronDown, FileHeart, ShieldCheck, TrendingUp, X } from 'lucide-react';
 import type {
   PatientAppointmentRequestView,
   PatientPortalAppointment,
@@ -331,8 +331,8 @@ export function PatientHelpCard() {
         <div>
           <h2 className="text-sm font-bold text-[#181700]">Butuh bantuan?</h2>
           <p className="mt-1 text-xs leading-relaxed text-stone-600">
-            Tim Hafta siap membantu penjadwalan, perubahan jadwal, atau pertanyaan tentang program
-            terapi Anda.
+            Jadwal terapi bisa dibuat langsung dari dashboard. Untuk pertanyaan tentang program
+            terapi atau kendala akun, hubungi tim Hafta.
           </p>
           <Link
             href="/kontak"
@@ -375,7 +375,7 @@ export function PatientNextSessionCard({
             <p className="mt-1 text-xs leading-relaxed text-[#181700]/80">
               {pendingRequest.rescheduleFromDate
                 ? `Menggantikan ${formatShortDate(pendingRequest.rescheduleFromDate)} · ${formatTimeLabel(pendingRequest.rescheduleFromTime ?? '')}`
-                : 'Pengajuan sesi tambahan'}
+                : 'Pengajuan jadwal terapi'}
             </p>
             <p className="mt-1 text-xs leading-relaxed text-[#181700]/80">
               {pendingRequest.therapistName ?? 'Fisioterapis Hafta'}
@@ -409,7 +409,7 @@ export function PatientNextSessionCard({
         </button>
       ) : (
         <Link
-          href="/dashboard/appointments"
+          href={upcoming ? '/dashboard/appointments' : '#buat-jadwal'}
           className="mt-4 inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full border border-[#181700]/15 bg-white/80 text-xs font-bold transition-colors hover:bg-white"
         >
           {upcoming ? 'Lihat jadwal' : 'Ajukan jadwal'}
@@ -517,37 +517,55 @@ export function PatientTodayCard({
         <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-500">
           Hari ini
         </p>
-        <span className="text-[10px] font-semibold text-stone-500">
+        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-stone-500">
           {done} dari {items.length} selesai
+          {items.length > 4 ? (
+            <span className="inline-flex items-center gap-0.5 text-stone-400" aria-hidden="true">
+              <ChevronDown className="h-3 w-3" />
+              geser
+            </span>
+          ) : null}
         </span>
       </div>
-      <ul className="mt-2.5 space-y-1.5">
-        {items.map((item) => (
-          <li key={item.label} className="flex items-start gap-2 rounded-2xl bg-[#FAFAF8] px-2.5 py-2">
-            <span
-              className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[9px] font-bold ${
-                item.state === 'done'
-                  ? 'border-[var(--hafta-grn-500)] bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]'
-                  : item.state === 'waiting'
-                    ? 'border-[var(--hafta-ylw-300)] bg-[var(--hafta-ylw-50)] text-[#181700]'
-                    : item.state === 'empty'
-                      ? 'border-stone-200 bg-white text-stone-300'
-                      : 'border-stone-300 bg-white text-stone-400'
-              }`}
-            >
-              {item.state === 'done' ? '✓' : item.state === 'waiting' ? '…' : ''}
-            </span>
-            <span className="min-w-0">
-              <span className="block text-[11px] font-semibold leading-tight text-[#181700]">
-                {item.label}
+      <div className="relative mt-2.5">
+        <ul
+          aria-label="Aktivitas hari ini"
+          tabIndex={items.length > 4 ? 0 : -1}
+          className="max-h-[208px] space-y-1.5 overflow-y-auto overscroll-contain pr-1 outline-none focus-visible:ring-2 focus-visible:ring-[#181700]/20 [scrollbar-color:var(--color-stone-300)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-stone-300 [&::-webkit-scrollbar-track]:bg-transparent"
+        >
+          {items.map((item) => (
+            <li key={item.label} className="flex items-start gap-2 rounded-2xl bg-[#FAFAF8] px-2.5 py-2">
+              <span
+                className={`mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border text-[9px] font-bold ${
+                  item.state === 'done'
+                    ? 'border-[var(--hafta-grn-500)] bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]'
+                    : item.state === 'waiting'
+                      ? 'border-[var(--hafta-ylw-300)] bg-[var(--hafta-ylw-50)] text-[#181700]'
+                      : item.state === 'empty'
+                        ? 'border-stone-200 bg-white text-stone-300'
+                        : 'border-stone-300 bg-white text-stone-400'
+                }`}
+              >
+                {item.state === 'done' ? '✓' : item.state === 'waiting' ? '…' : ''}
               </span>
-              <span className="mt-0.5 block text-[10px] leading-tight text-stone-500">
-                {item.hint}
+              <span className="min-w-0">
+                <span className="block text-[11px] font-semibold leading-tight text-[#181700]">
+                  {item.label}
+                </span>
+                <span className="mt-0.5 block text-[10px] leading-tight text-stone-500">
+                  {item.hint}
+                </span>
               </span>
-            </span>
-          </li>
-        ))}
-      </ul>
+            </li>
+          ))}
+        </ul>
+        {items.length > 4 ? (
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-7 bg-gradient-to-t from-white to-transparent"
+          />
+        ) : null}
+      </div>
     </article>
   );
 }

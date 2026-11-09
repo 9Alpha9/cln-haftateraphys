@@ -34,28 +34,23 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     return notAllowed;
   }
 
-  // Cari ID semua pasien yang terhubung dengan terapis ini (via appointment, therapy record, atau assignment)
+  // Scope dashboard terapis harus sama dengan scope daftar pasien:
+  // hanya assignment aktif. Ini mencegah angka dashboard menghitung pasien
+  // yang sudah tidak ditangani lagi.
   let therapistPatientIds: string[] = [];
   if (isTherapist) {
-    const [assigned, apptPatients, progressPatients] = await Promise.all([
-      db
-        .select({ patientId: patientAssignments.patientId })
-        .from(patientAssignments)
-        .where(eq(patientAssignments.staffUserId, session.user.id)),
-      db
-        .select({ patientId: appointments.patientId })
-        .from(appointments)
-        .where(eq(appointments.therapistId, session.user.id)),
-      db
-        .select({ patientId: therapyProgressRecords.patientId })
-        .from(therapyProgressRecords)
-        .where(eq(therapyProgressRecords.therapistId, session.user.id)),
-    ]);
+    const assigned = await db
+      .select({ patientId: patientAssignments.patientId })
+      .from(patientAssignments)
+      .where(
+        and(
+          eq(patientAssignments.staffUserId, session.user.id),
+          isNull(patientAssignments.activeUntil),
+        ),
+      );
 
     const idSet = new Set<string>();
     assigned.forEach((r) => r.patientId && idSet.add(r.patientId));
-    apptPatients.forEach((r) => r.patientId && idSet.add(r.patientId));
-    progressPatients.forEach((r) => r.patientId && idSet.add(r.patientId));
     therapistPatientIds = Array.from(idSet);
   }
 
@@ -69,7 +64,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
           count: sql<number>`count(*)::int`,
         })
         .from(patients)
-        .where(inArray(patients.id, therapistPatientIds))
+        .where(and(inArray(patients.id, therapistPatientIds), isNull(patients.archivedAt)))
         .groupBy(patients.caseStatus);
     } else {
       patientsByStatusRows = [];
@@ -81,6 +76,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
         count: sql<number>`count(*)::int`,
       })
       .from(patients)
+      .where(isNull(patients.archivedAt))
       .groupBy(patients.caseStatus);
   }
 
@@ -184,9 +180,9 @@ export async function getDashboardStats(): Promise<DashboardStats> {
   }
 
   // Active patients: count total connected patients for therapist, or active patients globally
-  const activePatientsCount = isTherapist
-    ? therapistPatientIds.length
-    : patientsByStatusRows.filter((r) => r.status === 'ACTIVE' || r.status === 'INTAKE').reduce((s, r) => s + r.count, 0);
+  const activePatientsCount = patientsByStatusRows
+    .filter((r) => r.status === 'ACTIVE' || r.status === 'INTAKE')
+    .reduce((sum, row) => sum + row.count, 0);
 
   return {
     kpis: {

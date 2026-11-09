@@ -15,6 +15,7 @@ import {
   ChevronRight,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
+import { SkeletonBlock, SkeletonLine, SkeletonPanel } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { fetchIntakeDetailAction } from '@/server/actions/intake-details';
 import { reviewPatientIntake } from '@/server/actions/intake-review';
 import { cn } from '@/lib/utils';
@@ -276,9 +277,31 @@ export function IntakeDetailDrawer({
     >
       {/* ── BODY KONTEN DRAWER ── */}
       {fetching ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-[#181700]" />
-          <p className="mt-3 text-xs font-semibold text-stone-600">Memuat rincian form awal...</p>
+        <div className="space-y-4" aria-busy="true" aria-label="Memuat rincian form awal">
+          <SkeletonPanel className="rounded-2xl p-4">
+            <div className="flex items-center gap-3">
+              <SkeletonBlock className="h-11 w-11 rounded-full bg-stone-100" />
+              <div className="space-y-2">
+                <SkeletonBlock className="h-5 w-40 rounded-md bg-stone-200" />
+                <SkeletonLine className="w-28 bg-stone-100" />
+              </div>
+            </div>
+          </SkeletonPanel>
+          {[0, 1, 2].map((section) => (
+            <SkeletonPanel key={section} className="overflow-hidden rounded-2xl">
+              <div className="border-b border-stone-100 bg-stone-50/80 px-4 py-3">
+                <SkeletonBlock className="h-3 w-32 rounded-md bg-stone-200/80" />
+              </div>
+              <div className="space-y-3 p-4">
+                {[0, 1, 2].map((row) => (
+                  <div key={row} className="grid gap-2 sm:grid-cols-12">
+                    <SkeletonLine className="w-28 bg-stone-100 sm:col-span-4" />
+                    <SkeletonBlock className="h-4 w-full rounded-md bg-stone-100 sm:col-span-8" />
+                  </div>
+                ))}
+              </div>
+            </SkeletonPanel>
+          ))}
         </div>
       ) : error ? (
         <div className="rounded-2xl border border-red-200 bg-red-50/70 p-3.5 sm:p-5 text-red-950">

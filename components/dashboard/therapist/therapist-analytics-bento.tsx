@@ -53,7 +53,20 @@ export function TherapistAnalyticsBento({
   };
 
   const patientPieData = stats.patientsByStatus.map((p) => ({
-    name: p.status === 'INTAKE' ? 'Baru / Intake' : p.status === 'ACTIVE' ? 'Dalam Terapi' : p.status === 'COMPLETED' ? 'Selesai' : p.status,
+    name:
+      p.status === 'INTAKE'
+        ? 'Baru / Intake'
+        : p.status === 'ACTIVE'
+          ? 'Dalam Terapi'
+          : p.status === 'COMPLETED'
+            ? 'Selesai'
+            : p.status === 'ON_HOLD'
+              ? 'Ditunda'
+              : p.status === 'REFERRED'
+                ? 'Dirujuk'
+                : p.status === 'ARCHIVED'
+                  ? 'Diarsipkan'
+                  : p.status,
     value: p.count,
     color: statusColors[p.status] ?? '#A8A29E',
   }));
@@ -214,6 +227,7 @@ export function TherapistAnalyticsBento({
               <PieChart>
                 <Tooltip
                   cursor={false}
+                  wrapperStyle={{ zIndex: 30, pointerEvents: 'none' }}
                   contentStyle={{
                     borderRadius: '16px',
                     backgroundColor: '#fff',
@@ -244,7 +258,7 @@ export function TherapistAnalyticsBento({
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+            <div className="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center">
               <span className="font-mono text-xl font-extrabold text-[#181700] leading-none">
                 {patientPieData.reduce((a, b) => a + b.value, 0)}
               </span>

@@ -8,6 +8,7 @@ import {
   CalendarDays,
   CheckCircle2,
   ChevronRight,
+  Clock3,
   ClipboardList,
   FileHeart,
   MessageCircle,
@@ -16,6 +17,7 @@ import {
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { PatientTherapyCalendar } from '@/components/patient/patient-therapy-calendar';
+import { PatientBookingPanel } from '@/components/patient/patient-booking-panel';
 import {
   PatientHelpCard,
   PatientIntakeCard,
@@ -146,6 +148,15 @@ export function PatientDashboardOverview({
     )[0];
 
   const pendingRequest = requests.find((request) => request.status === 'PENDING');
+  const hasActiveSchedule = appointments.some(
+    (appointment) =>
+      ['SCHEDULED', 'CONFIRMED'].includes(appointment.status) &&
+      toDateKey(appointment.scheduledDate) >= today,
+  );
+  const showBookingPanel = !hasActiveSchedule && !pendingRequest;
+  // Pasien yang benar-benar baru belum perlu melihat kalender penuh; kalender
+  // baru relevan setelah ada pengajuan/jadwal yang bisa dilihat.
+  const showCalendar = appointments.length > 0 || requests.length > 0;
   const intakeCopy = intake ? INTAKE_COPY[intake.status] : null;
   const intakeNeedsAttention = !intakeCopy || !intakeCopy.done;
   const completed = appointments.filter((appointment) => appointment.status === 'COMPLETED').length;
@@ -188,7 +199,7 @@ export function PatientDashboardOverview({
     [];
 
   if (todaySessions.length > 0) {
-    todaySessions.slice(0, 2).forEach((session) => {
+    todaySessions.forEach((session) => {
       todayItems.push({
         label: `Sesi ${formatTime(session.startTime)}`,
         hint: `${session.therapistName ?? 'Fisioterapis Hafta'}`,
@@ -214,7 +225,7 @@ export function PatientDashboardOverview({
   if (pendingRequest) {
     todayItems.push({
       label: 'Pengajuan jadwal',
-      hint: `${formatShortDate(pendingRequest.requestedDate)} · ${formatTime(pendingRequest.startTime)} · menunggu ACC`,
+      hint: `${formatShortDate(pendingRequest.requestedDate)} · ${formatTime(pendingRequest.startTime)} · menunggu konfirmasi`,
       state: 'waiting',
     });
   }
@@ -241,13 +252,24 @@ export function PatientDashboardOverview({
           </p>
         </div>
         <div className="flex w-full flex-row items-center gap-2 sm:w-auto sm:shrink-0">
-          <Link
-            href="/dashboard/appointments"
-            className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-ylw-100)] px-3 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)] sm:flex-none sm:px-4"
-          >
-            <CalendarPlus className="h-3.5 w-3.5" />
-            Jadwalkan Sesi
-          </Link>
+          {pendingRequest ? (
+            <button
+              type="button"
+              onClick={() => openStatusDetail(pendingRequest)}
+              className="inline-flex h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-ylw-100)] px-3 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)] sm:flex-none sm:px-4"
+            >
+              <Clock3 className="h-3.5 w-3.5" />
+              Lihat status
+            </button>
+          ) : (
+            <Link
+              href={showBookingPanel ? '#buat-jadwal' : '/dashboard/appointments'}
+              className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-ylw-100)] px-3 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)] sm:flex-none sm:px-4"
+            >
+              <CalendarPlus className="h-3.5 w-3.5" />
+              {showBookingPanel ? 'Jadwalkan Sesi' : 'Lihat jadwal'}
+            </Link>
+          )}
           <Link
             href="/dashboard/intake"
             className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 text-xs font-bold text-[#181700] transition-colors hover:bg-stone-50 sm:flex-none sm:px-4"
@@ -262,7 +284,7 @@ export function PatientDashboardOverview({
 
       <section
         aria-label="Ringkasan cepat"
-        className="-mx-3 flex touch-pan-x snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-3 pb-1 scroll-px-3 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 lg:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="-mx-3 flex touch-pan-x snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-3 pb-1 scroll-px-3 sm:mx-0 sm:grid sm:snap-none sm:grid-cols-2 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <PatientNextSessionCard
           upcoming={upcoming ?? null}
@@ -281,35 +303,39 @@ export function PatientDashboardOverview({
 
       <div className="grid grid-cols-1 gap-4 sm:gap-5 lg:grid-cols-12">
         <div className="min-w-0 space-y-4 sm:space-y-5 lg:col-span-8">
-          <section className="-mx-3 rounded-none border-y border-stone-200/90 bg-white p-3 sm:mx-0 sm:rounded-3xl sm:border sm:p-5">
-            <div className="px-1">
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-500">
-                  Kalender
+          {showBookingPanel ? <PatientBookingPanel availability={availability} /> : null}
+
+          {showCalendar ? (
+            <section className="-mx-3 rounded-none border-y border-stone-200/90 bg-white p-3 sm:mx-0 sm:rounded-3xl sm:border sm:p-5">
+              <div className="px-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-500">
+                    Kalender
+                  </p>
+                  <Link
+                    href="/dashboard/appointments"
+                    className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full border border-stone-200/70 bg-[#FAFAF8] px-3 text-[11px] font-bold text-[#181700] transition-colors hover:bg-stone-100"
+                  >
+                    Semua jadwal
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Link>
+                </div>
+                <h2 className="mt-1 text-base font-bold text-[#181700]">Jadwal & slot terapi</h2>
+                <p className="mt-1 text-xs leading-relaxed text-stone-500">
+                  Pilih tanggal untuk melihat sesi, mengubah jadwal, atau melihat status pengajuan.
                 </p>
-                <Link
-                  href="/dashboard/appointments"
-                  className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full border border-stone-200/70 bg-[#FAFAF8] px-3 text-[11px] font-bold text-[#181700] transition-colors hover:bg-stone-100"
-                >
-                  Semua jadwal
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </Link>
               </div>
-              <h2 className="mt-1 text-base font-bold text-[#181700]">Jadwal & slot terapi</h2>
-              <p className="mt-1 text-xs leading-relaxed text-stone-500">
-                Pilih tanggal untuk melihat sesi, mengubah jadwal, atau mengajukan sesi tambahan.
-              </p>
-            </div>
-            <div className="mt-3">
-              <PatientTherapyCalendar
-                appointments={appointments}
-                requests={requests}
-                availability={availability}
-                holidays={holidays}
-                hideHeader
-              />
-            </div>
-          </section>
+              <div className="mt-3">
+                <PatientTherapyCalendar
+                  appointments={appointments}
+                  requests={requests}
+                  availability={availability}
+                  holidays={holidays}
+                  hideHeader
+                />
+              </div>
+            </section>
+          ) : null}
 
           <section className="rounded-3xl border border-stone-200/90 bg-white p-3.5 sm:p-5">
             <div className="flex items-start justify-between gap-3">
@@ -409,13 +435,13 @@ export function PatientDashboardOverview({
         panelClassName="rounded-3xl border border-stone-200/90 shadow-2xl"
         confirmClassName="h-10 px-4 rounded-full border border-red-200 bg-white hover:bg-red-50 text-red-700 text-xs font-bold inline-flex items-center justify-center cursor-pointer transition-all whitespace-nowrap"
         cancelClassName="h-10 px-4 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] text-xs font-bold inline-flex items-center justify-center cursor-pointer transition-all whitespace-nowrap"
-        description={
-          <div className="mt-3 divide-y divide-stone-200/70 rounded-2xl border border-stone-200/80 bg-[#F8F8F5] p-3 text-left sm:p-4">
+        details={
+          <div className="divide-y divide-stone-200/70 rounded-2xl border border-stone-200/80 bg-[#F8F8F5] p-3 text-left sm:p-4">
             <div className="flex items-center justify-between gap-2 pb-3">
               <span className="text-xs font-medium text-stone-500">Status</span>
               <span className="inline-flex items-center gap-1 rounded-full bg-[var(--hafta-ylw-100)] px-3 py-1 text-[11px] font-bold text-[#181700]">
                 <CheckCircle2 className="h-3 w-3" />
-                Menunggu ACC
+                Menunggu konfirmasi
               </span>
             </div>
             {statusRequest?.rescheduleFromDate ? (
@@ -429,7 +455,9 @@ export function PatientDashboardOverview({
             ) : (
               <div className="flex flex-col gap-0.5 py-3">
                 <span className="text-[11px] font-medium text-stone-500">Jenis</span>
-                <span className="text-xs font-bold text-[#181700] sm:text-sm">Sesi tambahan</span>
+                <span className="text-xs font-bold text-[#181700] sm:text-sm">
+                  Jadwal terapi baru
+                </span>
               </div>
             )}
             <div className="flex flex-col gap-0.5 pt-3">

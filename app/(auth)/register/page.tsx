@@ -6,6 +6,11 @@ export const metadata: Metadata = {
   description: 'Daftar akun baru Hafta Fisioterapi untuk mengakses patient portal Anda.',
 };
 
-export default function RegisterPage() {
-  return <RegisterForm />;
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ reason?: string }>;
+}) {
+  const { reason } = await searchParams;
+  return <RegisterForm reason={reason} />;
 }

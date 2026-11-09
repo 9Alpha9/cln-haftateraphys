@@ -3,6 +3,7 @@
 import { useId, useRef, useState, useTransition } from 'react';
 import { Loader2, Pencil, Save } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
+import { SkeletonBlock, SkeletonLine } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { AppointmentEditForm } from '@/components/dashboard/appointment-edit-form';
 import { useToast } from '@/components/ui/toast';
 import { getAppointmentEditData } from '@/server/actions/appointments';
@@ -110,9 +111,19 @@ export function AppointmentEditDrawer({
       }
     >
       {isLoading || !data ? (
-        <div className="flex min-h-56 flex-col items-center justify-center gap-3 text-stone-500">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <p className="text-xs font-medium">Memuat data appointment...</p>
+        <div className="space-y-4" aria-busy="true" aria-label="Memuat data appointment">
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[0, 1, 2, 3].map((item) => (
+              <div key={item} className="space-y-2">
+                <SkeletonLine className="w-24 bg-stone-100" />
+                <SkeletonBlock className="h-10 w-full rounded-xl bg-stone-100" />
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2">
+            <SkeletonLine className="w-24 bg-stone-100" />
+            <SkeletonBlock className="h-24 w-full rounded-xl bg-stone-100" />
+          </div>
         </div>
       ) : (
         <AppointmentEditForm

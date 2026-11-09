@@ -237,14 +237,14 @@ export function NotchedCard({
         className="absolute bottom-1.5 left-1 z-20 flex items-center"
         style={{
           height: nh - 10,
-          maxWidth: nw - 10,
+          width: nw - 10,
         }}
       >
         {href ? (
           <Link
             href={href}
             className={cn(
-              'inline-flex max-w-full items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-[11px] font-bold transition-all duration-200 group-hover:gap-2 sm:gap-2 sm:px-4 sm:text-xs',
+              'inline-flex w-full items-center justify-between gap-2 whitespace-nowrap rounded-full px-3 py-2 text-[11px] font-bold transition-all duration-200 sm:px-4 sm:text-xs',
               styles.buttonBg,
               styles.buttonText,
               styles.buttonBorder
@@ -258,7 +258,7 @@ export function NotchedCard({
             type="button"
             onClick={onClick}
             className={cn(
-              'inline-flex max-w-full cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-[11px] font-bold transition-all duration-200 group-hover:gap-2 sm:gap-2 sm:px-4 sm:text-xs',
+              'inline-flex w-full cursor-pointer items-center justify-between gap-2 whitespace-nowrap rounded-full px-3 py-2 text-[11px] font-bold transition-all duration-200 sm:px-4 sm:text-xs',
               styles.buttonBg,
               styles.buttonText,
               styles.buttonBorder

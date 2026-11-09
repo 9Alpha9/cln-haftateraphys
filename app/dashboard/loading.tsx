@@ -17,7 +17,7 @@ export default function DashboardLoading() {
         {[0, 1, 2, 3].map((item) => (
           <SkeletonPanel
             key={item}
-            className="h-40 min-w-[220px] shrink-0 p-4 sm:min-w-0"
+            className="flex min-h-44 min-w-[220px] shrink-0 flex-col p-4 sm:min-w-0"
           >
             <SkeletonBlock className="h-3 w-20 bg-stone-200/80" />
             <SkeletonBlock className="mt-3 h-6 w-32 bg-stone-200/70" />

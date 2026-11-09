@@ -91,6 +91,7 @@ This config is for UX only. Server route/action still calls authorization.
 ## 8. Unauthorized behavior
 
 - no session -> redirect `/login` for private page;
+- no session on `/dashboard*` -> redirect `/register?reason=portal` so a new patient is guided to create an account; the register page links existing patients to `/login`;
 - authenticated but forbidden -> safe `403` or disclosure-safe `404` according to policy;
 - mutation unauthorized -> typed safe error / forbidden response;
 - never redirect forbidden clinical route to a different patient's page.
