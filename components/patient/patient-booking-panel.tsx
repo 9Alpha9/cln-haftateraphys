@@ -341,11 +341,7 @@ export function PatientBookingPanel({
         <div
           role="group"
           aria-label="Pilih fisioterapis"
-          className={cn(
-            'mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2',
-            hasManyTherapists &&
-              'max-h-[17.5rem] overflow-y-auto overscroll-contain pr-1 [scrollbar-color:#d6d3d1_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-stone-300 [&::-webkit-scrollbar-track]:bg-transparent',
-          )}
+          className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"
         >
           {visibleTherapists.map((therapist) => {
             const isSelected = therapist.id === selectedTherapistId;
@@ -442,7 +438,7 @@ export function PatientBookingPanel({
               ref={dateScrollRef}
               role="group"
               aria-label="Pilih tanggal terapi"
-              className="-mx-4 mt-2 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="mt-2 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {datesForTherapist.map((day) => {
                 const date = parseDateKey(day.date);
