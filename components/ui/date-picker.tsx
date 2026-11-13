@@ -16,7 +16,7 @@ const DAY_LABELS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 const HOLIDAY_DOT_COLOR: Record<HolidayType, string> = {
   nasional: 'bg-red-500',
   agama: 'bg-purple-500',
-  libur: 'bg-blue-500',
+  libur: 'bg-hafta-ble-500',
 };
 
 const HOLIDAY_LABEL: Record<HolidayType, string> = {
@@ -122,7 +122,7 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
               disabled={disabled}
               onClick={() => !disabled && setOpen(true)}
               className={cn(
-                'flex h-10 w-full items-center gap-2 rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-left text-sm transition-colors outline-none cursor-pointer',
+                'flex h-11 w-full items-center gap-2 rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-left text-sm transition-colors outline-none cursor-pointer',
                 'hover:border-stone-300 focus:border-[#181700] focus:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/35',
                 'disabled:cursor-not-allowed disabled:opacity-50',
                 !value && 'text-muted-foreground',
@@ -239,7 +239,7 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
                 <span className="h-1.5 w-1.5 rounded-full bg-purple-500" /> Agama
               </span>
               <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-blue-500" /> Cuti Bersama
+                <span className="h-1.5 w-1.5 rounded-full bg-hafta-ble-500" /> Cuti Bersama
               </span>
             </div>
 

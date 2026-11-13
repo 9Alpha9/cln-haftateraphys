@@ -11,12 +11,12 @@ const statusConfig: Record<
   string,
   { label: string; color: string; bg: string; border: string }
 > = {
-  DRAFT:           { label: 'Draft',          color: 'text-[#6B7280]',  bg: 'bg-[#F9FAFB]',    border: 'border-[#E5E7EB]' },
+  DRAFT:           { label: 'Draft',          color: 'text-[#6B7280]',  bg: 'bg-[var(--secondary)]',    border: 'border-[#E5E7EB]' },
   SUBMITTED:       { label: 'Terkirim',       color: 'text-[#1D4ED8]',  bg: 'bg-[#EFF6FF]',    border: 'border-[#BFDBFE]' },
   UNDER_REVIEW:    { label: 'Sedang Ditinjau', color: 'text-[var(--hafta-org-400)]',  bg: 'bg-[#FFF7ED]',    border: 'border-[#FED7AA]' },
   NEEDS_REVISION:  { label: 'Perlu Perbaikan', color: 'text-[#DC2626]',  bg: 'bg-[#FEF2F2]',    border: 'border-[#FECACA]' },
   ACCEPTED:        { label: 'Diterima',        color: 'text-[#15803D]',  bg: 'bg-[#F0FDF4]',    border: 'border-[#BBF7D0]' },
-  ARCHIVED:        { label: 'Diarsipkan',      color: 'text-[#6B7280]',  bg: 'bg-[#F9FAFB]',    border: 'border-[#E5E7EB]' },
+  ARCHIVED:        { label: 'Diarsipkan',      color: 'text-[#6B7280]',  bg: 'bg-[var(--secondary)]',    border: 'border-[#E5E7EB]' },
 };
 
 const dotColorMap: Record<string, string> = {

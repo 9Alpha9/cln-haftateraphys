@@ -14,7 +14,7 @@ const STATUS_STYLES: Record<string, string> = {
   ACTIVE: 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)] border-[var(--hafta-grn-200)]',
   ON_HOLD: 'bg-amber-50 text-amber-800 border-amber-200',
   COMPLETED: 'bg-stone-100 text-stone-600 border-stone-200',
-  REFERRED: 'bg-blue-50 text-blue-700 border-blue-200',
+  REFERRED: 'bg-hafta-ble-50 text-hafta-ble-700 border-hafta-ble-200',
   ARCHIVED: 'bg-stone-100 text-stone-500 border-stone-200',
 };
 

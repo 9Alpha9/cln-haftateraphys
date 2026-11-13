@@ -87,12 +87,12 @@ export function CreateUserForm({ canCreateStaffAccounts }: { canCreateStaffAccou
               minLength={12}
               placeholder="Minimal 12 karakter"
               disabled={pending}
-              className="flex h-10 w-full min-w-0 rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 pr-10"
+              className="flex h-10 w-full min-w-0 rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-[var(--hafta-950)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 pr-10"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors"
               tabIndex={-1}
             >
               {showPassword ? (

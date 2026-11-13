@@ -78,11 +78,11 @@
   --hafta-ble-950: #020e41;
 
   /* ── Semantic / shadcn tokens ── */
-  --background: var(--hafta-50);
+  --background: #FCFCFB;
   --foreground: var(--hafta-950);
-  --card: var(--hafta-50);
+  --card: #FFFFFF;
   --card-foreground: var(--hafta-950);
-  --popover: var(--hafta-50);
+  --popover: #FFFFFF;
   --popover-foreground: var(--hafta-950);
   --primary: var(--hafta-300);
   --primary-foreground: var(--hafta-950);

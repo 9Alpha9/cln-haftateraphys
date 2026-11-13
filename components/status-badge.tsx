@@ -14,7 +14,7 @@ const variantStyles: Record<StatusVariant, string> = {
   warning: 'bg-amber-50 text-amber-700 border border-amber-200',
   danger: 'bg-red-50 text-red-700 border border-red-200',
   info: 'bg-teal-50 text-teal-700 border border-teal-200',
-  muted: 'bg-gray-100 text-gray-600 border border-gray-200',
+  muted: 'bg-secondary text-muted-foreground border border-border',
 };
 
 export function StatusBadge({ label, variant = 'default', className }: StatusBadgeProps) {

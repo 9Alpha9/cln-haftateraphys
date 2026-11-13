@@ -257,7 +257,7 @@ export function PatientBookingPanel({
             <button
               type="button"
               onClick={() => router.refresh()}
-              className="mt-3 inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 "
+              className="mt-3 inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 "
             >
               Muat ulang jadwal
             </button>
@@ -362,7 +362,7 @@ export function PatientBookingPanel({
                 aria-pressed={isSelected}
                 onClick={() => selectTherapist(therapist.id)}
                 className={cn(
-                  'flex cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-colors focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 ',
+                  'flex cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 ',
                   isSelected
                     ? 'border-[#181700] bg-[#FAFAF8] ring-2 ring-[var(--hafta-org-200)]/35'
                     : 'border-stone-200 bg-white hover:bg-stone-50',
@@ -468,7 +468,7 @@ export function PatientBookingPanel({
               ref={dateScrollRef}
               role="group"
               aria-label="Pilih tanggal terapi"
-              className="mt-2 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 [&>*:first-child]:ml-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="mt-2 flex snap-x snap-mandatory gap-3 overflow-x-auto pl-2 pr-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {datesForTherapist.map((day) => {
                 const date = parseDateKey(day.date);
@@ -490,7 +490,7 @@ export function PatientBookingPanel({
                     disabled={isFull}
                     onClick={() => selectDate(day.date)}
                     className={cn(
-                      'flex min-w-[68px] snap-start flex-col items-center justify-center gap-0.5 rounded-2xl border px-2.5 py-2.5 transition-colors focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 ',
+                      'flex min-w-[68px] snap-start flex-col items-center justify-center gap-0.5 rounded-2xl border px-2.5 py-2.5 transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 ',
                       isFull
                         ? 'cursor-not-allowed border-red-200 bg-red-50 text-red-700'
                         : 'cursor-pointer',
@@ -579,7 +579,7 @@ export function PatientBookingPanel({
                   disabled={!group.available}
                   onClick={() => setSelectedTime(group.time)}
                   className={cn(
-                    'flex flex-col items-start gap-0.5 rounded-xl border px-3 py-2.5 text-left transition-colors focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 ',
+                    'flex flex-col items-start gap-0.5 rounded-xl border px-3 py-2.5 text-left transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 ',
                     !group.available
                       ? 'cursor-not-allowed border-red-200 bg-red-50 text-red-700'
                       : 'cursor-pointer',
@@ -631,7 +631,7 @@ export function PatientBookingPanel({
             type="button"
             onClick={submitRequest}
             disabled={!canSubmit}
-            className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {pending ? (
               <>
@@ -650,7 +650,7 @@ export function PatientBookingPanel({
               type="button"
               onClick={onRescheduleCancel}
               disabled={pending}
-              className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100 focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 disabled:opacity-60"
+              className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100 focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:opacity-60"
             >
               Batal Ubah
             </button>

@@ -345,7 +345,7 @@ export function IntakeDetailDrawer({
           ) : null}
 
           {/* Header Info Banner: Standalone Full-bleed Edge-to-Edge (Tanpa padding top/left/right container) */}
-          <div className="-mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-4 border-b border-stone-200/80 bg-[#FEFEF6] px-3.5 py-3.5 sm:px-6 sm:py-4.5 text-xs text-stone-600">
+          <div className="-mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-4 border-b border-stone-200/80 bg-[var(--background)] px-3.5 py-3.5 sm:px-6 sm:py-4.5 text-xs text-stone-600">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200/60 pb-2">
               <span className="font-bold text-[#181700]">Ringkasan Pengiriman</span>
               <span className="flex items-center gap-1.5 font-medium text-stone-500">

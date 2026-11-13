@@ -49,12 +49,12 @@ interface ProgressManagementViewProps {
 function getScoreColor(type: 'pain' | 'rom' | 'strength' | 'function', value: number) {
   if (type === 'pain') {
     // Skor nyeri: 0-3 hijau, 4-6 kuning/oranye, 7-10 merah
-    if (value <= 3) return 'bg-emerald-500 text-emerald-700';
+    if (value <= 3) return 'bg-hafta-grn-500 text-hafta-grn-700';
     if (value <= 6) return 'bg-amber-500 text-amber-700';
     return 'bg-red-500 text-red-700';
   }
   // Skor ROM, kekuatan, fungsional: makin tinggi makin hijau
-  if (value >= 7) return 'bg-emerald-500 text-emerald-700';
+  if (value >= 7) return 'bg-hafta-grn-500 text-hafta-grn-700';
   if (value >= 4) return 'bg-[var(--hafta-org-400)] text-[var(--hafta-org-800)]';
   return 'bg-amber-500 text-amber-700';
 }
@@ -694,7 +694,7 @@ export function ProgressManagementView({
               className={cn(
                 'rounded-full px-2.5 py-0.5 font-mono text-[10px] font-bold border',
                 selectedRecord.status === 'FINALIZED'
-                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                  ? 'bg-hafta-grn-50 text-hafta-grn-800 border-hafta-grn-200'
                   : 'bg-amber-50 text-amber-800 border-amber-200'
               )}
             >
@@ -771,7 +771,7 @@ export function ProgressManagementView({
         {selectedRecord && (
           <div>
             {/* Standalone Full-bleed Edge Banner */}
-            <div className="-mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-4 border-b border-stone-200/80 bg-[#FEFEF6] px-3.5 py-3.5 sm:px-6 sm:py-4.5 text-xs text-stone-600">
+            <div className="-mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-4 border-b border-stone-200/80 bg-[var(--background)] px-3.5 py-3.5 sm:px-6 sm:py-4.5 text-xs text-stone-600">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200/60 pb-2">
                 <span className="font-bold text-[#181700]">Diagnosis Klinis Fisioterapi</span>
                 <span className="flex items-center gap-1 font-semibold text-stone-500">
@@ -875,7 +875,7 @@ export function ProgressManagementView({
                       </div>
                       <div className="h-2 w-full rounded-full bg-stone-100 overflow-hidden">
                         <div
-                          className="h-full bg-emerald-500"
+                          className="h-full bg-hafta-grn-500"
                           style={{ width: `${selectedRecord.rangeOfMotionScore * 10}%` }}
                         />
                       </div>
@@ -891,7 +891,7 @@ export function ProgressManagementView({
                       </div>
                       <div className="h-2 w-full rounded-full bg-stone-100 overflow-hidden">
                         <div
-                          className="h-full bg-emerald-500"
+                          className="h-full bg-hafta-grn-500"
                           style={{ width: `${selectedRecord.strengthScore * 10}%` }}
                         />
                       </div>
@@ -907,7 +907,7 @@ export function ProgressManagementView({
                       </div>
                       <div className="h-2 w-full rounded-full bg-stone-100 overflow-hidden">
                         <div
-                          className="h-full bg-emerald-500"
+                          className="h-full bg-hafta-grn-500"
                           style={{ width: `${selectedRecord.functionScore * 10}%` }}
                         />
                       </div>

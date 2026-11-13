@@ -94,7 +94,7 @@ function TextField({
           disabled={disabled}
           placeholder={placeholder}
           className={cn(
-            "flex w-full resize-y overflow-y-auto min-h-[5.5rem] max-h-[24rem] rounded-2xl border border-stone-200/90 bg-[#FEFEF6] px-4 py-3 text-sm sm:text-base leading-relaxed text-[#181700] placeholder:text-stone-400 focus-visible:outline-none focus-visible:border-[var(--hafta-org-400)] focus-visible:ring-3 focus-visible:ring-[var(--hafta-org-400)]/20 disabled:cursor-not-allowed disabled:opacity-60 transition-all scrollbar-thin",
+            "flex w-full resize-y overflow-y-auto min-h-[5.5rem] max-h-[24rem] rounded-2xl border border-stone-200/90 bg-[var(--background)] px-4 py-3 text-sm sm:text-base leading-relaxed text-[#181700] placeholder:text-stone-400 focus-visible:outline-none focus-visible:border-[var(--hafta-org-400)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-400)]/20 disabled:cursor-not-allowed disabled:opacity-60 transition-all scrollbar-thin",
             className
           )}
           {...field}
@@ -105,7 +105,7 @@ function TextField({
           disabled={disabled}
           placeholder={placeholder}
           className={cn(
-            "h-12 rounded-2xl border border-stone-200/90 bg-[#FEFEF6] px-4 py-2.5 text-sm sm:text-base text-[#181700] focus-visible:border-[var(--hafta-org-400)] focus-visible:ring-3 focus-visible:ring-[var(--hafta-org-400)]/20 disabled:cursor-not-allowed disabled:opacity-60",
+            "h-12 rounded-2xl border border-stone-200/90 bg-[var(--background)] px-4 py-2.5 text-sm sm:text-base text-[#181700] focus-visible:border-[var(--hafta-org-400)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-400)]/20 disabled:cursor-not-allowed disabled:opacity-60",
             className
           )}
           {...field}
@@ -486,7 +486,7 @@ export function PatientIntakeForm({
   return (
     <form id={formId} className="flex min-h-full flex-col gap-4 sm:gap-6" onSubmit={save('submit')}>
       {status ? (
-        <Alert className="border-stone-200/80 bg-[#FEFEF6] text-stone-700">
+        <Alert className="border-stone-200/80 bg-[var(--background)] text-stone-700">
           <AlertDescription className="flex items-center gap-2 text-sm">
             <span className="text-stone-500">Status:</span>
             <strong className="font-semibold text-[#181700]">{statusLabel[status]}</strong>
@@ -900,7 +900,7 @@ export function PatientIntakeForm({
               Setelah dikirim, Form Awal akan ditinjau tim Hafta. Anda masih dapat memperbarui jawaban selama proses peninjauan.
             </p>
           </div>
-          <div className="rounded-xl border border-stone-200 bg-[#FEFEF6] p-3 sm:p-4 text-sm text-stone-600 space-y-2">
+          <div className="rounded-xl border border-stone-200 bg-[var(--background)] p-3 sm:p-4 text-sm text-stone-600 space-y-2">
             <p>
               <strong className="text-[#181700]">Keluhan:</strong> {getValues('chiefComplaint') || 'Belum diisi'}
             </p>
@@ -971,7 +971,7 @@ export function PatientIntakeForm({
 
       {/* Action Buttons (Render inline only when drawer footer is not used) */}
       {!locked && !onFooterChange ? (
-        <div className="sticky bottom-0 z-10 mt-auto -mx-3.5 -mb-3.5 flex flex-col-reverse gap-3 border-t border-stone-200 bg-[#FEFEF6] px-3.5 py-3.5 sm:-mx-5 sm:-mb-5 sm:px-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="sticky bottom-0 z-10 mt-auto -mx-3.5 -mb-3.5 flex flex-col-reverse gap-3 border-t border-stone-200 bg-[var(--background)] px-3.5 py-3.5 sm:-mx-5 sm:-mb-5 sm:px-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div>
             {step > 0 ? (
               <Button

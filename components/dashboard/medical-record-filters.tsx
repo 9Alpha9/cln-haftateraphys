@@ -54,7 +54,7 @@ export function MedicalRecordFilters({
           defaultValue={initialSearch}
           disabled={pending}
           placeholder="Cari nama pasien..."
-          className="h-10 w-full rounded-xl border border-stone-200/90 bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 disabled:opacity-50"
+          className="h-10 w-full rounded-xl border border-stone-200/90 bg-background pl-9 pr-3 text-sm outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:opacity-50"
         />
       </div>
       <Select name="status" defaultValue={initialStatus} disabled={pending}>

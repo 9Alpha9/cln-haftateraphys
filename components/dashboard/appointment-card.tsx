@@ -38,10 +38,10 @@ const statusConfig: Record<
   },
   IN_PROGRESS: {
     label: 'Sedang berjalan',
-    dotColor: 'bg-emerald-500',
-    textColor: 'text-emerald-900',
-    bgColor: 'bg-emerald-50',
-    border: 'border-emerald-200',
+    dotColor: 'bg-hafta-grn-500',
+    textColor: 'text-hafta-grn-800',
+    bgColor: 'bg-hafta-grn-50',
+    border: 'border-hafta-grn-200',
   },
   COMPLETED: {
     label: 'Selesai',

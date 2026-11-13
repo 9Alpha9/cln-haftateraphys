@@ -104,7 +104,7 @@ export function InternalCalendarEventForm() {
           id="description"
           name="description"
           disabled={pending}
-          className="flex min-h-28 w-full resize-none rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-sm leading-relaxed focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35"
+          className="flex min-h-28 w-full resize-none rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-sm leading-relaxed focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
         />
       </div>
       <div className="flex items-start gap-3 rounded-xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)]/40 p-3.5 text-sm sm:p-4">

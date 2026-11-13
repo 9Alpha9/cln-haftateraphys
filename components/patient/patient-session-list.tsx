@@ -19,7 +19,7 @@ const STATUS_LABELS: Record<string, string> = {
 const STATUS_STYLES: Record<string, string> = {
   SCHEDULED: 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-[#181700]',
   CONFIRMED: 'border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]',
-  IN_PROGRESS: 'border-blue-200 bg-blue-50 text-blue-700',
+  IN_PROGRESS: 'border-hafta-ble-200 bg-hafta-ble-50 text-hafta-ble-700',
   COMPLETED: 'border-stone-200 bg-stone-100 text-stone-700',
   CANCELLED: 'border-red-200 bg-red-50 text-red-700',
   RESCHEDULED: 'border-amber-200 bg-amber-50 text-amber-800',

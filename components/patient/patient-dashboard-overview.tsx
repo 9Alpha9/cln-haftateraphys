@@ -246,7 +246,7 @@ export function PatientDashboardOverview({
                   className={
                     schedule.pending
                       ? 'inline-flex h-11 cursor-not-allowed items-center justify-center gap-2 rounded-full border border-stone-200 bg-stone-100 px-6 text-sm font-bold text-stone-400'
-                      : 'inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35'
+                      : 'inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35'
                   }
                 >
                   {schedule.pending ? (
@@ -270,7 +270,7 @@ export function PatientDashboardOverview({
               <button
                 type="button"
                 onClick={() => setDetailOpen(true)}
-                className="inline-flex h-11 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-stone-200 bg-white px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-50 focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35"
+                className="inline-flex h-11 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-stone-200 bg-white px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-50 focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
               >
                 Lihat Detail
                 <ChevronRight className="h-3.5 w-3.5" />
@@ -296,7 +296,7 @@ export function PatientDashboardOverview({
           </div>
           <Link
             href="/dashboard/progress"
-            className="inline-flex w-fit items-center gap-1 rounded text-xs font-bold text-[#181700] underline-offset-4 hover:underline focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35"
+            className="inline-flex w-fit items-center gap-1 rounded text-xs font-bold text-[#181700] underline-offset-4 hover:underline focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
           >
             Lihat Semua Rekam Medis
             <ArrowRight className="h-3.5 w-3.5" />
@@ -362,7 +362,7 @@ export function PatientDashboardOverview({
                 <div className="mt-3 flex justify-end">
                   <Link
                     href={`/dashboard/progress/${record.id}/print`}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3.5 text-[11px] font-semibold text-[#181700] transition-colors hover:bg-stone-100 focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3.5 text-[11px] font-semibold text-[#181700] transition-colors hover:bg-stone-100 focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
                   >
                     <Printer className="h-3.5 w-3.5" />
                     Lihat Detail / Cetak
@@ -449,7 +449,7 @@ export function PatientDashboardOverview({
                 type="button"
                 onClick={handleCancelPendingRequest}
                 disabled={cancelPending}
-                className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-red-200 bg-white px-4 text-xs font-bold text-red-700 transition-colors hover:bg-red-50 focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-red-200 bg-white px-4 text-xs font-bold text-red-700 transition-colors hover:bg-red-50 focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {cancelPending ? 'Membatalkan...' : 'Batalkan Pengajuan'}
               </button>
@@ -459,7 +459,7 @@ export function PatientDashboardOverview({
             <button
               type="button"
               onClick={() => setDetailOpen(false)}
-              className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white px-4 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100 focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35"
+              className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white px-4 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100 focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
             >
               Tutup
             </button>

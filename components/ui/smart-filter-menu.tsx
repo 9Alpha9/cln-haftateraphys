@@ -134,7 +134,7 @@ export function SmartFilterMenu({
         aria-label={ariaLabel ?? label}
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          'inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold  transition-colors focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:text-[13px]',
+          'inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold  transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:text-[13px]',
           count > 0
             ? 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-[#181700]'
             : 'border-stone-200/90 bg-white text-[#181700] hover:bg-stone-100',

@@ -193,12 +193,12 @@ export function AppSelect({
         aria-label={ariaLabel}
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          'flex w-full cursor-pointer items-center justify-between gap-2 border border-stone-200/90 bg-white text-left text-[#181700] transition-colors hover:border-stone-300 focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 disabled:cursor-not-allowed disabled:opacity-60',
+          'flex w-full cursor-pointer items-center justify-between gap-2 border border-stone-200/90 bg-white text-left text-[#181700] transition-colors hover:border-stone-300 focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60',
           size === 'sm'
             ? 'h-8 rounded-full px-3 text-[11px] font-semibold'
             : size === 'compact'
               ? 'h-9 rounded-lg px-2.5 text-xs font-semibold'
-              : 'h-10 rounded-xl px-3 text-sm',
+              : 'h-11 rounded-xl px-3 text-sm',
         )}
       >
         <span className={cn('min-w-0 flex-1 truncate', !selected && 'text-stone-400')}>

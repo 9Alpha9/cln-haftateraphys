@@ -46,7 +46,7 @@ const variantStyles: Record<
     textBody: 'text-stone-600',
     badgeBg: 'bg-stone-100',
     badgeText: 'text-stone-700',
-    iconBg: 'bg-[#FEFEF6] border border-stone-200/90 text-[var(--hafta-org-950)]',
+    iconBg: 'bg-[var(--background)] border border-stone-200/90 text-[var(--hafta-org-950)]',
     buttonBg: 'bg-white hover:bg-[var(--hafta-org-100)]',
     buttonText: 'text-[var(--hafta-org-950)]',
     buttonBorder: 'border border-stone-200/90 hover:border-[var(--hafta-org-200)] ',

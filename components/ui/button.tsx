@@ -4,7 +4,7 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  "cursor-pointer group/button inline-flex shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding text-xs font-semibold whitespace-nowrap transition-all outline-none select-none sm:text-[13px] focus-visible:border-[#181700] focus-visible:ring-3 focus-visible:ring-[var(--hafta-org-200)]/35 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "cursor-pointer group/button inline-flex shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding text-xs font-semibold whitespace-nowrap transition-all outline-none select-none sm:text-[13px] focus-visible:border-[var(--hafta-950)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -23,12 +23,12 @@ const buttonVariants = cva(
       size: {
         default: 'cursor-pointer h-11 gap-2 px-4 sm:px-5 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3',
         xs: "cursor-pointer h-8 gap-1.5 rounded-full px-3 text-xs [&_svg:not([class*='size-'])]:size-3.5",
-        sm: "cursor-pointer h-10 gap-2 rounded-full px-4 [&_svg:not([class*='size-'])]:size-4",
+        sm: "cursor-pointer h-11 gap-2 rounded-full px-4 [&_svg:not([class*='size-'])]:size-4",
         lg: 'cursor-pointer h-11 gap-2 px-4 sm:px-5 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3',
-        icon: 'size-10',
+        icon: 'size-11',
         'icon-xs':
           "size-8 rounded-full [&_svg:not([class*='size-'])]:size-3",
-        'icon-sm': 'size-9 rounded-full',
+        'icon-sm': 'size-11 rounded-full',
         'icon-lg': 'size-11',
       },
     },

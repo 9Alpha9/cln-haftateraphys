@@ -89,8 +89,8 @@ export function AppointmentCalendar({
   }
 
   return (
-    <section className="rounded-2xl border border-[#E8ECEB] bg-white p-3.5 sm:p-5">
-      <div className="flex flex-col gap-3 border-b border-[#E8ECEB] pb-4 sm:flex-row sm:items-center sm:justify-between">
+    <section className="rounded-2xl border border-[var(--border)] bg-white p-3.5 sm:p-5">
+      <div className="flex flex-col gap-3 border-b border-[var(--border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-hafta-org-50">
             <CalendarDays className="h-4 w-4 text-hafta-org-700" strokeWidth={2.25} />
@@ -100,7 +100,7 @@ export function AppointmentCalendar({
             <p className="text-xs text-[#6B7280]">Pilih tanggal untuk melihat jadwal.</p>
           </div>
         </div>
-        <div className="flex items-center justify-between gap-1 rounded-xl border border-[#E8ECEB] bg-[#F9FAFB] p-1">
+        <div className="flex items-center justify-between gap-1 rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-1">
           <Button variant="ghost" size="icon" aria-label="Bulan sebelumnya" onClick={() => changeMonth(-1)}>
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -122,7 +122,7 @@ export function AppointmentCalendar({
           <div className="grid grid-cols-7 gap-1">
             {days.map((day, index) => {
               if (!day)
-                return <span key={`empty-${index}`} className="min-h-10 rounded-xl bg-[#F9FAFB] sm:min-h-12" />;
+                return <span key={`empty-${index}`} className="min-h-10 rounded-xl bg-[var(--secondary)] sm:min-h-12" />;
               const key = dateKey(day);
               const holiday = holidaysByDate.get(key);
               const isSunday = day.getDay() === 0;
@@ -143,7 +143,7 @@ export function AppointmentCalendar({
                        ? 'bg-hafta-org-200 text-hafta-org-900 shadow-md'
                        : dayAppointments.length
                          ? 'bg-hafta-org-50 text-hafta-org-900 ring-1 ring-hafta-org-100 hover:bg-hafta-org-100'
-                         : 'hover:bg-[#F9FAFB]',
+                         : 'hover:bg-[var(--secondary)]',
                   )}
                 >
                   <span
@@ -199,7 +199,7 @@ export function AppointmentCalendar({
             })}
           </div>
         </div>
-        <div className="rounded-xl bg-[#F9FAFB] p-3">
+        <div className="rounded-xl bg-[var(--secondary)] p-3">
           <p className="text-sm font-semibold text-[#111827]">
             {selectedDate
               ? new Date(`${selectedDate}T00:00:00`).toLocaleDateString('id-ID', {

@@ -169,7 +169,7 @@ export default async function ContactPage() {
                 </div>
                 <div className="mt-6 pt-4 border-t border-stone-200/60">
                   <span className="inline-flex items-center gap-1.5 text-xs font-medium text-stone-600">
-                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+                    <CheckCircle2 className="h-3.5 w-3.5 text-hafta-grn-600" />
                     Sistem Reservasi Terjadwal
                   </span>
                 </div>
@@ -226,15 +226,15 @@ export default async function ContactPage() {
 
                 <div className="mt-6 space-y-3">
                   <div className="flex items-start gap-3 text-sm text-stone-700">
-                    <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                    <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-hafta-grn-600" />
                     <span>Ruang terapi privat satu-satu (one-on-one)</span>
                   </div>
                   <div className="flex items-start gap-3 text-sm text-stone-700">
-                    <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                    <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-hafta-grn-600" />
                     <span>Area tenang dan bebas antrean panjang</span>
                   </div>
                   <div className="flex items-start gap-3 text-sm text-stone-700">
-                    <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                    <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-hafta-grn-600" />
                     <span>Protokol kebersihan dan sterilisasi terjaga</span>
                   </div>
                 </div>

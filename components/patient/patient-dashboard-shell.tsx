@@ -92,7 +92,7 @@ function SubmenuTreeList({
                 'flex h-9 w-full items-center justify-between rounded-xl px-3 text-xs transition-colors',
                 isActive
                   ? tone === 'dark'
-                    ? 'bg-[#2C2B1A] font-bold text-white'
+                    ? 'bg-[var(--hafta-800)] font-bold text-[var(--hafta-50)]'
                     : 'bg-[var(--hafta-org-50)] font-bold text-foreground'
                   : tone === 'dark'
                     ? 'font-medium text-stone-400 hover:text-stone-200'
@@ -244,11 +244,11 @@ export function PatientDashboardShell({
 
 
   return (
-    <div className="flex min-h-screen bg-[#fff5e5]">
+    <div className="flex min-h-screen bg-[#FCFCFB]">
       {/* ═══ SIDEBAR (WeStud Dark Theme #181700) ═══ */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 hidden md:flex flex-col bg-sidebar text-white',
+          'fixed inset-y-0 left-0 z-50 hidden md:flex flex-col bg-sidebar text-[var(--sidebar-foreground)]',
           'transition-all duration-300 ease-in-out',
           collapsed ? 'w-[68px]' : 'w-[248px]',
           collapsed && 'overflow-visible',
@@ -360,13 +360,13 @@ export function PatientDashboardShell({
                                 ? cn(
                                     'mx-auto flex h-11 w-11 items-center justify-center rounded-xl p-0',
                                     hoveredGroupId === key || hasActiveChild
-                                      ? 'bg-[#2A2918] text-white'
+                                      ? 'bg-[var(--hafta-800)] text-[var(--hafta-50)]'
                                       : 'bg-transparent text-stone-400 hover:text-stone-200',
                                   )
                                 : cn(
                                     'flex h-11 w-full items-center justify-between rounded-xl px-3.5 text-xs font-bold',
                                     open
-                                      ? 'bg-[#2C2B1A] text-white'
+                                      ? 'bg-[var(--hafta-800)] text-[var(--hafta-50)]'
                                       : 'bg-transparent text-stone-400 hover:text-stone-200',
                                   ),
                             )}
@@ -484,15 +484,15 @@ export function PatientDashboardShell({
                               ? 'w-11 h-11 mx-auto justify-center rounded-xl p-0'
                               : cn('min-h-11 px-3 py-2.5 rounded-xl', badge > 0 && 'pr-10'),
                             active
-                              ? 'bg-stone-900 text-white font-bold ring-1 ring-white/10'
-                              : 'text-stone-300 hover:bg-stone-900 hover:text-white'
+                              ? 'bg-[var(--hafta-800)] text-[var(--hafta-50)] font-bold ring-1 ring-[var(--hafta-800)]'
+                              : 'text-stone-300 hover:bg-[var(--hafta-800)] hover:text-[var(--hafta-50)]'
                           )}
                         >
                           <div className={cn('flex min-w-0 items-center gap-3', collapsed ? 'w-full justify-center' : 'justify-center md:justify-start')}>
                             <item.icon
                               className={cn(
                                 'h-4.5 w-4.5 shrink-0 transition-colors',
-                                active ? 'text-[var(--hafta-org-100)]' : 'text-stone-400 group-hover:text-stone-200'
+                                active ? 'text-[var(--hafta-300)]' : 'text-stone-400 group-hover:text-stone-200'
                               )}
                             />
                             {!collapsed && (
@@ -604,7 +604,7 @@ export function PatientDashboardShell({
               WebkitMaskImage: 'linear-gradient(to bottom, #000 0%, #000 70%, transparent 100%)',
             }}
           />
-          <div className="relative z-10 mx-auto flex h-[68px] w-full max-w-[1600px] items-center gap-3 px-3 sm:px-6 lg:px-8">
+          <div className="relative z-10 mx-auto flex h-[68px] w-full max-w-[1600px] items-center gap-3 px-4 sm:px-6 lg:px-8">
             <div className="hidden shrink-0 sm:block">
               <DashboardClock />
             </div>
@@ -680,7 +680,7 @@ export function PatientDashboardShell({
         {/* Content area */}
         <main
           data-role={role}
-          className="flex-1 w-full max-w-[1600px] mx-auto px-3 sm:px-6 lg:px-8 pt-3 pb-28 lg:pb-10 overflow-x-clip"
+          className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-28 lg:pb-10 overflow-x-clip"
         >
           {pathname !== '/dashboard' ? (
             <div className="pt-4 md:hidden">
@@ -742,7 +742,7 @@ export function PatientDashboardShell({
                 <span
                   className={cn(
                     'relative flex h-8 w-11 items-center justify-center rounded-full transition-colors',
-                    active ? 'text-[var(--hafta-org-100)]' : 'text-white/60',
+                    active ? 'text-[var(--hafta-300)]' : 'text-white/60',
                   )}
                 >
                   <Icon className="h-5 w-5" />
