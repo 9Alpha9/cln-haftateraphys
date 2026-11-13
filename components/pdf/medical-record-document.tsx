@@ -95,6 +95,29 @@ const styles = StyleSheet.create({
   signaturePlaceholder: { fontSize: 8, color: '#d6d3d1', fontStyle: 'italic' },
   signatureLine: { width: 100, borderTopWidth: 1, borderTopColor: '#d6d3d1', marginBottom: 3 },
   signatureName: { fontSize: 9, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center' },
+  patientPhotoSection: {
+    marginBottom: 12,
+    alignItems: 'center',
+    justify: 'center',
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#e7e5e4',
+    borderRadius: 6,
+    backgroundColor: '#fafaf9',
+  },
+  patientPhoto: {
+    maxHeight: 280,
+    width: '100%',
+    objectFit: 'contain',
+    borderRadius: 4,
+  },
+  patientPhotoCaption: {
+    marginTop: 6,
+    fontSize: 8,
+    color: '#78716c',
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
 });
 
 function calculateAge(dob: Date | string | null | undefined): string {
@@ -130,6 +153,8 @@ export type MedicalRecordPdfData = {
   patientDob?: Date | string | null;
   patientPhone?: string | null;
   patientAddress?: string | null;
+  occupation?: string | null;
+  patientPhotoUrl?: string | null;
   therapistName: string | null;
   recordedAt: Date;
   painScore: number;
@@ -230,6 +255,12 @@ export const MedicalRecordDocument = ({ record }: { record: MedicalRecordPdfData
                 <Text style={styles.identityValue}>{record.therapistName || 'Terapis Hafta'}</Text>
               </View>
             </View>
+            <View style={styles.identityRow}>
+              <View style={styles.identityCellLast}>
+                <Text style={styles.identityLabel}>Pekerjaan</Text>
+                <Text style={styles.identityValue}>{record.occupation || '-'}</Text>
+              </View>
+            </View>
             <View style={styles.identityRowLast}>
               <View style={styles.identityCellLast}>
                 <Text style={styles.identityLabel}>Tanggal Pemeriksaan</Text>
@@ -238,6 +269,16 @@ export const MedicalRecordDocument = ({ record }: { record: MedicalRecordPdfData
             </View>
           </View>
         </View>
+
+        {record.patientPhotoUrl ? (
+          <View style={styles.patientPhotoSection}>
+            {/* eslint-disable-next-line jsx-a11y/alt-text */}
+            <Image src={record.patientPhotoUrl} style={styles.patientPhoto} />
+            <Text style={styles.patientPhotoCaption}>
+              Foto kondisi pasien - area keluhan yang dikirimkan melalui formulir intake pasien.
+            </Text>
+          </View>
+        ) : null}
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>3. ANAMNESA FISIOTERAPI</Text>

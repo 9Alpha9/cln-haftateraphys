@@ -47,4 +47,33 @@ describe('dashboard route access policy', () => {
       expect(canAccessDashboardPath(role, '/dashboard/unknown')).toBe(false);
     }
   });
+
+  it('limits consent lifecycle to the patient owner', () => {
+    expect(canAccessDashboardPath('USER', '/dashboard/consent')).toBe(true);
+    for (const role of ['SUPER_ADMIN', 'ADMIN', 'THERAPIST', 'STAFF'] as const) {
+      expect(canAccessDashboardPath(role, '/dashboard/consent')).toBe(false);
+    }
+  });
+
+  it('limits the patient exercise program to the patient owner', () => {
+    expect(canAccessDashboardPath('USER', '/dashboard/exercises')).toBe(true);
+    for (const role of ['SUPER_ADMIN', 'ADMIN', 'THERAPIST', 'STAFF'] as const) {
+      expect(canAccessDashboardPath(role, '/dashboard/exercises')).toBe(false);
+    }
+  });
+
+  it('limits therapist schedule editing to clinical scheduler roles', () => {
+    expect(canAccessDashboardPath('THERAPIST', '/dashboard/therapist-schedule')).toBe(true);
+    expect(canAccessDashboardPath('ADMIN', '/dashboard/therapist-schedule')).toBe(true);
+    expect(canAccessDashboardPath('SUPER_ADMIN', '/dashboard/therapist-schedule')).toBe(true);
+    expect(canAccessDashboardPath('STAFF', '/dashboard/therapist-schedule')).toBe(false);
+    expect(canAccessDashboardPath('USER', '/dashboard/therapist-schedule')).toBe(false);
+  });
+
+  it('allows clinical documents for staff roles only', () => {
+    for (const role of ['SUPER_ADMIN', 'ADMIN', 'THERAPIST', 'STAFF'] as const) {
+      expect(canAccessDashboardPath(role, '/dashboard/documents')).toBe(true);
+    }
+    expect(canAccessDashboardPath('USER', '/dashboard/documents')).toBe(false);
+  });
 });

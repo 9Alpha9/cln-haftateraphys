@@ -138,8 +138,8 @@ export function NotificationBell({
           if (pathname !== '/dashboard/notifications') setOpen(true);
         }}
         className={cn(
-          'group relative h-11 w-11 cursor-pointer rounded-full text-[#181700] transition-all duration-300 hover:bg-stone-200/80',
-          className ?? 'bg-stone-100',
+          'group relative h-11 w-11 cursor-pointer rounded-full text-[#181700] transition-all duration-300',
+          className,
         )}
         aria-label="Buka notifikasi"
       >
@@ -154,7 +154,7 @@ export function NotificationBell({
           loopDelay={4000}
         />
         {count > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-[var(--hafta-red-500)] px-1 font-mono text-[10px] font-bold leading-none text-white shadow-xs">
+          <span className="absolute -top-1 -right-1 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-[var(--hafta-red-500)] px-1 font-mono text-[10px] font-bold leading-none text-white">
             {count > 99 ? '99+' : count}
           </span>
         )}
@@ -177,7 +177,7 @@ export function NotificationBell({
                 className={cn(
                   'inline-flex h-9 cursor-pointer items-center rounded-full px-3.5 text-xs font-semibold transition-colors',
                   tab === 'all'
-                    ? 'bg-[#181700] text-white shadow-2xs'
+                    ? 'bg-[#181700] text-white'
                     : 'text-stone-500 hover:text-[#181700]'
                 )}
               >
@@ -189,7 +189,7 @@ export function NotificationBell({
                 className={cn(
                   'inline-flex h-9 cursor-pointer items-center rounded-full px-3.5 text-xs font-semibold transition-colors',
                   tab === 'unread'
-                    ? 'bg-[#181700] text-white shadow-2xs'
+                    ? 'bg-[#181700] text-white'
                     : 'text-stone-500 hover:text-[#181700]'
                 )}
               >
@@ -224,7 +224,7 @@ export function NotificationBell({
         <div>
           {filtered.length === 0 ? (
             <div className="flex min-h-[220px] flex-col items-center justify-center text-center px-4 py-8">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
                 <Bell className="h-6 w-6" />
               </div>
               <p className="mt-3 text-xs font-bold text-[#181700]">Tidak ada notifikasi</p>
@@ -258,7 +258,7 @@ export function NotificationBell({
                           )}
                         >
                           {!item.isRead ? (
-                            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--hafta-ylw-400)]" />
+                            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--hafta-org-400)]" />
                           ) : null}
                           <span className="truncate">{item.title}</span>
                         </p>

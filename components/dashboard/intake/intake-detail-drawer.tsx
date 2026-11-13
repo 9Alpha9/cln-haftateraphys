@@ -13,8 +13,16 @@ import {
   Loader2,
   ExternalLink,
   ChevronRight,
+  X,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { SkeletonBlock, SkeletonLine, SkeletonPanel } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { fetchIntakeDetailAction } from '@/server/actions/intake-details';
 import { reviewPatientIntake } from '@/server/actions/intake-review';
@@ -55,10 +63,10 @@ const statusBadgeMap: Record<
   },
   UNDER_REVIEW: {
     label: 'Sedang Ditinjau',
-    dot: 'bg-[var(--hafta-ylw-400)]',
-    text: 'text-[var(--hafta-ylw-950)]',
-    bg: 'bg-[var(--hafta-ylw-50)]',
-    border: 'border-[var(--hafta-ylw-200)]',
+    dot: 'bg-[var(--hafta-org-400)]',
+    text: 'text-[var(--hafta-org-950)]',
+    bg: 'bg-[var(--hafta-org-50)]',
+    border: 'border-[var(--hafta-org-200)]',
   },
   ACCEPTED: {
     label: 'Diterima',
@@ -106,6 +114,7 @@ export function IntakeDetailDrawer({
   const [isActionPending, startTransition] = useTransition();
   const [reviewMessage, setReviewMessage] = useState('');
   const [showRevisionInput, setShowRevisionInput] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<{ name: string; data: string } | null>(null);
 
   useEffect(() => {
     if (!isOpen || !patientId) return;
@@ -242,7 +251,7 @@ export function IntakeDetailDrawer({
                 type="button"
                 disabled={isActionPending}
                 onClick={() => handleAction('start-review')}
-                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
+                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
               >
                 {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                 <span>Mulai Tinjau Form</span>
@@ -263,7 +272,7 @@ export function IntakeDetailDrawer({
                   type="button"
                   disabled={isActionPending}
                   onClick={() => handleAction('accept')}
-                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
+                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
                 >
                   {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   <span>Terima / ACC Form</span>
@@ -374,7 +383,7 @@ export function IntakeDetailDrawer({
                   onChange={(e) => setReviewMessage(e.target.value)}
                   placeholder="Tuliskan bagian mana yang perlu dilengkapi atau diperjelas oleh pasien..."
                   rows={3}
-                  className="w-full rounded-xl border border-amber-300 bg-white p-3 text-xs text-[#181700] outline-none focus:ring-2 focus:ring-[var(--hafta-ylw-400)]/40 resize-none"
+                  className="w-full rounded-xl border border-amber-300 bg-white p-3 text-xs text-[#181700] outline-none focus:ring-2 focus:ring-[var(--hafta-org-400)]/40 resize-none"
                 />
                 <div className="flex justify-end gap-2">
                   <button
@@ -409,7 +418,7 @@ export function IntakeDetailDrawer({
               {clinicalSections.map((sec) => (
                 <div
                   key={sec.group}
-                  className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-2xs"
+                  className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white"
                 >
                   <div className="bg-stone-50/90 px-4 py-2.5 border-b border-stone-200/80">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-[#181700]">
@@ -436,7 +445,7 @@ export function IntakeDetailDrawer({
               ))}
 
               {parseIntakePhotos(data?.photos).length > 0 ? (
-                <div className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white shadow-2xs">
+                <div className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white">
                   <div className="border-b border-stone-200/80 bg-stone-50/90 px-4 py-2.5">
                     <h3 className="text-xs font-bold uppercase tracking-wider text-[#181700]">
                       Foto dari pasien
@@ -444,20 +453,20 @@ export function IntakeDetailDrawer({
                   </div>
                   <div className="grid grid-cols-2 gap-2 p-3 sm:grid-cols-3">
                     {parseIntakePhotos(data?.photos).map((photo, index) => (
-                      <a
+                      <button
                         key={`${photo.name}-${index}`}
-                        href={photo.data}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="overflow-hidden rounded-xl border border-stone-200"
+                        type="button"
+                        onClick={() => setSelectedPhoto(photo)}
+                        className="relative overflow-hidden rounded-xl border border-stone-200 group"
+                        aria-label={`Lihat foto ${photo.name}`}
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={photo.data}
                           alt={photo.name}
-                          className="h-28 w-full object-cover transition-transform hover:scale-105"
+                          className="h-28 w-full object-cover transition-transform group-hover:scale-105"
                         />
-                      </a>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -465,6 +474,32 @@ export function IntakeDetailDrawer({
             </div>
           </div>
         </div>
+      ) : null}
+
+      {selectedPhoto ? (
+        <Dialog open onOpenChange={(open) => !open && setSelectedPhoto(null)}>
+          <DialogContent className="sm:max-w-[600px] p-6 z-[90]">
+            <DialogHeader>
+              <DialogTitle className="text-lg">Foto Kondisi Pasien</DialogTitle>
+              <DialogDescription>{selectedPhoto.name}</DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center justify-center gap-4 mt-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={selectedPhoto.data}
+                alt={selectedPhoto.name}
+                className="max-h-[60vh] rounded-2xl border border-stone-200 object-contain shadow-lg"
+              />
+            </div>
+            <button
+              type="button"
+              className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-50"
+              onClick={() => setSelectedPhoto(null)}
+            >
+              <X className="h-3.5 w-3.5" /> Tutup
+            </button>
+          </DialogContent>
+        </Dialog>
       ) : null}
     </GlobalSlideOver>
   );

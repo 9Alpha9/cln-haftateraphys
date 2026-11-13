@@ -66,7 +66,7 @@ export default async function AuditLogsPage({ searchParams }: { searchParams: Pr
         <CardContent className="p-0">
           {result.items.length === 0 ? (
             <div className="flex min-h-64 flex-col items-center justify-center p-3.5 text-center sm:p-5">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
                 <Terminal className="h-6 w-6" />
               </span>
               <p className="mt-3 text-sm font-bold text-[#181700]">Belum ada log audit</p>

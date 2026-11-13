@@ -31,11 +31,11 @@ export function AboutSection() {
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16">
           <ScrollAnimation direction="left">
             <div>
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Tentang Hafta Fisioterapi
               </div>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl lg:text-4xl">
+              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl lg:text-4xl">
                 Pendampingan pemulihan fisik yang empatik, profesional, dan terpercaya
               </h2>
               <p className="mt-4 text-[15px] leading-relaxed text-stone-600">
@@ -53,11 +53,11 @@ export function AboutSection() {
               <div className="mt-8 space-y-4">
                 {values.map((value) => (
                   <div key={value.title} className="flex items-start gap-3.5">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)] shadow-sm">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)]">
                       <value.icon className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-[var(--hafta-ylw-950)] text-sm sm:text-base">
+                      <h3 className="font-bold text-[var(--hafta-org-950)] text-sm sm:text-base">
                         {value.title}
                       </h3>
                       <p className="mt-0.5 text-xs sm:text-sm leading-relaxed text-stone-600">
@@ -83,8 +83,8 @@ export function AboutSection() {
                 />
               </div>
 
-              <div className="absolute -bottom-2 right-2 sm:bottom-0 sm:right-0 rounded-2xl border border-white/10 bg-[var(--hafta-ylw-950)] px-4 sm:px-5 py-3.5 text-white shadow-xl flex items-center gap-3">
-                <span className="text-3xl sm:text-4xl font-extrabold text-[var(--hafta-ylw-100)]">5+</span>
+              <div className="absolute -bottom-2 right-2 sm:bottom-0 sm:right-0 rounded-2xl border border-white/10 bg-[var(--hafta-org-950)] px-4 sm:px-5 py-3.5 text-white shadow-xl flex items-center gap-3">
+                <span className="text-3xl sm:text-4xl font-extrabold text-[var(--hafta-org-100)]">5+</span>
                 <div className="text-xs leading-tight font-medium text-stone-200">
                   <p className="font-bold text-white text-sm">Tahun Pengalaman</p>
                   <p className="text-[11px] text-stone-300">Klinis &amp; Olahraga</p>

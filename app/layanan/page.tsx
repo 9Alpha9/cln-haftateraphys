@@ -63,12 +63,12 @@ export default function ServicesPage() {
             <div className="grid gap-8 lg:grid-cols-12 lg:items-end lg:gap-12">
               {/* Sisi Kiri (7 Kolom): Judul & Deskripsi Humanize */}
               <ScrollReveal direction="left" className="lg:col-span-7">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                   Pendampingan Pemulihan Fisik
                 </div>
 
-                <h1 className="mt-3 text-3xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-4xl lg:text-5xl">
+                <h1 className="mt-3 text-3xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-4xl lg:text-5xl">
                   Layanan Fisioterapi
                 </h1>
 
@@ -83,7 +83,7 @@ export default function ServicesPage() {
               <ScrollReveal direction="right" delay={0.15} className="lg:col-span-5">
                 <div className="grid grid-cols-3 divide-x divide-stone-200 border-y border-stone-200/80 py-4 lg:border-y-0 lg:py-2">
                   <div className="px-3 text-center sm:px-4">
-                    <span className="block font-mono text-xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-2xl">
+                    <span className="block font-mono text-xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-2xl">
                       45–60
                     </span>
                     <span className="mt-1 block text-[11px] font-semibold uppercase tracking-wider text-stone-700">
@@ -95,7 +95,7 @@ export default function ServicesPage() {
                   </div>
 
                   <div className="px-3 text-center sm:px-4">
-                    <span className="block font-mono text-xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-2xl">
+                    <span className="block font-mono text-xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-2xl">
                       Evidence
                     </span>
                     <span className="mt-1 block text-[11px] font-semibold uppercase tracking-wider text-stone-700">
@@ -107,7 +107,7 @@ export default function ServicesPage() {
                   </div>
 
                   <div className="px-3 text-center sm:px-4">
-                    <span className="block font-mono text-xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-2xl">
+                    <span className="block font-mono text-xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-2xl">
                       Digital
                     </span>
                     <span className="mt-1 block text-[11px] font-semibold uppercase tracking-wider text-stone-700">
@@ -131,7 +131,7 @@ export default function ServicesPage() {
                 <span className="text-xs font-bold uppercase tracking-wider text-stone-600">
                   Fokus Penanganan
                 </span>
-                <h2 className="mt-1 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl">
+                <h2 className="mt-1 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
                   4 Bidang Layanan Utama
                 </h2>
               </div>
@@ -175,11 +175,11 @@ export default function ServicesPage() {
         <Section className="border-t border-stone-200/60 bg-white py-14 md:py-20">
           <Container>
             <ScrollReveal className="mx-auto max-w-2xl text-center">
-              <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+              <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Panduan Pasien Baru
               </div>
-              <h2 className="mt-2 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl">
+              <h2 className="mt-2 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
                 Apa yang Perlu Disiapkan Sebelum Sesi Pertama?
               </h2>
               <p className="mt-3 text-xs sm:text-sm leading-relaxed text-stone-600">
@@ -198,10 +198,10 @@ export default function ServicesPage() {
                     className="flex flex-col justify-between md:px-6 first:md:pl-0 last:md:pr-0"
                   >
                     <div>
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FEFEF6] border border-stone-200/80 text-[var(--hafta-ylw-950)] shadow-2xs">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FEFEF6] border border-stone-200/80 text-[var(--hafta-org-950)] ">
                         <StepIcon className="h-5 w-5" />
                       </div>
-                      <h3 className="mt-4 text-base font-bold text-[var(--hafta-ylw-950)]">
+                      <h3 className="mt-4 text-base font-bold text-[var(--hafta-org-950)]">
                         {step.title}
                       </h3>
                       <p className="mt-2 text-xs sm:text-sm leading-relaxed text-stone-600">
@@ -223,7 +223,7 @@ export default function ServicesPage() {
             <ScrollReveal delay={0.2} className="mt-12 rounded-3xl border border-stone-200/80 bg-[#FEFEF6] p-6 sm:p-8">
               <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
-                  <h4 className="text-base font-bold text-[var(--hafta-ylw-950)]">
+                  <h4 className="text-base font-bold text-[var(--hafta-org-950)]">
                     Punya pertanyaan khusus seputar kondisi fisik Anda?
                   </h4>
                   <p className="mt-1 text-xs sm:text-sm text-stone-600">
@@ -234,7 +234,7 @@ export default function ServicesPage() {
                   href="https://wa.me/6281232932872?text=Halo%20Hafta%20Fisioterapi,%20saya%20ingin%20konsultasi%20mengenai%20keluhan%20saya%20sebelum%20membuat%20janji."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-5 py-2.5 text-xs font-bold text-[var(--hafta-ylw-950)] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)]"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-5 py-2.5 text-xs font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-org-200)]"
                 >
                   <MessageCircle className="h-4 w-4" />
                   <span>Tanya Tim Kami via WhatsApp</span>

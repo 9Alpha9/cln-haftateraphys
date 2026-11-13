@@ -33,8 +33,8 @@ const statusConfig: Record<
     label: 'Terjadwal',
     dotColor: 'bg-[#e3db00]',
     textColor: 'text-[#181700]',
-    bgColor: 'bg-[var(--hafta-ylw-50)]/70',
-    border: 'border-[var(--hafta-ylw-200)]/70',
+    bgColor: 'bg-[var(--hafta-org-50)]/70',
+    border: 'border-[var(--hafta-org-200)]/70',
   },
   IN_PROGRESS: {
     label: 'Sedang berjalan',
@@ -118,15 +118,6 @@ function useAppointmentDropdownPdf(appointment: AppointmentView) {
    return { openPrintPage, loading, printing, iframeRef };
 }
 
-const typeLabel: Record<string, string> = {
-  INITIAL_ASSESSMENT: 'Assessment Awal',
-  THERAPY_SESSION: 'Sesi Terapi',
-  FOLLOW_UP: 'Sesi Lanjutan',
-  EVALUATION: 'Evaluasi Klinis',
-  DISCHARGE: 'Pemeriksaan Akhir',
-  CONSULTATION: 'Konsultasi',
-};
-
 function calculateEndTime(startTime: string, durationMinutes: number): string {
   const [hours, minutes] = startTime.split(':').map(Number);
   const totalMinutes = hours * 60 + minutes + durationMinutes;
@@ -200,7 +191,7 @@ export function AppointmentCard({
                   className="h-11 w-11 shrink-0 rounded-2xl object-cover ring-1 ring-stone-200"
                 />
               ) : (
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-xs font-bold text-[#181700] shadow-2xs">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-xs font-bold text-[#181700]">
                   {appointment.patientName
                     .split(' ')
                     .filter(Boolean)
@@ -215,14 +206,11 @@ export function AppointmentCard({
                     {appointment.patientName}
                   </h3>
                   {appointment.isNew && (
-                    <span className="rounded-full bg-[var(--hafta-ylw-100)] px-2 py-0.5 font-mono text-[9px] font-black text-[#181700]">
+                    <span className="rounded-full bg-[var(--hafta-org-100)] px-2 py-0.5 font-mono text-[9px] font-black text-[#181700]">
                       BARU
                     </span>
                   )}
                 </div>
-                <p className="text-xs font-medium text-stone-500">
-                  {typeLabel[appointment.type] ?? appointment.type}
-                </p>
               </div>
             </div>
 
@@ -263,12 +251,12 @@ export function AppointmentCard({
           {canComplete ? (
             <CompleteSessionButton
               appointmentId={appointment.id}
-              className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)]"
+              className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
             />
           ) : canModify ? (
             <AppointmentEditButton
               appointmentId={appointment.id}
-              className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)]"
+              className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
               label="Ubah Jadwal"
             />
           ) : (
@@ -352,7 +340,7 @@ function AppointmentDropdown({
         type="button"
         onClick={() => setIsOpen((v) => !v)}
         disabled={loading || printing}
-        className="inline-flex h-10 w-10 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white text-[#181700] shadow-2xs transition-colors hover:bg-stone-100"
+        className="inline-flex h-10 w-10 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white text-[#181700] transition-colors hover:bg-stone-100"
       >
         <MoreVertical className="h-4 w-4 shrink-0" />
       </button>

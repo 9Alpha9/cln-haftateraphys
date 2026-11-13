@@ -18,7 +18,7 @@ export default function GlobalError({
     <html lang="id">
       <body className="min-h-screen bg-[#F7FAF8] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="rounded-2xl border border-[#E5E7EB] bg-white p-8 shadow-sm text-center">
+          <div className="rounded-2xl border border-[#E5E7EB] bg-white p-8  text-center">
             {/* Icon */}
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#FEF2F2]">
               <svg
@@ -57,7 +57,7 @@ export default function GlobalError({
               <button
                 type="button"
                 onClick={reset}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-5 text-[13px] font-semibold text-[#181700] transition-all hover:bg-[var(--hafta-ylw-200)] shadow-sm active:scale-[0.98] cursor-pointer"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-5 text-[13px] font-semibold text-[#181700] transition-all hover:bg-[var(--hafta-org-200)]  active:scale-[0.98] cursor-pointer"
               >
                 <svg
                   viewBox="0 0 24 24"

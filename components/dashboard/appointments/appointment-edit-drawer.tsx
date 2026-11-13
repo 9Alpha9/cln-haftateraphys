@@ -93,7 +93,7 @@ export function AppointmentEditDrawer({
               type="submit"
               form={formId}
               disabled={isSaving}
-              className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+              className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
             >
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Simpan

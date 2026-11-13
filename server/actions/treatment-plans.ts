@@ -8,6 +8,7 @@ import { patientAssignments, patients, treatmentPlans } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { createAuditLog } from '@/lib/audit';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { notifyUser } from '@/server/notify';
 
 const treatmentPlanSchema = z.object({
   patientId: z.string().uuid(),
@@ -42,7 +43,7 @@ export async function saveTreatmentPlan(input: unknown): Promise<SaveTreatmentPl
 
     const db = getDb();
     const [patient] = await db
-      .select({ id: patients.id })
+      .select({ id: patients.id, userId: patients.userId })
       .from(patients)
       .where(eq(patients.id, data.patientId))
       .limit(1);
@@ -111,8 +112,18 @@ export async function saveTreatmentPlan(input: unknown): Promise<SaveTreatmentPl
       userId: session.user.id,
     });
 
+    if (data.status === 'ACTIVE' && data.patientVisible && patient.userId) {
+      await notifyUser({
+        userId: patient.userId,
+        title: 'Rencana terapi diperbarui',
+        message: 'Fisioterapis Anda telah memperbarui rencana terapi yang dapat Anda lihat di halaman Rekam Medis.',
+        actionUrl: '/dashboard/progress',
+      });
+    }
+
     revalidatePath('/dashboard');
     revalidatePath('/dashboard/progress');
+    revalidatePath('/dashboard/notifications');
     revalidatePath(`/dashboard/patients/${data.patientId}`);
     return { ok: true, id: planId };
   } catch (error) {

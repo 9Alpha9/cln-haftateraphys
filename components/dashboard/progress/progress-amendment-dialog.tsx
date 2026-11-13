@@ -73,7 +73,7 @@ export function ProgressAmendmentDialog({
               rows={3}
               maxLength={500}
               placeholder="Contoh: koreksi diagnosis setelah hasil pemeriksaan lanjutan."
-              className="w-full resize-y rounded-xl border border-stone-200/90 bg-white px-3.5 py-2.5 text-sm leading-relaxed text-[#181700] outline-none transition-colors placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-ylw-100)]"
+              className="w-full resize-y rounded-xl border border-stone-200/90 bg-white px-3.5 py-2.5 text-sm leading-relaxed text-[#181700] outline-none transition-colors placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-100)]"
             />
           </label>
           {error ? (

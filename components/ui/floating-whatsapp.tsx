@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
-const HIDDEN_PREFIXES = ['/dashboard', '/login', '/register'];
+const HIDDEN_PREFIXES = ['/dashboard', '/login', '/register', '/forgot-password', '/reset-password'];
 
 function isHiddenRoute(pathname: string): boolean {
   return HIDDEN_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
@@ -45,7 +45,7 @@ export function FloatingWhatsApp({
       aria-label={label}
       title={label}
       className={cn(
-        'fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex h-12 w-12 sm:w-auto sm:px-5 items-center justify-center gap-2.5 rounded-full bg-[#25D366] text-[#052e16] font-medium shadow-lg hover:bg-[#20ba5a] hover:scale-105 active:scale-95 transition-all duration-300',
+        'fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex h-12 w-12 sm:w-auto sm:px-5 items-center justify-center gap-2.5 rounded-full bg-[#25D366] text-[#052e16] font-medium  hover:bg-[#20ba5a] hover:scale-105 active:scale-95 transition-all duration-300',
         className,
       )}
     >

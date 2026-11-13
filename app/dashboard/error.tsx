@@ -18,7 +18,7 @@ export default function DashboardError({
   return (
     <div className="flex min-h-[420px] flex-col items-center justify-center p-3.5 sm:p-5 text-center">
       {/* Icon Alert Circle inline SVG — aman dari kegagalan chunk lucide-react */}
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--hafta-red-50)] text-[var(--hafta-red-600)] shadow-2xs">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--hafta-red-50)] text-[var(--hafta-red-600)] ">
         <svg
           viewBox="0 0 24 24"
           fill="none"
@@ -47,7 +47,7 @@ export default function DashboardError({
         <button
           type="button"
           onClick={() => reset()}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)] cursor-pointer"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700]  transition-colors hover:bg-[var(--hafta-org-200)] cursor-pointer"
         >
           <svg
             viewBox="0 0 24 24"
@@ -70,7 +70,7 @@ export default function DashboardError({
         {/* Link Kembali ke Dashboard dengan inline Home icon */}
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition-colors shadow-2xs"
+          className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-xs font-semibold text-stone-700 hover:bg-stone-50 transition-colors "
         >
           <svg
             viewBox="0 0 24 24"

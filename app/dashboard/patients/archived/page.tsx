@@ -1,7 +1,6 @@
 import { Archive } from 'lucide-react';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
 import { PaginationBar } from '@/components/ui/pagination-bar';
-import { PatientListTabs } from '@/components/dashboard/patient-list-tabs';
 import { ArchivedPatientList } from '@/components/dashboard/patients/archived-patient-list';
 import { requireSession } from '@/lib/auth/require-session';
 import { PERMISSIONS, requirePermission } from '@/lib/permissions';
@@ -37,14 +36,12 @@ export default async function ArchivedPatientsPage({
           { label: 'Pasien', href: '/dashboard/patients' },
           { label: 'Diarsipkan' },
         ]}
-        icon={<Archive className="h-6 w-6 text-[var(--hafta-ylw-100)]" />}
+        icon={<Archive className="h-6 w-6 text-[var(--hafta-org-100)]" />}
       />
-
-      <PatientListTabs active="archived" />
 
       {result.items.length === 0 ? (
         <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
             <Archive className="h-6 w-6" />
           </span>
           <p className="mt-3 text-sm font-bold text-[#181700]">Tidak ada pasien diarsipkan</p>

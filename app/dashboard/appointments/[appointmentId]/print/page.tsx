@@ -3,13 +3,9 @@ import { notFound } from 'next/navigation';
 import { PrintTrigger } from '@/components/dashboard/print-trigger';
 import { PrintFooter } from '@/components/ui/print-footer';
 import { getScopedAppointment } from '@/server/queries/appointment-print';
-
-const typeLabel: Record<string, string> = {
-  INITIAL_ASSESSMENT: 'Assessment Awal',
-  THERAPY_SESSION: 'Sesi Terapi',
-  FOLLOW_UP: 'Tindak Lanjut',
-  EVALUATION: 'Evaluasi',
-};
+import { requireSession } from '@/lib/auth/require-session';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { createAuditLog } from '@/lib/audit';
 
 const statusLabel: Record<string, string> = {
   SCHEDULED: 'Terjadwal',
@@ -56,12 +52,22 @@ export default async function PrintAppointmentPage({
 }) {
   const { appointmentId } = await params;
   const { mode = 'print' } = await searchParams;
+  const { session, role } = await requireSession({ redirectToLogin: true });
+  if (role !== 'USER' && !hasPermission(role, PERMISSIONS.PATIENT_EXPORT)) notFound();
   let appointment;
   try {
     appointment = await getScopedAppointment(appointmentId);
   } catch {
     notFound();
   }
+
+  await createAuditLog({
+    action: 'appointment.export',
+    targetType: 'appointment',
+    targetId: appointment.id,
+    meta: { mode },
+    userId: session.user.id,
+  });
 
   const date = new Date(appointment.scheduledDate);
   const formattedDate = date.toLocaleDateString('id-ID', {
@@ -90,7 +96,7 @@ export default async function PrintAppointmentPage({
         medicalRecordNumber={appointment.medicalRecordNumber}
         backHref="/dashboard/appointments"
       />
-      <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-3xl flex-col border border-stone-200/70 bg-white p-6 shadow-[0_8px_30px_rgba(24,23,0,0.05)] print:max-w-none print:min-h-screen print:print:border-none print:p-0 print:shadow-none sm:p-8">
+      <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-3xl flex-col border border-stone-200/70 bg-white p-6 -[0_8px_30px_rgba(24,23,0,0.05)] print:max-w-none print:min-h-screen print:print:border-none print:p-0 print:-none sm:p-8">
         {/* Kop Dokumen */}
         <div className="flex flex-col gap-4 border-b border-stone-200/80 pb-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-3.5">
@@ -189,12 +195,6 @@ export default async function PrintAppointmentPage({
               <dt className="text-[10px] font-medium text-stone-500">Fisioterapis</dt>
               <dd className="mt-0.5 font-bold text-[#181700]">
                 {appointment.therapistName ?? 'Belum ditentukan'}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[10px] font-medium text-stone-500">Jenis Kunjungan</dt>
-              <dd className="mt-0.5 text-stone-800">
-                {typeLabel[appointment.type as keyof typeof typeLabel] ?? appointment.type}
               </dd>
             </div>
             <div>

@@ -39,7 +39,7 @@ export default async function ContactPage() {
 
       <main className="flex-1">
         {/* Header Hero — Proporsi dan posisi gambar seragam dengan halaman utama agar foto tidak terpotong */}
-        <section className="relative isolate overflow-hidden bg-[var(--hafta-ylw-950)] text-white">
+        <section className="relative isolate overflow-hidden bg-[var(--hafta-org-950)] text-white">
           <Image
             src="/images/backgrounds/bg-hf-11.png"
             alt="Layanan Fisioterapi Hafta Sidoarjo"
@@ -57,7 +57,7 @@ export default async function ContactPage() {
           <Container>
             <ScrollReveal direction="left" className="max-w-2xl py-14 md:py-20 lg:py-24">
               <div className="flex items-center gap-3">
-                <span className="h-0.5 w-8 bg-[var(--hafta-ylw-100)] shrink-0" aria-hidden="true" />
+                <span className="h-0.5 w-8 bg-[var(--hafta-org-100)] shrink-0" aria-hidden="true" />
                 <span className="text-sm font-medium tracking-wide text-white/90">
                   Kontak Person &amp; Lokasi Klinik
                 </span>
@@ -74,7 +74,7 @@ export default async function ContactPage() {
 
               {/* Google Review Trust Badge */}
               <div className="mt-8 flex flex-wrap items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-5 py-3.5 backdrop-blur-sm sm:inline-flex">
-                <div className="flex items-center gap-1 text-[var(--hafta-ylw-100)]">
+                <div className="flex items-center gap-1 text-[var(--hafta-org-100)]">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-current" />
                   ))}
@@ -94,12 +94,12 @@ export default async function ContactPage() {
           <Container>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {/* WhatsApp & Telepon */}
-              <ScrollReveal delay={0} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-6 shadow-xs">
+              <ScrollReveal delay={0} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-6 -xs">
                 <div>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)] shadow-xs">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)] -xs">
                     <Phone className="h-5 w-5" />
                   </div>
-                  <h3 className="mt-4 text-base font-bold text-[var(--hafta-ylw-950)]">
+                  <h3 className="mt-4 text-base font-bold text-[var(--hafta-org-950)]">
                     Telepon &amp; WhatsApp
                   </h3>
                   <p className="mt-1 text-lg font-bold text-stone-900">
@@ -114,7 +114,7 @@ export default async function ContactPage() {
                     href="https://wa.me/6281232932872?text=Halo%20Hafta%20Fisioterapi,%20saya%20ingin%20konsultasi%20mengenai%20keluhan%20gerak/terapi."
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-4 py-2.5 text-xs font-bold text-[var(--hafta-ylw-950)] shadow-xs transition-colors hover:bg-[var(--hafta-ylw-200)]"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-4 py-2.5 text-xs font-bold text-[var(--hafta-org-950)] -xs transition-colors hover:bg-[var(--hafta-org-200)]"
                   >
                     <MessageCircle className="h-4 w-4" />
                     Chat WhatsApp
@@ -123,12 +123,12 @@ export default async function ContactPage() {
               </ScrollReveal>
 
               {/* Lokasi Alamat Google Maps */}
-              <ScrollReveal delay={0.08} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-6 shadow-xs">
+              <ScrollReveal delay={0.08} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-6 -xs">
                 <div>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)] shadow-xs">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)] -xs">
                     <MapPin className="h-5 w-5" />
                   </div>
-                  <h3 className="mt-4 text-base font-bold text-[var(--hafta-ylw-950)]">
+                  <h3 className="mt-4 text-base font-bold text-[var(--hafta-org-950)]">
                     Alamat Praktik
                   </h3>
                   <p className="mt-1 text-sm font-semibold text-stone-900">
@@ -143,21 +143,21 @@ export default async function ContactPage() {
                     href="https://maps.app.goo.gl/rtobQBMKrAMkcqxF7"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-xs font-bold text-stone-800 shadow-xs transition-colors hover:bg-stone-50"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-4 py-2.5 text-xs font-bold text-stone-800 -xs transition-colors hover:bg-stone-50"
                   >
-                    <Navigation className="h-4 w-4 text-[var(--hafta-ylw-950)]" />
+                    <Navigation className="h-4 w-4 text-[var(--hafta-org-950)]" />
                     Buka Google Maps
                   </a>
                 </div>
               </ScrollReveal>
 
               {/* Jam Operasional Terjadwal */}
-              <ScrollReveal delay={0.16} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-6 shadow-xs">
+              <ScrollReveal delay={0.16} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-6 -xs">
                 <div>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)] shadow-xs">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)] -xs">
                     <Clock className="h-5 w-5" />
                   </div>
-                  <h3 className="mt-4 text-base font-bold text-[var(--hafta-ylw-950)]">
+                  <h3 className="mt-4 text-base font-bold text-[var(--hafta-org-950)]">
                     Jam Operasional
                   </h3>
                   <div className="mt-2 space-y-1 text-xs sm:text-sm text-stone-700">
@@ -176,12 +176,12 @@ export default async function ContactPage() {
               </ScrollReveal>
 
               {/* Layanan Home Visit */}
-              <ScrollReveal delay={0.24} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-6 shadow-xs">
+              <ScrollReveal delay={0.24} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-6 -xs">
                 <div>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)] shadow-xs">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)] -xs">
                     <Home className="h-5 w-5" />
                   </div>
-                  <h3 className="mt-4 text-base font-bold text-[var(--hafta-ylw-950)]">
+                  <h3 className="mt-4 text-base font-bold text-[var(--hafta-org-950)]">
                     Layanan Home Visit
                   </h3>
                   <p className="mt-1 text-sm font-semibold text-stone-900">
@@ -196,7 +196,7 @@ export default async function ContactPage() {
                     href="https://wa.me/6281232932872?text=Halo%20Hafta%20Fisioterapi,%20saya%20ingin%20menanyakan%20jadwal%20layanan%20Home%20Visit%20ke%20rumah."
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex w-full items-center  gap-1.5 text-xs font-bold text-[var(--hafta-ylw-950)] hover:underline"
+                    className="inline-flex w-full items-center  gap-1.5 text-xs font-bold text-[var(--hafta-org-950)] hover:underline"
                   >
                     Tanya Jadwal Homecare
                     <ArrowRight className="h-3.5 w-3.5" />
@@ -212,11 +212,11 @@ export default async function ContactPage() {
           <Container>
             <div className="grid gap-8 lg:grid-cols-3 lg:items-center lg:gap-12">
               <ScrollReveal direction="left" className="lg:col-span-1">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                   Peta Navigasi
                 </div>
-                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl">
+                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
                   Kunjungi Hafta Fisioterapi di Sidoarjo
                 </h2>
                 <p className="mt-4 text-sm leading-relaxed text-stone-600 sm:text-base">
@@ -244,7 +244,7 @@ export default async function ContactPage() {
                     href="https://maps.app.goo.gl/rtobQBMKrAMkcqxF7"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-5 text-sm font-bold text-[var(--hafta-ylw-950)] shadow-xs transition-colors hover:bg-[var(--hafta-ylw-200)]"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-5 text-sm font-bold text-[var(--hafta-org-950)] -xs transition-colors hover:bg-[var(--hafta-org-200)]"
                   >
                     <Navigation className="h-4 w-4" />
                     Buka Petunjuk Arah
@@ -253,7 +253,7 @@ export default async function ContactPage() {
                     href={writeUri}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 text-sm font-semibold text-stone-800 shadow-xs transition-colors hover:bg-stone-50"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-stone-200 bg-white px-5 text-sm font-semibold text-stone-800 -xs transition-colors hover:bg-stone-50"
                   >
                     Tulis Ulasan Google
                   </a>
@@ -261,7 +261,7 @@ export default async function ContactPage() {
               </ScrollReveal>
 
               {/* Embed Google Maps */}
-              <ScrollReveal direction="right" delay={0.15} className="overflow-hidden rounded-3xl border border-stone-200/80 bg-white shadow-lg lg:col-span-2">
+              <ScrollReveal direction="right" delay={0.15} className="overflow-hidden rounded-3xl border border-stone-200/80 bg-white  lg:col-span-2">
                 <div className="relative aspect-[4/3] w-full sm:aspect-[16/9] lg:aspect-[16/10]">
                   <iframe
                     src="https://www.google.com/maps?q=-7.4613804,112.708499&z=17&output=embed"
@@ -273,14 +273,14 @@ export default async function ContactPage() {
                 </div>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-4 bg-white border-t border-stone-100">
                   <div className="flex items-center gap-2 text-xs sm:text-sm text-stone-700">
-                    <MapPin className="h-4 w-4 shrink-0 text-[var(--hafta-ylw-950)]" />
+                    <MapPin className="h-4 w-4 shrink-0 text-[var(--hafta-org-950)]" />
                     <span>Sidokare, Sidoarjo, Jawa Timur (Koordinat: -7.46138, 112.70850)</span>
                   </div>
                   <a
                     href="https://maps.app.goo.gl/rtobQBMKrAMkcqxF7"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs font-bold text-[var(--hafta-ylw-950)] hover:underline"
+                    className="text-xs font-bold text-[var(--hafta-org-950)] hover:underline"
                   >
                     Buka di Aplikasi Google Maps &rarr;
                   </a>
@@ -294,11 +294,11 @@ export default async function ContactPage() {
         <Section className="bg-white py-14 md:py-20">
           <Container>
             <ScrollReveal className="mx-auto max-w-2xl text-center">
-              <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+              <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Ulasan Google Review
               </div>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl">
+              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
                 Pengalaman Nyata Pasien di Hafta Fisioterapi
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-stone-600 sm:text-base">
@@ -323,9 +323,9 @@ export default async function ContactPage() {
                 href={writeUri}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-semibold text-stone-800 shadow-xs transition-colors hover:bg-stone-50"
+                className="inline-flex items-center gap-2 rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-semibold text-stone-800 -xs transition-colors hover:bg-stone-50"
               >
-                <Star className="h-4 w-4 text-[var(--hafta-ylw-950)]" />
+                <Star className="h-4 w-4 text-[var(--hafta-org-950)]" />
                 Beri Ulasan di Google Maps
                 <ArrowRight className="h-4 w-4" />
               </a>
@@ -337,7 +337,7 @@ export default async function ContactPage() {
         <Section className="border-t border-stone-200/60 bg-[#FEFEF6] py-14 md:py-20">
           <Container>
             <ScrollReveal className="mx-auto max-w-2xl text-center">
-              <h2 className="text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl">
+              <h2 className="text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
                 Pertanyaan Sebelum Berkunjung
               </h2>
               <p className="mt-3 text-sm leading-relaxed text-stone-600 sm:text-base">
@@ -346,8 +346,8 @@ export default async function ContactPage() {
             </ScrollReveal>
 
             <div className="mx-auto mt-10 max-w-3xl space-y-4">
-              <ScrollReveal delay={0.05} className="rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs">
-                <h3 className="text-base font-bold text-[var(--hafta-ylw-950)]">
+              <ScrollReveal delay={0.05} className="rounded-2xl border border-stone-200/80 bg-white p-6 -xs">
+                <h3 className="text-base font-bold text-[var(--hafta-org-950)]">
                   Apakah saya harus membuat janji temu terlebih dahulu?
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-stone-600">
@@ -356,8 +356,8 @@ export default async function ContactPage() {
                 </p>
               </ScrollReveal>
 
-              <ScrollReveal delay={0.1} className="rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs">
-                <h3 className="text-base font-bold text-[var(--hafta-ylw-950)]">
+              <ScrollReveal delay={0.1} className="rounded-2xl border border-stone-200/80 bg-white p-6 -xs">
+                <h3 className="text-base font-bold text-[var(--hafta-org-950)]">
                   Pakaian apa yang sebaiknya dikenakan saat terapi?
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-stone-600">
@@ -366,8 +366,8 @@ export default async function ContactPage() {
                 </p>
               </ScrollReveal>
 
-              <ScrollReveal delay={0.15} className="rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs">
-                <h3 className="text-base font-bold text-[var(--hafta-ylw-950)]">
+              <ScrollReveal delay={0.15} className="rounded-2xl border border-stone-200/80 bg-white p-6 -xs">
+                <h3 className="text-base font-bold text-[var(--hafta-org-950)]">
                   Apakah saya bisa membawa hasil rontgen, MRI, atau rujukan dokter?
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-stone-600">
@@ -383,7 +383,7 @@ export default async function ContactPage() {
                 href="https://wa.me/6281232932872?text=Halo%20Hafta%20Fisioterapi,%20saya%20ingin%20tanya-tanya%20mengenai%20layanan%20fisioterapi."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-6 text-sm font-bold text-[var(--hafta-ylw-950)] shadow-xs transition-colors hover:bg-[var(--hafta-ylw-200)]"
+                className="mt-3 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[var(--hafta-org-950)] -xs transition-colors hover:bg-[var(--hafta-org-200)]"
               >
                 <MessageCircle className="h-4 w-4" />
                 Tanyakan Langsung via WhatsApp

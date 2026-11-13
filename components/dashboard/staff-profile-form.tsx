@@ -84,12 +84,12 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
       <section className="rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="relative mx-auto shrink-0 sm:mx-0">
-            <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white shadow-sm ring-1 ring-stone-200">
+            <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white ring-1 ring-stone-200">
               {avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={avatar} alt="Foto profil" className="h-full w-full object-cover" />
               ) : (
-                <span className="flex h-full w-full items-center justify-center bg-[var(--hafta-ylw-50)] text-2xl font-bold text-[#181700]">
+                <span className="flex h-full w-full items-center justify-center bg-[var(--hafta-org-50)] text-2xl font-bold text-[#181700]">
                   {initials || <UserRound className="h-8 w-8" />}
                 </span>
               )}
@@ -97,7 +97,7 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-[#181700] shadow-sm transition-colors hover:bg-stone-100"
+              className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-[#181700] transition-colors hover:bg-stone-100"
               aria-label="Ubah foto profil"
             >
               <Camera className="h-4 w-4" />
@@ -212,7 +212,7 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
             type="button"
             onClick={save}
             disabled={pending}
-            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-5 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)] sm:h-11 sm:w-auto"
+            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] sm:h-11 sm:w-auto"
           >
             {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Simpan Perubahan

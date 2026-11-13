@@ -94,7 +94,7 @@ function TextField({
           disabled={disabled}
           placeholder={placeholder}
           className={cn(
-            "flex w-full resize-y overflow-y-auto min-h-[5.5rem] max-h-[24rem] rounded-2xl border border-stone-200/90 bg-[#FEFEF6] px-4 py-3 text-sm sm:text-base leading-relaxed text-[#181700] placeholder:text-stone-400 focus-visible:outline-none focus-visible:border-[var(--hafta-ylw-400)] focus-visible:ring-3 focus-visible:ring-[var(--hafta-ylw-400)]/20 disabled:cursor-not-allowed disabled:opacity-60 transition-all scrollbar-thin",
+            "flex w-full resize-y overflow-y-auto min-h-[5.5rem] max-h-[24rem] rounded-2xl border border-stone-200/90 bg-[#FEFEF6] px-4 py-3 text-sm sm:text-base leading-relaxed text-[#181700] placeholder:text-stone-400 focus-visible:outline-none focus-visible:border-[var(--hafta-org-400)] focus-visible:ring-3 focus-visible:ring-[var(--hafta-org-400)]/20 disabled:cursor-not-allowed disabled:opacity-60 transition-all scrollbar-thin",
             className
           )}
           {...field}
@@ -105,7 +105,7 @@ function TextField({
           disabled={disabled}
           placeholder={placeholder}
           className={cn(
-            "h-12 rounded-2xl border border-stone-200/90 bg-[#FEFEF6] px-4 py-2.5 text-sm sm:text-base text-[#181700] focus-visible:border-[var(--hafta-ylw-400)] focus-visible:ring-3 focus-visible:ring-[var(--hafta-ylw-400)]/20 disabled:cursor-not-allowed disabled:opacity-60",
+            "h-12 rounded-2xl border border-stone-200/90 bg-[#FEFEF6] px-4 py-2.5 text-sm sm:text-base text-[#181700] focus-visible:border-[var(--hafta-org-400)] focus-visible:ring-3 focus-visible:ring-[var(--hafta-org-400)]/20 disabled:cursor-not-allowed disabled:opacity-60",
             className
           )}
           {...field}
@@ -460,7 +460,7 @@ export function PatientIntakeForm({
               type="button"
               disabled={pending}
               onClick={next}
-              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] shadow-2xs transition-all hover:bg-[var(--hafta-ylw-200)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
+              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] transition-all hover:bg-[var(--hafta-org-200)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
             >
               Lanjut
             </button>
@@ -469,7 +469,7 @@ export function PatientIntakeForm({
               type="submit"
               form={formId}
               disabled={pending}
-              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] shadow-2xs transition-all hover:bg-[var(--hafta-ylw-200)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
+              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] transition-all hover:bg-[var(--hafta-org-200)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
             >
               {pending ? 'Mengirim...' : 'Kirim untuk Ditinjau'}
             </button>
@@ -513,7 +513,7 @@ export function PatientIntakeForm({
                     href={rootErrorDetail.actionHref}
                     target={rootErrorDetail.actionHref.startsWith('http') ? '_blank' : undefined}
                     rel={rootErrorDetail.actionHref.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-[var(--hafta-red-900)] border border-[var(--hafta-red-200)] shadow-2xs transition-colors hover:bg-[var(--hafta-red-100)]/50"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-[var(--hafta-red-900)] border border-[var(--hafta-red-200)] transition-colors hover:bg-[var(--hafta-red-100)]/50"
                   >
                     <span>{rootErrorDetail.actionText}</span>
                     <ExternalLink className="h-3 w-3" />
@@ -530,7 +530,7 @@ export function PatientIntakeForm({
             type="button"
             disabled={pending}
             onClick={startNewVersion}
-            className="font-bold text-[#181700] shadow-2xs"
+            className="font-bold text-[#181700]"
           >
             {pending ? 'Membuat...' : 'Isi Form Awal Baru'}
           </Button>
@@ -570,9 +570,9 @@ export function PatientIntakeForm({
                       disabled={locked || index > step}
                       onClick={() => index <= step && setStep(index)}
                       className={cn(
-                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all shadow-2xs',
+                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all',
                         isPassed
-                          ? 'bg-[var(--hafta-ylw-100)] text-[#181700] ring-3 ring-[var(--hafta-ylw-100)]/30'
+                          ? 'bg-[var(--hafta-org-100)] text-[#181700] ring-3 ring-[var(--hafta-org-100)]/30'
                           : 'border border-stone-200 bg-white text-stone-400 hover:border-stone-300',
                         index <= step && !locked ? 'cursor-pointer hover:opacity-90' : 'cursor-default'
                       )}
@@ -596,7 +596,7 @@ export function PatientIntakeForm({
                       <div
                         className={cn(
                           'h-full transition-all duration-300 ease-out',
-                          isCompleted ? 'bg-[var(--hafta-ylw-300)]' : 'bg-transparent'
+                          isCompleted ? 'bg-[var(--hafta-org-300)]' : 'bg-transparent'
                         )}
                       />
                     </div>
@@ -915,7 +915,7 @@ export function PatientIntakeForm({
             <input
               id="privacyConsent"
               type="checkbox"
-              className="mt-1 h-4 w-4 shrink-0 accent-[var(--hafta-ylw-200)] cursor-pointer"
+              className="mt-1 h-4 w-4 shrink-0 accent-[var(--hafta-org-200)] cursor-pointer"
               disabled={pending}
               {...register('privacyConsent')}
             />
@@ -941,7 +941,7 @@ export function PatientIntakeForm({
             <input
               id="mediaConsent"
               type="checkbox"
-              className="mt-1 h-4 w-4 shrink-0 accent-[var(--hafta-ylw-200)] cursor-pointer"
+              className="mt-1 h-4 w-4 shrink-0 accent-[var(--hafta-org-200)] cursor-pointer"
               disabled={pending}
               {...register('mediaConsent')}
             />
@@ -955,7 +955,7 @@ export function PatientIntakeForm({
             <input
               id="dataAccuracyAcknowledged"
               type="checkbox"
-              className="mt-1 h-4 w-4 shrink-0 accent-[var(--hafta-ylw-200)] cursor-pointer"
+              className="mt-1 h-4 w-4 shrink-0 accent-[var(--hafta-org-200)] cursor-pointer"
               disabled={pending}
               {...register('dataAccuracyAcknowledged', { required: 'Konfirmasi ketepatan data diperlukan.' })}
             />
@@ -1003,7 +1003,6 @@ export function PatientIntakeForm({
                 type="button"
                 disabled={pending}
                 onClick={next}
-                className="shadow-2xs"
               >
                 Lanjut
               </Button>
@@ -1011,7 +1010,6 @@ export function PatientIntakeForm({
               <Button
                 type="submit"
                 disabled={pending}
-                className="shadow-2xs"
               >
                 {pending ? 'Mengirim...' : 'Kirim untuk Ditinjau'}
               </Button>

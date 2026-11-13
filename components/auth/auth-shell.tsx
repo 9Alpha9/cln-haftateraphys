@@ -114,7 +114,7 @@ export function AuthShell({ children }: AuthShellProps) {
               </motion.div>
             </AnimatePresence>
 
-            {/* Indikator Slide Aktif (Kuning Hafta #f7f000) vs Inaktif */}
+            {/* Indikator Slide Aktif (Oranye Hafta #ff971b) vs Inaktif */}
             <div className="mt-6 flex items-center gap-2" aria-label="Navigasi slide">
               {slides.map((slide, index) => (
                 <button
@@ -124,7 +124,7 @@ export function AuthShell({ children }: AuthShellProps) {
                   aria-label={`Pindah ke slide ${index + 1}`}
                   className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                     index === activeSlide
-                      ? 'w-8 bg-[var(--hafta-ylw-100)] shadow-xs'
+                      ? 'w-8 bg-[var(--hafta-org-100)]'
                       : 'w-2.5 bg-white/35 hover:bg-white/60'
                   }`}
                 />
@@ -147,7 +147,7 @@ export function AuthShell({ children }: AuthShellProps) {
           </Link>
 
           {/* Form Wrapper: Card putih bersih di mobile, seamless di desktop */}
-          <div className="rounded-3xl border border-stone-200/80 bg-white p-3.5 sm:p-5 shadow-sm sm:p-8 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
+          <div className="rounded-3xl border border-stone-200/80 bg-white p-3.5 sm:p-8 lg:border-0 lg:bg-transparent lg:p-0">
             {children}
           </div>
         </div>

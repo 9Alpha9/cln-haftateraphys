@@ -72,7 +72,7 @@ export default async function ProgressPage({
             : 'Kelola catatan klinis terstruktur (SOAP) dan pantau perkembangan fungsional pasien. Finalisasi rekam berbeda dari status sesi Selesai di menu Jadwal.'
         }
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Rekam Medis' }]}
-        icon={<Activity className="h-6 w-6 text-[var(--hafta-ylw-100)]" />}
+        icon={<Activity className="h-6 w-6 text-[var(--hafta-org-100)]" />}
         action={
           !isPatient && canCreate ? (
             <NewMedicalRecordButton patientOptions={patientOptions} />

@@ -36,16 +36,23 @@ function unregister(id: string) {
 
 const useIsomorphicLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
 
-export function useOverlayLayer(isOpen: boolean, baseZIndex = 40) {
+export function useOverlayLayer(isOpen: boolean, baseZIndex = 60) {
   const id = useId();
   const currentRevision = useSyncExternalStore(subscribe, getRevision, () => 0);
   void currentRevision;
 
   useIsomorphicLayoutEffect(() => {
-    if (!isOpen) return;
-    register(id);
-    return () => unregister(id);
+    if (isOpen) {
+      register(id);
+      return;
+    }
+    // Keep the layer registered briefly so the exit animation stays above
+    // headers/dropdowns instead of dropping to the base z-index mid-close.
+    const timer = window.setTimeout(() => unregister(id), 450);
+    return () => window.clearTimeout(timer);
   }, [id, isOpen]);
+
+  useIsomorphicLayoutEffect(() => () => unregister(id), [id]);
 
   const index = openOverlays.indexOf(id);
   const isTopmost = index >= 0 && index === openOverlays.length - 1;

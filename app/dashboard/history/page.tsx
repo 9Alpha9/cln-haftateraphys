@@ -11,8 +11,8 @@ const STATUS_META: Record<
   { label: string; tone: string }
 > = {
   DRAFT: { label: 'Draft', tone: 'bg-white text-stone-600 border-stone-200' },
-  SUBMITTED: { label: 'Terkirim', tone: 'bg-[var(--hafta-ylw-50)]/70 text-[#181700] border-[var(--hafta-ylw-200)]' },
-  UNDER_REVIEW: { label: 'Sedang ditinjau', tone: 'bg-[var(--hafta-ylw-50)]/70 text-[#181700] border-[var(--hafta-ylw-200)]' },
+  SUBMITTED: { label: 'Terkirim', tone: 'bg-[var(--hafta-org-50)]/70 text-[#181700] border-[var(--hafta-org-200)]' },
+  UNDER_REVIEW: { label: 'Sedang ditinjau', tone: 'bg-[var(--hafta-org-50)]/70 text-[#181700] border-[var(--hafta-org-200)]' },
   NEEDS_REVISION: { label: 'Perlu perbaikan', tone: 'bg-[var(--hafta-red-50)] text-[var(--hafta-red-700)] border-[var(--hafta-red-200)]' },
   ACCEPTED: { label: 'Diterima', tone: 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)] border-[var(--hafta-grn-200)]' },
   ARCHIVED: { label: 'Diarsipkan', tone: 'bg-stone-100 text-stone-500 border-stone-200' },
@@ -63,7 +63,7 @@ export default async function HistoryPage() {
 
       {history.length === 0 ? (
         <section className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
             <ClipboardList className="h-6 w-6" />
           </span>
           <h2 className="mt-3 text-sm font-bold text-[#181700]">Belum ada riwayat form</h2>
@@ -72,7 +72,7 @@ export default async function HistoryPage() {
           </p>
           <Link
             href="/dashboard/intake"
-            className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-ylw-200)]"
+            className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-org-200)]"
           >
             Isi Form Awal
             <ArrowUpRight className="h-4 w-4" />
@@ -82,7 +82,7 @@ export default async function HistoryPage() {
         <section className="rounded-3xl border border-stone-200 bg-white p-4 sm:p-5">
           <div className="flex items-center justify-between gap-3 border-b border-stone-200 pb-4">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--hafta-org-50)] text-[#181700]">
                 <FileText className="h-4 w-4" />
               </span>
               <div>
@@ -103,7 +103,7 @@ export default async function HistoryPage() {
 
               return (
                 <article key={item.id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center">
-                  <span className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
+                  <span className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-full bg-[var(--hafta-org-50)] text-[#181700]">
                     <span className="text-sm font-extrabold leading-none">{new Date(date).getDate()}</span>
                     <span className="mt-0.5 text-[9px] font-semibold uppercase">
                       {new Date(date).toLocaleDateString('id-ID', { month: 'short' })}
@@ -132,7 +132,7 @@ export default async function HistoryPage() {
                     {isEditable ? (
                       <Link
                         href="/dashboard/intake"
-                        className="inline-flex h-10 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs hover:bg-[var(--hafta-ylw-200)]"
+                        className="inline-flex h-10 items-center justify-center rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700]  hover:bg-[var(--hafta-org-200)]"
                       >
                         Buka Form
                       </Link>

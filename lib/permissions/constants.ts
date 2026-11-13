@@ -63,6 +63,13 @@ export const PERMISSIONS = {
   PROGRESS_READ: 'progress:read',
   PROGRESS_READ_OWN: 'progress:read-own',
 
+  // Consent lifecycle
+  CONSENT_READ: 'consent:read',
+  CONSENT_READ_OWN: 'consent:read-own',
+  CONSENT_GRANT_OWN: 'consent:grant-own',
+  CONSENT_WITHDRAW_OWN: 'consent:withdraw-own',
+  CONSENT_MANAGE_POLICY: 'consent:manage-policy',
+
   // Administration
   USER_CREATE: 'user:create',
   USER_LIST: 'user:list',

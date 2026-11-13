@@ -11,13 +11,13 @@ export function ViewSwitcher() {
   const isCalendarView = pathname === '/dashboard/calendar';
 
   return (
-    <div className="h-11 p-0 rounded-full bg-white border border-stone-200/90 inline-grid grid-cols-2 items-center overflow-hidden shadow-2xs shrink-0">
+    <div className="h-11 p-0 rounded-full bg-white border border-stone-200/90 inline-grid grid-cols-2 items-center overflow-hidden shrink-0">
       <Link
         href="/dashboard/appointments"
         className={cn(
           'h-full w-full px-4 rounded-full text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 whitespace-nowrap select-none',
           isListView
-            ? 'bg-[var(--hafta-ylw-100)] text-[#181700] font-bold'
+            ? 'bg-[var(--hafta-org-100)] text-[#181700] font-bold'
             : 'bg-transparent text-stone-600 hover:text-[#181700] font-semibold',
         )}
       >
@@ -28,7 +28,7 @@ export function ViewSwitcher() {
         className={cn(
           'h-full w-full px-4 rounded-full text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 whitespace-nowrap select-none',
           isCalendarView
-            ? 'bg-[var(--hafta-ylw-100)] text-[#181700] font-bold'
+            ? 'bg-[var(--hafta-org-100)] text-[#181700] font-bold'
             : 'bg-transparent text-stone-600 hover:text-[#181700] font-semibold',
         )}
       >

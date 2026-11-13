@@ -37,11 +37,11 @@ export function PatientPortalSection() {
         <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-14">
           <ScrollAnimation direction="left">
             <div>
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Layanan Digital Pasien
               </div>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] md:text-3xl">
+              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] md:text-3xl">
                 Pantau perkembangan terapi Anda melalui Patient Portal
               </h2>
               <p className="mt-4 text-base leading-relaxed text-stone-600">
@@ -56,11 +56,11 @@ export function PatientPortalSection() {
                     key={feature.title}
                     className="flex items-start gap-3 rounded-2xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgb(24,23,0,0.03)]"
                   >
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)] shadow-sm">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)]">
                       <feature.icon className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="font-bold text-[var(--hafta-ylw-950)] text-sm">{feature.title}</h3>
+                      <h3 className="font-bold text-[var(--hafta-org-950)] text-sm">{feature.title}</h3>
                       <p className="mt-1 text-xs leading-relaxed text-stone-600">{feature.description}</p>
                     </div>
                   </div>
@@ -70,7 +70,7 @@ export function PatientPortalSection() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/login"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-4 sm:px-6 text-sm font-semibold text-[var(--hafta-ylw-950)] shadow-sm transition-colors hover:bg-[var(--hafta-ylw-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-100)]"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-4 sm:px-6 text-sm font-semibold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)]"
                 >
                   Masuk Patient Portal
                   <ArrowRight className="h-4 w-4" />

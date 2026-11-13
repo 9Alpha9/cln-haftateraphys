@@ -9,6 +9,7 @@ import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { notifyUser } from '@/server/notify';
 import { createAuditLog } from '@/lib/audit';
 import { patientProfileSchema, type PatientProfileInput } from '@/lib/validators/patient-profile';
+import { ensurePatientProfileForUser } from '@/server/queries/patient-portal';
 
 function toNullable(value: string | undefined) {
   if (value == null) return null;
@@ -21,6 +22,13 @@ function avatarOrNull(v: unknown) {
   const t = v.trim();
   if (!t) return null;
   return t;
+}
+
+export async function ensureCurrentPatientProfile() {
+  const { session, role } = await requireSession({ redirectToLogin: false });
+  if (role !== 'USER') return { ok: true as const };
+  await ensurePatientProfileForUser(session.user.id);
+  return { ok: true as const };
 }
 
 export async function updateCurrentPatientProfile(input: PatientProfileInput) {

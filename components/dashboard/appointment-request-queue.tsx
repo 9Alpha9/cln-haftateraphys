@@ -65,10 +65,10 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
   }
 
   return (
-    <section className="rounded-3xl border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/35 p-4 sm:p-5">
+    <section className="rounded-3xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)]/35 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#181700] ring-1 ring-[var(--hafta-ylw-200)]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#181700] ring-1 ring-[var(--hafta-org-200)]">
             <CalendarClock className="h-5 w-5" />
           </span>
           <div>
@@ -81,14 +81,14 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
         </span>
       </div>
 
-      <div className="mt-4 divide-y divide-[var(--hafta-ylw-200)]/60 bg-white/70 px-4 sm:rounded-2xl">
+      <div className="mt-4 divide-y divide-[var(--hafta-org-200)]/60 bg-white/70 px-4 sm:rounded-2xl">
         {requests.map((request) => (
           <div key={request.id} className="flex flex-col gap-3 py-3.5 sm:flex-row sm:items-center">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="truncate text-sm font-bold text-[#181700]">{request.patientName}</p>
                 {request.rescheduleAppointmentId ? (
-                  <span className="rounded-full border border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)] px-2.5 py-0.5 text-[10px] font-bold text-[#181700]">
+                  <span className="rounded-full border border-dashed border-[var(--hafta-org-400)] bg-[var(--hafta-org-50)] px-2.5 py-0.5 text-[10px] font-bold text-[#181700]">
                     Permintaan Ubah Jadwal (Reschedule)
                   </span>
                 ) : null}
@@ -113,7 +113,7 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
                 setSelected(request);
                 setReviewNote('');
               }}
-              className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-stone-200 bg-white px-3.5 text-xs font-semibold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-50)]"
+              className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-stone-200 bg-white px-3.5 text-xs font-semibold text-[#181700] transition-colors hover:bg-[var(--hafta-org-50)]"
             >
               <Search className="h-3.5 w-3.5" />
               Tinjau
@@ -138,7 +138,7 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
                 type="button"
                 disabled={isPending}
                 onClick={() => submit('approve')}
-                className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:opacity-60"
+                className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
               >
                 {isPending && pendingAction === 'approve' ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -167,7 +167,7 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
         {selected ? (
           <div className="space-y-4 sm:space-y-5">
             {selected.rescheduleAppointmentId && selected.rescheduleFromDate ? (
-              <div className="rounded-2xl border border-dashed border-[var(--hafta-ylw-400)] bg-[var(--hafta-ylw-50)] px-4 py-3">
+              <div className="rounded-2xl border border-dashed border-[var(--hafta-org-400)] bg-[var(--hafta-org-50)] px-4 py-3">
                 <p className="text-[11px] font-bold text-[#181700]">
                   Permintaan Ubah Jadwal (Reschedule)
                 </p>
@@ -213,7 +213,7 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
                 onChange={(event) => setReviewNote(event.target.value)}
                 rows={3}
                 placeholder="Contoh: jadwal disetujui, mohon datang 10 menit lebih awal."
-                className="mt-1.5 w-full resize-none rounded-2xl border border-stone-200 bg-white px-3.5 py-2.5 text-sm text-[#181700] outline-none transition-colors focus:border-[var(--hafta-ylw-300)] focus:ring-2 focus:ring-[var(--hafta-ylw-100)]/60"
+                className="mt-1.5 w-full resize-none rounded-2xl border border-stone-200 bg-white px-3.5 py-2.5 text-sm text-[#181700] outline-none transition-colors focus:border-[var(--hafta-org-300)] focus:ring-2 focus:ring-[var(--hafta-org-100)]/60"
               />
             </label>
           </div>

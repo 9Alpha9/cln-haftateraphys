@@ -104,15 +104,15 @@ export function InternalCalendarEventForm() {
           id="description"
           name="description"
           disabled={pending}
-          className="flex min-h-28 w-full resize-none rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-sm leading-relaxed focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#f7f000]/35"
+          className="flex min-h-28 w-full resize-none rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-sm leading-relaxed focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35"
         />
       </div>
-      <div className="flex items-start gap-3 rounded-xl border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/40 p-3.5 text-sm sm:p-4">
+      <div className="flex items-start gap-3 rounded-xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)]/40 p-3.5 text-sm sm:p-4">
         <input id="patientVisible" type="checkbox" name="patientVisible" className="mt-1 h-4 w-4 shrink-0 accent-[var(--accent)] cursor-pointer" disabled={pending} />
         <span className="select-none">Tampilkan event ini kepada pasien di kalender mereka.</span>
       </div>
       <div className="flex justify-end">
-        <Button type="submit" disabled={pending} className="font-bold text-[#181700] shadow-2xs hover:bg-[var(--hafta-ylw-200)]">
+        <Button type="submit" disabled={pending} className="font-bold text-[#181700] hover:bg-[var(--hafta-org-200)]">
           {pending ? 'Menyimpan...' : 'Simpan Event'}
         </Button>
       </div>

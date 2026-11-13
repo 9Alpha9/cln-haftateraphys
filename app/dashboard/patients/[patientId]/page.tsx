@@ -33,7 +33,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
         />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 opacity-70">
+          <div className="relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 -[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 opacity-70">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-foreground">Profil</span>
               <User className="h-5 w-5 text-muted-foreground" />
@@ -46,7 +46,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
 
           <Link
             href={`/dashboard/patients/${patient.id}/intake`}
-            className="group relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-stone-300 hover:shadow-[0_12px_40px_rgba(24,23,0,0.09)]"
+            className="group relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 -[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-stone-300 hover:-[0_12px_40px_rgba(24,23,0,0.09)]"
           >
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-foreground group-hover:text-[#181700] transition-colors">Intake</span>
@@ -58,7 +58,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
             </div>
           </Link>
 
-          <div className="relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 opacity-65">
+          <div className="relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 -[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 opacity-65">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-foreground">Assessment</span>
               <FileText className="h-5 w-5 text-muted-foreground" />
@@ -69,7 +69,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 opacity-65">
+          <div className="relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 -[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 opacity-65">
             <div className="flex items-center justify-between">
               <span className="text-sm font-semibold text-foreground">Sesi</span>
               <Activity className="h-5 w-5 text-muted-foreground" />
@@ -81,7 +81,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
 
-        <Card className="rounded-3xl border border-stone-200/70 ring-0 shadow-[0_8px_30px_rgba(24,23,0,0.05)]">
+        <Card className="rounded-3xl border border-stone-200/70 ring-0 -[0_8px_30px_rgba(24,23,0,0.05)]">
           <CardHeader>
             <CardTitle>Informasi Pasien</CardTitle>
           </CardHeader>
@@ -146,7 +146,7 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
           </CardContent>
         </Card>
 
-        <Card className="rounded-3xl border border-stone-200/70 ring-0 shadow-[0_8px_30px_rgba(24,23,0,0.05)]">
+        <Card className="rounded-3xl border border-stone-200/70 ring-0 -[0_8px_30px_rgba(24,23,0,0.05)]">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CalendarDays className="h-5 w-5 text-muted-foreground" />

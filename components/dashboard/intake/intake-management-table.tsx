@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useDeferredValue, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -62,10 +62,10 @@ const statusBadgeStyles: Record<
   },
   UNDER_REVIEW: {
     label: 'Sedang Ditinjau',
-    dot: 'bg-[var(--hafta-ylw-400)]',
-    text: 'text-[var(--hafta-ylw-950)]',
-    bg: 'bg-[var(--hafta-ylw-50)]',
-    border: 'border-[var(--hafta-ylw-200)]',
+    dot: 'bg-[var(--hafta-org-400)]',
+    text: 'text-[var(--hafta-org-950)]',
+    bg: 'bg-[var(--hafta-org-50)]',
+    border: 'border-[var(--hafta-org-200)]',
   },
   ACCEPTED: {
     label: 'Diterima',
@@ -105,6 +105,8 @@ export function IntakeManagementTable({
   const router = useRouter();
   const items = initialItems;
   const [searchQuery, setSearchQuery] = useState('');
+  const deferredQuery = useDeferredValue(searchQuery);
+  const isFiltering = deferredQuery !== searchQuery;
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'PENDING' | 'ACCEPTED' | 'REVISION'>('ALL');
 
   // Slide-over drawer state
@@ -146,8 +148,8 @@ export function IntakeManagementTable({
       if (row.status !== 'NEEDS_REVISION') return false;
     }
 
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
+    if (deferredQuery.trim()) {
+      const q = deferredQuery.toLowerCase();
       const matchName = row.patientName.toLowerCase().includes(q);
       const matchArea = row.affectedArea ? row.affectedArea.toLowerCase().includes(q) : false;
       if (!matchName && !matchArea) return false;
@@ -170,7 +172,7 @@ export function IntakeManagementTable({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari pasien atau keluhan..."
-            className="h-10 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-10 text-xs text-[#181700] shadow-2xs outline-none transition-all placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35 sm:text-[13px]"
+            className="h-10 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-10 text-xs text-[#181700] outline-none transition-all placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
           />
           {searchQuery ? (
             <button
@@ -186,9 +188,9 @@ export function IntakeManagementTable({
         <DropdownMenu>
           <DropdownMenuTrigger
             className={cn(
-              'ml-auto inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold shadow-2xs transition-colors focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#f7f000]/35 sm:px-4 sm:text-[13px]',
+              'ml-auto inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold transition-colors focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 sm:px-4 sm:text-[13px]',
               statusFilter !== 'ALL'
-                ? 'border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] text-[#181700]'
+                ? 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-[#181700]'
                 : 'border-stone-200/90 bg-white text-[#181700] hover:bg-stone-100',
             )}
           >
@@ -231,9 +233,31 @@ export function IntakeManagementTable({
       </div>
 
       {/* ── 2. INTERACTIVE CLINICAL INTAKE CARDS (GLOBAL INVERTED OUTLINE NOTCHEDCARD) ── */}
-      {filteredItems.length === 0 ? (
+      {isFiltering ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
+          {[0, 1, 2, 3, 4, 5].map((item) => (
+            <div key={item} className="animate-pulse rounded-3xl border border-stone-200 bg-white p-4 sm:p-5">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="h-11 w-11 rounded-2xl bg-stone-100" />
+                  <div className="space-y-2">
+                    <div className="h-4 w-32 rounded bg-stone-200" />
+                    <div className="h-3 w-24 rounded bg-stone-100" />
+                  </div>
+                </div>
+                <div className="h-6 w-20 rounded-full bg-stone-100" />
+              </div>
+              <div className="mt-4 space-y-2 rounded-2xl bg-stone-50 p-3">
+                <div className="h-3 w-full rounded bg-stone-100" />
+                <div className="h-3 w-4/5 rounded bg-stone-100" />
+                <div className="h-3 w-2/3 rounded bg-stone-100" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredItems.length === 0 ? (
         <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
             <ClipboardList className="h-6 w-6" />
           </span>
           <h3 className="mt-3 text-sm font-bold text-[#181700]">Tidak ada data intake yang cocok</h3>
@@ -254,7 +278,7 @@ export function IntakeManagementTable({
               year: 'numeric',
             });
 
-            // Card background: kuning (#f7f000) HANYA jika intake baru masuk (SUBMITTED). Jika sudah diproses/diterima -> putih.
+            // Card background: oranye (#ffd097) HANYA jika intake baru masuk (SUBMITTED). Jika sudah diproses/diterima -> putih.
             const cardVariant = isNewIntake ? 'accent' : 'white';
 
             return (
@@ -270,7 +294,7 @@ export function IntakeManagementTable({
                       className="h-11 w-11 rounded-2xl object-cover ring-1 ring-stone-200"
                     />
                   ) : (
-                    <span className={cn('flex h-11 w-11 items-center justify-center rounded-2xl font-bold text-xs shadow-2xs', isNewIntake ? 'bg-[#181700] text-[var(--hafta-ylw-100)]' : 'bg-[var(--hafta-ylw-50)] text-[#181700]')}>
+                    <span className={cn('flex h-11 w-11 items-center justify-center rounded-2xl font-bold text-xs', isNewIntake ? 'bg-[#181700] text-[var(--hafta-org-100)]' : 'bg-[var(--hafta-org-50)] text-[#181700]')}>
                       {initial}
                     </span>
                   )
@@ -279,7 +303,7 @@ export function IntakeManagementTable({
                   <div className="flex items-center gap-1.5">
                     {/* Tulisan BARU tetap muncul selama intake berstatus SUBMITTED (belum diproses/ACC) */}
                     {isNewIntake && (
-                      <span className="rounded-full bg-[#181700] px-2 py-0.5 font-mono text-[9px] font-black uppercase text-[var(--hafta-ylw-100)] shadow-2xs animate-pulse">
+                      <span className="rounded-full bg-[#181700] px-2 py-0.5 font-mono text-[9px] font-black uppercase text-[var(--hafta-org-100)] animate-pulse">
                         BARU
                       </span>
                     )}

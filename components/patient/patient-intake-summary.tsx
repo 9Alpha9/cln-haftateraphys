@@ -1,6 +1,15 @@
 'use client';
 
+import { useState } from 'react';
+import { X } from 'lucide-react';
 import type { IntakeDraftInput } from '@/lib/validators/patient-intake';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export type PatientIntakeHistoryItem = {
   id: string;
@@ -45,12 +54,12 @@ export const INTAKE_STATUS_META: Record<
   },
   SUBMITTED: {
     label: 'Terkirim',
-    tone: 'bg-[var(--hafta-ylw-50)]/60 text-[#181700] border-[var(--hafta-ylw-200)]',
+    tone: 'bg-[var(--hafta-org-50)]/60 text-[#181700] border-[var(--hafta-org-200)]',
     description: 'Form awal Anda sudah terkirim dan sedang menunggu tinjauan fisioterapis.',
   },
   UNDER_REVIEW: {
     label: 'Sedang ditinjau',
-    tone: 'bg-[var(--hafta-ylw-50)]/60 text-[#181700] border-[var(--hafta-ylw-200)]',
+    tone: 'bg-[var(--hafta-org-50)]/60 text-[#181700] border-[var(--hafta-org-200)]',
     description: 'Fisioterapis sedang meninjau keluhan awal Anda.',
   },
   ACCEPTED: {
@@ -140,6 +149,7 @@ const SUMMARY_SECTIONS = [
 ] as const;
 
 export function PatientIntakeSummaryContent({ intake }: { intake: PatientIntakeHistoryItem }) {
+  const [selectedPhoto, setSelectedPhoto] = useState<{ name: string; data: string } | null>(null);
   const meta = INTAKE_STATUS_META[intake.status];
 
   return (
@@ -175,16 +185,49 @@ export function PatientIntakeSummaryContent({ intake }: { intake: PatientIntakeH
           <h3 className="text-sm font-bold text-[#181700]">Foto kondisi</h3>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {parsePhotos(intake.photos).map((photo, index) => (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <button
                 key={`${photo.name}-${index}`}
-                src={photo.data}
-                alt={photo.name}
-                className="h-32 w-full rounded-2xl border border-stone-200 object-cover"
-              />
+                type="button"
+                onClick={() => setSelectedPhoto(photo)}
+                className="relative group h-32 w-full rounded-2xl border border-stone-200 overflow-hidden"
+                aria-label={`Lihat foto ${photo.name}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={photo.data}
+                  alt={photo.name}
+                  className="h-full w-full object-cover transition-transform group-hover:scale-105"
+                />
+              </button>
             ))}
           </div>
         </section>
+      ) : null}
+
+      {selectedPhoto ? (
+        <Dialog open onOpenChange={(open) => !open && setSelectedPhoto(null)}>
+          <DialogContent className="sm:max-w-[600px] p-6">
+            <DialogHeader>
+              <DialogTitle className="text-lg">Foto Kondisi Pasien</DialogTitle>
+              <DialogDescription>{selectedPhoto.name}</DialogDescription>
+            </DialogHeader>
+            <div className="flex items-center justify-center gap-4 mt-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={selectedPhoto.data}
+                alt={selectedPhoto.name}
+                className="max-h-[60vh] rounded-2xl border border-stone-200 object-contain shadow-lg"
+              />
+            </div>
+            <button
+              type="button"
+              className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-50"
+              onClick={() => setSelectedPhoto(null)}
+            >
+              <X className="h-3.5 w-3.5" /> Tutup
+            </button>
+          </DialogContent>
+        </Dialog>
       ) : null}
 
       {SUMMARY_SECTIONS.map((section) => (

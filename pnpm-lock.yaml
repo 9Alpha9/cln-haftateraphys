@@ -29,6 +29,9 @@ importers:
       '@react-pdf/renderer':
         specifier: ^4.8.1
         version: 4.8.1(react@19.2.8)
+      aws4fetch:
+        specifier: ^1.0.20
+        version: 1.0.20
       better-auth:
         specifier: ^1.6.26
         version: 1.6.26(drizzle-kit@0.30.6)(drizzle-orm@0.45.2(@neondatabase/serverless@1.1.0)(@types/pg@8.21.0)(gel@2.2.0)(kysely@0.29.5))(next@16.3.0(@babel/core@7.29.7)(@types/node@22.20.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@3.2.7(@types/node@22.20.1)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.23.12))
@@ -59,6 +62,9 @@ importers:
       next:
         specifier: latest
         version: 16.3.0(@babel/core@7.29.7)(@types/node@22.20.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      qrcode.react:
+        specifier: ^4.2.0
+        version: 4.2.0(react@19.2.8)
       react:
         specifier: ^19.0.0
         version: 19.2.8
@@ -2206,6 +2212,9 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
+  aws4fetch@1.0.20:
+    resolution: {integrity: sha512-/djoAN709iY65ETD6LKCtyyEI04XIBP5xVvfmNxsEP0uJB5tyaGBztSryRr4HqMStr9R06PisQE7m9zDTXKu6g==}
+
   axe-core@4.13.0:
     resolution: {integrity: sha512-UzGt8zg7Ny8djbYMhxl2zuEevVa7r2gJjYY5Lwr1xM7+XU2nd6CkIWFTVcCIbAP63vSz71NaVyyuSk9lHKcy0A==}
     engines: {node: '>=4'}
@@ -4147,6 +4156,11 @@ packages:
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
+
+  qrcode.react@4.2.0:
+    resolution: {integrity: sha512-QpgqWi8rD9DsS9EP3z7BT+5lY5SFhsqGjpgW5DY/i3mK4M9DTBNz3ErMi8BWYEfI3L0d8GIbGmcdFAS1uIRGjA==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   qs@6.15.3:
     resolution: {integrity: sha512-O9gl3zCl5h5blw1KGUzQKhA5oUXSl8rwUIM5o0S3nCXMliSvy5Dzx7/DJcI+SwgICv+IneSZwhBh1oSyEHA71A==}
@@ -6716,6 +6730,8 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
+  aws4fetch@1.0.20: {}
+
   axe-core@4.13.0: {}
 
   axobject-query@4.1.0: {}
@@ -8686,6 +8702,10 @@ snapshots:
       ipaddr.js: 1.9.1
 
   punycode@2.3.1: {}
+
+  qrcode.react@4.2.0(react@19.2.8):
+    dependencies:
+      react: 19.2.8
 
   qs@6.15.3:
     dependencies:

@@ -115,7 +115,7 @@ export function PatientTableActions({
             openMenu();
           }
         }}
-        className="h-10 w-10 min-w-[40px] min-h-[40px] aspect-square p-0 rounded-full border border-stone-200/90 bg-white text-[#181700] inline-flex shrink-0 cursor-pointer items-center justify-center gap-0 shadow-2xs transition-all hover:bg-stone-100 focus-visible:outline-none focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[#f7f000]/35"
+        className="h-10 w-10 min-w-[40px] min-h-[40px] aspect-square p-0 rounded-full border border-stone-200/90 bg-white text-[#181700] inline-flex shrink-0 cursor-pointer items-center justify-center gap-0 transition-all hover:bg-stone-100 focus-visible:outline-none focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35"
       >
         <MoreVertical className="w-4 h-4 shrink-0 text-[#181700]" />
       </button>

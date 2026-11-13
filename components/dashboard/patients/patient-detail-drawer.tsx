@@ -13,6 +13,7 @@ import {
   Loader2,
   MoreVertical,
   Pencil,
+  ShieldCheck,
   UserRound,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
@@ -27,10 +28,11 @@ import { TreatmentPlanPanel } from '@/components/dashboard/patients/treatment-pl
 import { CompleteProgramButton } from '@/components/dashboard/patients/complete-program-button';
 import { fetchPatientDetailAction } from '@/server/actions/patient-detail';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
+import { CONSENT_STATUS_LABEL } from '@/lib/consent';
 import { cn } from '@/lib/utils';
 
 type DetailData = Extract<Awaited<ReturnType<typeof fetchPatientDetailAction>>, { ok: true }>['data'];
-type TabKey = 'profile' | 'plan' | 'program' | 'intake' | 'assessment' | 'session';
+type TabKey = 'profile' | 'plan' | 'program' | 'intake' | 'consent' | 'assessment' | 'session';
 
 const TABS: {
   key: TabKey;
@@ -63,6 +65,12 @@ const TABS: {
     icon: FileText,
   },
   {
+    key: 'consent',
+    label: 'Consent',
+    description: 'Status persetujuan data dan publikasi.',
+    icon: ShieldCheck,
+  },
+  {
     key: 'assessment',
     label: 'Assessment',
     description: 'Catatan SOAP dan evaluasi klinis.',
@@ -79,7 +87,7 @@ const TABS: {
 const ACTION_BUTTON =
   'h-10 sm:h-11 px-4 sm:px-5 rounded-full text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0';
 const ACTION_PRIMARY =
-  'font-bold bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] shadow-2xs';
+  'font-bold bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700]';
 const ACTION_SECONDARY =
   'font-semibold bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90';
 
@@ -119,22 +127,10 @@ function statusLabel(value: string) {
   return labels[value] ?? value;
 }
 
-function sessionTypeLabel(value: string) {
-  const labels: Record<string, string> = {
-    INITIAL_ASSESSMENT: 'Assessment Awal',
-    THERAPY_SESSION: 'Sesi Terapi',
-    FOLLOW_UP: 'Sesi Lanjutan',
-    EVALUATION: 'Evaluasi Klinis',
-    DISCHARGE: 'Pemeriksaan Akhir',
-    CONSULTATION: 'Konsultasi',
-  };
-  return labels[value] ?? value;
-}
-
 function sessionStatusClass(value: string) {
   if (value === 'COMPLETED') return 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)] border-[var(--hafta-grn-200)]';
   if (value === 'CANCELLED' || value === 'NO_SHOW') return 'bg-[var(--hafta-red-50)] text-[var(--hafta-red-700)] border-[var(--hafta-red-200)]';
-  return 'bg-[var(--hafta-ylw-50)] text-[var(--hafta-ylw-950)] border-[var(--hafta-ylw-200)]';
+  return 'bg-[var(--hafta-org-50)] text-[var(--hafta-org-950)] border-[var(--hafta-org-200)]';
 }
 
 function InfoRow({ label, value }: { label: string; value: string }) {
@@ -276,7 +272,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                   className={cn(
                     'flex min-w-[148px] max-w-[190px] shrink-0 snap-start cursor-pointer flex-col items-start gap-1 rounded-2xl border px-3 py-2 text-left transition-colors',
                     active
-                      ? 'border-[#181700] bg-[#181700] text-white shadow-2xs'
+                      ? 'border-[#181700] bg-[#181700] text-white'
                       : 'border-stone-200/80 bg-white text-stone-600 hover:bg-stone-50',
                   )}
                 >
@@ -284,7 +280,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                     <Icon
                       className={cn(
                         'h-3.5 w-3.5 shrink-0',
-                        active ? 'text-[var(--hafta-ylw-100)]' : 'text-stone-500',
+                        active ? 'text-[var(--hafta-org-100)]' : 'text-stone-500',
                       )}
                     />
                     {tab.label}
@@ -321,7 +317,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                   type="button"
                   aria-label="Menu opsi program"
                   onClick={() => setShowProgramMenu((prev) => !prev)}
-                  className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white text-[#181700] transition-colors hover:bg-stone-100 shadow-2xs"
+                  className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white text-[#181700] transition-colors hover:bg-stone-100"
                 >
                   <MoreVertical className="h-4 w-4" />
                 </button>
@@ -403,7 +399,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
           </div>
         ) : activeTab === 'profile' ? (
           <div className="space-y-3 sm:space-y-5">
-            <div className="rounded-2xl border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/35 p-3.5 sm:p-4">
+            <div className="rounded-2xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)]/35 p-3.5 sm:p-4">
               <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-500">
                 Terapis Pendamping
               </p>
@@ -511,7 +507,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                     <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
                       Status Intake
                     </p>
-                    <span className="mt-1.5 inline-flex rounded-full border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] px-2.5 py-1 text-[11px] font-bold text-[#181700]">
+                    <span className="mt-1.5 inline-flex rounded-full border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] px-2.5 py-1 text-[11px] font-bold text-[#181700]">
                       {intakeStatusLabel(data.intake.status)}
                     </span>
                   </div>
@@ -562,6 +558,57 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
               <p className="max-w-sm text-xs text-stone-500">Form intake akan tampil di sini setelah pasien mengirimkannya.</p>
             </div>
           )
+        ) : activeTab === 'consent' ? (
+          <div className="space-y-3">
+            <div className="rounded-2xl border border-stone-200/70 bg-[#FBFBFA] p-3.5 text-[11px] leading-relaxed text-stone-500 sm:p-4">
+              Status persetujuan bersifat baca-saja untuk staf. Staf tidak dapat mengubah keputusan
+              pasien; perubahan hanya dapat dilakukan oleh pasien melalui portal.
+            </div>
+            {data.consents.length === 0 ? (
+              <div className="flex min-h-[280px] flex-col items-center justify-center gap-2 text-center">
+                <ShieldCheck className="h-9 w-9 text-stone-300" />
+                <p className="text-sm font-semibold text-[#181700]">Belum ada data consent</p>
+                <p className="max-w-sm text-xs text-stone-500">
+                  Persetujuan pasien akan tampil di sini setelah tersedia.
+                </p>
+              </div>
+            ) : (
+              data.consents.map((consent) => (
+                <article
+                  key={consent.type}
+                  className="rounded-2xl border border-stone-200/80 bg-white p-3.5 sm:p-4"
+                >
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-sm font-bold text-[#181700]">{consent.label}</p>
+                      <span
+                        className={cn(
+                          'rounded-full border px-2.5 py-0.5 text-[10px] font-bold',
+                          consent.status === 'GRANTED'
+                            ? 'border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]'
+                            : consent.status === 'WITHDRAWN'
+                              ? 'border-red-200 bg-red-50 text-red-700'
+                              : 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-[#181700]',
+                        )}
+                      >
+                        {CONSENT_STATUS_LABEL[consent.status]}
+                      </span>
+                      {consent.required ? (
+                        <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-stone-500">
+                          Wajib
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="text-[10px] text-stone-400">Versi {consent.policyVersion}</p>
+                  </div>
+                  <p className="mt-2 text-[11px] leading-relaxed text-stone-500">
+                    {consent.grantedAt ? `Disetujui ${formatDate(consent.grantedAt)}` : 'Belum disetujui'}
+                    {consent.withdrawnAt ? ` · Ditarik ${formatDate(consent.withdrawnAt)}` : ''}
+                  </p>
+                </article>
+              ))
+            )}
+          </div>
         ) : activeTab === 'assessment' ? (
           <div className="space-y-4 sm:space-y-5">
             <div className="flex flex-wrap items-center justify-between gap-1.5">
@@ -654,7 +701,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                 <p className="text-[11px] font-medium text-stone-500 sm:text-xs">Sesi selesai</p>
                 <p className="mt-1 font-mono text-xl font-bold text-[var(--hafta-grn-700)] sm:text-2xl">{completedSessions}</p>
               </div>
-              <div className="rounded-2xl border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/60 p-3 sm:p-4">
+              <div className="rounded-2xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)]/60 p-3 sm:p-4">
                 <p className="text-[11px] font-medium text-stone-500 sm:text-xs">Sisa sesi</p>
                 <p className="mt-1 font-mono text-xl font-bold text-[#181700] sm:text-2xl">{remainingSessions}</p>
               </div>
@@ -682,7 +729,6 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                         <p className="mt-0.5 text-xs text-stone-500">
                           {formatDate(session.scheduledDate)} • {session.startTime} WIB • {session.durationMinutes} menit • {session.therapistName ?? '-'}
                         </p>
-                        <p className="mt-1 text-xs text-stone-600">{sessionTypeLabel(session.type)}</p>
                       </div>
                       <span className={cn('rounded-full border px-2.5 py-0.5 text-[10px] font-semibold', sessionStatusClass(session.status))}>
                         {statusLabel(session.status)}

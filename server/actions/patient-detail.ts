@@ -8,6 +8,7 @@ import { getHomeProgramForPatient } from '@/server/queries/home-programs';
 import { getTreatmentPlanForPatient } from '@/server/queries/treatment-plans';
 import { getScopedTherapyProgress } from '@/server/queries/therapy-progress';
 import { getScopedIntakeForReview } from '@/server/queries/intake-review';
+import { getPatientConsentsForStaff } from '@/server/queries/consents';
 
 export async function fetchPatientDetailAction(patientId: string) {
   try {
@@ -20,12 +21,14 @@ export async function fetchPatientDetailAction(patientId: string) {
     const canAssignTherapist = role !== 'USER' && hasPermission(role, PERMISSIONS.PATIENT_ASSIGN);
     const therapistOptions = canAssignTherapist ? await getTherapistOptions() : [];
     const canReadProgress = hasPermission(role, PERMISSIONS.PROGRESS_READ);
-    const [progress, homeProgram, treatmentPlan] = await Promise.all([
+    const canReadConsent = hasPermission(role, PERMISSIONS.CONSENT_READ);
+    const [progress, homeProgram, treatmentPlan, consents] = await Promise.all([
       canReadProgress
         ? getScopedTherapyProgress({ patientId, pageSize: 50 })
         : Promise.resolve({ items: [] }),
       canReadProgress ? getHomeProgramForPatient(patientId) : Promise.resolve(null),
       canReadProgress ? getTreatmentPlanForPatient(patientId) : Promise.resolve(null),
+      canReadConsent ? getPatientConsentsForStaff(patientId).catch(() => []) : Promise.resolve([]),
     ]);
     let intake = null;
     if (hasPermission(role, PERMISSIONS.INTAKE_READ)) {
@@ -43,6 +46,7 @@ export async function fetchPatientDetailAction(patientId: string) {
         progress: progress.items,
         homeProgram,
         treatmentPlan,
+        consents,
         intake,
         therapistOptions,
         capabilities: {

@@ -278,9 +278,9 @@ function DropdownMenuContent({ className, children, align = "end", side = "botto
             }),
       }}
       className={cn(
-        'z-50 flex min-w-48 flex-col gap-1 overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-2 text-popover-foreground shadow-[0_12px_32px_rgba(24,23,0,0.14)]',
-        resolvedSide === "top" && 'min-w-0 rounded-2xl p-2 shadow-xl',
-        withinWrapper && 'shadow-sm',
+        'z-50 flex min-w-48 flex-col gap-1 overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-2 text-popover-foreground -[0_12px_32px_rgba(24,23,0,0.14)]',
+        resolvedSide === "top" && 'min-w-0 rounded-2xl p-2 ',
+        withinWrapper && '',
         className,
       )}
     >

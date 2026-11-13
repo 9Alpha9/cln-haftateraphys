@@ -8,6 +8,7 @@ import { homeProgramItems, homePrograms, patientAssignments, patients } from '@/
 import { requireSession } from '@/lib/auth/require-session';
 import { createAuditLog } from '@/lib/audit';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { notifyUser } from '@/server/notify';
 
 const itemSchema = z.object({
   name: z.string().trim().min(2, 'Nama latihan minimal 2 karakter.').max(200),
@@ -52,7 +53,7 @@ export async function saveHomeProgram(input: unknown): Promise<SaveHomeProgramRe
 
     const db = getDb();
     const [patient] = await db
-      .select({ id: patients.id })
+      .select({ id: patients.id, userId: patients.userId })
       .from(patients)
       .where(eq(patients.id, data.patientId))
       .limit(1);
@@ -134,8 +135,18 @@ export async function saveHomeProgram(input: unknown): Promise<SaveHomeProgramRe
       userId: session.user.id,
     });
 
+    if (data.patientVisible && patient.userId) {
+      await notifyUser({
+        userId: patient.userId,
+        title: existing ? 'Program latihan diperbarui' : 'Program latihan baru',
+        message: 'Fisioterapis Anda telah membagikan program latihan mandiri. Buka halaman Latihan Saya untuk melihat detailnya.',
+        actionUrl: '/dashboard/exercises',
+      });
+    }
+
     revalidatePath('/dashboard');
     revalidatePath('/dashboard/progress');
+    revalidatePath('/dashboard/notifications');
     revalidatePath(`/dashboard/patients/${data.patientId}`);
     return { ok: true, id: programId };
   } catch (error) {

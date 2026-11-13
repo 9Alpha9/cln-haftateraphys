@@ -13,8 +13,8 @@ export default function NotFound() {
         <Container>
           <div className="flex flex-col items-center py-16 text-center md:py-24">
             {/* Icon */}
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--hafta-ylw-50)]">
-              <Search className="h-10 w-10 text-[var(--hafta-ylw-200)]" />
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--hafta-org-50)]">
+              <Search className="h-10 w-10 text-[var(--hafta-org-200)]" />
             </div>
 
             {/* 404 */}
@@ -35,7 +35,7 @@ export default function NotFound() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-200)] px-6 text-[13px] font-semibold text-[#111827] transition-all hover:bg-[var(--hafta-ylw-300)] shadow-sm active:scale-[0.98]"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-200)] px-6 text-[13px] font-semibold text-[#111827] transition-all hover:bg-[var(--hafta-org-300)]  active:scale-[0.98]"
               >
                 <Home className="h-4 w-4" />
                 Kembali ke Beranda

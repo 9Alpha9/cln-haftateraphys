@@ -97,7 +97,7 @@ export function MedicalRecordActions({ record, className }: { record: MedicalRec
         type="button"
         onClick={() => setIsOpen((v) => !v)}
         disabled={loading || printing}
-        className="h-10 px-3 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 text-xs sm:text-[13px] font-semibold inline-flex items-center justify-center gap-2 cursor-pointer transition-all focus-visible:outline-none focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[#f7f000]/35 disabled:cursor-not-allowed disabled:opacity-60"
+        className="h-10 px-3 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 text-xs sm:text-[13px] font-semibold inline-flex items-center justify-center gap-2 cursor-pointer transition-all focus-visible:outline-none focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <MoreVertical className="w-4 h-4 shrink-0" />
         {/* <span className="hidden sm:inline">Aksi Lebih Banyak</span> */}

@@ -97,7 +97,7 @@ export function HomeProgramPanel({
     <>
       {!program ? (
         <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-dashed border-stone-200 bg-white p-4 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
             <Dumbbell className="h-6 w-6" />
           </span>
           <p className="mt-3 text-sm font-bold text-[#181700]">Belum ada program latihan</p>
@@ -108,7 +108,7 @@ export function HomeProgramPanel({
             <button
               type="button"
               onClick={() => setFormOpen(true)}
-              className="mt-4 inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)]"
+              className="mt-4 inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
             >
               <Plus className="h-3.5 w-3.5" />
               Buat Program Latihan
@@ -291,7 +291,7 @@ function HomeProgramForm({
             type="submit"
             form={formId}
             disabled={pending}
-            className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:cursor-not-allowed disabled:opacity-60 sm:h-11 sm:px-5 sm:text-[13px]"
+            className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] disabled:cursor-not-allowed disabled:opacity-60 sm:h-11 sm:px-5 sm:text-[13px]"
           >
             {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Simpan Program
@@ -352,7 +352,7 @@ function HomeProgramForm({
                     className={cn(
                       'inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full text-xs font-semibold transition-colors',
                       patientVisible === option.value
-                        ? 'bg-[#181700] font-bold text-white shadow-2xs'
+                        ? 'bg-[#181700] font-bold text-white'
                         : 'text-stone-500 hover:text-[#181700]',
                     )}
                   >
@@ -399,46 +399,61 @@ function HomeProgramForm({
                 rows={2}
                 placeholder="Instruksi gerakan yang harus dilakukan pasien"
                 required
-                className="w-full resize-y rounded-xl border border-stone-200/90 bg-white px-3 py-2.5 text-sm leading-relaxed text-[#181700] outline-none transition-colors placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-ylw-100)]"
+                className="w-full resize-y rounded-xl border border-stone-200/90 bg-white px-3 py-2.5 text-sm leading-relaxed text-[#181700] outline-none transition-colors placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-100)]"
               />
 
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                <Input
-                  type="number"
-                  min={0}
-                  value={item.sets}
-                  onChange={(e) => updateItem(item.key, 'sets', e.target.value)}
-                  placeholder="Set"
-                  aria-label="Set"
-                />
-                <Input
-                  type="number"
-                  min={0}
-                  value={item.repetitions}
-                  onChange={(e) => updateItem(item.key, 'repetitions', e.target.value)}
-                  placeholder="Repetisi"
-                  aria-label="Repetisi"
-                />
-                <Input
-                  type="number"
-                  min={0}
-                  value={item.durationSeconds}
-                  onChange={(e) => updateItem(item.key, 'durationSeconds', e.target.value)}
-                  placeholder="Detik"
-                  aria-label="Durasi detik"
-                />
-                <Input
-                  value={item.frequencyText}
-                  onChange={(e) => updateItem(item.key, 'frequencyText', e.target.value)}
-                  placeholder="Frekuensi"
-                  aria-label="Frekuensi"
-                />
+                <div className="space-y-1">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={item.sets}
+                    onChange={(e) => updateItem(item.key, 'sets', e.target.value)}
+                    placeholder="Set"
+                    aria-label="Set"
+                  />
+                  <span className="text-[10px] text-stone-400">Jumlah set latihan</span>
+                </div>
+                <div className="space-y-1">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={item.repetitions}
+                    onChange={(e) => updateItem(item.key, 'repetitions', e.target.value)}
+                    placeholder="Repetisi"
+                    aria-label="Repetisi"
+                  />
+                  <span className="text-[10px] text-stone-400">Repetisi per set</span>
+                </div>
+                <div className="space-y-1">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={item.durationSeconds}
+                    onChange={(e) => updateItem(item.key, 'durationSeconds', e.target.value)}
+                    placeholder="Detik"
+                    aria-label="Durasi detik"
+                  />
+                  <span className="text-[10px] text-stone-400">Durasi gerakan</span>
+                </div>
+                <div className="space-y-1">
+                  <Input
+                    value={item.frequencyText}
+                    onChange={(e) => updateItem(item.key, 'frequencyText', e.target.value)}
+                    placeholder="Frekuensi"
+                    aria-label="Frekuensi"
+                  />
+                  <span className="text-[10px] text-stone-400">Contoh: 3x sehari</span>
+                </div>
               </div>
-              <Input
-                value={item.precaution}
-                onChange={(e) => updateItem(item.key, 'precaution', e.target.value)}
-                placeholder="Perhatian / kontraindikasi (opsional)"
-              />
+              <div className="space-y-1">
+                <Input
+                  value={item.precaution}
+                  onChange={(e) => updateItem(item.key, 'precaution', e.target.value)}
+                  placeholder="Perhatian / kontraindikasi (opsional)"
+                />
+                <span className="text-[10px] text-stone-400">Perhatian khusus bagi pasien saat melaksanakan latihan ini.</span>
+              </div>
             </div>
           ))}
 

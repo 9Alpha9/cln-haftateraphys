@@ -17,20 +17,13 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  SCHEDULED: 'border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] text-[#181700]',
+  SCHEDULED: 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-[#181700]',
   CONFIRMED: 'border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]',
   IN_PROGRESS: 'border-blue-200 bg-blue-50 text-blue-700',
   COMPLETED: 'border-stone-200 bg-stone-100 text-stone-700',
   CANCELLED: 'border-red-200 bg-red-50 text-red-700',
   RESCHEDULED: 'border-amber-200 bg-amber-50 text-amber-800',
   NO_SHOW: 'border-red-200 bg-red-100 text-red-800',
-};
-
-const TYPE_LABELS: Record<string, string> = {
-  INITIAL_ASSESSMENT: 'Assessment Awal',
-  THERAPY_SESSION: 'Sesi Terapi',
-  FOLLOW_UP: 'Tindak Lanjut',
-  EVALUATION: 'Evaluasi',
 };
 
 function toDateKey(value: Date | string) {
@@ -58,8 +51,7 @@ function SessionRow({ appointment }: { appointment: PatientPortalAppointment }) 
       <div className="min-w-0">
         <p className="text-sm font-bold text-[#181700]">{formatDate(appointment.scheduledDate)}</p>
         <p className="mt-0.5 text-xs text-stone-600">
-          {appointment.startTime} · {appointment.durationMinutes} menit ·{' '}
-          {TYPE_LABELS[appointment.type] ?? appointment.type}
+          {appointment.startTime} · {appointment.durationMinutes} menit
         </p>
         <p className="mt-0.5 text-xs text-stone-500">
           {appointment.therapistName ?? 'Fisioterapis Hafta'}

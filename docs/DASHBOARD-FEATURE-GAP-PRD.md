@@ -780,14 +780,14 @@ HOME_PROGRAM_ARCHIVED
 
 ### 6.9 Acceptance Criteria — GAP-003
 
-- [ ] Home Exercise reuses/link existing Treatment Plan.
-- [ ] Therapist authorization required for clinical instructions.
-- [ ] USER cannot edit prescription.
-- [ ] USER only sees own patient-visible program.
-- [ ] Program lifecycle is clear.
-- [ ] No AI treatment generation.
-- [ ] Mobile patient experience works.
-- [ ] Authorization tests pass.
+- [ ] Home Exercise reuses/link existing Treatment Plan (schema tersedia; auto-link belum diisi).
+- [x] Therapist authorization required for clinical instructions.
+- [x] USER cannot edit prescription.
+- [x] USER only sees own patient-visible program.
+- [x] Program lifecycle is clear.
+- [x] No AI treatment generation.
+- [x] Mobile patient experience works (`/dashboard/exercises`).
+- [ ] Authorization tests pass (route-policy test added; scope tests pending).
 
 ## 7. GAP-004 — Consent Lifecycle Management
 
@@ -919,14 +919,14 @@ CONSENT_POLICY_UPDATED
 
 ### 7.9 Acceptance Criteria — GAP-004
 
-- [ ] Existing consent requirement preserved.
-- [ ] Consent has type and version.
-- [ ] Optional media consent remains separate.
-- [ ] Historical consent is not hard-deleted.
-- [ ] Patient can see own consent status.
-- [ ] Staff cannot forge patient consent.
-- [ ] Sensitive mutations audited.
-- [ ] Authorization tests pass.
+- [x] Existing consent requirement preserved.
+- [x] Consent has type and version.
+- [x] Optional media consent remains separate.
+- [x] Historical consent is not hard-deleted.
+- [x] Patient can see own consent status.
+- [x] Staff cannot forge patient consent.
+- [x] Sensitive mutations audited.
+- [ ] Authorization tests pass (route-policy test added; full scope tests pending).
 
 ## 8. GAP-005 — Notification Center (P1)
 

@@ -1,6 +1,6 @@
-import { and, asc, eq, isNull } from 'drizzle-orm';
+import { and, asc, eq, inArray, isNull } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { patients, profiles, users } from '@/db/schema';
+import { patientAssignments, patients, profiles, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 
@@ -13,14 +13,28 @@ export async function getAppointmentFormOptions({ patientId }: { patientId?: str
   }
 
   const db = getDb();
+  const patientFilters = [isNull(patients.archivedAt)];
+  if (patientId) patientFilters.push(eq(patients.id, patientId));
+  if (role === 'THERAPIST') {
+    patientFilters.push(
+      inArray(
+        patients.id,
+        db
+          .select({ patientId: patientAssignments.patientId })
+          .from(patientAssignments)
+          .where(
+            and(
+              eq(patientAssignments.staffUserId, session.user.id),
+              isNull(patientAssignments.activeUntil),
+            ),
+          ),
+      ),
+    );
+  }
   const patientOptions = await db
     .select({ id: patients.id, label: patients.fullName })
     .from(patients)
-    .where(
-      patientId
-        ? and(isNull(patients.archivedAt), eq(patients.id, patientId))
-        : isNull(patients.archivedAt)
-    )
+    .where(and(...patientFilters))
     .orderBy(asc(patients.fullName));
 
   const therapistOptions =

@@ -79,7 +79,7 @@ export function IntakeReviewActions({
             onChange={(event) => setReviewMessage(event.target.value)}
             disabled={pending}
             rows={4}
-            className="flex min-h-[6rem] w-full resize-none rounded-xl border border-[#E9E2D8] bg-[#FBF9F6] px-3.5 py-2.5 text-sm leading-relaxed text-[#1F2937] placeholder:text-[#9CA3AF] focus-visible:outline-none focus-visible:border-[var(--hafta-ylw-400)] focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-400)]/20 disabled:cursor-not-allowed disabled:opacity-60 transition-all"
+            className="flex min-h-[6rem] w-full resize-none rounded-xl border border-[#E9E2D8] bg-[#FBF9F6] px-3.5 py-2.5 text-sm leading-relaxed text-[#1F2937] placeholder:text-[#9CA3AF] focus-visible:outline-none focus-visible:border-[var(--hafta-org-400)] focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-400)]/20 disabled:cursor-not-allowed disabled:opacity-60 transition-all"
           />
         </div>
       ) : null}

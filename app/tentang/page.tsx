@@ -97,7 +97,7 @@ export default function AboutPage() {
 
       <main className="flex-1">
         {/* Header / Hero: proporsi dan fokus gambar sama dengan halaman utama agar foto tidak terpotong */}
-        <section className="relative isolate overflow-hidden bg-[var(--hafta-ylw-950)] text-white">
+        <section className="relative isolate overflow-hidden bg-[var(--hafta-org-950)] text-white">
           <Image
             src="/images/backgrounds/bg-hf-11.png"
             alt="Fisioterapi profesional di Hafta Fisioterapi Sidoarjo"
@@ -115,7 +115,7 @@ export default function AboutPage() {
           <Container>
             <ScrollReveal direction="left" className="max-w-2xl py-16 md:py-24">
               <div className="flex items-center gap-3">
-                <span className="h-0.5 w-8 bg-[var(--hafta-ylw-100)] shrink-0" aria-hidden="true" />
+                <span className="h-0.5 w-8 bg-[var(--hafta-org-100)] shrink-0" aria-hidden="true" />
                 <span className="text-sm font-medium tracking-wide text-white/90">
                   Tentang Hafta Fisioterapi
                 </span>
@@ -136,7 +136,7 @@ export default function AboutPage() {
                   href="https://wa.me/6281232932872"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-6 text-sm font-bold text-[var(--hafta-ylw-950)] shadow-sm transition-colors hover:bg-[var(--hafta-ylw-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-100)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#181700]"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#181700]"
                 >
                   Konsultasi via WhatsApp
                   <ArrowRight className="h-4 w-4" />
@@ -157,12 +157,12 @@ export default function AboutPage() {
           <Container>
             <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
               <ScrollReveal direction="left">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                   Kisah &amp; Dedikasi
                 </div>
 
-                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl lg:text-4xl">
+                <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl lg:text-4xl">
                   Layanan fisioterapi yang ramah, jelas, dan dekat dengan Anda
                 </h2>
 
@@ -183,12 +183,12 @@ export default function AboutPage() {
                     <ScrollReveal
                       key={item.title}
                       delay={idx * 0.08}
-                      className="rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-5 shadow-xs"
+                      className="rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-5 -xs"
                     >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)] shadow-xs">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)] -xs">
                         <item.icon className="h-5 w-5" />
                       </div>
-                      <h3 className="mt-3.5 font-bold text-[var(--hafta-ylw-950)] text-sm sm:text-base">
+                      <h3 className="mt-3.5 font-bold text-[var(--hafta-org-950)] text-sm sm:text-base">
                         {item.title}
                       </h3>
                       <p className="mt-1.5 text-xs sm:text-sm leading-relaxed text-stone-600">
@@ -201,7 +201,7 @@ export default function AboutPage() {
 
               {/* Visual Card dengan framing yang konsisten */}
               <ScrollReveal direction="right" delay={0.2} className="relative pb-6 pr-2 sm:pb-8 sm:pr-4">
-                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-stone-200 bg-stone-100 shadow-xl">
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl border border-stone-200 bg-stone-100 ">
                   <Image
                     src="/images/backgrounds/bg-hf-10.png"
                     alt="Sesi terapi fisioterapi di Hafta Fisioterapi Sidoarjo"
@@ -212,8 +212,8 @@ export default function AboutPage() {
                   />
                 </div>
 
-                <div className="absolute -bottom-2 right-2 sm:bottom-0 sm:right-0 rounded-2xl border border-white/10 bg-[var(--hafta-ylw-950)] px-5 py-3.5 text-white shadow-xl flex items-center gap-3">
-                  <span className="text-3xl sm:text-4xl font-extrabold text-[var(--hafta-ylw-100)]">5+</span>
+                <div className="absolute -bottom-2 right-2 sm:bottom-0 sm:right-0 rounded-2xl border border-white/10 bg-[var(--hafta-org-950)] px-5 py-3.5 text-white  flex items-center gap-3">
+                  <span className="text-3xl sm:text-4xl font-extrabold text-[var(--hafta-org-100)]">5+</span>
                   <div className="text-xs leading-tight font-medium text-stone-200">
                     <p className="font-bold text-white text-sm">Tahun Pengalaman</p>
                     <p className="text-[11px] text-stone-300">Klinis &amp; Olahraga</p>
@@ -228,11 +228,11 @@ export default function AboutPage() {
         <Section className="border-y border-stone-200/60 bg-[#FEFEF6] py-16 md:py-24">
           <Container>
             <ScrollReveal className="max-w-2xl">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Cakupan Layanan
               </div>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl lg:text-4xl">
+              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl lg:text-4xl">
                 Solusi fisioterapi sesuai kebutuhan kondisi fisik Anda
               </h2>
               <p className="mt-3 text-base leading-relaxed text-stone-600">
@@ -246,13 +246,13 @@ export default function AboutPage() {
                 <ScrollReveal
                   key={svc.title}
                   delay={idx * 0.08}
-                  className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-white p-6 shadow-xs transition-shadow hover:shadow-md"
+                  className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-white p-6 -xs transition- hover:"
                 >
                   <div>
                     <span className="inline-block rounded-full bg-[#FEFEF6] px-3 py-1 text-xs font-semibold text-stone-700 border border-stone-200/70">
                       {svc.badge}
                     </span>
-                    <h3 className="mt-4 text-base font-bold text-[var(--hafta-ylw-950)]">
+                    <h3 className="mt-4 text-base font-bold text-[var(--hafta-org-950)]">
                       {svc.title}
                     </h3>
                     <p className="mt-2 text-xs sm:text-sm leading-relaxed text-stone-600">
@@ -262,7 +262,7 @@ export default function AboutPage() {
                   <div className="mt-6 pt-4 border-t border-stone-100">
                     <Link
                       href="/layanan"
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--hafta-ylw-950)] hover:text-stone-700"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[var(--hafta-org-950)] hover:text-stone-700"
                     >
                       Pelajari selengkapnya
                       <ArrowRight className="h-3.5 w-3.5" />
@@ -278,11 +278,11 @@ export default function AboutPage() {
         <Section className="bg-white py-16 md:py-24">
           <Container>
             <ScrollReveal className="mx-auto max-w-2xl text-center">
-              <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+              <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Informasi &amp; Kunjungan
               </div>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl">
+              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
                 Akses mudah menuju layanan kami
               </h2>
               <p className="mt-3 text-base leading-relaxed text-stone-600">
@@ -291,11 +291,11 @@ export default function AboutPage() {
             </ScrollReveal>
 
             <div className="mt-12 grid gap-6 md:grid-cols-3">
-              <ScrollReveal delay={0} className="rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-7 shadow-xs">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)]">
+              <ScrollReveal delay={0} className="rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-7 -xs">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)]">
                   <MapPin className="h-6 w-6" />
                 </div>
-                <h3 className="mt-5 text-lg font-bold text-[var(--hafta-ylw-950)]">Lokasi Klinik</h3>
+                <h3 className="mt-5 text-lg font-bold text-[var(--hafta-org-950)]">Lokasi Klinik</h3>
                 <p className="mt-2 text-sm leading-relaxed text-stone-600">
                   Praktik Fisioterapi di Sidoarjo, Jawa Timur. Lingkungan yang tenang dan nyaman untuk sesi terapi.
                 </p>
@@ -303,18 +303,18 @@ export default function AboutPage() {
                   href="https://maps.app.goo.gl/rtobQBMKrAMkcqxF7"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-[var(--hafta-ylw-950)] hover:underline"
+                  className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-[var(--hafta-org-950)] hover:underline"
                 >
                   Buka di Google Maps
                   <ArrowRight className="h-4 w-4" />
                 </a>
               </ScrollReveal>
 
-              <ScrollReveal delay={0.1} className="rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-7 shadow-xs">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)]">
+              <ScrollReveal delay={0.1} className="rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-7 -xs">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)]">
                   <Clock3 className="h-6 w-6" />
                 </div>
-                <h3 className="mt-5 text-lg font-bold text-[var(--hafta-ylw-950)]">Sistem Reservasi</h3>
+                <h3 className="mt-5 text-lg font-bold text-[var(--hafta-org-950)]">Sistem Reservasi</h3>
                 <p className="mt-2 text-sm leading-relaxed text-stone-600">
                   Sesi terapi dijadwalkan terlebih dahulu agar Anda tidak perlu mengantre lama dan terapis dapat
                   mempersiapkan program Anda secara optimal.
@@ -323,18 +323,18 @@ export default function AboutPage() {
                   href="https://wa.me/6281232932872"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-[var(--hafta-ylw-950)] hover:underline"
+                  className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-[var(--hafta-org-950)] hover:underline"
                 >
                   Cek Jadwal Tersedia
                   <ArrowRight className="h-4 w-4" />
                 </a>
               </ScrollReveal>
 
-              <ScrollReveal delay={0.2} className="rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-7 shadow-xs">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)]">
+              <ScrollReveal delay={0.2} className="rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-7 -xs">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)]">
                   <MessageCircle className="h-6 w-6" />
                 </div>
-                <h3 className="mt-5 text-lg font-bold text-[var(--hafta-ylw-950)]">Konsultasi Awal</h3>
+                <h3 className="mt-5 text-lg font-bold text-[var(--hafta-org-950)]">Konsultasi Awal</h3>
                 <p className="mt-2 text-sm leading-relaxed text-stone-600">
                   Ragu mengenai keluhan atau jenis layanan yang tepat? Hubungi kami langsung melalui WhatsApp untuk
                   berdiskusi santai sebelum berkunjung.
@@ -343,7 +343,7 @@ export default function AboutPage() {
                   href="https://wa.me/6281232932872"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-[var(--hafta-ylw-950)] hover:underline"
+                  className="mt-5 inline-flex items-center gap-1.5 text-sm font-bold text-[var(--hafta-org-950)] hover:underline"
                 >
                   Kirim Pesan WhatsApp
                   <ArrowRight className="h-4 w-4" />
@@ -357,11 +357,11 @@ export default function AboutPage() {
         <Section className="border-t border-stone-200/60 bg-[#FEFEF6] py-16 md:py-24">
           <Container>
             <ScrollReveal className="mx-auto max-w-2xl text-center">
-              <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+              <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Dokumentasi Nyata
               </div>
-              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl">
+              <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
                 Aktivitas &amp; Edukasi Fisioterapi
               </h2>
               <p className="mt-3 text-base leading-relaxed text-stone-600">
@@ -379,7 +379,7 @@ export default function AboutPage() {
         <Section className="bg-white py-16 md:py-20">
           <Container className="text-center">
             <ScrollReveal className="mx-auto max-w-2xl">
-              <h2 className="text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] sm:text-3xl lg:text-4xl">
+              <h2 className="text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl lg:text-4xl">
                 Siap memulihkan kenyamanan gerak Anda?
               </h2>
               <p className="mx-auto mt-4 text-base leading-relaxed text-stone-600">
@@ -391,7 +391,7 @@ export default function AboutPage() {
                   href="https://wa.me/6281232932872"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-6 text-sm font-bold text-[var(--hafta-ylw-950)] shadow-sm transition-colors hover:bg-[var(--hafta-ylw-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-100)]"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)]"
                 >
                   <MessageCircle className="h-4 w-4" />
                   Hubungi via WhatsApp

@@ -87,7 +87,7 @@ export function CreateUserForm({ canCreateStaffAccounts }: { canCreateStaffAccou
               minLength={12}
               placeholder="Minimal 12 karakter"
               disabled={pending}
-              className="flex h-10 w-full min-w-0 rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[#f7f000]/35 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 pr-10"
+              className="flex h-10 w-full min-w-0 rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-[#181700] focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 pr-10"
             />
             <button
               type="button"

@@ -5,6 +5,7 @@ import { sessions, users } from '@/db/schema/auth';
 import { eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { cache } from 'react';
 import type { Role } from '@/lib/permissions';
 
 export class UnauthenticatedError extends Error {
@@ -14,13 +15,13 @@ export class UnauthenticatedError extends Error {
   }
 }
 
-export async function requireSession(options?: { redirectToLogin?: boolean }) {
+async function loadSession(redirectToLogin: boolean) {
   const session = await getAuth().api.getSession({
     headers: await headers(),
   });
 
   if (!session?.user?.id) {
-    if (options?.redirectToLogin) {
+    if (redirectToLogin) {
       // Dashboard adalah pintu masuk pasien. Pengunjung tanpa akun diarahkan
       // untuk membuat akun terlebih dahulu, dengan tautan login tersedia di
       // halaman pendaftaran bagi pasien yang sudah memiliki akun.
@@ -45,7 +46,7 @@ export async function requireSession(options?: { redirectToLogin?: boolean }) {
     // Revoke active sessions immediately so a suspended account cannot keep
     // accessing clinical data with an existing cookie.
     await db.delete(sessions).where(eq(sessions.userId, session.user.id));
-    if (options?.redirectToLogin) {
+    if (redirectToLogin) {
       redirect('/login?reason=suspended');
     }
     throw new UnauthenticatedError();
@@ -54,4 +55,13 @@ export async function requireSession(options?: { redirectToLogin?: boolean }) {
   const role = (account?.accountType as Role) ?? 'USER';
 
   return { session, role };
+}
+
+// Dedupe session + profile lookups across layout, page, and nested server
+// components within the same request. This removes the repeated auth
+// round-trips that made client-side navigation feel slow.
+const getCachedSession = cache((redirectToLogin: boolean) => loadSession(redirectToLogin));
+
+export async function requireSession(options?: { redirectToLogin?: boolean }) {
+  return getCachedSession(options?.redirectToLogin ?? false);
 }

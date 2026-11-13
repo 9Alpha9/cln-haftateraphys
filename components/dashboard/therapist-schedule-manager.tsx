@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import {
   AlertTriangle,
   CalendarOff,
-  ChevronDown,
   Plus,
   Trash2,
 } from 'lucide-react';
+import { AppSelect } from '@/components/ui/app-select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { useToast } from '@/components/ui/toast';
 import {
@@ -66,29 +66,27 @@ export function TherapistScheduleManager({
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <section className="rounded-3xl border border-stone-200 bg-white p-4 sm:p-5">
-        <label className="block max-w-sm">
-          <span className="text-xs font-semibold text-stone-500">Pilih fisioterapis</span>
-          <div className="mt-1.5 relative w-full">
-            <select
-              value={selected.therapistId}
-              onChange={(event) => setSelectedId(event.target.value)}
-              className="h-10 w-full cursor-pointer appearance-none rounded-xl border border-stone-200/90 bg-white pl-3 pr-10 text-sm font-semibold text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35 disabled:opacity-60"
-            >
-              {therapists.map((therapist) => (
-                <option key={therapist.therapistId} value={therapist.therapistId}>
-                  {therapist.therapistName}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-500" />
-          </div>
-        </label>
-        <p className="mt-3 text-xs leading-relaxed text-stone-500">
-          Slot pasien hanya dihitung dari jam kerja yang tersimpan di sini, dikurangi appointment aktif,
-          cuti, dan hari libur nasional.
-        </p>
-      </section>
+      {therapists.length > 1 ? (
+        <section className="rounded-3xl border border-stone-200 bg-white p-4 sm:p-5">
+          <label className="block max-w-sm">
+            <span className="text-xs font-semibold text-stone-500">Pilih fisioterapis</span>
+            <div className="mt-1.5 relative w-full">
+              <AppSelect
+                value={selected.therapistId}
+                onChange={(value) => setSelectedId(value)}
+                options={therapists.map((therapist) => ({
+                  value: therapist.therapistId,
+                  label: therapist.therapistName,
+                }))}
+              />
+            </div>
+          </label>
+          <p className="mt-3 text-xs leading-relaxed text-stone-500">
+            Slot pasien hanya dihitung dari jam kerja yang tersimpan di sini, dikurangi appointment aktif,
+            cuti, dan hari libur nasional.
+          </p>
+        </section>
+      ) : null}
 
       <TherapistScheduleEditor
         key={selected.therapistId}
@@ -255,7 +253,7 @@ export function TherapistScheduleEditor({
                   <button
                     type="button"
                     onClick={() => addBlock(day.value)}
-                    className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border border-stone-200 px-3 text-[11px] font-semibold text-[#181700] hover:bg-[var(--hafta-ylw-50)]"
+                    className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border border-stone-200 px-3 text-[11px] font-semibold text-[#181700] hover:bg-[var(--hafta-org-50)]"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Tambah Jam
@@ -272,14 +270,14 @@ export function TherapistScheduleEditor({
                           type="time"
                           value={entry.startTime}
                           onChange={(event) => updateBlock(entry.key, { startTime: event.target.value })}
-                          className="h-10 rounded-xl border border-stone-200/90 px-3 text-xs font-semibold text-[#181700] outline-none focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35"
+                          className="h-10 rounded-xl border border-stone-200/90 px-3 text-xs font-semibold text-[#181700] outline-none focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
                         />
                         <span className="text-xs text-stone-400">s.d.</span>
                         <input
                           type="time"
                           value={entry.endTime}
                           onChange={(event) => updateBlock(entry.key, { endTime: event.target.value })}
-                          className="h-10 rounded-xl border border-stone-200/90 px-3 text-xs font-semibold text-[#181700] outline-none focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35"
+                          className="h-10 rounded-xl border border-stone-200/90 px-3 text-xs font-semibold text-[#181700] outline-none focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
                         />
                         <button
                           type="button"
@@ -323,7 +321,7 @@ export function TherapistScheduleEditor({
                 }}
                 placeholder="Pilih tanggal mulai"
                 disablePast
-                className="mt-1 h-10 w-full rounded-xl border border-stone-200 bg-white text-sm text-[#181700] focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35"
+                className="mt-1 h-10 w-full rounded-xl border border-stone-200 bg-white text-sm text-[#181700] focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
               />
           </label>
           <label className="block">
@@ -332,7 +330,7 @@ export function TherapistScheduleEditor({
                 value={timeOffEnd}
                 onChange={(value) => setTimeOffEnd(timeOffStart && value < timeOffStart ? timeOffStart : value)}
                 placeholder="Pilih tanggal selesai"
-                className="mt-1 h-10 w-full rounded-xl border-stone-200 bg-white text-sm text-[#181700] focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35"
+                className="mt-1 h-10 w-full rounded-xl border-stone-200 bg-white text-sm text-[#181700] focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
               />
           </label>
           <label className="block">
@@ -342,14 +340,14 @@ export function TherapistScheduleEditor({
                 value={timeOffReason}
                 onChange={(event) => setTimeOffReason(event.target.value)}
                 placeholder="Contoh: cuti tahunan"
-                className="mt-1 h-10 w-full rounded-xl border border-stone-200 px-3 text-sm text-[#181700] outline-none focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35"
+                className="mt-1 h-10 w-full rounded-xl border border-stone-200 px-3 text-sm text-[#181700] outline-none focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
               />
           </label>
           <button
             type="button"
             disabled={pending}
             onClick={addTimeOff}
-            className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-200 px-4 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-ylw-50)] disabled:opacity-60"
+            className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-200 px-4 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-org-50)] disabled:opacity-60"
           >
             <Plus className="h-4 w-4" />
             Blokir Tanggal

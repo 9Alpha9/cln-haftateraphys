@@ -10,10 +10,10 @@ export function ContactReviewCard({ review }: { review: FeaturableReview }) {
   const showPhoto = Boolean(review.profilePhotoUrl && !imageError);
 
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-3.5 sm:p-5 shadow-xs">
+    <div className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-3.5 sm:p-5">
       <div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1 text-[var(--hafta-ylw-950)]">
+          <div className="flex items-center gap-1 text-[var(--hafta-org-950)]">
             {[...Array(review.rating)].map((_, i) => (
               <Star key={i} className="h-4 w-4 fill-current text-amber-400" />
             ))}
@@ -34,11 +34,11 @@ export function ContactReviewCard({ review }: { review: FeaturableReview }) {
             alt={`Foto profil ${review.authorName}`}
             referrerPolicy="no-referrer"
             onError={() => setImageError(true)}
-            className="h-10 w-10 shrink-0 rounded-full object-cover shadow-2xs border border-stone-200"
+            className="h-10 w-10 shrink-0 rounded-full object-cover border border-stone-200"
             loading="lazy"
           />
         ) : (
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-xs font-bold text-[var(--hafta-ylw-950)]">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-xs font-bold text-[var(--hafta-org-950)]">
             {initial}
           </span>
         )}

@@ -213,7 +213,7 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
             <button
               type="button"
               onClick={() => setShowNewEpisodeConfirm(true)}
-              className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)]"
+              className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
             >
               <FilePlus2 className="h-4 w-4" />
               Ajukan Keluhan Baru (Episode Baru)
@@ -322,7 +322,7 @@ function IntakeDrawer({
             <button
               type="button"
               onClick={onEdit}
-              className="w-full h-11 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all px-4 sm:px-5"
+              className="w-full h-11 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer transition-all px-4 sm:px-5"
             >
               <PencilLine className="h-4 w-4" />
               Perbarui Jawaban

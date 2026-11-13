@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean, uuid } from 'drizzle-orm/pg-core';
+import { integer, pgTable, text, timestamp, boolean, uuid } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const users = pgTable('users', {
@@ -8,6 +8,7 @@ export const users = pgTable('users', {
   emailVerified: boolean('email_verified').default(false).notNull(),
   name: text('name'),
   image: text('image'),
+  twoFactorEnabled: boolean('two_factor_enabled').default(false).notNull(),
   suspendedAt: timestamp('suspended_at', { withTimezone: true }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -72,3 +73,18 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+
+export const twoFactor = pgTable('twoFactor', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  secret: text('secret').notNull(),
+  backupCodes: text('backup_codes').notNull(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  verified: boolean('verified').default(true),
+  failedVerificationCount: integer('failed_verification_count').default(0).notNull(),
+  lockedUntil: timestamp('locked_until', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});

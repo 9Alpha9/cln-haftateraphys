@@ -8,18 +8,18 @@
    1. RAW HEX VALUES — harus di atas @theme
    ═══════════════════════════════════════════════════ */
 :root {
-  /* ── Hafta Yellow ── */
-  --hafta-ylw-50: #fffc8a;
-  --hafta-ylw-100: #f7f000;
-  --hafta-ylw-200: #e3db00;
-  --hafta-ylw-300: #c4be00;
-  --hafta-ylw-400: #9c9700;
-  --hafta-ylw-500: #7a7600;
-  --hafta-ylw-600: #615e00;
-  --hafta-ylw-700: #4d4a00;
-  --hafta-ylw-800: #3a3700;
-  --hafta-ylw-900: #2a2800;
-  --hafta-ylw-950: #181700;
+  /* ── Hafta Orange ── */
+  --hafta-org-50: #fff4e6;
+  --hafta-org-100: #ffe8cc;
+  --hafta-org-200: #ffd097;
+  --hafta-org-300: #ff971b;
+  --hafta-org-400: #dd7800;
+  --hafta-org-500: #b36100;
+  --hafta-org-600: #8b4b00;
+  --hafta-org-700: #643700;
+  --hafta-org-800: #402300;
+  --hafta-org-900: #1f1100;
+  --hafta-org-950: #050300;
 
   /* ── Hafta Red ── */
   --hafta-red-50: #fcf3f2;
@@ -60,18 +60,18 @@
   --hafta-ble-900: #03186a;
   --hafta-ble-950: #020e41;
 
-  /* -- Hafta Orange -- */
-  --hafta-org-50: #fcf3ef;
-  --hafta-org-100: #fce2d6;
-  --hafta-org-200: #fec6ac;
-  --hafta-org-300: #fd9a6a;
-  --hafta-org-400: #e7660f;
-  --hafta-org-500: #b54e09;
-  --hafta-org-600: #923e06;
-  --hafta-org-700: #753004;
-  --hafta-org-800: #592302;
-  --hafta-org-900: #401904;
-  --hafta-org-950: #270e03;
+  /* ── Hafta Orange ── */
+  --hafta-org-50: #fff4e6;
+  --hafta-org-100: #ffe8cc;
+  --hafta-org-200: #ffd097;
+  --hafta-org-300: #ff971b;
+  --hafta-org-400: #dd7800;
+  --hafta-org-500: #b36100;
+  --hafta-org-600: #8b4b00;
+  --hafta-org-700: #643700;
+  --hafta-org-800: #402300;
+  --hafta-org-900: #1f1100;
+  --hafta-org-950: #050300;
   /* ── Semantic / shadcn tokens ── */
   --background: #F9FAFB;
   --foreground: #111827;
@@ -79,32 +79,32 @@
   --card-foreground: #111827;
   --popover: #FFFFFF;
   --popover-foreground: #111827;
-  --primary: var(--hafta-ylw-200);
+  --primary: var(--hafta-org-200);
   --primary-foreground: #111827;
   --secondary: #F1F5F9;
   --secondary-foreground: #475569;
   --muted: #F1F5F9;
   --muted-foreground: #6B7280;
-  --accent: var(--hafta-ylw-50);
-  --accent-foreground: var(--hafta-ylw-900);
+  --accent: var(--hafta-org-50);
+  --accent-foreground: var(--hafta-org-900);
   --destructive: var(--hafta-red-500);
   --border: #E5E7EB;
   --input: #E5E7EB;
-  --ring: var(--hafta-ylw-200);
-  --chart-1: var(--hafta-ylw-200);
-  --chart-2: var(--hafta-ylw-50);
+  --ring: var(--hafta-org-200);
+  --chart-1: var(--hafta-org-200);
+  --chart-2: var(--hafta-org-50);
   --chart-3: var(--hafta-grn-500);
   --chart-4: var(--hafta-ble-500);
   --chart-5: var(--hafta-red-500);
   --radius: 0.75rem;
   --sidebar: #FFFFFF;
   --sidebar-foreground: #111827;
-  --sidebar-primary: var(--hafta-ylw-200);
+  --sidebar-primary: var(--hafta-org-200);
   --sidebar-primary-foreground: #111827;
-  --sidebar-accent: var(--hafta-ylw-50);
-  --sidebar-accent-foreground: var(--hafta-ylw-900);
+  --sidebar-accent: var(--hafta-org-50);
+  --sidebar-accent-foreground: var(--hafta-org-900);
   --sidebar-border: #E5E7EB;
-  --sidebar-ring: var(--hafta-ylw-200);
+  --sidebar-ring: var(--hafta-org-200);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -112,17 +112,17 @@
    ═══════════════════════════════════════════════════ */
 @theme inline {
   /* ── Hafta palette → Tailwind utilities ── */
-  --color-hafta-ylw-50: var(--hafta-ylw-50);
-  --color-hafta-ylw-100: var(--hafta-ylw-100);
-  --color-hafta-ylw-200: var(--hafta-ylw-200);
-  --color-hafta-ylw-300: var(--hafta-ylw-300);
-  --color-hafta-ylw-400: var(--hafta-ylw-400);
-  --color-hafta-ylw-500: var(--hafta-ylw-500);
-  --color-hafta-ylw-600: var(--hafta-ylw-600);
-  --color-hafta-ylw-700: var(--hafta-ylw-700);
-  --color-hafta-ylw-800: var(--hafta-ylw-800);
-  --color-hafta-ylw-900: var(--hafta-ylw-900);
-  --color-hafta-ylw-950: var(--hafta-ylw-950);
+  --color-hafta-org-50: var(--hafta-org-50);
+  --color-hafta-org-100: var(--hafta-org-100);
+  --color-hafta-org-200: var(--hafta-org-200);
+  --color-hafta-org-300: var(--hafta-org-300);
+  --color-hafta-org-400: var(--hafta-org-400);
+  --color-hafta-org-500: var(--hafta-org-500);
+  --color-hafta-org-600: var(--hafta-org-600);
+  --color-hafta-org-700: var(--hafta-org-700);
+  --color-hafta-org-800: var(--hafta-org-800);
+  --color-hafta-org-900: var(--hafta-org-900);
+  --color-hafta-org-950: var(--hafta-org-950);
 
   --color-hafta-red-50: var(--hafta-red-50);
   --color-hafta-red-100: var(--hafta-red-100);
@@ -159,18 +159,6 @@
   --color-hafta-ble-800: var(--hafta-ble-800);
   --color-hafta-ble-900: var(--hafta-ble-900);
   --color-hafta-ble-950: var(--hafta-ble-950);
-
-  --color-hafta-org-50: var(--hafta-org-50);
-  --color-hafta-org-100: var(--hafta-org-100);
-  --color-hafta-org-200: var(--hafta-org-200);
-  --color-hafta-org-300: var(--hafta-org-300);
-  --color-hafta-org-400: var(--hafta-org-400);
-  --color-hafta-org-500: var(--hafta-org-500);
-  --color-hafta-org-600: var(--hafta-org-600);
-  --color-hafta-org-700: var(--hafta-org-700);
-  --color-hafta-org-800: var(--hafta-org-800);
-  --color-hafta-org-900: var(--hafta-org-900);
-  --color-hafta-org-950: var(--hafta-org-950);
 
   /* ── Fonts ── */
   --font-heading: var(--font-inter), system-ui, sans-serif;
@@ -212,17 +200,17 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   /* ── Semantic aliases ── */
-  --color-brand: var(--hafta-ylw-200);
-  --color-brand-light: var(--hafta-ylw-50);
+  --color-brand: var(--hafta-org-200);
+  --color-brand-light: var(--hafta-org-50);
   --color-brand-soft: #F9FAFB;
-  --color-brand-dark: var(--hafta-ylw-400);
+  --color-brand-dark: var(--hafta-org-400);
   --color-surface: #F9FAFB;
   --color-surface-card: #FFFFFF;
   --color-border-light: #E8ECEB;
   --color-text-primary: #111827;
   --color-text-secondary: #6B7280;
   --color-success: var(--hafta-grn-600);
-  --color-warning: var(--hafta-ylw-500);
+  --color-warning: var(--hafta-org-500);
   --color-danger: var(--hafta-red-600);
   --color-info: var(--hafta-ble-500);
 
@@ -325,4 +313,18 @@ html {
   body {
     background: #ffffff !important;
   }
+}
+
+/* Route loading skeletons: pick the variant that matches the signed-in role. */
+.skeleton-patient-only,
+.skeleton-staff-only {
+  display: none;
+}
+
+[data-role='USER'] .skeleton-patient-only {
+  display: block;
+}
+
+[data-role]:not([data-role='USER']) .skeleton-staff-only {
+  display: block;
 }

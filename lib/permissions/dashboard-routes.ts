@@ -24,10 +24,14 @@ const ROUTE_RULES: readonly DashboardRouteRule[] = [
   { pattern: /^\/dashboard\/settings(?:\/|$)/, roles: ['SUPER_ADMIN'] },
   { pattern: /^\/dashboard\/progress(?:\/|$)/, roles: CLINICAL_ROLES },
   { pattern: /^\/dashboard\/appointments\/new(?:\/|$)/, roles: STAFF_ROLES },
+  { pattern: /^\/dashboard\/therapist-schedule(?:\/|$)/, roles: ['SUPER_ADMIN', 'ADMIN', 'THERAPIST'] },
   { pattern: /^\/dashboard\/appointments(?:\/|$)/, roles: ALL_ROLES },
   { pattern: /^\/dashboard\/intake(?:\/|$)/, roles: ALL_ROLES },
   { pattern: /^\/dashboard\/history(?:\/|$)/, roles: ALL_ROLES },
   { pattern: /^\/dashboard\/notifications(?:\/|$)/, roles: ALL_ROLES },
+  { pattern: /^\/dashboard\/consent(?:\/|$)/, roles: ['USER'] },
+  { pattern: /^\/dashboard\/exercises(?:\/|$)/, roles: ['USER'] },
+  { pattern: /^\/dashboard\/documents(?:\/|$)/, roles: STAFF_ROLES },
   { pattern: /^\/dashboard\/security(?:\/|$)/, roles: ALL_ROLES },
 ];
 

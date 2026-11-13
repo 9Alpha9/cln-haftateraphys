@@ -43,11 +43,11 @@ export function TherapistAnalyticsBento({
 
   // Status mapping
   const statusColors: Record<string, string> = {
-    INTAKE: 'var(--hafta-ylw-950, #181700)',
-    ACTIVE: 'var(--hafta-ylw-200, #e3db00)',
+    INTAKE: 'var(--hafta-org-950, #181700)',
+    ACTIVE: 'var(--hafta-org-200, #e3db00)',
     COMPLETED: '#181700',
     ON_HOLD: 'var(--hafta-org-400, #e7660f)',
-    SCHEDULED: 'var(--hafta-ylw-200, #e3db00)',
+    SCHEDULED: 'var(--hafta-org-200, #e3db00)',
     IN_PROGRESS: 'var(--hafta-grn-500, #21891a)',
     CANCELLED: 'var(--hafta-red-500, #cb2b2b)',
   };
@@ -93,11 +93,11 @@ export function TherapistAnalyticsBento({
       {panel !== 'status' ? (
         <>
       {/* ── 1. GRAFIK UTAMA: TREN SESI & EVALUASI KLINIS (7 KOLOM) ── */}
-      <div className={cn("rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-sm flex flex-col justify-between", panel === 'all' && "lg:col-span-7")}>
+      <div className={cn("rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-5 flex flex-col justify-between", panel === 'all' && "lg:col-span-7")}>
         {/* Header Baris Atas */}
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-stone-100 pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-[#181700]">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-[#181700]">
               <TrendingUp className="h-5 w-5" strokeWidth={2.2} />
             </div>
             <div>
@@ -117,7 +117,7 @@ export function TherapistAnalyticsBento({
               onClick={() => setRange('7d')}
               className={cn(
                 'rounded-full px-3 py-1 font-mono text-[11px] font-bold transition-all cursor-pointer',
-                range === '7d' ? 'bg-[#181700] text-white shadow-2xs' : 'text-stone-500 hover:text-stone-800'
+                range === '7d' ? 'bg-[#181700] text-white' : 'text-stone-500 hover:text-stone-800'
               )}
             >
               7 Hari
@@ -127,7 +127,7 @@ export function TherapistAnalyticsBento({
               onClick={() => setRange('14d')}
               className={cn(
                 'rounded-full px-3 py-1 font-mono text-[11px] font-bold transition-all cursor-pointer',
-                range === '14d' ? 'bg-[#181700] text-white shadow-2xs' : 'text-stone-500 hover:text-stone-800'
+                range === '14d' ? 'bg-[#181700] text-white' : 'text-stone-500 hover:text-stone-800'
               )}
             >
               14 Hari
@@ -138,7 +138,7 @@ export function TherapistAnalyticsBento({
         {/* Legend */}
         <div className="flex items-center gap-4 pt-3 text-xs">
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-ylw-200)]" />
+            <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-org-200)]" />
             <span className="font-semibold text-stone-700">Janji Temu</span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -178,9 +178,9 @@ export function TherapistAnalyticsBento({
                 <Area
                   type="monotone"
                   dataKey="count"
-                  stroke="#e3db00"
+                  stroke="#ff971b"
                   strokeWidth={2.5}
-                  dot={{ r: 3, fill: '#e3db00', strokeWidth: 1, stroke: '#181700' }}
+                  dot={{ r: 3, fill: '#ff971b', strokeWidth: 1, stroke: '#181700' }}
                   fill="url(#trendApptGrad)"
                   name="Janji Temu"
                 />
@@ -206,10 +206,10 @@ export function TherapistAnalyticsBento({
       {panel !== 'trend' ? (
         <>
       {/* ── 2. STATUS PASIEN & DISTRIBUSI SESI (5 KOLOM BENTO) ── */}
-      <div className={cn("rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-5 shadow-sm flex flex-col justify-between", panel === 'all' && "lg:col-span-5")}>
+      <div className={cn("rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-5 flex flex-col justify-between", panel === 'all' && "lg:col-span-5")}>
         <div className="flex items-center justify-between border-b border-stone-100 pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-[#181700]">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-[#181700]">
               <Users className="h-5 w-5" />
             </div>
             <div>

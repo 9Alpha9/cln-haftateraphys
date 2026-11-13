@@ -71,6 +71,53 @@ function formatTime(minutes: number) {
   return `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
 }
 
+function generateMedicalRecordNumber() {
+  const year = new Date().getFullYear();
+  const suffix = Math.floor(100000 + Math.random() * 900000);
+  return `MR-${year}-${suffix}`;
+}
+
+export async function ensurePatientProfileForUser(userId: string) {
+  const db = getDb();
+  const [existing] = await db
+    .select({ id: patients.id, fullName: patients.fullName, medicalRecordNumber: patients.medicalRecordNumber })
+    .from(patients)
+    .where(eq(patients.userId, userId))
+    .limit(1);
+  if (existing) return existing;
+
+  const [user] = await db
+    .select({ name: users.name })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  if (!user) throw new Error('Data pengguna tidak ditemukan.');
+
+  const [created] = await db
+    .insert(patients)
+    .values({
+      userId,
+      fullName: user.name?.trim() || 'Pasien',
+      caseStatus: 'ACTIVE',
+      medicalRecordNumber: generateMedicalRecordNumber(),
+    })
+    .onConflictDoNothing({ target: patients.userId })
+    .returning({
+      id: patients.id,
+      fullName: patients.fullName,
+      medicalRecordNumber: patients.medicalRecordNumber,
+    });
+  if (created) return created;
+
+  const [fallback] = await db
+    .select({ id: patients.id, fullName: patients.fullName, medicalRecordNumber: patients.medicalRecordNumber })
+    .from(patients)
+    .where(eq(patients.userId, userId))
+    .limit(1);
+  if (!fallback) throw new Error('Profil pasien tidak dapat dibuat.');
+  return fallback;
+}
+
 async function getOwnPatient() {
   const { session, role } = await requireSession({ redirectToLogin: true });
   if (role !== 'USER') throw new ForbiddenError();
@@ -135,9 +182,10 @@ export async function getPatientAppointmentRequests(): Promise<PatientAppointmen
 }
 
 export async function getPatientBookingAvailability(days = 75): Promise<AvailabilityDate[]> {
-  // Slot terapis bersifat global. Pasien yang baru mendaftar dan belum punya
-  // baris `patients` tetap harus bisa melihat slot dan mengajukan jadwal.
-  await getOwnPatient();
+  // Akun pasien yang baru mendaftar langsung dipastikan punya profil pasien
+  // sehingga bisa memilih terapis, tanggal, dan jam tanpa error.
+  const { patient, userId } = await getOwnPatient();
+  if (!patient) await ensurePatientProfileForUser(userId);
 
   const db = getDb();
   const today = new Date();

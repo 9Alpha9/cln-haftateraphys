@@ -1,5 +1,7 @@
 import { PatientProfileTabs } from '@/components/patient/patient-profile-tabs';
 import { StaffProfileForm } from '@/components/dashboard/staff-profile-form';
+import { EmailVerificationCard } from '@/components/auth/email-verification-card';
+import { TwoFactorCard } from '@/components/auth/two-factor-card';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
 import { requireSession } from '@/lib/auth/require-session';
 import { PERMISSIONS, requirePermission } from '@/lib/permissions';
@@ -11,8 +13,16 @@ function formatDateForInput(value: Date | null | undefined) {
   return value ? value.toISOString().slice(0, 10) : '';
 }
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
   const { session, role } = await requireSession({ redirectToLogin: true });
+  const { tab } = await searchParams;
+  const initialTab = ['identitas', 'alamat', 'darurat', 'keamanan'].includes(tab ?? '')
+    ? (tab as 'identitas' | 'alamat' | 'darurat' | 'keamanan')
+    : 'identitas';
   const header = (
     <DashboardPageHeader
       title="Data Saya"
@@ -33,6 +43,7 @@ export default async function ProfilePage() {
       <div className="space-y-4 sm:space-y-5">
         {header}
         <PatientProfileTabs
+          initialTab={initialTab}
           email={session.user.email}
           userName={session.user.name ?? ''}
           emailVerified={Boolean(session.user.emailVerified)}
@@ -62,6 +73,13 @@ export default async function ProfilePage() {
   return (
     <div className="space-y-4 sm:space-y-5">
       {header}
+      <EmailVerificationCard
+        email={session.user.email}
+        verified={Boolean(session.user.emailVerified)}
+      />
+      <TwoFactorCard
+        enabled={Boolean((session.user as { twoFactorEnabled?: boolean }).twoFactorEnabled)}
+      />
       <StaffProfileForm initial={profile} />
     </div>
   );

@@ -28,9 +28,9 @@ export async function getCalendarAppointments(month: string): Promise<CalendarAp
   const access =
     role === 'USER'
       ? eq(patients.userId, session.user.id)
-      : role === 'SUPER_ADMIN'
-        ? eq(appointments.createdBy, session.user.id)
-        : eq(appointments.therapistId, session.user.id);
+      : role === 'THERAPIST'
+        ? eq(appointments.therapistId, session.user.id)
+        : undefined;
   const rows = await getDb()
     .select({
       id: appointments.id,
@@ -90,9 +90,9 @@ export async function getUpcomingScheduleAppointments(): Promise<ScheduleAppoint
   const access =
     role === 'USER'
       ? eq(patients.userId, session.user.id)
-      : role === 'SUPER_ADMIN'
-        ? eq(appointments.createdBy, session.user.id)
-        : eq(appointments.therapistId, session.user.id);
+      : role === 'THERAPIST'
+        ? eq(appointments.therapistId, session.user.id)
+        : undefined;
 
   const patientProfiles = alias(profiles, 'patient_profiles');
 
@@ -125,9 +125,9 @@ export async function getCalendarAppointmentsRange(startDate: string, endDate: s
   const access =
     role === 'USER'
       ? eq(patients.userId, session.user.id)
-      : role === 'SUPER_ADMIN'
-        ? eq(appointments.createdBy, session.user.id)
-        : eq(appointments.therapistId, session.user.id);
+      : role === 'THERAPIST'
+        ? eq(appointments.therapistId, session.user.id)
+        : undefined;
 
   const rows = await getDb()
     .select({

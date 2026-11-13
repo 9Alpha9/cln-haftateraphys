@@ -18,7 +18,7 @@ export default function AppError({
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#F7FAF8] p-4">
       <div className="w-full max-w-md">
-        <div className="rounded-2xl border border-[#E5E7EB] bg-white p-8 shadow-sm text-center">
+        <div className="rounded-2xl border border-[#E5E7EB] bg-white p-8  text-center">
           {/* Icon */}
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#FEF2F2]">
             <AlertTriangle className="h-8 w-8 text-[#dc2626]" />
@@ -43,7 +43,7 @@ export default function AppError({
           <div className="mt-6 flex flex-col gap-3">
             <button
               onClick={reset}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-200)] px-5 text-[13px] font-semibold text-[#111827] transition-all hover:bg-[var(--hafta-ylw-300)] shadow-sm active:scale-[0.98]"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-200)] px-5 text-[13px] font-semibold text-[#111827] transition-all hover:bg-[var(--hafta-org-300)]  active:scale-[0.98]"
             >
               <RefreshCcw className="h-4 w-4" />
               Muat Ulang
@@ -65,7 +65,7 @@ export default function AppError({
             href="https://wa.me/6281232932872"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[var(--hafta-ylw-200)] hover:text-[var(--hafta-ylw-400)] underline"
+            className="text-[var(--hafta-org-200)] hover:text-[var(--hafta-org-400)] underline"
           >
             Hubungi Support
           </a>

@@ -664,11 +664,11 @@ Bagian ini mencatat koreksi flow dan status implementasi. Requirement di atas te
 2. **`SUPER_ADMIN` bukan wildcard permission.** Permission klinis tidak otomatis dimiliki Super Admin. Clinical read (`progress:read`, `assessment:read`, `session:read`, dan seterusnya) harus diberikan eksplisit.
 3. **Permission management v1 bersifat code-defined.** Tidak ada UI editor permission; perubahan dilakukan lewat role matrix di kode dan wajib melalui review serta test.
 4. **Status akun v1 adalah `ACTIVE`/`SUSPENDED`.** Suspend mencabut semua sesi aktif dan bersifat reversibel. Hard delete akun bukan flow utama.
-5. **Route auth belum lengkap.** `/forgot-password`, `/reset-password`, dan `/verify-email` belum aktif. Reset password saat ini diarahkan ke kanal bantuan resmi, dan verifikasi email belum diwajibkan.
+5. **Reset password mandiri sudah aktif.** `/forgot-password` dan `/reset-password` tersedia; tautan reset berlaku 1 jam, dikirim melalui email provider, dan permintaan reset dicatat pada audit log (`user.password-reset-requested`). Verifikasi email tersedia secara manual melalui kartu Keamanan profil (tidak diwajibkan untuk login); MFA staf tersedia (opt-in TOTP + backup codes) melalui profil staf.
 6. **Clinical record v1.** Assessment dan session masih menyatu dalam satu rekam medis per kunjungan (`therapy_progress_records`) dengan status `DRAFT`/`FINALIZED`. Treatment plan v1 sudah menjadi entitas terpisah di `treatment_plans`.
 7. **Amendment sudah aktif.** Rekam `FINALIZED` terkunci; koreksi membuat draft revisi dengan alasan wajib. Finalisasi amandemen menandai rekam asal sebagai `superseded` dan menyimpan keduanya sebagai riwayat.
-8. **Dokumen klinis belum diaktifkan.** Upload/download dokumen (R2) dan route `/dashboard/documents` belum tersedia.
-9. **Export belum di-gate.** PDF rekam medis sudah tersedia, tetapi belum memakai permission `patient:export` dan belum dicatat sebagai audit event ekspor.
+8. **Dokumen klinis tersedia (feature-gated).** Route `/dashboard/documents` menyediakan daftar, unggah (ADMIN/THERAPIST sesuai scope), unduh (ADMIN/THERAPIST), dan arsip (ADMIN) dokumen dengan penyimpanan privat Cloudflare R2. Fitur unggah otomatis nonaktif bila environment R2 belum diisi; unduhan melalui endpoint terproteksi dan setiap unggah/unduh/arsip dicatat pada audit log.
+9. **Export sudah di-gate dan diaudit.** PDF rekam medis dan appointment memakai permission `patient:export` untuk staf (pasien tetap dapat mengekspor rekamnya sendiri yang patient-visible), dan setiap ekspor dicatat sebagai `therapy_progress.export` / `appointment.export`.
 10. **Search wajib server-side** untuk dataset yang berkembang. Daftar pengguna sudah memakai search server-side + pagination; beberapa tampilan lain masih memfilter halaman yang sudah diambil.
 11. **Hard delete akun dengan jejak klinis diblokir.** Akun pasien atau staf yang memiliki rekam medis, intake yang direview, atau appointment tidak dapat dihapus permanen. Gunakan suspend/reactivate; data klinis tetap tersimpan.
 12. **Assignment pasien sudah aktif.** Admin/Super Admin dengan `patient:assign` dapat menetapkan terapis penanggung jawab. Assignment lama ditutup dengan `activeUntil`, bukan dihapus, sehingga riwayat tetap tersimpan.
@@ -678,17 +678,21 @@ Bagian ini mencatat koreksi flow dan status implementasi. Requirement di atas te
 16. **Consent intake tersedia.** Form Awal mencatat persetujuan pemrosesan data (`privacy_consent_at`) dan persetujuan publikasi media opsional yang terpisah. Pengiriman form ditolak jika persetujuan privasi belum diberikan; draft tetap dapat disimpan.
 17. **Rencana terapi v1 tersedia.** Terapis/Admin dapat membuat rencana terapi per pasien: tujuan, intervensi, interval/tanggal evaluasi, precaution, status Draft/Aktif, dan visibilitas Internal/Pasien. Pasien melihat rencana aktif yang dibagikan pada halaman Rekam Medis.
 18. **Scope terapis ditegakkan.** Daftar pasien, pilihan pasien pada form rekam medis, akses detail pasien, rencana terapi, dan home program untuk `THERAPIST` dibatasi pada pasien dengan assignment aktif. Terapis tidak dapat membuka pasien yang tidak di-assign meskipun mengetahui URL-nya.
-19. **Home program v1 tersedia.** Terapis/Admin dapat menyusun program latihan mandiri (hingga 20 latihan, dengan set/repetisi/durasi/frekuensi/precaution), menandai terlihat pasien atau internal, dan pasien melihat program aktif yang dibagikan. Program disimpan pada tabel `home_programs`/`home_program_items`. Relasi opsional ke `treatment_plans` belum diisi otomatis pada v1.
+19. **Home program v1 tersedia.** Terapis/Admin dapat menyusun program latihan mandiri (hingga 20 latihan, dengan set/repetisi/durasi/frekuensi/precaution), menandai terlihat pasien atau internal, dan pasien melihat program aktif yang dibagikan. Program disimpan pada tabel `home_programs`/`home_program_items`. Pasien memiliki halaman khusus `/dashboard/exercises` ("Latihan Saya") dengan daftar latihan, dosis, frekuensi, dan precaution; tautan juga tersedia dari halaman Rekam Medis. Relasi opsional ke `treatment_plans` belum diisi otomatis pada v1.
+20. **Consent lifecycle v1 tersedia.** Persetujuan pasien disimpan pada tabel `consents` dengan tipe, versi kebijakan (`2026-11-01`), status (`PENDING`/`GRANTED`/`WITHDRAWN`/`EXPIRED`/`SUPERSEDED`), waktu grant/withdraw, sumber, dan pembuat perubahan. Pasien dapat melihat status dan memberikan/menarik persetujuan pada `/dashboard/consent`; staf hanya dapat membaca status (tidak dapat mengubah keputusan pasien). Setiap grant/withdraw dicatat sebagai audit event `consent.granted`/`consent.withdrawn`, dan flag consent pada intake disinkronkan. Backfill data intake lama dilakukan melalui migration `0029`.
+21. **Pengaturan sistem fungsional.** Tabel `app_settings` menyimpan nama klinik, telepon, email, alamat, dan flag pengingat appointment. Halaman `/dashboard/settings` dapat diedit SUPER_ADMIN dan setiap perubahan dicatat sebagai `settings.update`.
+22. **Notifikasi perubahan klinis.** Saat terapis menyimpan rencana terapi aktif yang patient-visible atau program latihan patient-visible, pasien menerima notifikasi in-app dengan tautan ke Rekam Medis / Latihan Saya. Menu **Notifikasi** juga tersedia di sidebar pasien.
+23. **Pengingat appointment otomatis.** Endpoint `/api/cron/appointment-reminders` (dijadwalkan harian via `vercel.json`) membuat notifikasi in-app H-1 untuk appointment `SCHEDULED`/`CONFIRMED`, menghormati flag pengaturan, dan membutuhkan `CRON_SECRET`.
 
 ### 23.2 Status per role
 
 | Role | Sudah berjalan | Belum / sebagian |
 | --- | --- | --- |
 | `SUPER_ADMIN` | Manajemen pengguna (daftar, search, pagination, tambah, role, suspend/reactivate, hapus), audit viewer, pengaturan sistem (halaman), kalender internal, jadwal terapis, session management, permission non-klinis eksplisit | UI permission management, MFA, settings fungsional, clinical access eksplisit, halaman detail pengguna |
-| `ADMIN` | Jadwal, pasien, intake review, rekam medis operasional, tambah pasien, jadwal terapis, assignment pasien, filter terapis, rencana terapi, home program, audit (sesuai permission), appointment request | Suspend/reactivate, assessment terpisah, dokumen, export bulk ter-gate |
-| `THERAPIST` | Pasien assigned, jadwal, intake review, rekam medis SOAP, finalisasi, amandemen rekam final, rencana terapi, home program, PDF, profil + crop foto, jadwal terapi pasien | Assessment terpisah, dokumen, export ter-gate, audit klinis lengkap |
-| `STAFF` | Appointment, pasien minimum, intake read, jadwal, profil | Catatan klinis (memang dibatasi), dokumen, assignment |
-| `USER` | Dashboard, booking/reschedule/cancel, intake + consent privasi, riwayat, rekam medis patient-visible, rencana terapi & home program viewer, PDF, profil + crop foto, notifikasi in-app, session management | Reset password mandiri, verifikasi email, dokumen |
+| `ADMIN` | Jadwal, pasien, intake review, rekam medis operasional, tambah pasien, jadwal terapis, assignment pasien, filter terapis, rencana terapi, home program, dokumen (unggah/unduh/arsip), audit (sesuai permission), appointment request | Suspend/reactivate, assessment terpisah, export bulk ter-gate |
+| `THERAPIST` | Pasien assigned, jadwal, intake review, rekam medis SOAP, finalisasi, amandemen rekam final, rencana terapi, home program, dokumen (unggah/baca/unduh untuk pasien assigned), PDF, profil + crop foto, jadwal terapi pasien | Assessment terpisah, export ter-gate, audit klinis lengkap |
+| `STAFF` | Appointment, pasien minimum, intake read, dokumen (daftar/baca), jadwal, profil | Catatan klinis (memang dibatasi), unduh dokumen, assignment |
+| `USER` | Dashboard, booking/reschedule/cancel, intake + consent privasi, riwayat, rekam medis patient-visible, rencana terapi & home program viewer (`/dashboard/exercises`), PDF, profil + crop foto, notifikasi in-app, session management, consent lifecycle (`/dashboard/consent`), reset password mandiri, verifikasi email manual | Verifikasi email wajib (belum), MFA |
 
 ### 23.3 Status lintas role
 
@@ -701,10 +705,13 @@ Bagian ini mencatat koreksi flow dan status implementasi. Requirement di atas te
 | Audit role assignment | Sudah |
 | Audit rekam medis create/update/finalize/amend + home program | Sudah |
 | Consent privasi & media pada intake | Sudah (privasi wajib saat submit, media opsional terpisah) |
+| Consent lifecycle (tipe, versi, grant/withdraw, audit) | Sudah (`/dashboard/consent`, tabel `consents`) |
 | Rencana terapi | Sudah (v1: satu rencana aktif per pasien, audit tersimpan) |
 | Audit appointment create/update/cancel/complete | Sudah |
-| MFA staf | Belum |
+| Reset password mandiri | Sudah (`/forgot-password`, `/reset-password`, audit) |
+| Verifikasi email | Manual (kirim ulang dari Keamanan; belum diwajibkan) |
+| MFA staf | Sudah (opt-in TOTP + backup codes) |
 | Revoke session staf | Sudah (daftar sesi aktif + cabut sesi lain; sesi berjalan tetap aktif) |
-| Dokumen klinis/R2 | Belum |
+| Dokumen klinis/R2 | Sudah (feature-gated; unggah aktif setelah env R2 diisi) |
 | Export audit (PDF/print) | Sudah tercatat; pembatasan bulk export belum ada |
 | Test authorization untuk Super Admin non-wildcard | Sudah |

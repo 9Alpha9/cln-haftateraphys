@@ -21,7 +21,7 @@ export function CreatePatientFormModal({
       <Button
         type="button"
         onClick={() => setIsOpen(true)}
-        className={buttonClassName ?? 'w-full sm:w-auto shadow-2xs'}
+        className={buttonClassName ?? 'w-full sm:w-auto'}
       >
         <UserPlus className="h-4 w-4 shrink-0" />
         Daftarkan Pasien

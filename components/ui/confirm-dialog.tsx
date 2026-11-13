@@ -128,7 +128,7 @@ export function ConfirmDialog({
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             className={cn(
-              "relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-stone-200/70 bg-white shadow-[0_18px_50px_rgba(24,23,0,0.18)]",
+              "relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-stone-200/70 bg-white -[0_18px_50px_rgba(24,23,0,0.18)]",
               panelClassName,
             )}
             onClick={(e) => e.stopPropagation()}
@@ -140,7 +140,7 @@ export function ConfirmDialog({
                     "mx-auto flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl sm:mx-0",
                     variant === "destructive"
                       ? "bg-[var(--hafta-red-50)] text-[var(--hafta-red-700)]"
-                      : "bg-[var(--hafta-ylw-50)] text-[#181700]",
+                      : "bg-[var(--hafta-org-50)] text-[#181700]",
                     iconClassName,
                   )}
                 >
@@ -169,7 +169,7 @@ export function ConfirmDialog({
                 variant={variant}
                 onClick={onConfirm}
                 disabled={pending}
-                className={cn("h-10 w-full rounded-full px-4 text-xs font-bold text-white transition-all active:scale-[0.99] sm:h-11 sm:w-auto", variant === "destructive" ? "bg-[var(--hafta-red-600)] hover:bg-[var(--hafta-red-700)]" : "bg-[var(--hafta-ylw-100)] text-[#181700] shadow-2xs hover:bg-[var(--hafta-ylw-200)]", confirmClassName)}
+                className={cn("h-10 w-full rounded-full px-4 text-xs font-bold text-white transition-all active:scale-[0.99] sm:h-11 sm:w-auto", variant === "destructive" ? "bg-[var(--hafta-red-600)] hover:bg-[var(--hafta-red-700)]" : "bg-[var(--hafta-org-100)] text-[#181700]  hover:bg-[var(--hafta-org-200)]", confirmClassName)}
               >
                 {pending ? "Memproses..." : confirmLabel}
               </Button>

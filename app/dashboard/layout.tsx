@@ -17,23 +17,29 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const pathname = (await headers()).get('x-pathname');
   if (!pathname || !canAccessDashboardPath(role, pathname)) notFound();
 
-  const unreadCount = await getUnreadNotificationsCount();
-  const recentNotifications = await getRecentNotifications();
-  let avatarUrl: string | null = null;
-  try {
-    if (role === 'USER') {
-      const p = await getCurrentPatientProfile(session.user.id);
-      avatarUrl = p?.avatarKey ?? null;
-    } else {
-      const db = getDb();
-      const [row] = await db.select({ avatarKey: profiles.avatarKey }).from(profiles).where(eq(profiles.userId, session.user.id)).limit(1);
-      avatarUrl = row?.avatarKey ?? null;
-    }
-  } catch {
-    avatarUrl = null;
-  }
-
-  const navCounts = role === 'USER' ? undefined : await getDashboardNavCounts().catch(() => undefined);
+  const [unreadCount, recentNotifications, avatarResult, navCounts] = await Promise.all([
+    getUnreadNotificationsCount(),
+    getRecentNotifications(),
+    (async () => {
+      try {
+        if (role === 'USER') {
+          const p = await getCurrentPatientProfile(session.user.id);
+          return p?.avatarKey ?? null;
+        }
+        const db = getDb();
+        const [row] = await db
+          .select({ avatarKey: profiles.avatarKey })
+          .from(profiles)
+          .where(eq(profiles.userId, session.user.id))
+          .limit(1);
+        return row?.avatarKey ?? null;
+      } catch {
+        return null;
+      }
+    })(),
+    role === 'USER' ? Promise.resolve(undefined) : getDashboardNavCounts().catch(() => undefined),
+  ]);
+  const avatarUrl = avatarResult;
 
   return (
     <DashboardShellRouter role={role} userName={session.user.name ?? ''} userEmail={session.user.email ?? ''} avatarUrl={avatarUrl} unreadCount={unreadCount} recentNotifications={recentNotifications} navCounts={navCounts}>

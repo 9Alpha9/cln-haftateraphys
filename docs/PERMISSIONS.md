@@ -109,7 +109,7 @@ Legend:
 | patient:update-demographics | Y | Y | N | Y | own-limited |
 | patient:assign | Y | Y | N | N | N |
 | patient:archive | Y | Y | Y | Y | N |
-| patient:export | Y | N | N | N | own-policy |
+| patient:export | Y | Y | Y | N | own-policy |
 | patient:complete-program | N | Y | Y | N | N |
 | intake:read | Y | Y | Y | Y | own |
 | intake:create-own | N | N | N | N | Y |
@@ -134,7 +134,7 @@ Legend:
 | session:finalize | N | Y | Y | N | N |
 | session:amend | N | Y | Y | N | N |
 | document:list | N | Y | Y | Y | N |
-| document:upload | N | Y | N | N | N |
+| document:upload | N | Y | Y | N | N |
 | document:read | N | Y | Y | Y | N |
 | document:download | N | Y | Y | N | N |
 | document:archive | N | Y | N | N | N |

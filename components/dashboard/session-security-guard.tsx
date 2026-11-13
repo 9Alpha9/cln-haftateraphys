@@ -301,7 +301,7 @@ export function SessionSecurityGuard({
           )}
         >
           <div className="flex flex-col items-center gap-4">
-            <div className="flex h-12 w-12 aspect-square items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700] shadow-2xs shrink-0">
+            <div className="flex h-12 w-12 aspect-square items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700] shrink-0">
               <ShieldAlert className="h-6 w-6" />
             </div>
             <h2 className="text-base sm:text-lg font-bold text-[#181700] text-center">
@@ -326,7 +326,7 @@ export function SessionSecurityGuard({
                 countdownRef.current = null;
                 resetIdleTimerRef.current?.();
               }}
-              className="inline-flex h-10 flex-1 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-all hover:bg-[var(--hafta-ylw-200)] active:scale-[0.99] sm:h-11"
+              className="inline-flex h-10 flex-1 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-all hover:bg-[var(--hafta-org-200)] active:scale-[0.99] sm:h-11"
             >
               <CheckCircle2 className="h-4 w-4 shrink-0" />
               Tetap Masuk

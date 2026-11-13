@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ChangePasswordForm } from '@/components/dashboard/change-password-form';
+import { EmailVerificationCard } from '@/components/auth/email-verification-card';
 import { SessionManager } from '@/components/dashboard/session-manager';
 import { DatePicker } from '@/components/ui/date-picker';
 import { ImageCropModal } from '@/components/ui/image-crop-modal';
@@ -37,6 +38,7 @@ type Props = {
   initialAvatarUrl?: string | null;
   userName?: string;
   emailVerified?: boolean;
+  initialTab?: SectionId;
 };
 
 type SectionId = 'identitas' | 'alamat' | 'darurat' | 'keamanan';
@@ -54,7 +56,7 @@ const SECTIONS: {
 ];
 
 const fieldClass =
-  'h-11 rounded-xl border-stone-200 bg-white text-sm shadow-none focus-visible:border-[var(--hafta-ylw-300)] focus-visible:ring-[var(--hafta-ylw-100)]';
+  'h-11 rounded-xl border-stone-200 bg-white text-sm shadow-none focus-visible:border-[var(--hafta-org-300)] focus-visible:ring-[var(--hafta-org-100)]';
 const labelClass = 'text-xs font-semibold text-stone-600';
 
 function calculateAge(dateOfBirth?: string) {
@@ -97,12 +99,13 @@ export function PatientProfileTabs({
   initialAvatarUrl,
   userName,
   emailVerified = false,
+  initialTab = 'identitas',
 }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initialAvatarUrl ?? null);
   const [cropSource, setCropSource] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<SectionId>('identitas');
+  const [activeSection, setActiveSection] = useState<SectionId>(initialTab);
   const fileRef = useRef<HTMLInputElement>(null);
   const {
     provinces,
@@ -224,7 +227,7 @@ export function PatientProfileTabs({
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="absolute -bottom-0.5 -right-0.5 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#181700] text-[var(--hafta-ylw-100)] ring-4 ring-white transition-colors hover:bg-[var(--hafta-ylw-100)] hover:text-[#181700]"
+                className="absolute -bottom-0.5 -right-0.5 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#181700] text-[var(--hafta-org-100)] ring-4 ring-white transition-colors hover:bg-[var(--hafta-org-100)] hover:text-[#181700]"
                 aria-label="Ubah foto profil"
               >
                 <Camera className="h-4 w-4" />
@@ -294,7 +297,7 @@ export function PatientProfileTabs({
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-100">
               <div
-                className="h-full rounded-full bg-[var(--hafta-ylw-100)] transition-all duration-300"
+                className="h-full rounded-full bg-[var(--hafta-org-100)] transition-all duration-300"
                 style={{ width: `${completion}%` }}
               />
             </div>
@@ -322,7 +325,7 @@ export function PatientProfileTabs({
                     className={cn(
                       'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
                       isActive
-                        ? 'bg-white/10 text-[var(--hafta-ylw-100)]'
+                        ? 'bg-white/10 text-[var(--hafta-org-100)]'
                         : 'bg-stone-100 text-stone-500',
                     )}
                   >
@@ -340,7 +343,7 @@ export function PatientProfileTabs({
                     </span>
                   </span>
                   <ChevronRight
-                    className={cn('h-4 w-4 shrink-0', isActive ? 'text-[var(--hafta-ylw-100)]' : 'text-stone-300')}
+                    className={cn('h-4 w-4 shrink-0', isActive ? 'text-[var(--hafta-org-100)]' : 'text-stone-300')}
                   />
                 </button>
               );
@@ -370,7 +373,7 @@ export function PatientProfileTabs({
                     className={cn(
                       'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
                       isActive
-                        ? 'bg-[#181700] text-[var(--hafta-ylw-100)]'
+                        ? 'bg-[#181700] text-[var(--hafta-org-100)]'
                         : 'bg-stone-100 text-stone-500',
                     )}
                   >
@@ -393,7 +396,7 @@ export function PatientProfileTabs({
           </div>
 
           <div className="mt-4 flex items-start gap-3 lg:mt-0">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-ylw-50)] text-[#181700]">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-50)] text-[#181700]">
               <ActiveSectionIcon className="h-4 w-4" />
             </span>
             <div className="min-w-0">
@@ -407,6 +410,9 @@ export function PatientProfileTabs({
 
         {activeSection === 'keamanan' ? (
           <div className="p-3.5 sm:p-8">
+            <div className="mb-4">
+              <EmailVerificationCard email={email} verified={emailVerified} />
+            </div>
             <ChangePasswordForm />
             <SessionManager />
           </div>
@@ -556,7 +562,7 @@ export function PatientProfileTabs({
                   >
                     <textarea
                       disabled={pending}
-                      className="flex min-h-28 w-full resize-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm leading-relaxed outline-none transition-colors placeholder:text-stone-400 focus-visible:border-[var(--hafta-ylw-300)] focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-100)] disabled:cursor-not-allowed disabled:bg-stone-50 disabled:text-stone-500"
+                      className="flex min-h-28 w-full resize-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm leading-relaxed outline-none transition-colors placeholder:text-stone-400 focus-visible:border-[var(--hafta-org-300)] focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)] disabled:cursor-not-allowed disabled:bg-stone-50 disabled:text-stone-500"
                       placeholder="Jl. Nama Jalan No. RT/RW, Kelurahan, Kecamatan"
                       {...register('addressLine')}
                     />
@@ -615,7 +621,7 @@ export function PatientProfileTabs({
                 <Button
                   type="submit"
                   disabled={pending || !isDirty}
-                  className="h-10 w-full gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs hover:bg-[var(--hafta-ylw-200)] sm:h-11 sm:w-auto sm:px-5"
+                  className="h-10 w-full gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-org-200)] sm:h-11 sm:w-auto sm:px-5"
                 >
                   {pending ? <CalendarDays className="h-4 w-4 animate-pulse" /> : <Save className="h-4 w-4" />}
                   {pending ? 'Menyimpan...' : 'Simpan Perubahan'}

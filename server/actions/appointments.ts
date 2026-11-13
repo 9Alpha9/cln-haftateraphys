@@ -22,7 +22,8 @@ export type CreateAppointmentInput = {
   scheduledDate: string;
   startTime: string;
   durationMinutes: number;
-  type: AppointmentType;
+  /** Appointment type sudah disatukan; field opsional untuk kompatibilitas data lama. */
+  type?: AppointmentType;
   administrativeNote?: string;
 };
 
@@ -39,7 +40,7 @@ function requireCreateAppointmentInput(input: CreateAppointmentInput) {
     throw new Error('Durasi appointment tidak valid.');
   }
 
-  if (!appointmentTypes.includes(input.type)) {
+  if (input.type && !appointmentTypes.includes(input.type)) {
     throw new Error('Jenis appointment tidak valid.');
   }
 }
@@ -116,7 +117,7 @@ export async function createAppointment(
     scheduledDate: input.scheduledDate,
     startTime: input.startTime,
     durationMinutes: input.durationMinutes,
-    type: input.type,
+    type: input.type ?? 'THERAPY_SESSION',
     administrativeNote: input.administrativeNote?.trim() || null,
     createdBy: session.user.id,
   });
@@ -129,7 +130,7 @@ export async function createAppointment(
       therapistId: input.therapistId,
       scheduledDate: input.scheduledDate,
       startTime: input.startTime,
-      type: input.type,
+      type: input.type ?? 'THERAPY_SESSION',
     },
     userId: session.user.id,
   });
@@ -155,7 +156,8 @@ export type UpdateAppointmentInput = {
   scheduledDate: string;
   startTime: string;
   durationMinutes: number;
-  type: AppointmentType;
+  /** Appointment type sudah disatukan; field opsional untuk kompatibilitas data lama. */
+  type?: AppointmentType;
   administrativeNote?: string;
 };
 
@@ -212,7 +214,7 @@ export async function updateAppointment(input: UpdateAppointmentInput) {
       scheduledDate: input.scheduledDate,
       startTime: input.startTime,
       durationMinutes: input.durationMinutes,
-      type: input.type,
+      type: input.type ?? 'THERAPY_SESSION',
       administrativeNote: input.administrativeNote?.trim() || null,
     })
     .where(eq(appointments.id, input.appointmentId));
@@ -226,7 +228,7 @@ export async function updateAppointment(input: UpdateAppointmentInput) {
       therapistId: input.therapistId,
       scheduledDate: input.scheduledDate,
       startTime: input.startTime,
-      type: input.type,
+      type: input.type ?? 'THERAPY_SESSION',
     },
     userId: session.user.id,
   });

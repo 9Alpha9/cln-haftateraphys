@@ -1,14 +1,19 @@
-import { requireSession } from '@/lib/auth/require-session';
 import { RouteSkeleton } from '@/components/dashboard/skeletons/route-skeletons';
 
-export default async function AppointmentsLoading() {
-  let isPatient = false;
-  try {
-    const { role } = await requireSession({ redirectToLogin: false });
-    isPatient = role === 'USER';
-  } catch {
-    isPatient = false;
-  }
-
-  return <RouteSkeleton variant={isPatient ? 'patient-appointments' : 'appointments'} />;
+/**
+ * Render the skeleton synchronously so it appears the moment navigation
+ * starts. Choosing the variant with CSS (based on the shell's `data-role`)
+ * avoids an auth round-trip that previously delayed the skeleton.
+ */
+export default function AppointmentsLoading() {
+  return (
+    <>
+      <div className="skeleton-patient-only">
+        <RouteSkeleton variant="patient-appointments" />
+      </div>
+      <div className="skeleton-staff-only">
+        <RouteSkeleton variant="appointments" />
+      </div>
+    </>
+  );
 }

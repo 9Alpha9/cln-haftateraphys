@@ -11,6 +11,7 @@ import { notifyUser } from '@/server/notify';
 import { createAppointment } from '@/server/actions/appointments';
 import { getIndonesianHolidays } from '@/server/queries/indonesian-holidays';
 import { getAvailabilityRules } from '@/server/queries/therapist-schedules';
+import { ensurePatientProfileForUser } from '@/server/queries/patient-portal';
 
 const ACTIVE_APPOINTMENT_STATUSES = ['SCHEDULED', 'CONFIRMED'] as const;
 const SLOT_MINUTES = 60;
@@ -47,30 +48,6 @@ function localDateKey(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
-async function getOrCreateOwnPatient(userId: string, fullName: string | null | undefined) {
-  const db = getDb();
-  const [existing] = await db
-    .select({ id: patients.id })
-    .from(patients)
-    .where(eq(patients.userId, userId))
-    .limit(1);
-  if (existing) return existing;
-
-  const [created] = await db
-    .insert(patients)
-    .values({ userId, fullName: fullName?.trim() || 'Pasien' })
-    .onConflictDoNothing({ target: patients.userId })
-    .returning({ id: patients.id });
-  if (created) return created;
-
-  const [fallback] = await db
-    .select({ id: patients.id })
-    .from(patients)
-    .where(eq(patients.userId, userId))
-    .limit(1);
-  return fallback;
-}
-
 function formatDateLabel(dateKey: string) {
   const [year, month, day] = dateKey.slice(0, 10).split('-').map(Number);
   return new Date(year, (month ?? 1) - 1, day ?? 1).toLocaleDateString('id-ID', {
@@ -99,7 +76,7 @@ export async function requestPatientAppointment(input: RequestAppointmentInput) 
   // Pendaftaran akun belum tentu membuat baris `patients`. Buat otomatis saat
   // pasien mengajukan jadwal pertamanya agar alur booking dari dashboard tetap
   // berjalan untuk akun yang benar-benar baru.
-  const patient = await getOrCreateOwnPatient(session.user.id, session.user.name);
+  const patient = await ensurePatientProfileForUser(session.user.id);
   if (!patient) throw new Error('Data pasien tidak ditemukan.');
 
   const [therapist] = await db

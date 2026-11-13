@@ -3,6 +3,9 @@ import { notFound } from 'next/navigation';
 import { getTherapyProgressById } from '@/server/queries/therapy-progress';
 import { PrintTrigger } from '@/components/dashboard/print-trigger';
 import { PrintFooter } from '@/components/ui/print-footer';
+import { requireSession } from '@/lib/auth/require-session';
+import { hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { createAuditLog } from '@/lib/audit';
 
 function calculateAge(dob: Date | string | null | undefined): string {
   if (!dob) return '-';
@@ -31,9 +34,19 @@ export default async function PrintMedicalRecordPage({
 }) {
   const { recordId } = await params;
   const { mode = 'print' } = await searchParams;
+  const { session, role } = await requireSession({ redirectToLogin: true });
+  if (role !== 'USER' && !hasPermission(role, PERMISSIONS.PATIENT_EXPORT)) notFound();
   const record = await getTherapyProgressById(recordId);
 
   if (!record) notFound();
+
+  await createAuditLog({
+    action: 'therapy_progress.export',
+    targetType: 'therapy_progress',
+    targetId: record.id,
+    meta: { mode },
+    userId: session.user.id,
+  });
 
   const formattedDate = new Date(record.recordedAt).toLocaleDateString('id-ID', {
     weekday: 'long',
@@ -46,7 +59,7 @@ export default async function PrintMedicalRecordPage({
   return (
     <div className="min-h-screen bg-stone-50 p-4 sm:p-8 print:bg-white print:p-0">
       <PrintTrigger mode={mode} patientName={record.patientName} recordId={record.id} recordedAt={record.recordedAt} medicalRecordNumber={record.medicalRecordNumber} />
-      <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-3xl flex-col border border-stone-200/70 bg-white p-6 shadow-[0_8px_30px_rgba(24,23,0,0.05)] print:max-w-none print:min-h-screen print:print:border-none print:p-0 print:shadow-none sm:p-8">
+      <div className="mx-auto flex min-h-[calc(100vh-8rem)] max-w-3xl flex-col border border-stone-200/70 bg-white p-6 -[0_8px_30px_rgba(24,23,0,0.05)] print:max-w-none print:min-h-screen print:print:border-none print:p-0 print:-none sm:p-8">
         <div className="flex flex-col gap-4 border-b border-stone-300 pb-5 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-4">
             <Image
@@ -101,6 +114,10 @@ export default async function PrintMedicalRecordPage({
               <span className="mt-0.5 block text-[#181700]">{record.patientPhone || '-'}</span>
             </div>
             <div className="bg-white p-3">
+              <span className="block text-[10px] font-medium text-stone-500">Pekerjaan</span>
+              <span className="mt-0.5 block text-[#181700]">{record.occupation || '-'}</span>
+            </div>
+            <div className="bg-white p-3 sm:col-span-2">
               <span className="block text-[10px] font-medium text-stone-500">Terapis</span>
               <span className="mt-0.5 block font-semibold text-[#181700]">{record.therapistName || 'Terapis Hafta'}</span>
             </div>

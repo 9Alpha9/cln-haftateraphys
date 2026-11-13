@@ -50,7 +50,7 @@ export function PasswordField({
             'h-12 w-full rounded-xl border bg-white px-4 pr-11 text-sm text-[#181700] placeholder:text-stone-400 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50',
             error
               ? 'border-red-500 bg-red-50/30 text-red-950 focus:border-red-600 focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-red-500/20'
-              : 'border-stone-300 hover:border-stone-400 focus:border-[#181700] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[#f7f000]/30'
+              : 'border-stone-300 hover:border-stone-400 focus:border-[#181700] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/30'
           )}
         />
         <button

@@ -7,7 +7,8 @@ import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { PasswordField } from '@/components/auth/password-field';
 import { AuthAlert } from '@/components/auth/auth-alert';
-import { signUp } from '@/lib/auth/client';
+import { getSession, signIn, signUp } from '@/lib/auth/client';
+import { ensureCurrentPatientProfile } from '@/server/actions/patient-profile';
 import { cn } from '@/lib/utils';
 
 type RegisterFieldErrors = {
@@ -114,6 +115,28 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
           return;
         }
 
+        // Pastikan sesi login benar-benar aktif. signUp biasanya sudah
+        // membuat sesi, tetapi bila belum, login otomatis agar tombol
+        // "Lanjutkan ke Dashboard" tidak terlempar kembali ke halaman login.
+        const session = await getSession();
+        if (!session?.data) {
+          const signInResult = await signIn.email({
+            email,
+            password,
+            callbackURL: '/dashboard',
+          });
+          if (signInResult?.error) {
+            setGeneralError(
+              'Akun berhasil dibuat, tetapi sesi login belum aktif. Silakan masuk melalui halaman login.',
+            );
+            return;
+          }
+        }
+
+        // Buat profil pasien sejak awal agar pasien baru dapat langsung
+        // memilih terapis, tanggal, dan jam.
+        await ensureCurrentPatientProfile().catch(() => null);
+
         setRegistered(true);
       } catch {
         setGeneralError('Terjadi kesalahan pada server. Silakan coba beberapa saat lagi.');
@@ -124,7 +147,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
   if (registered) {
     return (
       <div className="space-y-5 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-100)] text-[#181700] shadow-xs">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--hafta-org-100)] text-[#181700]">
           <CheckCircle2 className="size-8" aria-hidden="true" />
         </div>
         <h2 className="text-2xl font-bold tracking-tight text-[#181700]">
@@ -137,7 +160,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
         <div className="space-y-3 pt-2">
           <Link
             href="/dashboard"
-            className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-sm font-bold text-[#181700] shadow-xs transition-colors hover:bg-[var(--hafta-ylw-200)]"
+            className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
           >
             Lanjutkan ke Dashboard
           </Link>
@@ -181,7 +204,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
       {reason === 'portal' ? (
         <div
           role="status"
-          className="mb-6 rounded-2xl border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] p-4"
+          className="mb-6 rounded-2xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] p-4"
         >
           <p className="text-sm font-bold text-[#181700]">Akses dashboard memerlukan akun</p>
           <p className="mt-1 text-xs leading-relaxed text-stone-700">
@@ -189,7 +212,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
             akun?{' '}
             <Link
               href="/login"
-              className="font-bold text-[#181700] underline decoration-[var(--hafta-ylw-300)] decoration-2 underline-offset-2 hover:no-underline"
+              className="font-bold text-[#181700] underline decoration-[var(--hafta-org-300)] decoration-2 underline-offset-2 hover:no-underline"
             >
               Masuk di sini
             </Link>
@@ -226,7 +249,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
               'h-12 w-full rounded-xl border bg-white px-4 text-sm text-[#181700] placeholder:text-stone-400 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50',
               fieldErrors.name
                 ? 'border-red-500 bg-red-50/30 text-red-950 focus:border-red-600 focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-red-500/20'
-                : 'border-stone-300 hover:border-stone-400 focus:border-[#181700] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[#f7f000]/30'
+                : 'border-stone-300 hover:border-stone-400 focus:border-[#181700] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/30'
             )}
           />
           {fieldErrors.name && (
@@ -257,7 +280,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
               'h-12 w-full rounded-xl border bg-white px-4 text-sm text-[#181700] placeholder:text-stone-400 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50',
               fieldErrors.email
                 ? 'border-red-500 bg-red-50/30 text-red-950 focus:border-red-600 focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-red-500/20'
-                : 'border-stone-300 hover:border-stone-400 focus:border-[#181700] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[#f7f000]/30'
+                : 'border-stone-300 hover:border-stone-400 focus:border-[#181700] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/30'
             )}
           />
           {fieldErrors.email && (
@@ -334,7 +357,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] text-sm font-bold text-[#181700] shadow-xs transition-all duration-200 hover:bg-[var(--hafta-ylw-200)] hover:shadow-md active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 cursor-pointer"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[#181700] transition-all duration-200 hover:bg-[var(--hafta-org-200)] active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 cursor-pointer"
           >
             {isPending ? (
               <>
@@ -352,7 +375,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
           Sudah memiliki akun?{' '}
           <Link
             href="/login"
-            className="rounded px-1.5 py-0.5 font-bold text-[#181700] underline decoration-[var(--hafta-ylw-100)] decoration-2 underline-offset-4 transition-all hover:bg-[var(--hafta-ylw-100)]/40"
+            className="rounded px-1.5 py-0.5 font-bold text-[#181700] underline decoration-[var(--hafta-org-100)] decoration-2 underline-offset-4 transition-all hover:bg-[var(--hafta-org-100)]/40"
           >
             Masuk ke akun
           </Link>

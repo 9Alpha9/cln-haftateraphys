@@ -151,7 +151,7 @@ export function GlobalSlideOver({
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 280, mass: 0.8 }}
             className={cn(
-              'fixed inset-y-0 right-0 flex h-dvh w-full flex-col rounded-none border-l border-stone-200/90 bg-white shadow-[-16px_0_48px_rgba(24,23,0,0.14)] will-change-transform overflow-x-hidden',
+              'fixed inset-y-0 right-0 flex h-dvh w-full flex-col rounded-none border-l border-stone-200/90 bg-white -[-16px_0_48px_rgba(24,23,0,0.14)] will-change-transform overflow-x-hidden',
               sizeWidthMap[size],
               className
             )}
@@ -163,7 +163,7 @@ export function GlobalSlideOver({
                 <div className="flex items-start gap-3 min-w-0 flex-1">
                   {/* Lingkaran Ikon Kuning Hafta */}
                   {icon ? (
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-[#181700] shadow-2xs mt-0.5">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-[#181700]  mt-0.5">
                       {icon}
                     </div>
                   ) : null}

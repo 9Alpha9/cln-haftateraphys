@@ -94,7 +94,7 @@ export function MedicalRecordFormDrawer({
             type="submit"
             form={formId}
             disabled={isSaving || !canSubmit}
-            className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--hafta-ylw-100)]"
+            className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--hafta-org-100)]"
           >
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Simpan
@@ -318,7 +318,7 @@ function MedicalRecordForm({
                     disabled={fieldsDisabled}
                     className={
                       status === option
-                        ? 'flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#181700] text-xs font-bold text-white shadow-2xs'
+                        ? 'flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#181700] text-xs font-bold text-white'
                         : 'flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-full text-xs font-semibold text-stone-500 transition-colors hover:text-[#181700]'
                     }
                   >
@@ -347,7 +347,7 @@ function MedicalRecordForm({
                       disabled={fieldsDisabled}
                       className={
                         patientVisible === option.value
-                          ? 'inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full bg-[#181700] text-xs font-bold text-white shadow-2xs'
+                          ? 'inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full bg-[#181700] text-xs font-bold text-white'
                           : 'inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full text-xs font-semibold text-stone-500 transition-colors hover:text-[#181700]'
                       }
                     >
@@ -391,7 +391,7 @@ function MedicalRecordForm({
               defaultValue={record?.[field.name as keyof TherapyProgressView] as string | null | undefined ?? ''}
               placeholder={field.placeholder}
               disabled={fieldsDisabled}
-              className="w-full resize-y rounded-xl border border-stone-200 bg-stone-50/40 px-3.5 py-3 text-sm leading-relaxed text-[#181700] outline-none transition-colors placeholder:text-stone-400 focus:border-[#181700] focus:bg-white focus:ring-4 focus:ring-[var(--hafta-ylw-100)]"
+              className="w-full resize-y rounded-xl border border-stone-200 bg-stone-50/40 px-3.5 py-3 text-sm leading-relaxed text-[#181700] outline-none transition-colors placeholder:text-stone-400 focus:border-[#181700] focus:bg-white focus:ring-4 focus:ring-[var(--hafta-org-100)]"
             />
           </div>
         ))}

@@ -123,7 +123,7 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
               onClick={() => !disabled && setOpen(true)}
               className={cn(
                 'flex h-10 w-full items-center gap-2 rounded-xl border border-stone-200/90 bg-background px-3 py-2 text-left text-sm transition-colors outline-none cursor-pointer',
-                'hover:border-stone-300 focus:border-[#181700] focus:outline-none focus:ring-4 focus:ring-[#f7f000]/35',
+                'hover:border-stone-300 focus:border-[#181700] focus:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/35',
                 'disabled:cursor-not-allowed disabled:opacity-50',
                 !value && 'text-muted-foreground',
                 className,

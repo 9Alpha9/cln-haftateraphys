@@ -3,7 +3,6 @@ import { CreatePatientFormModal } from '@/components/dashboard/create-patient-fo
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
 import { PatientTableClient } from '@/components/dashboard/patients/patient-table-client';
 import { PatientListFilters } from '@/components/dashboard/patient-list-filters';
-import { PatientListTabs } from '@/components/dashboard/patient-list-tabs';
 import { PaginationBar } from '@/components/ui/pagination-bar';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS, requirePermission } from '@/lib/permissions';
@@ -55,14 +54,14 @@ export default async function PatientsPage({
           { label: 'Dashboard', href: '/dashboard' },
           { label: 'Pasien' },
         ]}
-        icon={<Users className="h-6 w-6 text-[var(--hafta-ylw-100)]" />}
+        icon={<Users className="h-6 w-6 text-[var(--hafta-org-100)]" />}
         action={
           canCreate ? (
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center w-full sm:w-auto">
               <CreatePatientFormModal
               userOptions={unlinkedUsers.map((u) => ({ id: u.id, name: u.name, email: u.email }))}
               buttonClassName={cn(
-                'h-11 px-3 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] border border-transparent text-[#181700] text-xs sm:text-[13px] font-bold inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0'
+                'h-11 px-3 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] border border-transparent text-[#181700] text-xs sm:text-[13px] font-bold inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0'
               )}
               />
             </div>
@@ -71,7 +70,6 @@ export default async function PatientsPage({
       />
 
       <div className="space-y-3">
-        <PatientListTabs active="active" />
         <PatientListFilters
           initialSearch={search}
           initialStatus={status}
@@ -82,7 +80,7 @@ export default async function PatientsPage({
 
       {result.items.length === 0 ? (
         <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
             <Users className="h-6 w-6" />
           </span>
           <p className="mt-3 text-sm font-bold text-[#181700]">Tidak ada pasien ditemukan</p>

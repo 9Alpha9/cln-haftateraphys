@@ -74,9 +74,9 @@ export async function getScopedAppointments(page = 1, pageSize = 6) {
   const where =
     role === 'USER'
       ? eq(patients.userId, session.user.id)
-      : role === 'SUPER_ADMIN'
-        ? eq(appointments.createdBy, session.user.id)
-        : eq(appointments.therapistId, session.user.id);
+      : role === 'THERAPIST'
+        ? eq(appointments.therapistId, session.user.id)
+        : undefined;
   const [totalRows, statusRows] = await Promise.all([
     db
       .select({ value: count() })

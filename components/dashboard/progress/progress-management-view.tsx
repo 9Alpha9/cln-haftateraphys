@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Activity,
@@ -27,6 +27,12 @@ import {
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import { PaginationBar } from '@/components/ui/pagination-bar';
+import { SmartFilterMenu } from '@/components/ui/smart-filter-menu';
+import {
+  SkeletonBlock,
+  SkeletonLine,
+  SkeletonPanel,
+} from '@/components/dashboard/skeletons/skeleton-primitives';
 import { MedicalRecordActions, useMedicalRecordPdf } from '@/components/dashboard/medical-record-actions';
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
 import { ProgressAmendmentDialog } from '@/components/dashboard/progress/progress-amendment-dialog';
@@ -49,7 +55,7 @@ function getScoreColor(type: 'pain' | 'rom' | 'strength' | 'function', value: nu
   }
   // Skor ROM, kekuatan, fungsional: makin tinggi makin hijau
   if (value >= 7) return 'bg-emerald-500 text-emerald-700';
-  if (value >= 4) return 'bg-[var(--hafta-ylw-400)] text-[var(--hafta-ylw-800)]';
+  if (value >= 4) return 'bg-[var(--hafta-org-400)] text-[var(--hafta-org-800)]';
   return 'bg-amber-500 text-amber-700';
 }
 
@@ -103,12 +109,12 @@ function MedicalRecordCard({
                 className="h-11 w-11 shrink-0 rounded-2xl object-cover ring-1 ring-stone-200"
               />
             ) : (
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-xs font-bold text-[#181700] shadow-2xs">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-xs font-bold text-[#181700]">
                 {initials || 'RM'}
               </span>
             )}
             <div className="min-w-0">
-              <h3 className="truncate text-sm font-bold text-[#181700] group-hover:text-[var(--hafta-ylw-950)] sm:text-base">
+              <h3 className="truncate text-sm font-bold text-[#181700] group-hover:text-[var(--hafta-org-950)] sm:text-base">
                 {record.patientName}
               </h3>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
@@ -148,7 +154,7 @@ function MedicalRecordCard({
               type="button"
               aria-label="Menu opsi rekam medis"
               onClick={() => setShowRecordMenu((prev) => !prev)}
-              className="inline-flex h-9 w-9 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white text-[#181700] shadow-2xs transition-colors hover:bg-stone-100"
+              className="inline-flex h-9 w-9 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white text-[#181700] transition-colors hover:bg-stone-100"
             >
               <MoreVertical className="h-4 w-4 shrink-0" />
             </button>
@@ -264,7 +270,7 @@ function MedicalRecordCard({
         <button
           type="button"
           onClick={() => onSelect(record)}
-          className="inline-flex h-10 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)]"
+          className="inline-flex h-10 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
         >
           <Eye className="h-3.5 w-3.5 shrink-0" />
           Lihat Detail SOAP
@@ -292,6 +298,7 @@ export function ProgressManagementView({
   initialSearch = '',
 }: ProgressManagementViewProps) {
   const router = useRouter();
+  const [isNavigating, startNavigation] = useTransition();
   const [selectedRecord, setSelectedRecord] = useState<TherapyProgressView | null>(null);
   const [editingRecord, setEditingRecord] = useState<TherapyProgressView | null>(null);
   const [amendmentRecord, setAmendmentRecord] = useState<TherapyProgressView | null>(null);
@@ -301,9 +308,7 @@ export function ProgressManagementView({
   const [activeTab, setActiveTab] = useState<'soap' | 'metrics'>('soap');
   const [recordPage, setRecordPage] = useState(1);
   const [recordPageSize, setRecordPageSize] = useState(4);
-  const [filterOpen, setFilterOpen] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
-  const filterRef = useRef<HTMLDivElement>(null);
   const historyTimerRef = useRef<number | null>(null);
   const SEARCH_HISTORY_KEY = 'hafta:progress-search-history';
 
@@ -325,23 +330,6 @@ export function ProgressManagementView({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setHistory(stored);
   }, [SEARCH_HISTORY_KEY, initialSearch]);
-
-  useEffect(() => {
-    function onPointerDown(event: MouseEvent) {
-      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
-        setFilterOpen(false);
-      }
-    }
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setFilterOpen(false);
-    }
-    document.addEventListener('mousedown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -389,7 +377,9 @@ export function ProgressManagementView({
     setRecordPage(1);
     const trimmed = value.trim();
     pushHistory(trimmed);
-    router.push(trimmed ? `/dashboard/progress?q=${encodeURIComponent(trimmed)}` : '/dashboard/progress');
+    startNavigation(() => {
+      router.push(trimmed ? `/dashboard/progress?q=${encodeURIComponent(trimmed)}` : '/dashboard/progress');
+    });
   }
 
   const activeFilterCount =
@@ -447,7 +437,7 @@ export function ProgressManagementView({
                 if (e.key === 'Enter') applySearch(search);
               }}
               placeholder="Cari No. RM, nama pasien, atau diagnosis..."
-              className="h-10 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-10 text-xs text-[#181700] shadow-2xs outline-none transition-all placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[#f7f000]/35 sm:text-[13px]"
+              className="h-10 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-10 text-xs text-[#181700] outline-none transition-all placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
             />
             {search ? (
               <button
@@ -461,106 +451,105 @@ export function ProgressManagementView({
             ) : null}
           </div>
 
-          <div ref={filterRef} className="relative ml-auto shrink-0">
-            <button
-              type="button"
-              onClick={() => setFilterOpen((open) => !open)}
-              aria-expanded={filterOpen}
-              aria-haspopup="menu"
-              className={cn(
-                'inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold shadow-2xs transition-colors focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#f7f000]/35 sm:px-4 sm:text-[13px]',
-                activeFilterCount > 0
-                  ? 'border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)] text-[#181700]'
-                  : 'border-stone-200/90 bg-white text-[#181700] hover:bg-stone-100',
+          <div className="relative ml-auto shrink-0">
+            <SmartFilterMenu count={activeFilterCount} panelClassName="w-56">
+              {(close) => (
+                <>
+                  <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+                    Status
+                  </p>
+                  {([
+                    { value: 'ALL' as const, label: 'Semua', icon: LayoutList },
+                    { value: 'FINALIZED' as const, label: 'Final', icon: CheckCircle2 },
+                    { value: 'DRAFT' as const, label: 'Draft', icon: FileText },
+                  ]).map((option) => {
+                    const selected = statusFilter === option.value;
+                    const Icon = option.icon;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                          setStatusFilter(option.value);
+                          setRecordPage(1);
+                          close();
+                        }}
+                        className={cn(
+                          'flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors',
+                          selected
+                            ? 'border-stone-200 bg-[#F4F4F1] font-bold text-[#181700]'
+                            : 'border-transparent font-medium text-stone-600 hover:bg-stone-100 hover:text-[#181700]',
+                        )}
+                      >
+                        <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-[#181700]' : 'text-stone-400')} />
+                        <span className="flex-1">{option.label}</span>
+                        {selected ? <Check className="h-3.5 w-3.5 text-[#181700]" /> : null}
+                      </button>
+                    );
+                  })}
+
+                  <div className="my-1.5 h-px bg-stone-100" />
+                  <p className="px-2.5 pb-1 pt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+                    Visibilitas
+                  </p>
+                  {([
+                    { value: 'ALL' as const, label: 'Semua akses', icon: Eye },
+                    { value: 'VISIBLE' as const, label: 'Akses Pasien', icon: Eye },
+                    { value: 'INTERNAL' as const, label: 'Internal Terapis', icon: EyeOff },
+                  ]).map((option) => {
+                    const selected = visibilityFilter === option.value;
+                    const Icon = option.icon;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                          setVisibilityFilter(option.value);
+                          setRecordPage(1);
+                          close();
+                        }}
+                        className={cn(
+                          'flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors',
+                          selected
+                            ? 'border-stone-200 bg-[#F4F4F1] font-bold text-[#181700]'
+                            : 'border-transparent font-medium text-stone-600 hover:bg-stone-100 hover:text-[#181700]',
+                        )}
+                      >
+                        <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-[#181700]' : 'text-stone-400')} />
+                        <span className="flex-1">{option.label}</span>
+                        {selected ? <Check className="h-3.5 w-3.5 text-[#181700]" /> : null}
+                      </button>
+                    );
+                  })}
+                </>
               )}
-            >
-              <Filter className="h-4 w-4 shrink-0 text-stone-500" />
-              <span>Filter</span>
-              {activeFilterCount > 0 ? (
-                <span className="rounded-full bg-[#181700] px-1.5 py-0.5 text-[10px] font-bold text-white">
-                  {activeFilterCount}
-                </span>
-              ) : null}
-              <ChevronDown className="h-3.5 w-3.5 shrink-0 text-stone-400" />
-            </button>
-
-            {filterOpen ? (
-              <div className="absolute right-0 top-full z-20 mt-2 flex w-56 flex-col gap-1 rounded-2xl border border-stone-200/90 bg-white p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]">
-                <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
-                  Status
-                </p>
-                {([
-                  { value: 'ALL' as const, label: 'Semua', icon: LayoutList },
-                  { value: 'FINALIZED' as const, label: 'Final', icon: CheckCircle2 },
-                  { value: 'DRAFT' as const, label: 'Draft', icon: FileText },
-                ]).map((option) => {
-                  const selected = statusFilter === option.value;
-                  const Icon = option.icon;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => {
-                        setStatusFilter(option.value);
-                        setRecordPage(1);
-                        setFilterOpen(false);
-                      }}
-                      className={cn(
-                        'flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors',
-                        selected
-                          ? 'border-stone-200 bg-[#F4F4F1] font-bold text-[#181700]'
-                          : 'border-transparent font-medium text-stone-600 hover:bg-stone-100 hover:text-[#181700]',
-                      )}
-                    >
-                      <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-[#181700]' : 'text-stone-400')} />
-                      <span className="flex-1">{option.label}</span>
-                      {selected ? <Check className="h-3.5 w-3.5 text-[#181700]" /> : null}
-                    </button>
-                  );
-                })}
-
-                <div className="my-1.5 h-px bg-stone-100" />
-                <p className="px-2.5 pb-1 pt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
-                  Visibilitas
-                </p>
-                {([
-                  { value: 'ALL' as const, label: 'Semua akses', icon: Eye },
-                  { value: 'VISIBLE' as const, label: 'Akses Pasien', icon: Eye },
-                  { value: 'INTERNAL' as const, label: 'Internal Terapis', icon: EyeOff },
-                ]).map((option) => {
-                  const selected = visibilityFilter === option.value;
-                  const Icon = option.icon;
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => {
-                        setVisibilityFilter(option.value);
-                        setRecordPage(1);
-                        setFilterOpen(false);
-                      }}
-                      className={cn(
-                        'flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors',
-                        selected
-                          ? 'border-stone-200 bg-[#F4F4F1] font-bold text-[#181700]'
-                          : 'border-transparent font-medium text-stone-600 hover:bg-stone-100 hover:text-[#181700]',
-                      )}
-                    >
-                      <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-[#181700]' : 'text-stone-400')} />
-                      <span className="flex-1">{option.label}</span>
-                      {selected ? <Check className="h-3.5 w-3.5 text-[#181700]" /> : null}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : null}
+            </SmartFilterMenu>
           </div>
         </div>
 
       </div>
 
       {/* ── 2. COMPACT CLINICAL REKAM MEDIS CARDS GRID ── */}
-      {!hasQuery ? (
+      {isNavigating ? (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
+          {[0, 1, 2, 3, 4, 5].map((item) => (
+            <SkeletonPanel key={item} className="h-56 rounded-3xl p-4 sm:p-5">
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <SkeletonBlock className="h-5 w-36 bg-stone-200" />
+                  <SkeletonLine className="w-24 bg-stone-100" />
+                </div>
+                <SkeletonBlock className="h-6 w-20 rounded-full bg-stone-100" />
+              </div>
+              <div className="mt-5 space-y-3">
+                <SkeletonLine className="w-full" />
+                <SkeletonLine className="w-4/5 bg-stone-100" />
+                <SkeletonLine className="w-2/3 bg-stone-100" />
+              </div>
+            </SkeletonPanel>
+          ))}
+        </div>
+      ) : !hasQuery ? (
         <div className="space-y-4 sm:space-y-6">
           {history.length > 0 ? (
             <div className="space-y-2">
@@ -608,7 +597,7 @@ export function ProgressManagementView({
           ) : null}
 
           <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
               <Search className="h-6 w-6" />
             </span>
             <h3 className="mt-3 text-sm font-bold text-[#181700]">
@@ -628,7 +617,7 @@ export function ProgressManagementView({
 
           {filtered.length === 0 ? (
             <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
                 <Search className="h-6 w-6" />
               </span>
               <h3 className="mt-3 text-sm font-bold text-[#181700]">
@@ -729,7 +718,7 @@ export function ProgressManagementView({
               className={cn(
                 'rounded-full px-3.5 py-1 text-xs font-bold transition-all cursor-pointer',
                 activeTab === 'soap'
-                  ? 'bg-[var(--hafta-ylw-100)] text-[#181700] shadow-2xs'
+                  ? 'bg-[var(--hafta-org-100)] text-[#181700]'
                   : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
               )}
             >
@@ -741,7 +730,7 @@ export function ProgressManagementView({
               className={cn(
                 'rounded-full px-3.5 py-1 text-xs font-bold transition-all cursor-pointer',
                 activeTab === 'metrics'
-                  ? 'bg-[var(--hafta-ylw-100)] text-[#181700] shadow-2xs'
+                  ? 'bg-[var(--hafta-org-100)] text-[#181700]'
                   : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
               )}
             >
@@ -764,7 +753,7 @@ export function ProgressManagementView({
                       setEditingRecord(record);
                     }
                   }}
-                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0"
+                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
                 >
                   {selectedRecord.status === 'FINALIZED' ? (
                     <FilePenLine className="h-3.5 w-3.5" />
@@ -800,7 +789,7 @@ export function ProgressManagementView({
               {activeTab === 'soap' ? (
                 <>
                   {/* Subjective (Anamnesis) */}
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 shadow-2xs space-y-1.5">
+                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 space-y-1.5">
                     <span className="font-bold text-xs text-[#181700] block">
                       S — Subjective (Anamnesis &amp; Keluhan Pasien)
                     </span>
@@ -810,7 +799,7 @@ export function ProgressManagementView({
                   </div>
 
                   {/* Objective (Pemeriksaan Fisik) */}
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 shadow-2xs space-y-1.5">
+                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 space-y-1.5">
                     <span className="font-bold text-xs text-[#181700] block">
                       O — Objective (Pemeriksaan Fisik, Palpasi, &amp; Tes Spesifik)
                     </span>
@@ -822,8 +811,8 @@ export function ProgressManagementView({
                   </div>
 
                   {/* Assessment */}
-                  <div className="rounded-2xl border border-[var(--hafta-ylw-200)]/80 bg-[var(--hafta-ylw-50)]/30 p-4.5 shadow-2xs space-y-1.5">
-                    <span className="font-bold text-xs text-[var(--hafta-ylw-950)] block">
+                  <div className="rounded-2xl border border-[var(--hafta-org-200)]/80 bg-[var(--hafta-org-50)]/30 p-4.5 space-y-1.5">
+                    <span className="font-bold text-xs text-[var(--hafta-org-950)] block">
                       A — Assessment &amp; Kesimpulan Klinis
                     </span>
                     <p className="text-xs sm:text-sm text-stone-800 leading-relaxed whitespace-pre-wrap font-medium">
@@ -832,7 +821,7 @@ export function ProgressManagementView({
                   </div>
 
                   {/* Plan (Tindakan Terapi) */}
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 shadow-2xs space-y-1.5">
+                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 space-y-1.5">
                     <span className="font-bold text-xs text-[#181700] block">
                       P — Plan (Modalitas, Terapi Manual, &amp; Intervensi Latihan)
                     </span>
@@ -842,7 +831,7 @@ export function ProgressManagementView({
                   </div>
 
                   {/* Home Exercise & Follow up */}
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 shadow-2xs space-y-1.5">
+                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 space-y-1.5">
                     <span className="font-bold text-xs text-[#181700] block">
                       Rencana Tindak Lanjut &amp; Edukasi Mandiri (HEP)
                     </span>
@@ -854,7 +843,7 @@ export function ProgressManagementView({
               ) : (
                 /* Tab Metrik & Indikator Fungsional */
                 <div className="space-y-4">
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3.5 sm:p-5 shadow-2xs space-y-4">
+                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3.5 sm:p-5 space-y-4">
                     <h4 className="font-bold text-xs text-[#181700]">
                       Perkembangan Skor Fungsional Sesi Ini
                     </h4>

@@ -54,6 +54,16 @@ describe('therapy completion permissions', () => {
   });
 });
 
+describe('clinical document permissions', () => {
+  it('allows admin and assigned therapists to upload, while staff cannot', async () => {
+    const { ROLE_PERMISSIONS } = await import('@/lib/permissions/roles');
+    expect(ROLE_PERMISSIONS.ADMIN).toContain(PERMISSIONS.DOCUMENT_UPLOAD);
+    expect(ROLE_PERMISSIONS.THERAPIST).toContain(PERMISSIONS.DOCUMENT_UPLOAD);
+    expect(ROLE_PERMISSIONS.STAFF).not.toContain(PERMISSIONS.DOCUMENT_UPLOAD);
+    expect(ROLE_PERMISSIONS.USER).not.toContain(PERMISSIONS.DOCUMENT_UPLOAD);
+  });
+});
+
 describe('super admin permission model', () => {
   it('does not treat SUPER_ADMIN as a wildcard', async () => {
     const { hasPermission } = await import('@/lib/permissions/policy');

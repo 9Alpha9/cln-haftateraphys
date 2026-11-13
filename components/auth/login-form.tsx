@@ -8,7 +8,7 @@ import { Loader2, AlertCircle } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { PasswordField } from '@/components/auth/password-field';
 import { AuthAlert } from '@/components/auth/auth-alert';
-import { signIn } from '@/lib/auth/client';
+import { authClient, signIn } from '@/lib/auth/client';
 import { cn } from '@/lib/utils';
 
 type FieldErrors = {
@@ -33,6 +33,9 @@ export function LoginForm({ reason }: LoginFormProps) {
     () => typeof window !== 'undefined' && Boolean(window.localStorage.getItem(REMEMBER_EMAIL_KEY)),
   );
   const [rememberDevice, setRememberDevice] = useState(false);
+  const [twoFactorRequired, setTwoFactorRequired] = useState(false);
+  const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [useBackupCode, setUseBackupCode] = useState(false);
 
   const reasonBanner =
     reason === 'idle'
@@ -135,6 +138,11 @@ export function LoginForm({ reason }: LoginFormProps) {
           return;
         }
 
+        if ((result.data as { twoFactorRedirect?: boolean } | undefined)?.twoFactorRedirect) {
+          setTwoFactorRequired(true);
+          return;
+        }
+
         router.push('/dashboard');
         router.refresh();
         persistEmail(email);
@@ -146,6 +154,84 @@ export function LoginForm({ reason }: LoginFormProps) {
         });
       }
     });
+  }
+
+  function verifyTwoFactor(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    startTransition(async () => {
+      const result = useBackupCode
+        ? await authClient.twoFactor.verifyBackupCode({ code: twoFactorCode.trim() })
+        : await authClient.twoFactor.verifyTotp({ code: twoFactorCode.trim() });
+
+      if (result.error) {
+        setGeneralError(result.error.message ?? 'Kode verifikasi tidak valid.');
+        return;
+      }
+
+      router.push('/dashboard');
+      router.refresh();
+    });
+  }
+
+  if (twoFactorRequired) {
+    return (
+      <div>
+        <div className="mb-7">
+          <h1 className="text-2xl font-bold tracking-tight text-[#181700] sm:text-3xl">
+            Verifikasi Dua Faktor
+          </h1>
+          <p className="mt-2 text-sm leading-relaxed text-stone-600">
+            {useBackupCode
+              ? 'Masukkan salah satu kode cadangan Anda.'
+              : 'Masukkan 6 digit kode dari aplikasi authenticator Anda.'}
+          </p>
+        </div>
+
+        {generalError ? (
+          <div className="mb-5">
+            <AuthAlert type="error" message={generalError} />
+          </div>
+        ) : null}
+
+        <form onSubmit={verifyTwoFactor} className="space-y-4">
+          <input
+            value={twoFactorCode}
+            onChange={(event) =>
+              setTwoFactorCode(
+                useBackupCode ? event.target.value : event.target.value.replace(/\D/g, ''),
+              )
+            }
+            inputMode={useBackupCode ? 'text' : 'numeric'}
+            maxLength={useBackupCode ? 32 : 6}
+            placeholder={useBackupCode ? 'Kode cadangan' : '000000'}
+            required
+            disabled={isPending}
+            className="h-12 w-full rounded-xl border border-stone-300 bg-white px-4 text-center text-lg tracking-[0.3em] text-[#181700] focus:border-[#181700] focus:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/30 disabled:opacity-50"
+          />
+
+          <button
+            type="submit"
+            disabled={isPending}
+            className="inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[#181700] transition-all hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
+          >
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Verifikasi
+          </button>
+        </form>
+
+        <button
+          type="button"
+          onClick={() => {
+            setUseBackupCode((value) => !value);
+            setTwoFactorCode('');
+            setGeneralError(null);
+          }}
+          className="mt-4 text-xs font-semibold text-stone-600 underline underline-offset-2 hover:text-[#181700]"
+        >
+          {useBackupCode ? 'Gunakan kode authenticator' : 'Gunakan kode cadangan'}
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -182,7 +268,7 @@ export function LoginForm({ reason }: LoginFormProps) {
 
       {reasonBanner && (
         <div className="mb-6">
-          <div className="rounded-2xl bg-[var(--hafta-ylw-50)]/80 border border-[var(--hafta-ylw-200)] px-4 py-3 text-xs text-[#181700] flex items-center gap-2.5">
+          <div className="rounded-2xl bg-[var(--hafta-org-50)]/80 border border-[var(--hafta-org-200)] px-4 py-3 text-xs text-[#181700] flex items-center gap-2.5">
             <AlertCircle className="h-4 w-4 shrink-0 text-[#181700]" />
             <span>{reasonBanner}</span>
           </div>
@@ -211,7 +297,7 @@ export function LoginForm({ reason }: LoginFormProps) {
               'h-12 w-full rounded-xl border bg-white px-4 text-sm text-[#181700] placeholder:text-stone-400 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50',
               fieldErrors.email
                 ? 'border-red-500 bg-red-50/30 text-red-950 focus:border-red-600 focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-red-500/20'
-                : 'border-stone-300 hover:border-stone-400 focus:border-[#181700] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[#f7f000]/30'
+                : 'border-stone-300 hover:border-stone-400 focus:border-[#181700] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/30'
             )}
           />
           {fieldErrors.email && (
@@ -233,6 +319,14 @@ export function LoginForm({ reason }: LoginFormProps) {
             disabled={isPending}
             error={fieldErrors.password}
           />
+          <div className="flex justify-end">
+            <Link
+              href="/forgot-password"
+              className="text-xs font-semibold text-stone-600 underline-offset-2 hover:text-[#181700] hover:underline"
+            >
+              Lupa kata sandi?
+            </Link>
+          </div>
         </div>
 
         {/* Baris Checkbox Simpan & Ingat Perangkat */}
@@ -254,7 +348,7 @@ export function LoginForm({ reason }: LoginFormProps) {
               type="checkbox"
               checked={rememberDevice}
               onChange={(e) => setRememberDevice(e.target.checked)}
-              className="h-4 w-4 shrink-0 rounded-md border-stone-300 text-[#181700] focus:ring-[#f7f000]/30 cursor-pointer"
+              className="h-4 w-4 shrink-0 rounded-md border-stone-300 text-[#181700] focus:ring-[var(--hafta-org-200)]/30 cursor-pointer"
             />
             <span>Ingat perangkat ini selama 7 hari</span>
           </label>
@@ -274,7 +368,7 @@ export function LoginForm({ reason }: LoginFormProps) {
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] text-sm font-bold text-[#181700] shadow-xs transition-all duration-200 hover:bg-[var(--hafta-ylw-200)] hover:shadow-md active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 cursor-pointer"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[#181700] transition-all duration-200 hover:bg-[var(--hafta-org-200)] active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 cursor-pointer"
           >
             {isPending ? (
               <>
@@ -292,7 +386,7 @@ export function LoginForm({ reason }: LoginFormProps) {
           Belum punya akun?{' '}
           <Link
             href="/register"
-            className="rounded px-1.5 py-0.5 font-bold text-[#181700] underline decoration-[var(--hafta-ylw-100)] decoration-2 underline-offset-4 transition-all hover:bg-[var(--hafta-ylw-100)]/40"
+            className="rounded px-1.5 py-0.5 font-bold text-[#181700] underline decoration-[var(--hafta-org-100)] decoration-2 underline-offset-4 transition-all hover:bg-[var(--hafta-org-100)]/40"
           >
             Buat akun
           </Link>

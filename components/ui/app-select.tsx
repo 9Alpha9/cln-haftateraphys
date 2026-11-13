@@ -141,7 +141,7 @@ export function AppSelect({
             width: position.width,
           }}
           className={cn(
-            'z-[70] flex flex-col rounded-2xl border border-stone-200/90 bg-white p-1.5 shadow-[0_12px_32px_rgba(24,23,0,0.14)]',
+            'z-[70] flex flex-col rounded-2xl border border-stone-200/90 bg-white p-1.5 -[0_12px_32px_rgba(24,23,0,0.14)]',
             menuClassName,
           )}
         >
@@ -193,7 +193,7 @@ export function AppSelect({
         aria-label={ariaLabel}
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          'flex w-full cursor-pointer items-center justify-between gap-2 border border-stone-200/90 bg-white text-left text-[#181700] transition-colors hover:border-stone-300 focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#f7f000]/35 disabled:cursor-not-allowed disabled:opacity-60',
+          'flex w-full cursor-pointer items-center justify-between gap-2 border border-stone-200/90 bg-white text-left text-[#181700] transition-colors hover:border-stone-300 focus-visible:border-[#181700] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/35 disabled:cursor-not-allowed disabled:opacity-60',
           size === 'sm'
             ? 'h-8 rounded-full px-3 text-[11px] font-semibold'
             : size === 'compact'

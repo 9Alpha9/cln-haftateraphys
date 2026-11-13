@@ -11,11 +11,11 @@ export function ContactSection() {
       <Container>
         <ScrollAnimation>
           <div className="mx-auto max-w-2xl text-center">
-            <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-ylw-950)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-ylw-100)]" aria-hidden="true" />
+            <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
               Lokasi &amp; Kontak
             </div>
-            <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-ylw-950)] md:text-3xl">
+            <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] md:text-3xl">
               Hubungi Kami
             </h2>
             <p className="mt-3 text-stone-600">
@@ -38,14 +38,14 @@ export function ContactSection() {
               </div>
               <div className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-[var(--hafta-ylw-950)]" />
+                  <MapPin className="h-4 w-4 text-[var(--hafta-org-950)]" />
                   <span className="text-sm font-medium text-stone-700">Sidoarjo, Jawa Timur</span>
                 </div>
                 <a
                   href="https://maps.app.goo.gl/rtobQBMKrAMkcqxF7"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-stone-200 bg-[var(--hafta-ylw-100)] px-3 text-xs font-bold text-[var(--hafta-ylw-950)] transition-colors hover:bg-[var(--hafta-ylw-200)]"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-stone-200 bg-[var(--hafta-org-100)] px-3 text-xs font-bold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-org-200)]"
                 >
                   <Navigation className="h-3 w-3" />
                   Buka di Maps
@@ -58,11 +58,11 @@ export function ContactSection() {
             <ScrollAnimation delay={0.1}>
               <div className="rounded-2xl border border-stone-200/70 bg-white p-3.5 sm:p-5 shadow-[0_8px_30px_rgb(24,23,0,0.03)]">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)] shadow-sm">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)]">
                     <Phone className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-[var(--hafta-ylw-950)]">Telepon &amp; WhatsApp</h3>
+                    <h3 className="font-bold text-[var(--hafta-org-950)]">Telepon &amp; WhatsApp</h3>
                     <p className="mt-1 text-sm text-stone-600">0812-3293-2872</p>
                   </div>
                 </div>
@@ -72,11 +72,11 @@ export function ContactSection() {
             <ScrollAnimation delay={0.2}>
               <div className="rounded-2xl border border-stone-200/70 bg-white p-3.5 sm:p-5 shadow-[0_8px_30px_rgb(24,23,0,0.03)]">
                 <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)] shadow-sm">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)]">
                     <Clock className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-[var(--hafta-ylw-950)]">Jam Pelayanan</h3>
+                    <h3 className="font-bold text-[var(--hafta-org-950)]">Jam Pelayanan</h3>
                     <div className="mt-1 flex flex-col text-sm text-stone-600">
                       <span>Senin - Sabtu: 08.00 - 20.00 WIB</span>
                       <span>Minggu &amp; Libur: 08.00 - 13.00 WIB</span>
@@ -91,7 +91,7 @@ export function ContactSection() {
                 href="https://wa.me/6281232932872"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-4 sm:px-5 py-4 text-sm font-bold text-[var(--hafta-ylw-950)] shadow-sm transition-colors hover:bg-[var(--hafta-ylw-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-100)]"
+                className="flex items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-4 sm:px-5 py-4 text-sm font-bold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)]"
               >
                 <MessageCircle className="h-5 w-5" />
                 Konsultasi via WhatsApp

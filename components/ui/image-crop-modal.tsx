@@ -252,7 +252,7 @@ function CropEditor({
         {/* Circular guide: the avatar is displayed as a circle across the app. */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 rounded-full shadow-[0_0_0_9999px_rgba(24,23,0,0.35)] ring-2 ring-white/90 ring-inset"
+          className="pointer-events-none absolute inset-0 rounded-full -[0_0_0_9999px_rgba(24,23,0,0.35)] ring-2 ring-white/90 ring-inset"
         />
 
         {!ready && !error ? (
@@ -301,7 +301,7 @@ function CropEditor({
           type="button"
           onClick={handleConfirm}
           disabled={!ready || Boolean(error)}
-          className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--hafta-ylw-100)] sm:h-11 sm:w-auto sm:px-5 sm:text-[13px]"
+          className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700]  transition-colors hover:bg-[var(--hafta-org-200)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--hafta-org-100)] sm:h-11 sm:w-auto sm:px-5 sm:text-[13px]"
         >
           <Camera className="h-4 w-4 shrink-0" />
           {confirmLabel}
@@ -398,11 +398,11 @@ export function ImageCropModal({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_18px_50px_rgba(24,23,0,0.18)] outline-none sm:p-5"
+            className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-stone-200/70 bg-white p-4 -[0_18px_50px_rgba(24,23,0,0.18)] outline-none sm:p-5"
             onClick={(event) => event.stopPropagation()}
           >
             <div className="flex items-start gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
                 <Camera className="h-5 w-5" />
               </span>
               <div className="min-w-0">

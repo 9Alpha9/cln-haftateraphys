@@ -91,13 +91,29 @@ else -> show recent patient-visible status
 
 #### B2. Direct therapy booking
 
-When the patient has no active appointment and no pending request, the dashboard
-shows a direct booking panel above the therapy calendar:
+The patient dashboard is intentionally limited to three blocks:
 
-1. pick an available date;
-2. pick an available time slot;
-3. pick an available therapist;
-4. submit the request.
+1. a short greeting header;
+2. the therapy schedule block;
+3. the medical record and evaluation block.
+
+There is no monthly calendar, intake banner, or statistics hub on the patient
+home page. The monthly calendar lives only on `/dashboard/appointments`.
+
+Schedule block behaviour:
+
+- **No active appointment and no pending request** (or the patient pressed
+  `Ubah Jadwal`): show `PatientBookingPanel` directly on the dashboard;
+- **Pending request or active appointment**: show the therapy schedule card
+  instead of the form.
+
+Booking order is always:
+
+1. pick a therapist;
+2. pick an available date for that therapist;
+3. pick an available time slot;
+4. submit `Ajukan Jadwal Terapi` (or `Ajukan Perubahan Jadwal` in reschedule
+   mode).
 
 Rules:
 
@@ -106,22 +122,22 @@ Rules:
   briefly to the patient;
 - the date strip can be scrolled horizontally with visible previous/next
   controls;
-- a newly registered patient may book before completing intake; the patient
-  record is created on the first booking request;
+- a newly registered patient is signed in automatically, gets a `patients`
+  profile with `caseStatus: ACTIVE` and an auto-generated medical record
+  number, and may book before completing intake;
 - the patient is never instructed to contact the clinic merely to create a
   first booking; an empty availability state offers a reload action instead;
 - validation and authorization remain server-side;
-- on a first visit with no appointment and no request, only the direct booking
-  panel is shown; the therapy calendar is hidden to avoid duplicate date
-  pickers;
-- after a request is submitted, the booking panel is replaced by the request
-  status and the therapy calendar, so the patient does not submit duplicate
-  requests from the same dashboard;
 - a pending new booking is labelled "Jadwal terapi baru", never "Sesi
   tambahan";
-- the patient can cancel a pending request from the dashboard status dialog;
-- the "Hari ini" checklist shows every activity and becomes scrollable after
-  four rows, with a visible scroll indicator.
+- the schedule card footer uses the primary action on the left (`Ubah Jadwal`)
+  and the secondary action on the right (`Lihat Detail`);
+- `Ubah Jadwal` is locked with the message "Menunggu ACC Terapis" while a
+  request is pending;
+- `Lihat Detail` opens a centred modal with the full schedule and a
+  `Batalkan Pengajuan` action for pending requests;
+- the medical record block shows patient-visible evaluation cards or a clean
+  empty state, with a link to all medical records.
 
 #### C. Intake status
 

@@ -10,7 +10,7 @@ const ROLE_LABELS: Record<Role, string> = {
 
 const ROLE_COLORS: Record<Role, string> = {
   SUPER_ADMIN:
-    'border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-100)] text-[#181700]',
+    'border border-[var(--hafta-org-200)] bg-[var(--hafta-org-100)] text-[#181700]',
   ADMIN: 'border border-stone-200 bg-stone-100 text-[#181700]',
   THERAPIST:
     'border border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]',

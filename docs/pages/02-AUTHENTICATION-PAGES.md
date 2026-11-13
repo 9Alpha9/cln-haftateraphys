@@ -118,10 +118,12 @@ Email terdaftar tetapi password salah.
 ### Registration completion
 
 Email verification is currently disabled in the auth configuration. After a
-successful registration the patient is signed in and the success screen sends
-them directly to `/dashboard` to create their first therapy booking. Do not ask
-the patient to check their inbox for a verification link unless email
-verification is enabled again.
+successful registration the patient is signed in automatically (with an
+explicit sign-in fallback) and the success screen sends them directly to
+`/dashboard` to create their first therapy booking. A `patients` profile is
+created automatically with `caseStatus: ACTIVE` and an auto-generated medical
+record number. Do not ask the patient to check their inbox for a verification
+link unless email verification is enabled again.
 
 ### Direct dashboard access
 

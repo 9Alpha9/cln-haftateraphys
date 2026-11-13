@@ -36,7 +36,7 @@ export default async function IntakePage({
           { label: 'Dashboard', href: '/dashboard' },
           { label: 'Intake' },
         ]}
-        icon={<ClipboardList className="h-6 w-6 text-[var(--hafta-ylw-100)]" />}
+        icon={<ClipboardList className="h-6 w-6 text-[var(--hafta-org-100)]" />}
       />
 
       {/* Interactive Table with Integrated Slide-Over Drawer */}

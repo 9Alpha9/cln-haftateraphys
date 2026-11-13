@@ -13,7 +13,7 @@ const statusConfig: Record<
 > = {
   DRAFT:           { label: 'Draft',          color: 'text-[#6B7280]',  bg: 'bg-[#F9FAFB]',    border: 'border-[#E5E7EB]' },
   SUBMITTED:       { label: 'Terkirim',       color: 'text-[#1D4ED8]',  bg: 'bg-[#EFF6FF]',    border: 'border-[#BFDBFE]' },
-  UNDER_REVIEW:    { label: 'Sedang Ditinjau', color: 'text-[var(--hafta-ylw-400)]',  bg: 'bg-[#FFF7ED]',    border: 'border-[#FED7AA]' },
+  UNDER_REVIEW:    { label: 'Sedang Ditinjau', color: 'text-[var(--hafta-org-400)]',  bg: 'bg-[#FFF7ED]',    border: 'border-[#FED7AA]' },
   NEEDS_REVISION:  { label: 'Perlu Perbaikan', color: 'text-[#DC2626]',  bg: 'bg-[#FEF2F2]',    border: 'border-[#FECACA]' },
   ACCEPTED:        { label: 'Diterima',        color: 'text-[#15803D]',  bg: 'bg-[#F0FDF4]',    border: 'border-[#BBF7D0]' },
   ARCHIVED:        { label: 'Diarsipkan',      color: 'text-[#6B7280]',  bg: 'bg-[#F9FAFB]',    border: 'border-[#E5E7EB]' },
@@ -22,7 +22,7 @@ const statusConfig: Record<
 const dotColorMap: Record<string, string> = {
   DRAFT:          'bg-[#9CA3AF]',
   SUBMITTED:      'bg-[#3B82F6]',
-  UNDER_REVIEW:   'bg-[var(--hafta-ylw-400)]',
+  UNDER_REVIEW:   'bg-[var(--hafta-org-400)]',
   NEEDS_REVISION: 'bg-[#EF4444]',
   ACCEPTED:       'bg-[#22C55E]',
   ARCHIVED:       'bg-[#9CA3AF]',

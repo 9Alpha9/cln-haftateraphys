@@ -204,6 +204,34 @@
       "when": 1794400000000,
       "tag": "0028_treatment_plans",
       "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1794500000000,
+      "tag": "0029_stale_khan",
+      "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1794600000000,
+      "tag": "0030_broken_may_parker",
+      "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1794700000000,
+      "tag": "0031_safe_zombie",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1794800000000,
+      "tag": "0032_far_tyrannus",
+      "breakpoints": true
     }
   ]
 }

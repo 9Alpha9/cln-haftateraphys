@@ -101,7 +101,7 @@ export default async function UsersPage({
           canCreateUser ? (
             <Link
               href="/dashboard/users/add"
-              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)] sm:w-auto sm:px-5 sm:text-[13px]"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700]  transition-colors hover:bg-[var(--hafta-org-200)] sm:w-auto sm:px-5 sm:text-[13px]"
             >
               <UserPlus className="h-4 w-4" aria-hidden="true" /> Tambah Pengguna
             </Link>
@@ -126,7 +126,7 @@ export default async function UsersPage({
         <CardContent>
           {users.length === 0 ? (
             <div className="flex min-h-[220px] flex-col items-center justify-center p-3.5 text-center sm:p-5">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
                 <Users className="h-6 w-6" />
               </span>
               <p className="mt-3 text-sm font-bold text-[#181700]">
@@ -253,7 +253,7 @@ export default async function UsersPage({
                         Nama
                       </TableHead>
                       <TableHead
-                        className="sticky left-[236px] z-30 border-r border-stone-200/80 bg-[#FBFBFA] shadow-[6px_0_8px_-8px_rgba(24,23,0,0.25)]"
+                        className="sticky left-[236px] z-30 border-r border-stone-200/80 bg-[#FBFBFA] -[6px_0_8px_-8px_rgba(24,23,0,0.25)]"
                         style={{ width: 240, minWidth: 240 }}
                       >
                         Email
@@ -291,7 +291,7 @@ export default async function UsersPage({
                             </div>
                           </TableCell>
                           <TableCell
-                            className="sticky left-[236px] z-20 border-r border-stone-200/80 bg-white text-muted-foreground shadow-[6px_0_8px_-8px_rgba(24,23,0,0.25)]"
+                            className="sticky left-[236px] z-20 border-r border-stone-200/80 bg-white text-muted-foreground -[6px_0_8px_-8px_rgba(24,23,0,0.25)]"
                             style={{ width: 240, minWidth: 240 }}
                           >
                             {user.email}

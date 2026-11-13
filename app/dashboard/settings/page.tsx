@@ -1,53 +1,30 @@
-import { Settings, Shield, Database, Bell } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SettingsForm } from '@/components/dashboard/settings-form';
 import { PERMISSIONS, requirePermission } from '@/lib/permissions';
+import { isEmailConfigured } from '@/lib/email/send-email';
+import { isR2Configured } from '@/lib/storage/r2';
+import { getAppSettings } from '@/server/queries/app-settings';
+
+export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage() {
   await requirePermission(PERMISSIONS.SETTINGS_MANAGE);
-  const items = [
-    {
-      title: 'Keamanan',
-      text: 'Pengaturan keamanan dan autentikasi',
-      note: 'MFA untuk staff akan diimplementasikan sebelum production',
-      icon: Shield,
-    },
-    {
-      title: 'Database',
-      text: 'Backup dan pengaturan database',
-      note: 'Backup policy akan ditentukan sebelum production',
-      icon: Database,
-    },
-    {
-      title: 'Notifikasi',
-      text: 'Pengaturan email dan notifikasi',
-      note: 'Email provider akan dikonfigurasi sebelum production',
-      icon: Bell,
-    },
-    { title: 'Umum', text: 'Pengaturan umum aplikasi', icon: Settings },
-  ];
+  const settings = await getAppSettings();
+
   return (
     <div className="space-y-4 sm:space-y-5">
       <DashboardPageHeader
         title="Pengaturan"
-        description="Kelola konfigurasi sistem yang tersedia."
+        description="Kelola konfigurasi umum, pengingat, dan status integrasi sistem."
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Pengaturan' }]}
         icon={<Settings className="h-7 w-7 text-white" />}
       />
-      <div className="grid gap-4 sm:grid-cols-2">
-        {items.map((item) => (
-          <Card key={item.title}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-semibold">{item.title}</CardTitle>
-              <item.icon className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">{item.text}</p>
-              {item.note ? <p className="mt-2 text-xs text-muted-foreground">{item.note}</p> : null}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <SettingsForm
+        initial={settings}
+        emailConfigured={isEmailConfigured()}
+        r2Configured={isR2Configured()}
+      />
     </div>
   );
 }

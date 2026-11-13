@@ -65,7 +65,7 @@ export function InstagramCarousel({ images }: InstagramCarouselProps) {
 
   return (
     <div ref={carouselRef} className="mx-auto mt-8 w-full max-w-7xl text-center">
-      <div className="overflow-hidden rounded-2xl border border-border bg-white p-3 shadow-sm sm:p-4">
+      <div className="overflow-hidden rounded-2xl border border-border bg-white p-3 sm:p-4">
         <div className="flex items-center justify-center gap-2 pb-3 text-xs font-medium text-foreground sm:pb-4">
           <Image
             src="/images/logos/logos.png"

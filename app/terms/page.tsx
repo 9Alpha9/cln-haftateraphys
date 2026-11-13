@@ -50,7 +50,7 @@ export default function TermsPage() {
       <main className="flex-1">
         <Container>
           <div className="py-12 md:py-16">
-            <article className="mx-auto mt-6 max-w-3xl rounded-2xl border border-border bg-white p-6 shadow-sm md:p-10">
+            <article className="mx-auto mt-6 max-w-3xl rounded-2xl border border-border bg-white p-6  md:p-10">
               <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">Syarat & Ketentuan</h1>
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                 Dokumen ini adalah draft syarat dan ketentuan untuk website Hafta Fisioterapi dan perlu ditinjau serta

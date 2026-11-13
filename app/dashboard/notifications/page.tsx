@@ -23,12 +23,12 @@ export default async function NotificationsPage({
         title="Pusat Notifikasi"
         description="Riwayat aktivitas dan pemberitahuan penting untuk akun Anda."
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Notifikasi' }]}
-        icon={<Bell className="h-7 w-7 text-hafta-ylw-900" strokeWidth={2.25} />}
+        icon={<Bell className="h-7 w-7 text-hafta-org-900" strokeWidth={2.25} />}
       />
 
       {result.items.length === 0 ? (
         <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
             <Inbox className="h-6 w-6" />
           </span>
           <p className="mt-3 text-sm font-bold text-[#181700]">Belum Ada Notifikasi</p>
@@ -37,7 +37,7 @@ export default async function NotificationsPage({
           </p>
         </div>
       ) : (
-        <section className="overflow-hidden rounded-3xl border border-stone-200/70 bg-white shadow-[0_8px_30px_rgba(24,23,0,0.05)]">
+        <section className="overflow-hidden rounded-3xl border border-stone-200/70 bg-white -[0_8px_30px_rgba(24,23,0,0.05)]">
           <NotificationList items={result.items} />
         </section>
       )}

@@ -8,7 +8,7 @@ import { ArrowRight, LogIn } from 'lucide-react';
 
 export function HeroSection() {
   return (
-    <section className="relative isolate min-h-[640px] overflow-hidden bg-[var(--hafta-ylw-950)] pb-28 pt-16 text-white lg:min-h-[720px] lg:pb-36 lg:pt-24">
+    <section className="relative isolate min-h-[640px] overflow-hidden bg-[var(--hafta-org-950)] pb-28 pt-16 text-white lg:min-h-[720px] lg:pb-36 lg:pt-24">
       <Image
         src="/images/backgrounds/bg-hf-11.png"
         alt=""
@@ -27,7 +27,7 @@ export function HeroSection() {
         <ScrollAnimation direction="left">
           <div className="max-w-xl">
             <div className="flex items-center gap-3">
-              <span className="h-0.5 w-8 bg-[var(--hafta-ylw-100)] shrink-0" aria-hidden="true" />
+              <span className="h-0.5 w-8 bg-[var(--hafta-org-100)] shrink-0" aria-hidden="true" />
               <span className="text-sm font-medium tracking-wide text-white/90">
                 Fisioterapi Profesional di Sidoarjo
               </span>
@@ -35,7 +35,7 @@ export function HeroSection() {
 
             <h1 className="mt-4 text-[28px] font-bold leading-[1.2] tracking-tight sm:text-4xl sm:leading-[1.15] lg:text-5xl">
               Kembali bergerak dengan{' '}
-              <span className="text-[var(--hafta-ylw-100)]">lebih percaya diri</span>
+              <span className="text-[var(--hafta-org-100)]">lebih percaya diri</span>
             </h1>
 
             <p className="my-6 text-sm leading-relaxed text-white/85 sm:text-base">
@@ -48,7 +48,7 @@ export function HeroSection() {
                 href="https://wa.me/6281232932872"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-4 sm:px-5 py-3 text-sm font-bold text-[var(--hafta-ylw-950)] shadow-sm transition-colors hover:bg-[var(--hafta-ylw-200)] sm:px-6 sm:py-3.5 sm:text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-100)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#181700]"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-4 sm:px-5 py-3 text-sm font-bold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-org-200)] sm:px-6 sm:py-3.5 sm:text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#181700]"
               >
                 Buat Janji
                 <ArrowRight className="h-4 w-4" />
@@ -64,15 +64,15 @@ export function HeroSection() {
 
             <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs sm:text-sm text-stone-300">
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-[var(--hafta-ylw-100)]" />
+                <div className="h-2 w-2 rounded-full bg-[var(--hafta-org-100)]" />
                 <span>Terstruktur &amp; profesional</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-[var(--hafta-ylw-100)]" />
+                <div className="h-2 w-2 rounded-full bg-[var(--hafta-org-100)]" />
                 <span>Berbasis bukti ilmiah</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-[var(--hafta-ylw-100)]" />
+                <div className="h-2 w-2 rounded-full bg-[var(--hafta-org-100)]" />
                 <span>Patient Portal digital</span>
               </div>
             </div>

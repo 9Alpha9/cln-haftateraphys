@@ -3,7 +3,7 @@
 import { and, eq, isNotNull, isNull, or } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/db';
-import { patients, profiles, users } from '@/db/schema';
+import { patientAssignments, patients, profiles, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { createAuditLog } from '@/lib/audit';
@@ -86,6 +86,18 @@ export async function createPatientFromUser(userId: string) {
     .from(patients)
     .where(eq(patients.userId, user.id))
     .limit(1);
+
+  if (role === 'THERAPIST' && created?.id) {
+    await db
+      .insert(patientAssignments)
+      .values({
+        patientId: created.id,
+        staffUserId: session.user.id,
+        assignmentType: 'PRIMARY_THERAPIST',
+        createdBy: session.user.id,
+      })
+      .onConflictDoNothing();
+  }
 
   await createAuditLog({
     action: 'patient.create',

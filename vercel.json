@@ -1,5 +1,8 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "pnpm db:migrate && pnpm build"
+  "crons": [
+    {
+      "path": "/api/cron/appointment-reminders",
+      "schedule": "0 1 * * *"
+    }
+  ]
 }

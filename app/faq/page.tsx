@@ -18,7 +18,7 @@ export default function FaqPage() {
         <Container>
           <div className="py-12 md:py-16">
             <ScrollAnimation className="mx-auto mt-6 max-w-4xl">
-              <div className="rounded-2xl border border-border bg-white p-6 shadow-sm md:p-10">
+              <div className="rounded-2xl border border-border bg-white p-6  md:p-10">
                 <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground md:text-4xl">Pertanyaan Umum</h1>
                 <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
                   Temukan jawaban atas pertanyaan yang paling sering ditanyakan mengenai layanan terapi kami, pendaftaran,

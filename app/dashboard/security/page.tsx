@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function SecurityPage() {
-  redirect('/dashboard/profile?tab=security');
+  redirect('/dashboard/profile?tab=keamanan');
 }

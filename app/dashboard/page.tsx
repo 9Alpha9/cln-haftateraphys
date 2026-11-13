@@ -2,13 +2,12 @@ import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { getDashboardStats } from '@/server/queries/dashboard-stats';
 import { getRecentActivities } from '@/server/queries/recent-activities';
-import { getCurrentPatientIntake } from '@/server/queries/patient-intakes';
 import {
   getPatientAppointmentRequests,
   getPatientBookingAvailability,
   getPatientPortalAppointments,
 } from '@/server/queries/patient-portal';
-import { getOwnMedicalRecordSummary, getScopedTherapyProgress } from '@/server/queries/therapy-progress';
+import { getScopedTherapyProgress } from '@/server/queries/therapy-progress';
 import { PatientDashboardOverview } from '@/components/patient/patient-dashboard-overview';
 import {
   getCalendarAppointments,
@@ -41,35 +40,21 @@ function getFormattedToday(): string {
   });
 }
 
-async function PatientDashboard({
-  userId,
-  userName,
-}: {
-  userId: string;
-  userName?: string;
-}) {
-  const [intake, medicalSummary, appointments, requests, progress, availability, holidays] =
-    await Promise.all([
-      getCurrentPatientIntake(userId),
-      getOwnMedicalRecordSummary(),
-      getPatientPortalAppointments(),
-      getPatientAppointmentRequests(),
-      getScopedTherapyProgress({ page: 1, pageSize: 3 }),
-      getPatientBookingAvailability(),
-      getIndonesianHolidays(new Date().getFullYear()).catch(() => []),
-    ]);
+async function PatientDashboard({ userName }: { userName?: string }) {
+  const [appointments, requests, progress, availability] = await Promise.all([
+    getPatientPortalAppointments(),
+    getPatientAppointmentRequests(),
+    getScopedTherapyProgress({ page: 1, pageSize: 3 }),
+    getPatientBookingAvailability(),
+  ]);
 
   return (
     <PatientDashboardOverview
       userName={userName}
-      treatmentGoal={medicalSummary?.therapyGoal ?? null}
-      intake={intake ? { status: intake.status, reviewMessage: intake.reviewMessage ?? null } : null}
       appointments={appointments}
       requests={requests}
       availability={availability}
       records={progress.items}
-      totalRecords={progress.total}
-      holidays={holidays}
     />
   );
 }
@@ -79,10 +64,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
 
   if (role === 'USER') {
     return (
-      <PatientDashboard
-        userId={session.user.id}
-        userName={session.user.name ?? ''}
-      />
+      <PatientDashboard userName={session.user.name ?? ''} />
     );
   }
 
@@ -134,7 +116,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   };
 
   return (
-    <div className="space-y-4 pb-6 sm:space-y-5">
+    <div className="space-y-4 pb-28 sm:space-y-5 lg:pb-6">
       <header className="flex flex-col gap-4 border-b border-stone-200/90 pb-3 pt-3 sm:flex-row sm:items-end sm:justify-between sm:pb-5 sm:pt-4">
         <div className="min-w-0 flex-1">
           <p className="inline-flex items-center gap-1.5 rounded-full bg-[#F4F4F1] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-stone-600 sm:hidden">
@@ -155,7 +137,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         </div>
         <div className="flex w-full flex-row items-center gap-2 sm:w-auto sm:shrink-0">
           {canCreateAppt ? (
-            <NewAppointmentButton className="inline-flex h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-ylw-100)] px-3 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)] sm:flex-none sm:px-4">
+            <NewAppointmentButton className="inline-flex h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-org-100)] px-3 text-xs font-bold text-[#181700]  transition-colors hover:bg-[var(--hafta-org-200)] sm:flex-none sm:px-4">
               <CalendarPlus className="h-4 w-4" /> Buat Appointment
             </NewAppointmentButton>
           ) : null}
@@ -176,7 +158,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         aria-label="Ringkasan cepat"
         className="-mx-3 flex touch-pan-x snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-3 pb-1 scroll-px-3 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 lg:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        <article className="flex min-w-[230px] snap-start flex-col justify-between rounded-3xl border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-100)] p-3.5 text-[#181700] lg:min-w-0">
+        <article className="flex min-w-[230px] snap-start flex-col justify-between rounded-3xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-100)] p-3.5 text-[#181700] lg:min-w-0">
           <div>
             <div className="flex items-start justify-between gap-2">
               <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-[#181700]/70">
@@ -223,7 +205,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </div>
           <Link
             href="/dashboard/intake"
-            className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-[#F4F4F1] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-100)]"
+            className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-[#F4F4F1] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-100)]"
           >
             Tinjau intake
           </Link>
@@ -251,7 +233,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </div>
           <Link
             href="/dashboard/appointments"
-            className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-[#F4F4F1] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-100)]"
+            className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-[#F4F4F1] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-100)]"
           >
             Lihat kalender
           </Link>
@@ -277,7 +259,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           </div>
           <Link
             href="/dashboard/patients"
-            className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-[#F4F4F1] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-100)]"
+            className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-[#F4F4F1] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-100)]"
           >
             Lihat pasien
           </Link>

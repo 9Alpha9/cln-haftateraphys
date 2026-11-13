@@ -35,6 +35,7 @@ export type TherapyProgressView = {
   patientPhone?: string | null;
   patientAddress?: string | null;
   patientAvatarKey?: string | null;
+  occupation?: string | null;
 };
 
 export type TherapyProgressDetail = TherapyProgressView & {
@@ -65,6 +66,7 @@ export async function getTherapyProgressById(id: string): Promise<TherapyProgres
       patientPhone: profiles.phone,
       patientAddress: patients.addressLine,
       patientCity: patients.addressCity,
+      occupation: patients.occupation,
       therapistName: users.name,
       recordedAt: therapyProgressRecords.recordedAt,
       painScore: therapyProgressRecords.painScore,
@@ -252,6 +254,7 @@ export async function getScopedTherapyProgress(
       patientDob: patients.dateOfBirth,
       patientPhone: profiles.phone,
       patientAddress: patients.addressLine,
+      occupation: patients.occupation,
       therapistName: users.name,
       recordedAt: therapyProgressRecords.recordedAt,
       painScore: therapyProgressRecords.painScore,

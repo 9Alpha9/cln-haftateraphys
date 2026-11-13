@@ -62,7 +62,7 @@ function ModalContent({ onConfirm, onCancel }: { onConfirm: () => void; onCancel
       <div className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-3xl border border-stone-200/70 bg-white shadow-[0_18px_50px_rgba(24,23,0,0.18)]">
         <div className="p-4 sm:p-5">
           <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:items-start sm:text-left">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)]">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)]">
               <LogOut className="h-5 w-5 text-[#181700]" />
             </div>
             <div className="min-w-0">
@@ -90,7 +90,7 @@ function ModalContent({ onConfirm, onCancel }: { onConfirm: () => void; onCancel
               clearTimer();
               onConfirm();
             }}
-            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-all hover:bg-[var(--hafta-ylw-200)] active:scale-[0.99] sm:w-auto"
+            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-all hover:bg-[var(--hafta-org-200)] active:scale-[0.99] sm:w-auto"
           >
             <LogOut className="h-4 w-4" /> Keluar Sekarang
           </Button>

@@ -37,7 +37,7 @@ export default async function CalendarPage({
           { label: 'Jadwal', href: '/dashboard/appointments' },
           { label: 'Kalender' },
         ]}
-        icon={<CalendarDays className="h-7 w-7 text-hafta-ylw-900" strokeWidth={2.25} />}
+        icon={<CalendarDays className="h-7 w-7 text-hafta-org-900" strokeWidth={2.25} />}
       />
 
       <div className="flex flex-1 min-h-0 flex-col">

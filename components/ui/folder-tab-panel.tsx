@@ -101,7 +101,7 @@ export function FolderTabPanel({
               className={cn(
                 'relative flex min-h-10 min-w-[88px] flex-1 basis-0 cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-t-[20px] px-2.5 py-2.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#181700] sm:min-h-11 sm:gap-2 sm:px-3 sm:text-[13px]',
                 isActive
-                  ? 'z-10 rounded-t-[24px] bg-white text-[#181700] shadow-[0_-1px_0_rgba(24,23,0,0.04)]'
+                  ? 'z-10 rounded-t-[24px] bg-white text-[#181700] -[0_-1px_0_rgba(24,23,0,0.04)]'
                   : 'bg-stone-100/80 text-stone-600 hover:bg-stone-200/70'
               )}
             >
@@ -170,7 +170,7 @@ export function FolderTabPanel({
           {listActionHref ? (
             <Link
               href={listActionHref}
-              className="shrink-0 rounded-full border border-stone-200/90 bg-white px-4 py-2 text-xs font-semibold text-[#181700] transition-all hover:bg-[var(--hafta-ylw-100)]"
+              className="shrink-0 rounded-full border border-stone-200/90 bg-white px-4 py-2 text-xs font-semibold text-[#181700] transition-all hover:bg-[var(--hafta-org-100)]"
             >
               {listActionLabel}
             </Link>
@@ -188,7 +188,7 @@ export function FolderTabPanel({
                 <Link
                   href={listActionHref}
                   aria-label={listActionLabel}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-100)]"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#181700]  transition-colors hover:bg-[var(--hafta-org-100)]"
                 >
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
@@ -213,7 +213,7 @@ export function FolderTabPanel({
 
               {/* Architectural circle dengan arsiran diagonal — strict right column */}
               <div className="col-span-5 flex min-w-0 items-center justify-center">
-                <div className="relative flex aspect-square w-full max-w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border border-stone-200/80 bg-white shadow-2xs sm:max-w-32">
+                <div className="relative flex aspect-square w-full max-w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border border-stone-200/80 bg-white  sm:max-w-32">
                 <svg className="h-full w-full" viewBox="0 0 100 100" aria-hidden="true">
                   <defs>
                     <pattern
@@ -270,7 +270,7 @@ export function FolderTabPanel({
                             metric.barStyle === 'solid'
                               ? 'bg-[#181700]'
                               : metric.barStyle === 'accent'
-                                ? 'bg-[var(--hafta-ylw-100)]'
+                                ? 'bg-[var(--hafta-org-100)]'
                                 : ''
                           )}
                           style={{
@@ -300,7 +300,7 @@ export function FolderTabPanel({
               <Link
                 href={listActionHref}
                 aria-label={listActionLabel}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-100)]"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#181700]  transition-colors hover:bg-[var(--hafta-org-100)]"
               >
                 <ArrowUpRight className="h-4 w-4" />
               </Link>

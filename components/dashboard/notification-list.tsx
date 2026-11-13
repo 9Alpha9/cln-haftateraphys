@@ -100,7 +100,7 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
             className={cn(
               'inline-flex h-9 cursor-pointer items-center justify-center rounded-full px-3.5 text-xs font-semibold transition-all',
               filter === 'all'
-                ? 'bg-[#181700] text-white shadow-2xs'
+                ? 'bg-[#181700] text-white'
                 : 'text-stone-500 hover:bg-white/60 hover:text-[#181700]'
             )}
           >
@@ -112,7 +112,7 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
             className={cn(
               'inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full px-3.5 text-xs font-semibold transition-all',
               filter === 'unread'
-                ? 'bg-[#181700] text-white shadow-2xs'
+                ? 'bg-[#181700] text-white'
                 : 'text-stone-500 hover:bg-white/60 hover:text-[#181700]'
             )}
           >
@@ -131,9 +131,9 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
             size="sm"
             onClick={markAll}
             disabled={pending || done}
-            className="rounded-xl border-stone-200/90 text-[12px] font-semibold text-hafta-ylw-900 hover:bg-hafta-ylw-50 hover:text-hafta-ylw-900"
+            className="rounded-xl border-stone-200/90 text-[12px] font-semibold text-hafta-org-900 hover:bg-hafta-org-50 hover:text-hafta-org-900"
           >
-            <CheckCheck className="h-4 w-4 text-hafta-ylw-700" aria-hidden="true" />
+            <CheckCheck className="h-4 w-4 text-hafta-org-700" aria-hidden="true" />
             Tandai semua dibaca
           </Button>
         )}
@@ -154,7 +154,7 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
                 className={cn(
                   'flex items-start gap-3 rounded-2xl border p-3.5 transition-colors sm:gap-3.5 sm:p-4',
                   !notif.isRead
-                    ? 'border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/35'
+                    ? 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)]/35'
                     : 'border-stone-200/70 bg-white hover:bg-[#FBFBFA]'
                 )}
               >

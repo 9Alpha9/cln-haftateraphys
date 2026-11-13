@@ -4,12 +4,12 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  "cursor-pointer group/button inline-flex shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding text-xs font-semibold whitespace-nowrap transition-all outline-none select-none sm:text-[13px] focus-visible:border-[#181700] focus-visible:ring-3 focus-visible:ring-[#f7f000]/35 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "cursor-pointer group/button inline-flex shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding text-xs font-semibold whitespace-nowrap transition-all outline-none select-none sm:text-[13px] focus-visible:border-[#181700] focus-visible:ring-3 focus-visible:ring-[var(--hafta-org-200)]/35 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         default:
-          'cursor-pointer bg-[var(--hafta-ylw-100)] font-bold text-[#181700] shadow-2xs hover:bg-[var(--hafta-ylw-200)]',
+          'cursor-pointer bg-[var(--hafta-org-100)] font-bold text-[#181700]  hover:bg-[var(--hafta-org-200)]',
         outline:
           'cursor-pointer border-border bg-background hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
         secondary:
@@ -18,7 +18,7 @@ const buttonVariants = cva(
           'cursor-pointer hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground dark:hover:bg-accent/50',
         destructive:
           'cursor-pointer bg-[var(--hafta-red-600)] text-[#ffffff] hover:bg-[var(--hafta-red-500)] focus-visible:border-[var(--hafta-red-400)] focus-visible:ring-[var(--hafta-red-300)]',
-        link: 'text-[var(--hafta-ylw-700)] underline-offset-4 hover:underline',
+        link: 'text-[var(--hafta-org-700)] underline-offset-4 hover:underline',
       },
       size: {
         default: 'cursor-pointer h-11 gap-2 px-4 sm:px-5 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3',

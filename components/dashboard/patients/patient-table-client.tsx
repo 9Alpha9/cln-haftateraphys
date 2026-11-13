@@ -10,7 +10,7 @@ import type { getPatientsList } from '@/server/queries/patients';
 type Patient = Awaited<ReturnType<typeof getPatientsList>>['items'][number];
 
 const STATUS_STYLES: Record<string, string> = {
-  INTAKE: 'bg-[var(--hafta-ylw-50)] text-[#181700] border-[var(--hafta-ylw-200)]',
+  INTAKE: 'bg-[var(--hafta-org-50)] text-[#181700] border-[var(--hafta-org-200)]',
   ACTIVE: 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)] border-[var(--hafta-grn-200)]',
   ON_HOLD: 'bg-amber-50 text-amber-800 border-amber-200',
   COMPLETED: 'bg-stone-100 text-stone-600 border-stone-200',
@@ -74,7 +74,7 @@ function PatientAvatar({ patient }: { patient: Patient }) {
     );
   }
   return (
-    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-xs font-bold text-[#181700] shadow-2xs">
+    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-xs font-bold text-[#181700]">
       {getInitials(patient.fullName)}
     </span>
   );
@@ -178,7 +178,7 @@ export function PatientTableClient({
                     setSelectedPatientId(patient.id);
                     setDrawerOpen(true);
                   }}
-                  className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)] whitespace-nowrap"
+                  className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] whitespace-nowrap"
                 >
                   <Eye className="h-3.5 w-3.5" />
                   Lihat Detail

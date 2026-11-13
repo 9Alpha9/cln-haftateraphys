@@ -8,7 +8,7 @@ function Card({ className, size = 'default', ...props }: React.ComponentProps<'d
       data-slot="card"
       data-size={size}
       className={cn(
-        'group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-3xl border border-stone-200/70 bg-card py-(--card-spacing) text-sm text-card-foreground shadow-[0_8px_30px_rgba(24,23,0,0.05)] [--card-spacing:--spacing(3.5)] sm:[--card-spacing:--spacing(5)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-3xl *:[img:last-child]:rounded-b-3xl',
+        'group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-3xl border border-stone-200/70 bg-card py-(--card-spacing) text-sm text-card-foreground -[0_8px_30px_rgba(24,23,0,0.05)] [--card-spacing:--spacing(3.5)] sm:[--card-spacing:--spacing(5)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-3xl *:[img:last-child]:rounded-b-3xl',
         className,
       )}
       {...props}

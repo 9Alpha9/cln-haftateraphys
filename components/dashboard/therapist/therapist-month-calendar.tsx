@@ -176,30 +176,34 @@ export function TherapistMonthCalendar({
                   setIsDrawerOpen(true);
                   setMonth(new Date(day.getFullYear(), day.getMonth(), 1));
                 }}
-                className={cn(
-                  'flex min-h-[58px] w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border px-1 py-2 text-sm font-bold transition-all lg:min-h-[76px]',
-                  sessions.length > 0
-                    ? 'border-[#181700] bg-[#181700] text-white'
-                    : unavailable
-                      ? isSunday || holidayName
-                        ? 'border-transparent text-[var(--hafta-red-400)]'
-                        : 'border-transparent text-stone-300'
-                      : 'border-transparent text-stone-600 hover:bg-stone-50',
-                  isToday && !isSelected && 'ring-1 ring-[#181700]/25',
-                  isSelected && 'ring-2 ring-[#181700] ring-offset-2 ring-offset-white',
-                )}
+                className="group flex min-h-[58px] w-full cursor-pointer flex-col items-center justify-start gap-1 px-0 py-1 text-sm font-bold transition-colors lg:min-h-[76px]"
               >
-                <span className="leading-none">{day.getDate()}</span>
+                <span
+                  className={cn(
+                    'mx-auto flex h-9 w-9 aspect-square items-center justify-center rounded-full leading-none transition-all sm:h-10 sm:w-10',
+                    sessions.length > 0
+                      ? 'bg-[#181700] text-white'
+                      : unavailable
+                        ? isSunday || holidayName
+                          ? 'text-[var(--hafta-red-400)]'
+                          : 'text-stone-300'
+                        : 'text-stone-600 group-hover:bg-stone-100',
+                    isToday && !isSelected && 'ring-1 ring-[#181700]/25',
+                    isSelected && 'ring-2 ring-[#181700] ring-offset-2 ring-offset-white',
+                  )}
+                >
+                  {day.getDate()}
+                </span>
                 {sessions.length > 0 ? (
                   <span className="flex max-w-full items-center justify-center gap-0.5">
                     {sessions.slice(0, 4).map((_, dotIndex) => (
                       <span
                         key={dotIndex}
-                        className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--hafta-ylw-100)]"
+                        className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--hafta-org-300)]"
                       />
                     ))}
                     {sessions.length > 4 ? (
-                      <span className="text-[8px] font-bold leading-none text-[var(--hafta-ylw-100)]">
+                      <span className="text-[8px] font-bold leading-none text-stone-500">
                         +{sessions.length - 4}
                       </span>
                     ) : null}
@@ -208,7 +212,7 @@ export function TherapistMonthCalendar({
                   <span className="h-1.5 w-1.5 rounded-full bg-transparent" />
                 )}
                 {sessions.length > 0 ? (
-                  <span className="hidden max-w-full truncate text-[9px] font-semibold text-[var(--hafta-ylw-100)] lg:block">
+                  <span className="hidden max-w-full truncate text-[9px] font-semibold text-stone-500 lg:block">
                     {sessions[0].startTime.slice(0, 5)}
                     {sessions.length > 1 ? ` +${sessions.length - 1}` : ''}
                   </span>
@@ -226,7 +230,7 @@ export function TherapistMonthCalendar({
             <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-red-400)]" /> Hari Libur / Minggu
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-ylw-100)]" /> Sesi aktif
+            <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-org-100)]" /> Sesi aktif
           </span>
         </div>
       </div>
@@ -270,12 +274,12 @@ export function TherapistMonthCalendar({
                       {appointment.startTime.slice(0, 5)} WIB · {appointment.durationMinutes} menit
                     </p>
                   </div>
-                  <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-[var(--hafta-ylw-100)]">
+                  <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-[var(--hafta-org-100)]">
                     {STATUS_LABELS[appointment.status] ?? appointment.status}
                   </span>
                 </div>
                 <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-2 text-xs text-stone-300">
-                  <UserRound className="h-4 w-4 text-[var(--hafta-ylw-100)]" />
+                  <UserRound className="h-4 w-4 text-[var(--hafta-org-100)]" />
                   Fisioterapis Hafta
                 </div>
               </div>

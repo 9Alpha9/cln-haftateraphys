@@ -21,7 +21,7 @@ function UserAvatar({ name, image }: { name?: string | null; image?: string | nu
   return image ? (
     <Image src={image} alt="Foto profil" width={36} height={36} className="h-9 w-9 rounded-full object-cover" />
   ) : (
-    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-sm font-bold text-[var(--hafta-ylw-950)]">
+    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-sm font-bold text-[var(--hafta-org-950)]">
       {initial}
     </span>
   );
@@ -52,7 +52,7 @@ export function PublicHeader() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-sm font-medium text-stone-600 transition-colors hover:text-[var(--hafta-ylw-950)]"
+                className="text-sm font-medium text-stone-600 transition-colors hover:text-[var(--hafta-org-950)]"
               >
                 {item.name}
               </Link>
@@ -83,7 +83,7 @@ export function PublicHeader() {
                   href="https://wa.me/6281232932872"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] px-4 sm:px-5 py-2.5 text-sm font-semibold text-[var(--hafta-ylw-950)] shadow-sm transition-colors hover:bg-[var(--hafta-ylw-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-ylw-100)]"
+                  className="inline-flex items-center justify-center rounded-xl bg-[var(--hafta-org-100)] px-4 sm:px-5 py-2.5 text-sm font-semibold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)]"
                 >
                   Buat Janji
                 </Link>
@@ -101,7 +101,7 @@ export function PublicHeader() {
                 href="https://wa.me/6281232932872"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] text-[var(--hafta-ylw-950)] shadow-sm transition-colors hover:bg-[var(--hafta-ylw-200)]"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-org-200)]"
               >
                 <Phone className="h-4 w-4" />
                 <span className="sr-only">Hubungi WhatsApp</span>
@@ -130,7 +130,7 @@ export function PublicHeader() {
               <Link
                 key={item.name}
                 href={item.href}
-                className="rounded-xl px-3 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-100 hover:text-[var(--hafta-ylw-950)]"
+                className="rounded-xl px-3 py-2.5 text-sm font-medium text-stone-700 hover:bg-stone-100 hover:text-[var(--hafta-org-950)]"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {item.name}
@@ -141,7 +141,7 @@ export function PublicHeader() {
             {user ? (
               <Link
                 href="/dashboard"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--hafta-ylw-100)] px-4 py-2.5 text-sm font-semibold text-[var(--hafta-ylw-950)] transition-colors hover:bg-[var(--hafta-ylw-200)]"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-4 py-2.5 text-sm font-semibold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-org-200)]"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <LayoutDashboard className="h-4 w-4" /> Buka Dashboard
@@ -159,7 +159,7 @@ export function PublicHeader() {
                   href="https://wa.me/6281232932872"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center rounded-xl bg-[var(--hafta-ylw-100)] px-4 py-2.5 text-sm font-semibold text-[var(--hafta-ylw-950)] hover:bg-[var(--hafta-ylw-200)]"
+                  className="inline-flex items-center justify-center rounded-xl bg-[var(--hafta-org-100)] px-4 py-2.5 text-sm font-semibold text-[var(--hafta-org-950)] hover:bg-[var(--hafta-org-200)]"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Buat Janji (WhatsApp)

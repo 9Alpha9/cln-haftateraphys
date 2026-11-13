@@ -12,7 +12,7 @@ export function Sonner() {
       closeButton
       toastOptions={{
         classNames: {
-          toast: 'group toast group-[.toaster]:bg-white group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg',
+          toast: 'group toast group-[.toaster]:bg-white group-[.toaster]:text-foreground group-[.toaster]:border-border group-[.toaster]:',
           description: 'group-[.toast]:text-muted-foreground',
           actionButton: 'group-[.toast]:bg-accent group-[.toast]:text-accent-foreground',
           cancelButton: 'group-[.toast]:bg-muted group-[.toast]:text-muted-foreground',

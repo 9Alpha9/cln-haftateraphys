@@ -14,12 +14,6 @@ import type { InternalCalendarEvent } from '@/server/queries/internal-calendar-e
 
 const monthFormatter = new Intl.DateTimeFormat('id-ID', { month: 'long', year: 'numeric' });
 const weekdayLabels = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-const typeLabel: Record<string, string> = {
-  INITIAL_ASSESSMENT: 'Assessment Awal',
-  THERAPY_SESSION: 'Sesi Terapi',
-  FOLLOW_UP: 'Tindak Lanjut',
-  EVALUATION: 'Evaluasi',
-};
 
 function monthKey(date: Date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -95,11 +89,11 @@ export function AppointmentCalendar({
   }
 
   return (
-    <section className="rounded-2xl border border-[#E8ECEB] bg-white p-3.5 sm:p-5 shadow-sm">
+    <section className="rounded-2xl border border-[#E8ECEB] bg-white p-3.5 sm:p-5">
       <div className="flex flex-col gap-3 border-b border-[#E8ECEB] pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-hafta-ylw-50">
-            <CalendarDays className="h-4 w-4 text-hafta-ylw-700" strokeWidth={2.25} />
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-hafta-org-50">
+            <CalendarDays className="h-4 w-4 text-hafta-org-700" strokeWidth={2.25} />
           </span>
           <div>
             <h2 className="font-semibold text-[#111827]">Kalender Terapi</h2>
@@ -146,9 +140,9 @@ export function AppointmentCalendar({
                   className={cn(
                     'relative flex min-h-12 flex-col items-center justify-center rounded-xl p-1 text-center transition-all duration-150 sm:min-h-14',
                      isSelected
-                       ? 'bg-hafta-ylw-200 text-hafta-ylw-900 shadow-md'
+                       ? 'bg-hafta-org-200 text-hafta-org-900 shadow-md'
                        : dayAppointments.length
-                         ? 'bg-hafta-ylw-50 text-hafta-ylw-900 ring-1 ring-hafta-ylw-100 hover:bg-hafta-ylw-100'
+                         ? 'bg-hafta-org-50 text-hafta-org-900 ring-1 ring-hafta-org-100 hover:bg-hafta-org-100'
                          : 'hover:bg-[#F9FAFB]',
                   )}
                 >
@@ -156,7 +150,7 @@ export function AppointmentCalendar({
                     className={cn(
                        'text-[13px] font-semibold leading-none',
                        !isSelected && isRedDay ? 'text-hafta-red-600' : 'text-[#111827]',
-                       isSelected && 'text-hafta-ylw-900'
+                       isSelected && 'text-hafta-org-900'
                     )}
                   >
                     {day.getDate()}
@@ -170,12 +164,12 @@ export function AppointmentCalendar({
                           key={i}
                           className={cn(
                             'h-1 w-1 rounded-full',
-                            isSelected ? 'bg-hafta-ylw-900' : 'bg-hafta-ylw-600'
+                            isSelected ? 'bg-hafta-org-900' : 'bg-hafta-org-600'
                           )}
                         />
                       ))}
                       {dayAppointments.length > 3 && (
-                        <span className={cn('text-[7px] leading-[4px] font-bold', isSelected ? 'text-hafta-ylw-900' : 'text-hafta-ylw-600')}>+</span>
+                        <span className={cn('text-[7px] leading-[4px] font-bold', isSelected ? 'text-hafta-org-900' : 'text-hafta-org-600')}>+</span>
                       )}
                     </div>
                   ) : (
@@ -186,8 +180,8 @@ export function AppointmentCalendar({
                   {dayInternalEvents.length > 0 ? (
                     <span
                       className={cn(
-                        'absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-hafta-ylw-400',
-                        isSelected && 'bg-hafta-ylw-800'
+                        'absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-hafta-org-400',
+                        isSelected && 'bg-hafta-org-800'
                       )}
                       title={dayInternalEvents.map((event) => event.title).join(', ')}
                     />
@@ -225,13 +219,13 @@ export function AppointmentCalendar({
                 className="mt-3 space-y-2"
               >
                 {selectedInternalEvents.map((event) => (
-                  <div key={event.id} className="rounded-xl border border-hafta-ylw-100 bg-hafta-ylw-50 p-4 shadow-sm">
-                    <p className="text-sm font-bold text-hafta-ylw-900">{event.title}</p>
-                    <p className="mt-1 text-[11px] font-semibold text-hafta-ylw-700">
+                  <div key={event.id} className="rounded-xl border border-hafta-org-100 bg-hafta-org-50 p-4">
+                    <p className="text-sm font-bold text-hafta-org-900">{event.title}</p>
+                    <p className="mt-1 text-[11px] font-semibold text-hafta-org-700">
                       {event.startTime ?? 'Seharian'} · {event.eventType.replaceAll('_', ' ')}
                     </p>
                     {event.description ? (
-                      <p className="mt-2 text-xs leading-relaxed text-hafta-ylw-800">{event.description}</p>
+                      <p className="mt-2 text-xs leading-relaxed text-hafta-org-800">{event.description}</p>
                     ) : null}
                   </div>
                 ))}
@@ -243,7 +237,7 @@ export function AppointmentCalendar({
                       key={appointment.id}
                       initial={{ opacity: 0, x: -6 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className="rounded-xl border border-[#E5E7EB] bg-white p-4 shadow-sm"
+                      className="rounded-xl border border-[#E5E7EB] bg-white p-4"
                     >
                       <div className="flex items-start gap-3.5">
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#F1F5F9] text-[#64748B]">
@@ -263,7 +257,7 @@ export function AppointmentCalendar({
                         <div className="min-w-0 flex-1">
                           <div className="flex items-start justify-between gap-2">
                             <div className="min-w-0">
-                              <p className="text-[13px] font-bold text-[#111827] truncate">{typeLabel[appointment.type] ?? appointment.type}</p>
+                              <p className="text-[13px] font-bold text-[#111827] truncate">{appointment.patientName}</p>
                               <p className="mt-0.5 text-[11px] font-medium text-[#6B7280] truncate">Dengan {appointment.therapistName ?? 'Terapis Hafta'}</p>
                             </div>
                             {appointment.isNew ? (
@@ -273,7 +267,7 @@ export function AppointmentCalendar({
                           
                           <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] font-semibold text-[#64748B]">
                             <span className="inline-flex items-center gap-1">
-                              <Clock3 className="h-3.5 w-3.5 text-hafta-ylw-600" strokeWidth={2.25} />
+                              <Clock3 className="h-3.5 w-3.5 text-hafta-org-600" strokeWidth={2.25} />
                               {appointment.startTime}
                             </span>
                             <span className="inline-flex items-center gap-1">

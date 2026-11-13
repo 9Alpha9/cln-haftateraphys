@@ -30,13 +30,6 @@ const MONTHS = [
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
 ];
 
-const TYPE_LABELS: Record<string, string> = {
-  INITIAL_ASSESSMENT: 'Assessment Awal',
-  THERAPY_SESSION: 'Sesi Terapi',
-  FOLLOW_UP: 'Tindak Lanjut',
-  EVALUATION: 'Evaluasi',
-};
-
 const STATUS_LABELS: Record<string, string> = {
   SCHEDULED: 'Terjadwal',
   CONFIRMED: 'Terkonfirmasi',
@@ -92,13 +85,13 @@ function formatShortDate(date: Date) {
 function statusClass(status: string) {
   if (status === 'COMPLETED') return 'bg-[var(--hafta-grn-50)] border-[var(--hafta-grn-500)] text-[var(--hafta-grn-700)]';
   if (status === 'CANCELLED' || status === 'NO_SHOW') return 'bg-[var(--hafta-red-50)] border-[var(--hafta-red-500)] text-[var(--hafta-red-700)]';
-  return 'bg-[var(--hafta-ylw-50)]/90 border-[var(--hafta-ylw-200)] text-[#181700]';
+  return 'bg-[var(--hafta-org-50)]/90 border-[var(--hafta-org-200)] text-[#181700]';
 }
 
 function statusBadgeClass(status: string) {
   if (status === 'COMPLETED') return 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)] border-[var(--hafta-grn-200)]';
   if (status === 'CANCELLED' || status === 'NO_SHOW') return 'bg-[var(--hafta-red-50)] text-[var(--hafta-red-700)] border-[var(--hafta-red-200)]';
-  return 'bg-[var(--hafta-ylw-50)] text-[var(--hafta-ylw-950)] border-[var(--hafta-ylw-200)]';
+  return 'bg-[var(--hafta-org-50)] text-[var(--hafta-org-950)] border-[var(--hafta-org-200)]';
 }
 
 export function TherapyCalendarView({
@@ -214,7 +207,7 @@ export function TherapyCalendarView({
         <div className="shrink-0 border-b border-stone-200/80 px-3 py-2.5 sm:px-4 sm:py-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-ylw-100)] text-[#181700]">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-[#181700]">
                 <CalendarDays className="h-4 w-4" />
               </div>
               <div className="min-w-0">
@@ -259,7 +252,7 @@ export function TherapyCalendarView({
                   onClick={() => setViewMode(mode)}
                   className={cn(
                     'h-7 shrink-0 cursor-pointer rounded-full px-2.5 text-[11px] font-semibold transition-colors',
-                    viewMode === mode ? 'bg-[#181700] text-white shadow-2xs' : 'text-stone-500 hover:text-[#181700]',
+                    viewMode === mode ? 'bg-[#181700] text-white' : 'text-stone-500 hover:text-[#181700]',
                   )}
                 >
                   {mode === 'day' ? 'Hari' : mode === 'week' ? 'Minggu' : mode === 'month' ? 'Bulan' : 'Agenda'}
@@ -289,7 +282,7 @@ export function TherapyCalendarView({
               <button
                 type="button"
                 onClick={() => openCreate(dateKey(currentDate), '08:00')}
-                className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-ylw-100)] px-3 text-[11px] font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-ylw-200)]"
+                className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-org-100)] px-3 text-[11px] font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Buat Jadwal
@@ -385,7 +378,7 @@ export function TherapyCalendarView({
                       )}
                     >
                       <span>{day.getDate()}</span>
-                      <span className={cn('mt-0.5 h-1 w-1 rounded-full', dayEvents.length > 0 && (isActive ? 'bg-[var(--hafta-ylw-200)]' : 'bg-[var(--hafta-ylw-400)]'))} />
+                      <span className={cn('mt-0.5 h-1 w-1 rounded-full', dayEvents.length > 0 && (isActive ? 'bg-[var(--hafta-org-200)]' : 'bg-[var(--hafta-org-400)]'))} />
                     </button>
                   );
                 })}
@@ -446,7 +439,7 @@ export function TherapyCalendarView({
                             type="button"
                             onClick={() => openCreate(key, `${String(hour).padStart(2, '0')}:00`)}
                             aria-label={`Buat jadwal ${key} ${hour}:00`}
-                            className="absolute inset-x-0 cursor-pointer border-b border-stone-100/80 transition-colors hover:bg-[var(--hafta-ylw-50)]/40"
+                            className="absolute inset-x-0 cursor-pointer border-b border-stone-100/80 transition-colors hover:bg-[var(--hafta-org-50)]/40"
                             style={{ top: hour * SLOT_HEIGHT, height: SLOT_HEIGHT }}
                           />
                         ))}
@@ -464,7 +457,7 @@ export function TherapyCalendarView({
                                 setSelectedAppointment(appointment);
                               }}
                               className={cn(
-                                'absolute left-0.5 right-0.5 z-10 cursor-pointer overflow-hidden rounded-xl border-l-4 p-1.5 text-left shadow-2xs transition-transform hover:z-20 hover:scale-[1.01]',
+                                'absolute left-0.5 right-0.5 z-10 cursor-pointer overflow-hidden rounded-xl border-l-4 p-1.5 text-left transition-transform hover:z-20 hover:scale-[1.01]',
                                 statusClass(appointment.status),
                               )}
                               style={{ top, height }}
@@ -474,11 +467,6 @@ export function TherapyCalendarView({
                                 <Clock className="h-2.5 w-2.5 shrink-0" />
                                 {appointment.startTime} · {appointment.durationMinutes}m
                               </p>
-                              {height > 52 && (
-                                <p className="mt-1 truncate text-[9px] font-medium opacity-70">
-                                  {TYPE_LABELS[appointment.type] ?? appointment.type}
-                                </p>
-                              )}
                               {appointment.status === 'COMPLETED' && (
                                 <CheckCircle2 className="absolute bottom-1 right-1 h-3 w-3 opacity-80" />
                               )}
@@ -520,7 +508,7 @@ export function TherapyCalendarView({
         onClose={() => setSelectedAppointment(null)}
         icon={<CalendarDays className="h-5 w-5" />}
         title={selectedAppointment?.patientName ?? 'Detail Jadwal'}
-        subtitle={selectedAppointment ? `${TYPE_LABELS[selectedAppointment.type] ?? selectedAppointment.type}` : undefined}
+        subtitle={selectedAppointment?.therapistName ?? undefined}
         badge={
           selectedAppointment ? (
             <span className={cn('rounded-full border px-2.5 py-0.5 text-[10px] font-semibold', statusBadgeClass(selectedAppointment.status))}>
@@ -545,7 +533,7 @@ export function TherapyCalendarView({
                 selectedAppointment.status === 'CONFIRMED') ? (
                 <CompleteSessionButton
                   appointmentId={selectedAppointment.id}
-                  className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 text-xs font-bold text-[#181700] shadow-2xs transition-colors hover:bg-[var(--hafta-ylw-200)] sm:h-11 sm:px-5 sm:text-[13px]"
+                  className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] sm:h-11 sm:px-5 sm:text-[13px]"
                 />
               ) : null}
               <Link
@@ -589,7 +577,6 @@ export function TherapyCalendarView({
                 {[
                   ['Tanggal', formatLongDate(parseDateKey(dateKey(selectedAppointment.scheduledDate)))],
                   ['Waktu', `${selectedAppointment.startTime} • ${selectedAppointment.durationMinutes} menit WIB`],
-                  ['Tipe', TYPE_LABELS[selectedAppointment.type] ?? selectedAppointment.type],
                 ].map(([label, value]) => (
                   <div key={label} className="min-w-0">
                     <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-stone-400">
@@ -660,7 +647,7 @@ function AgendaView({ monthEvents, onSelect }: { monthEvents: CalendarAppointmen
                   <div className="min-w-0">
                     <p className="truncate text-sm font-bold">{appointment.patientName}</p>
                     <p className="truncate text-xs font-medium opacity-80">
-                      {appointment.startTime} • {TYPE_LABELS[appointment.type] ?? appointment.type} • {appointment.therapistName ?? '-'}
+                      {appointment.startTime} • {appointment.therapistName ?? '-'}
                     </p>
                   </div>
                   <span className="shrink-0 text-[10px] font-semibold">{STATUS_LABELS[appointment.status] ?? appointment.status}</span>

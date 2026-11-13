@@ -20,9 +20,7 @@ import {
 } from '@/server/queries/patient-portal';
 import { AppointmentRequestQueue } from '@/components/dashboard/appointment-request-queue';
 import { getIndonesianHolidays } from '@/server/queries/indonesian-holidays';
-import { getTherapistScheduleOverview } from '@/server/queries/therapist-schedules';
 import { AppointmentStatusFilter } from '@/components/dashboard/appointments/appointment-status-filter';
-import { AppointmentControlsMenu } from '@/components/dashboard/appointments/appointment-controls-menu';
 import { PaginationBar } from '@/components/ui/pagination-bar';
 
 export default async function AppointmentsPage({
@@ -70,16 +68,12 @@ export default async function AppointmentsPage({
 
   const canCreate = hasPermission(role, PERMISSIONS.APPOINTMENT_CREATE);
   const canReview = hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE);
-  const canManageSchedule =
-    hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE) ||
-    hasPermission(role, PERMISSIONS.SETTINGS_MANAGE);
-  const [result, formOptions, pendingRequests, scheduleOverview] = await Promise.all([
+  const [result, formOptions, pendingRequests] = await Promise.all([
     getScopedAppointments(page, perPage),
     canCreate
       ? getAppointmentFormOptions().catch(() => ({ patientOptions: [], therapistOptions: [] }))
       : Promise.resolve({ patientOptions: [], therapistOptions: [] }),
     canReview ? getPendingAppointmentRequests().catch(() => []) : Promise.resolve([]),
-    canManageSchedule ? getTherapistScheduleOverview().catch(() => []) : Promise.resolve([]),
   ]);
 
   // Filter lokal status & query
@@ -110,21 +104,20 @@ export default async function AppointmentsPage({
           { label: 'Dashboard', href: '/dashboard' },
           { label: 'Jadwal' },
         ]}
-        icon={<CalendarDays className="h-6 w-6 text-[var(--hafta-ylw-100)]" />}
+        icon={<CalendarDays className="h-6 w-6 text-[var(--hafta-org-100)]" />}
         action={
           <div className="flex w-full items-center justify-between gap-2.5 sm:w-auto">
             {canCreate ? (
               <NewAppointmentButton
                 patientOptions={formOptions.patientOptions}
                 therapistOptions={formOptions.therapistOptions}
-                className="inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-ylw-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] shadow-2xs transition-all hover:bg-[var(--hafta-ylw-200)] sm:text-[13px]"
+                className="inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-[#181700]  transition-all hover:bg-[var(--hafta-org-200)] sm:text-[13px]"
               >
                 <Plus className="h-4 w-4" /> Buat Appointment
               </NewAppointmentButton>
             ) : (
               <span />
             )}
-            <AppointmentControlsMenu role={role} scheduleOverview={scheduleOverview} />
           </div>
         }
       />
@@ -135,9 +128,9 @@ export default async function AppointmentsPage({
 
       {/* ── APPOINTMENT GRID LAYOUT (MODERN STRUCTURED CARDS) ── */}
       {filteredItems.length === 0 ? (
-        <Card className="rounded-3xl border-dashed border-stone-200 bg-white ring-0 shadow-none">
+        <Card className="rounded-3xl border-dashed border-stone-200 bg-white ring-0 -none">
           <CardContent className="flex min-h-[260px] flex-col items-center justify-center p-3.5 sm:p-5 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-ylw-50)] text-[#181700]">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
               <CalendarDays className="h-6 w-6" />
             </span>
             <h2 className="mt-3 text-sm font-bold text-[#181700]">Tidak ada jadwal yang sesuai</h2>

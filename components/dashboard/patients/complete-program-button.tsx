@@ -71,7 +71,7 @@ export function CompleteProgramButton({
               type="submit"
               form="complete-therapy-program-form"
               disabled={pending || summary.trim().length < 10}
-              className="inline-flex h-10 sm:h-11 px-4 sm:px-5 items-center justify-center gap-2 rounded-full bg-[var(--hafta-ylw-100)] hover:bg-[var(--hafta-ylw-200)] text-[#181700] font-bold text-xs sm:text-[13px] shadow-2xs cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-10 sm:h-11 px-4 sm:px-5 items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-[13px] cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
               Selesaikan Program
@@ -88,7 +88,7 @@ export function CompleteProgramButton({
         }
       >
         <form id="complete-therapy-program-form" onSubmit={handleSubmit} className="space-y-4">
-          <div className="rounded-2xl border border-[var(--hafta-ylw-200)] bg-[var(--hafta-ylw-50)]/50 p-4 text-xs leading-relaxed text-stone-600">
+          <div className="rounded-2xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)]/50 p-4 text-xs leading-relaxed text-stone-600">
             Program akan ditandai <strong className="text-[#181700]">COMPLETED</strong>. Pastikan tidak ada
             sesi terjadwal yang masih aktif. Pasien akan menerima notifikasi.
           </div>
@@ -103,7 +103,7 @@ export function CompleteProgramButton({
               maxLength={2000}
               disabled={pending}
               placeholder="Contoh: Target mobilitas tercapai, pasien mandiri menjalankan latihan rumah, program ditutup dengan edukasi pemeliharaan."
-              className="mt-1.5 w-full resize-none rounded-2xl border border-stone-200 bg-white px-3.5 py-3 text-sm leading-relaxed text-[#181700] outline-none transition-colors placeholder:text-stone-400 focus:border-[var(--hafta-ylw-300)] focus:ring-2 focus:ring-[var(--hafta-ylw-100)]/60 disabled:opacity-60"
+              className="mt-1.5 w-full resize-none rounded-2xl border border-stone-200 bg-white px-3.5 py-3 text-sm leading-relaxed text-[#181700] outline-none transition-colors placeholder:text-stone-400 focus:border-[var(--hafta-org-300)] focus:ring-2 focus:ring-[var(--hafta-org-100)]/60 disabled:opacity-60"
             />
           </label>
           <p className="text-[11px] text-stone-400">Minimal 10 karakter. {summary.trim().length}/2000</p>
