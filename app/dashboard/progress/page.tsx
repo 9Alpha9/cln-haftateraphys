@@ -63,7 +63,8 @@ export default async function ProgressPage({
 
   return (
     <div className="space-y-4 pb-6 sm:space-y-5">
-      {/* ── 1. GLOBAL ARCHITECTURAL NON-ROUNDED HEADER ── */}
+      {/* ── 1. GLOBAL ARCHITECTURAL NON-ROUNDED HEADER (staff only; patient gets in-module header) ── */}
+      {!isPatient ? (
       <DashboardPageHeader
         title="Rekam Medis Pasien"
         description={
@@ -79,6 +80,7 @@ export default async function ProgressPage({
           ) : undefined
         }
       />
+      ) : null}
 
       {/* ── 2. ROLE-BASED VIEW ── */}
       {isPatient ? (

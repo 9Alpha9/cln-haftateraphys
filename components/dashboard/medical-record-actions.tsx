@@ -69,7 +69,15 @@ export function useMedicalRecordPdf(record: MedicalRecordPdfData) {
   return { openPrintPage, downloadPdf, loading, printing };
 }
 
-export function MedicalRecordActions({ record, className }: { record: MedicalRecordPdfData; className?: string }) {
+export function MedicalRecordActions({
+  record,
+  className,
+  tone = 'light',
+}: {
+  record: MedicalRecordPdfData;
+  className?: string;
+  tone?: 'light' | 'dark';
+}) {
   const { openPrintPage, downloadPdf, loading, printing } = useMedicalRecordPdf(record);
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -97,7 +105,11 @@ export function MedicalRecordActions({ record, className }: { record: MedicalRec
         type="button"
         onClick={() => setIsOpen((v) => !v)}
         disabled={loading || printing}
-        className="h-10 px-3 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 text-xs sm:text-[13px] font-semibold inline-flex items-center justify-center gap-2 cursor-pointer transition-all focus-visible:outline-none focus-visible:border-[var(--hafta-950)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60"
+        className={
+          tone === 'dark'
+            ? 'h-9 px-2.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-white/80 border border-white/10 text-xs font-semibold inline-flex items-center justify-center gap-2 cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
+            : 'h-10 px-3 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 text-xs sm:text-[13px] font-semibold inline-flex items-center justify-center gap-2 cursor-pointer transition-all focus-visible:outline-none focus-visible:border-[var(--hafta-950)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
+        }
       >
         <MoreVertical className="w-4 h-4 shrink-0" />
         {/* <span className="hidden sm:inline">Aksi Lebih Banyak</span> */}
@@ -105,7 +117,13 @@ export function MedicalRecordActions({ record, className }: { record: MedicalRec
 
       {/* Rule #2: panel absolute menempel di atas tombol, dalam DOM yang sama */}
       {isOpen && (
-        <div className="absolute bottom-full right-0 z-20 mb-2 flex w-48 origin-bottom-right flex-col gap-1 rounded-2xl border border-stone-200/90 bg-white p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]">
+        <div
+          className={
+            tone === 'dark'
+              ? 'absolute bottom-full right-0 z-20 mb-2 flex w-48 origin-bottom-right flex-col gap-1 rounded-2xl border border-white/10 bg-[#191817] p-2 shadow-[0_12px_32px_rgba(0,0,0,0.55)]'
+              : 'absolute bottom-full right-0 z-20 mb-2 flex w-48 origin-bottom-right flex-col gap-1 rounded-2xl border border-stone-200/90 bg-white p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]'
+          }
+        >
           <button
             type="button"
             onClick={() => {
@@ -113,13 +131,17 @@ export function MedicalRecordActions({ record, className }: { record: MedicalRec
               void openPrintPage();
             }}
             disabled={printing}
-            className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-[#181700] sm:text-sm"
+            className={
+              tone === 'dark'
+                ? 'flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-white/70 transition-colors hover:bg-white/[0.08] hover:text-white sm:text-sm'
+                : 'flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-[#181700] sm:text-sm'
+            }
           >
             <div className="flex items-center gap-2">
               {printing ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0 text-stone-500" />
+                <Loader2 className={tone === 'dark' ? 'h-3.5 w-3.5 animate-spin shrink-0 text-white/50' : 'h-3.5 w-3.5 animate-spin shrink-0 text-stone-500'} />
               ) : (
-                <Printer className="h-3.5 w-3.5 shrink-0 text-stone-500" />
+                <Printer className={tone === 'dark' ? 'h-3.5 w-3.5 shrink-0 text-white/50' : 'h-3.5 w-3.5 shrink-0 text-stone-500'} />
               )}
               <span className="font-medium text-xs">{printing ? 'Mencetak...' : 'Cetak Dokumen'}</span>
             </div>
@@ -131,13 +153,17 @@ export function MedicalRecordActions({ record, className }: { record: MedicalRec
               void downloadPdf();
             }}
             disabled={loading}
-            className="flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-[#181700] sm:text-sm"
+            className={
+              tone === 'dark'
+                ? 'flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-white/70 transition-colors hover:bg-white/[0.08] hover:text-white sm:text-sm'
+                : 'flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-100 hover:text-[#181700] sm:text-sm'
+            }
           >
             <div className="flex items-center gap-2">
               {loading ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0 text-stone-500" />
+                <Loader2 className={tone === 'dark' ? 'h-3.5 w-3.5 animate-spin shrink-0 text-white/50' : 'h-3.5 w-3.5 animate-spin shrink-0 text-stone-500'} />
               ) : (
-                <FileDown className="h-3.5 w-3.5 shrink-0 text-stone-500" />
+                <FileDown className={tone === 'dark' ? 'h-3.5 w-3.5 shrink-0 text-white/50' : 'h-3.5 w-3.5 shrink-0 text-stone-500'} />
               )}
               <span className="font-medium text-xs">{loading ? 'Memproses...' : 'Unduh PDF'}</span>
             </div>
