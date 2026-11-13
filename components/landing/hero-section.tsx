@@ -21,7 +21,7 @@ export function HeroSection() {
       />
       <div
         aria-hidden="true"
-        className="absolute inset-0 -z-10 bg-gradient-to-t from-[#181700] via-[#181700]/85 to-[#181700]/50 lg:bg-gradient-to-r lg:from-[#181700]/90 lg:via-[#181700]/65 lg:to-transparent"
+        className="absolute inset-0 -z-10 bg-gradient-to-t from-[var(--hafta-950)] via-[var(--hafta-950)]/85 to-[var(--hafta-950)]/50 lg:bg-gradient-to-r lg:from-[var(--hafta-950)]/90 lg:via-[var(--hafta-950)]/65 lg:to-transparent"
       />
       <Container>
         <ScrollAnimation direction="left">
@@ -48,14 +48,14 @@ export function HeroSection() {
                 href="https://wa.me/6281232932872"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-4 sm:px-5 py-3 text-sm font-bold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-org-200)] sm:px-6 sm:py-3.5 sm:text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#181700]"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-4 sm:px-5 py-3 text-sm font-bold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-org-200)] sm:px-6 sm:py-3.5 sm:text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--hafta-950)]"
               >
                 Buat Janji
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/login"
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 sm:px-5 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20 sm:px-6 sm:py-3.5 sm:text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#181700]"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 sm:px-5 py-3 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20 sm:px-6 sm:py-3.5 sm:text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--hafta-950)]"
               >
                 <LogIn className="h-4 w-4" />
                 Masuk Patient Portal

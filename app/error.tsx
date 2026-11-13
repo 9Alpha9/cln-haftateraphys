@@ -16,25 +16,25 @@ export default function AppError({
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#F7FAF8] p-4">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--background)] p-4">
       <div className="w-full max-w-md">
-        <div className="rounded-2xl border border-[#E5E7EB] bg-white p-8  text-center">
+        <div className="rounded-2xl border border-[var(--border)] bg-white p-8  text-center">
           {/* Icon */}
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#FEF2F2]">
             <AlertTriangle className="h-8 w-8 text-[#dc2626]" />
           </div>
 
           {/* Title */}
-          <h1 className="mt-6 text-xl font-bold text-[#111827]">Oops! Ada Masalah</h1>
+          <h1 className="mt-6 text-xl font-bold text-[var(--foreground)]">Oops! Ada Masalah</h1>
 
           {/* Description */}
-          <p className="mt-2 text-[13px] text-[#6B7280] leading-relaxed">
+          <p className="mt-2 text-[13px] text-[var(--muted-foreground)] leading-relaxed">
             Halaman ini mengalami kesalahan saat memuat data. Silakan coba beberapa saat lagi.
           </p>
 
           {/* Error digest */}
           {error.digest && (
-            <div className="mt-4 rounded-lg bg-[#F7FAF8] p-3">
+            <div className="mt-4 rounded-lg bg-[var(--background)] p-3">
               <p className="text-[11px] font-mono text-[#9CA3AF]">Error ID: {error.digest}</p>
             </div>
           )}
@@ -43,14 +43,14 @@ export default function AppError({
           <div className="mt-6 flex flex-col gap-3">
             <button
               onClick={reset}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-200)] px-5 text-[13px] font-semibold text-[#111827] transition-all hover:bg-[var(--hafta-org-300)]  active:scale-[0.98]"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-200)] px-5 text-[13px] font-semibold text-[var(--foreground)] transition-all hover:bg-[var(--hafta-org-300)]  active:scale-[0.98]"
             >
               <RefreshCcw className="h-4 w-4" />
               Muat Ulang
             </button>
             <Link
               href="/"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-5 text-[13px] font-medium text-[#6B7280] transition-all hover:bg-[#F7FAF8] hover:text-[#111827]"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-5 text-[13px] font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--background)] hover:text-[var(--foreground)]"
             >
               <Home className="h-4 w-4" />
               Kembali ke Beranda

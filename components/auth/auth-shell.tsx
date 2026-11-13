@@ -54,9 +54,9 @@ export function AuthShell({ children }: AuthShellProps) {
   const currentSlide = slides[activeSlide];
 
   return (
-    <div className="relative min-h-screen bg-[#FEFEF6] sm:bg-white">
+    <div className="relative min-h-screen bg-[var(--background)] sm:bg-white">
       {/* ── PANEL KIRI: IMAGE SLIDER (DESKTOP ONLY) ── */}
-      <aside className="fixed inset-y-0 left-0 z-0 hidden w-1/2 overflow-hidden bg-[#181700] lg:block">
+      <aside className="fixed inset-y-0 left-0 z-0 hidden w-1/2 overflow-hidden bg-[var(--hafta-950)] lg:block">
         <AnimatePresence initial={false} mode="wait">
           <motion.div
             key={currentSlide.image}
@@ -78,8 +78,8 @@ export function AuthShell({ children }: AuthShellProps) {
           </motion.div>
         </AnimatePresence>
 
-        {/* Warm Charcoal Gradient (#181700) — Foto Jernih Alami Tanpa Kabut Hijau */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#181700]/95 via-[#181700]/45 to-[#181700]/15" />
+        {/* Warm Charcoal Gradient (var(--hafta-950)) — Foto Jernih Alami Tanpa Kabut Hijau */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--hafta-950)]/95 via-[var(--hafta-950)]/45 to-[var(--hafta-950)]/15" />
 
         {/* Konten Di Atas Slider */}
         <div className="relative z-10 flex h-full flex-col justify-between p-10 xl:p-14">
@@ -140,7 +140,7 @@ export function AuthShell({ children }: AuthShellProps) {
           {/* Baris Paling Atas: Navigasi Balik ke Beranda */}
           <Link
             href="/"
-            className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-stone-500 transition-colors hover:text-[#181700] sm:mb-8"
+            className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-stone-500 transition-colors hover:text-[var(--hafta-950)] sm:mb-8"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             <span>Kembali ke Beranda</span>

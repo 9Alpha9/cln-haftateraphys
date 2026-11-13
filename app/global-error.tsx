@@ -16,9 +16,9 @@ export default function GlobalError({
 
   return (
     <html lang="id">
-      <body className="min-h-screen bg-[#F7FAF8] flex items-center justify-center p-4">
+      <body className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <div className="rounded-2xl border border-[#E5E7EB] bg-white p-8  text-center">
+          <div className="rounded-2xl border border-[var(--border)] bg-white p-8  text-center">
             {/* Icon */}
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#FEF2F2]">
               <svg
@@ -38,16 +38,16 @@ export default function GlobalError({
             </div>
 
             {/* Title */}
-            <h1 className="mt-6 text-xl font-bold text-[#111827]">Terjadi Kesalahan</h1>
+            <h1 className="mt-6 text-xl font-bold text-[var(--foreground)]">Terjadi Kesalahan</h1>
 
             {/* Description */}
-            <p className="mt-2 text-[13px] text-[#6B7280] leading-relaxed">
+            <p className="mt-2 text-[13px] text-[var(--muted-foreground)] leading-relaxed">
               Sistem mengalami gangguan yang tidak terduga. Silakan coba kembali atau kembali ke beranda.
             </p>
 
             {/* Error digest (for debugging) */}
             {error.digest && (
-              <div className="mt-4 rounded-lg bg-[#F7FAF8] p-3">
+              <div className="mt-4 rounded-lg bg-[var(--background)] p-3">
                 <p className="text-[11px] font-mono text-[#9CA3AF]">Error ID: {error.digest}</p>
               </div>
             )}
@@ -57,7 +57,7 @@ export default function GlobalError({
               <button
                 type="button"
                 onClick={reset}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-5 text-[13px] font-semibold text-[#181700] transition-all hover:bg-[var(--hafta-org-200)]  active:scale-[0.98] cursor-pointer"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-5 text-[13px] font-semibold text-[var(--hafta-950)] transition-all hover:bg-[var(--hafta-org-200)]  active:scale-[0.98] cursor-pointer"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -79,7 +79,7 @@ export default function GlobalError({
 
               <Link
                 href="/"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[#E5E7EB] bg-white px-5 text-[13px] font-medium text-[#6B7280] transition-all hover:bg-[#F7FAF8] hover:text-[#111827]"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-5 text-[13px] font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--background)] hover:text-[var(--foreground)]"
               >
                 <svg
                   viewBox="0 0 24 24"

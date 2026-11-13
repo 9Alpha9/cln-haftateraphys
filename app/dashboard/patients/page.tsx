@@ -37,13 +37,13 @@ export default async function PatientsPage({
   const therapist = params.therapist ?? '';
   const perPageParam = Number(params.perPage);
   const perPage = [4, 10, 25, 50].includes(perPageParam) ? perPageParam : 4;
-  const [result, therapistOptions] = await Promise.all([
-    getPatientsList(Number(params.page) || 1, perPage, search, status, therapist),
-    getTherapistOptions(),
-  ]);
   const canCreate = hasPermission(role, PERMISSIONS.PATIENT_CREATE);
   const canArchive = hasPermission(role, PERMISSIONS.PATIENT_ARCHIVE);
-  const unlinkedUsers = canCreate ? await getUnlinkedUserPatients() : [];
+  const [result, therapistOptions, unlinkedUsers] = await Promise.all([
+    getPatientsList(Number(params.page) || 1, perPage, search, status, therapist),
+    getTherapistOptions(),
+    canCreate ? getUnlinkedUserPatients() : Promise.resolve([]),
+  ]);
 
   return (
     <div className="space-y-4 sm:space-y-5">

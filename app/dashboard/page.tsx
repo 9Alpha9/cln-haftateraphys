@@ -75,26 +75,24 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
     : `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}`;
 
   const currentYear = new Date().getFullYear();
-  const [holidays, nextYearHolidays] = await Promise.all([
-    getIndonesianHolidays(currentYear),
-    getIndonesianHolidays(currentYear + 1),
-  ]);
-
-  const [calendarAppointments, upcomingAppointments] = await Promise.all([
-    getCalendarAppointments(monthStr),
-    getUpcomingScheduleAppointments(),
-  ]);
-
   const isTherapist = role === 'THERAPIST';
   const showCharts = role === 'SUPER_ADMIN' || role === 'ADMIN' || isTherapist;
-  const stats = showCharts ? await getDashboardStats() : null;
-  const activities = await getRecentActivities({ limit: 8, userId: session.user.id });
   const canCreateAppt = hasPermission(role, PERMISSIONS.APPOINTMENT_CREATE);
   const canCompleteAppt = hasPermission(role, PERMISSIONS.APPOINTMENT_COMPLETE);
   const canReviewIntake = hasPermission(role, PERMISSIONS.INTAKE_READ);
   const canManageUsers = hasPermission(role, PERMISSIONS.USER_LIST);
   const canManageSettings = hasPermission(role, PERMISSIONS.SETTINGS_MANAGE);
-  const pendingIntake = canReviewIntake ? await getPendingIntakeCount() : 0;
+
+  const [holidays, nextYearHolidays, calendarAppointments, upcomingAppointments, stats, activities, pendingIntake] =
+    await Promise.all([
+      getIndonesianHolidays(currentYear),
+      getIndonesianHolidays(currentYear + 1),
+      getCalendarAppointments(monthStr),
+      getUpcomingScheduleAppointments(),
+      showCharts ? getDashboardStats() : Promise.resolve(null),
+      getRecentActivities({ limit: 8, userId: session.user.id }),
+      canReviewIntake ? getPendingIntakeCount() : Promise.resolve(0),
+    ]);
 
   const toKey = (value: Date | string) =>
     typeof value === 'string'

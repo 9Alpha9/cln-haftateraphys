@@ -177,7 +177,7 @@ export function LoginForm({ reason }: LoginFormProps) {
     return (
       <div>
         <div className="mb-7">
-          <h1 className="text-2xl font-bold tracking-tight text-[#181700] sm:text-3xl">
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--hafta-950)] sm:text-3xl">
             Verifikasi Dua Faktor
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-stone-600">
@@ -206,13 +206,13 @@ export function LoginForm({ reason }: LoginFormProps) {
             placeholder={useBackupCode ? 'Kode cadangan' : '000000'}
             required
             disabled={isPending}
-            className="h-12 w-full rounded-xl border border-stone-300 bg-white px-4 text-center text-lg tracking-[0.3em] text-[#181700] focus:border-[#181700] focus:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/30 disabled:opacity-50"
+            className="h-12 w-full rounded-xl border border-stone-300 bg-white px-4 text-center text-lg tracking-[0.3em] text-[var(--hafta-950)] focus:border-[var(--hafta-950)] focus:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/30 disabled:opacity-50"
           />
 
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[#181700] transition-all hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
+            className="inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[var(--hafta-950)] transition-all hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
           >
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Verifikasi
@@ -226,7 +226,7 @@ export function LoginForm({ reason }: LoginFormProps) {
             setTwoFactorCode('');
             setGeneralError(null);
           }}
-          className="mt-4 text-xs font-semibold text-stone-600 underline underline-offset-2 hover:text-[#181700]"
+          className="mt-4 text-xs font-semibold text-stone-600 underline underline-offset-2 hover:text-[var(--hafta-950)]"
         >
           {useBackupCode ? 'Gunakan kode authenticator' : 'Gunakan kode cadangan'}
         </button>
@@ -252,7 +252,7 @@ export function LoginForm({ reason }: LoginFormProps) {
 
       {/* ── HEADER FORM RATA KIRI (BERSIH & HUMANIZE) ── */}
       <div className="mb-7">
-        <h1 className="text-2xl font-bold tracking-tight text-[#181700] sm:text-3xl">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--hafta-950)] sm:text-3xl">
           Masuk ke Akun Anda
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-stone-600">
@@ -268,8 +268,8 @@ export function LoginForm({ reason }: LoginFormProps) {
 
       {reasonBanner && (
         <div className="mb-6">
-          <div className="rounded-2xl bg-[var(--hafta-org-50)]/80 border border-[var(--hafta-org-200)] px-4 py-3 text-xs text-[#181700] flex items-center gap-2.5">
-            <AlertCircle className="h-4 w-4 shrink-0 text-[#181700]" />
+          <div className="rounded-2xl bg-[var(--hafta-org-50)]/80 border border-[var(--hafta-org-200)] px-4 py-3 text-xs text-[var(--hafta-950)] flex items-center gap-2.5">
+            <AlertCircle className="h-4 w-4 shrink-0 text-[var(--hafta-950)]" />
             <span>{reasonBanner}</span>
           </div>
         </div>
@@ -294,10 +294,10 @@ export function LoginForm({ reason }: LoginFormProps) {
             aria-invalid={Boolean(fieldErrors.email)}
             aria-describedby={fieldErrors.email ? 'email-error' : undefined}
             className={cn(
-              'h-12 w-full rounded-xl border bg-white px-4 text-sm text-[#181700] placeholder:text-stone-400 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50',
+              'h-12 w-full rounded-xl border bg-white px-4 text-sm text-[var(--hafta-950)] placeholder:text-stone-400 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50',
               fieldErrors.email
                 ? 'border-red-500 bg-red-50/30 text-red-950 focus:border-red-600 focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-red-500/20'
-                : 'border-stone-300 hover:border-stone-400 focus:border-[#181700] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/30'
+                : 'border-stone-300 hover:border-stone-400 focus:border-[var(--hafta-950)] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/30'
             )}
           />
           {fieldErrors.email && (
@@ -322,7 +322,7 @@ export function LoginForm({ reason }: LoginFormProps) {
           <div className="flex justify-end">
             <Link
               href="/forgot-password"
-              className="text-xs font-semibold text-stone-600 underline-offset-2 hover:text-[#181700] hover:underline"
+              className="text-xs font-semibold text-stone-600 underline-offset-2 hover:text-[var(--hafta-950)] hover:underline"
             >
               Lupa kata sandi?
             </Link>
@@ -337,7 +337,7 @@ export function LoginForm({ reason }: LoginFormProps) {
               type="checkbox"
               checked={remember}
               onChange={(e) => setRemember(e.target.checked)}
-              className="h-4 w-4 shrink-0 rounded border-stone-300 accent-[#181700] cursor-pointer"
+              className="h-4 w-4 shrink-0 rounded border-stone-300 accent-[var(--hafta-950)] cursor-pointer"
             />
             <span>Simpan data login</span>
           </label>
@@ -348,7 +348,7 @@ export function LoginForm({ reason }: LoginFormProps) {
               type="checkbox"
               checked={rememberDevice}
               onChange={(e) => setRememberDevice(e.target.checked)}
-              className="h-4 w-4 shrink-0 rounded-md border-stone-300 text-[#181700] focus:ring-[var(--hafta-org-200)]/30 cursor-pointer"
+              className="h-4 w-4 shrink-0 rounded-md border-stone-300 text-[var(--hafta-950)] focus:ring-[var(--hafta-org-200)]/30 cursor-pointer"
             />
             <span>Ingat perangkat ini selama 7 hari</span>
           </label>
@@ -357,7 +357,7 @@ export function LoginForm({ reason }: LoginFormProps) {
             href="https://wa.me/6281232932872?text=Halo%20Admin%20Hafta%20Fisioterapi,%20saya%20butuh%20bantuan%20reset%20kata%20sandi%20akun%20pasien."
             target="_blank"
             rel="noopener noreferrer"
-            className="font-semibold text-stone-600 hover:text-[#181700] transition-colors"
+            className="font-semibold text-stone-600 hover:text-[var(--hafta-950)] transition-colors"
           >
             Lupa kata sandi?
           </a>
@@ -368,7 +368,7 @@ export function LoginForm({ reason }: LoginFormProps) {
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[#181700] transition-all duration-200 hover:bg-[var(--hafta-org-200)] active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 cursor-pointer"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[var(--hafta-950)] transition-all duration-200 hover:bg-[var(--hafta-org-200)] active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 cursor-pointer"
           >
             {isPending ? (
               <>
@@ -386,7 +386,7 @@ export function LoginForm({ reason }: LoginFormProps) {
           Belum punya akun?{' '}
           <Link
             href="/register"
-            className="rounded px-1.5 py-0.5 font-bold text-[#181700] underline decoration-[var(--hafta-org-100)] decoration-2 underline-offset-4 transition-all hover:bg-[var(--hafta-org-100)]/40"
+            className="rounded px-1.5 py-0.5 font-bold text-[var(--hafta-950)] underline decoration-[var(--hafta-org-100)] decoration-2 underline-offset-4 transition-all hover:bg-[var(--hafta-org-100)]/40"
           >
             Buat akun
           </Link>

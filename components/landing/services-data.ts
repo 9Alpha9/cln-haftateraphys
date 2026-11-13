@@ -22,7 +22,7 @@ export const services: Service[] = [
     icon: Activity,
     image: '/images/models/model-patient-2.png',
     backgroundImage: '/images/backgrounds/bg-hf-1.png',
-    gradient: 'from-emerald-900/90 to-emerald-800/70',
+    gradient: 'from-hafta-grn-900/90 to-hafta-grn-800/70',
     status: 'PLACEHOLDER',
     conditions: [
       'Keseleo pergelangan kaki (ankle sprain)',
@@ -65,7 +65,7 @@ export const services: Service[] = [
     icon: Heart,
     image: '/images/models/model-patient-4.png',
     backgroundImage: '/images/backgrounds/bg-hf-3.png',
-    gradient: 'from-emerald-700/90 to-emerald-600/70',
+    gradient: 'from-hafta-grn-700/90 to-hafta-grn-600/70',
     status: 'PLACEHOLDER',
     conditions: [
       'Rehabilitasi pasca operasi lutut',

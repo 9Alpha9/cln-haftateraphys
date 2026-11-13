@@ -105,7 +105,7 @@ export function InstagramCarousel({ images }: InstagramCarouselProps) {
                     quality={100}
                     loading={pageIndex === 0 && imageIndex === 0 ? 'eager' : 'lazy'}
                   />
-                  <div className="absolute inset-0 bg-emerald-950/0 transition-colors duration-300 group-hover:bg-emerald-950/20" />
+                  <div className="absolute inset-0 bg-hafta-grn-950/0 transition-colors duration-300 group-hover:bg-hafta-grn-950/20" />
                   <ExternalLink className="absolute right-2 top-2 h-4 w-4 text-white opacity-0 drop-shadow transition-opacity duration-300 group-hover:opacity-100" />
                 </a>
               ))}
@@ -118,7 +118,7 @@ export function InstagramCarousel({ images }: InstagramCarouselProps) {
             type="button"
             onClick={showPrevious}
             aria-label="Slide Instagram sebelumnya"
-            className="absolute left-0  inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-primary transition-colors hover:text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="absolute left-0  inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-primary transition-colors hover:text-white hover:bg-hafta-grn-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -140,7 +140,7 @@ export function InstagramCarousel({ images }: InstagramCarouselProps) {
             type="button"
             onClick={showNext}
             aria-label="Slide Instagram berikutnya"
-            className="absolute  right-0 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-primary transition-colors hover:text-white hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="absolute  right-0 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-primary transition-colors hover:text-white hover:bg-hafta-grn-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             <ChevronRight className="h-4 w-4" />
           </button>

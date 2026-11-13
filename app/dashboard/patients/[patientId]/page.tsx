@@ -58,27 +58,33 @@ export default async function PatientDetailPage({ params }: { params: Promise<{ 
             </div>
           </Link>
 
-          <div className="relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 -[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 opacity-65">
+          <Link
+            href={`/dashboard/progress?q=${encodeURIComponent(patient.medicalRecordNumber || patient.fullName)}`}
+            className="group relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 -[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-stone-300 hover:-[0_12px_40px_rgba(24,23,0,0.09)]"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-foreground">Assessment</span>
-              <FileText className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm font-semibold text-foreground group-hover:text-[#181700] transition-colors">Rekam Medis SOAP</span>
+              <FileText className="h-5 w-5 text-muted-foreground group-hover:text-[#181700] transition-colors" />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">Evaluasi klinis lengkap</p>
             <div className="mt-4 flex items-center justify-between">
-              <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-stone-500">Segera Hadir</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#181700] group-hover:underline">Buka Rekam Medis &rarr;</span>
             </div>
-          </div>
+          </Link>
 
-          <div className="relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 -[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 opacity-65">
+          <Link
+            href={`/dashboard/appointments?q=${encodeURIComponent(patient.fullName)}`}
+            className="group relative overflow-hidden rounded-3xl border border-stone-200/70 bg-white p-4 -[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-stone-300 hover:-[0_12px_40px_rgba(24,23,0,0.09)]"
+          >
             <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-foreground">Sesi</span>
-              <Activity className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm font-semibold text-foreground group-hover:text-[#181700] transition-colors">Riwayat Sesi</span>
+              <Activity className="h-5 w-5 text-muted-foreground group-hover:text-[#181700] transition-colors" />
             </div>
             <p className="mt-2 text-xs text-muted-foreground">Riwayat sesi terapi</p>
             <div className="mt-4 flex items-center justify-between">
-              <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-stone-500">Segera Hadir</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#181700] group-hover:underline">Buka Riwayat &rarr;</span>
             </div>
-          </div>
+          </Link>
         </div>
 
         <Card className="rounded-3xl border border-stone-200/70 ring-0 -[0_8px_30px_rgba(24,23,0,0.05)]">

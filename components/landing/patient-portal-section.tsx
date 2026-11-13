@@ -32,7 +32,7 @@ const features = [
 
 export function PatientPortalSection() {
   return (
-    <Section className="bg-[#FEFEF6] border-y border-stone-200/50">
+    <Section className="bg-[var(--background)] border-y border-stone-200/50">
       <Container>
         <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-14">
           <ScrollAnimation direction="left">

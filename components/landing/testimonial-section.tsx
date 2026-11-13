@@ -93,7 +93,7 @@ export function TestimonialSection({ initialData }: { initialData: FeaturableRev
       : [...reviews, ...reviews];
 
   return (
-    <Section className="overflow-hidden bg-[#FEFEF6] border-y border-stone-200/50">
+    <Section className="overflow-hidden bg-[var(--background)] border-y border-stone-200/50">
       <Container>
         <ScrollAnimation>
           <div className="mx-auto max-w-3xl text-center">

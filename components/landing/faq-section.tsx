@@ -39,7 +39,7 @@ export function FaqSection() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <Section id="faq" className="bg-[#FEFEF6] border-y border-stone-200/50">
+    <Section id="faq" className="bg-[var(--background)] border-y border-stone-200/50">
       <Container>
         <ScrollAnimation>
           <div className="mx-auto max-w-2xl text-center">

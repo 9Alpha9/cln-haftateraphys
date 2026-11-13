@@ -35,7 +35,7 @@ export default function DashboardError({
         </svg>
       </div>
 
-      <h2 className="mt-4 text-lg font-bold text-[#181700] sm:text-xl">
+      <h2 className="mt-4 text-lg font-bold text-[var(--hafta-950)] sm:text-xl">
         Terjadi Kendala Memuat Data
       </h2>
       <p className="mt-1.5 max-w-md text-xs sm:text-sm text-stone-600 leading-relaxed">
@@ -47,7 +47,7 @@ export default function DashboardError({
         <button
           type="button"
           onClick={() => reset()}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700]  transition-colors hover:bg-[var(--hafta-org-200)] cursor-pointer"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[var(--hafta-950)]  transition-colors hover:bg-[var(--hafta-org-200)] cursor-pointer"
         >
           <svg
             viewBox="0 0 24 24"

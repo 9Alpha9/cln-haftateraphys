@@ -58,7 +58,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
           />
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-gradient-to-t from-[#181700]/95 via-[#181700]/75 to-[#181700]/40 lg:bg-gradient-to-r lg:from-[#181700]/90 lg:via-[#181700]/65 lg:to-transparent"
+            className="absolute inset-0 -z-10 bg-gradient-to-t from-[var(--hafta-950)]/95 via-[var(--hafta-950)]/75 to-[var(--hafta-950)]/40 lg:bg-gradient-to-r lg:from-[var(--hafta-950)]/90 lg:via-[var(--hafta-950)]/65 lg:to-transparent"
           />
           <Container>
             <div className="py-12 md:py-16 lg:py-20">
@@ -76,7 +76,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
                   href="https://wa.me/6281232932872"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#181700]"
+                  className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--hafta-950)]"
                 >
                   Konsultasikan Kondisi Ini
                   <ArrowRight className="h-4 w-4" />
@@ -102,7 +102,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
                   {service.conditions.map((item) => (
                     <li
                       key={item}
-                      className="flex items-start gap-3 rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-4 text-sm text-stone-700 -xs"
+                      className="flex items-start gap-3 rounded-2xl border border-stone-200/80 bg-[var(--background)] p-4 text-sm text-stone-700 -xs"
                     >
                       <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)]">
                         <Check className="h-2.5 w-2.5 stroke-[3]" />
@@ -125,7 +125,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
                   {service.benefits.map((item) => (
                     <li
                       key={item}
-                      className="flex items-start gap-3 rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-4 text-sm text-stone-700 -xs"
+                      className="flex items-start gap-3 rounded-2xl border border-stone-200/80 bg-[var(--background)] p-4 text-sm text-stone-700 -xs"
                     >
                       <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)]">
                         <Check className="h-2.5 w-2.5 stroke-[3]" />
@@ -141,7 +141,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
 
         {/* Layanan Terkait */}
         {related.length > 0 && (
-          <Section className="border-t border-stone-200/60 bg-[#FEFEF6] py-16 md:py-20">
+          <Section className="border-t border-stone-200/60 bg-[var(--background)] py-16 md:py-20">
             <Container>
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />

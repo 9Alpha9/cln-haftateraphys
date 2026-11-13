@@ -51,7 +51,7 @@ export default async function ContactPage() {
           />
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-gradient-to-t from-[#181700] via-[#181700]/85 to-[#181700]/50 lg:bg-gradient-to-r lg:from-[#181700]/90 lg:via-[#181700]/65 lg:to-transparent"
+            className="absolute inset-0 -z-10 bg-gradient-to-t from-[var(--hafta-950)] via-[var(--hafta-950)]/85 to-[var(--hafta-950)]/50 lg:bg-gradient-to-r lg:from-[var(--hafta-950)]/90 lg:via-[var(--hafta-950)]/65 lg:to-transparent"
           />
 
           <Container>
@@ -94,7 +94,7 @@ export default async function ContactPage() {
           <Container>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {/* WhatsApp & Telepon */}
-              <ScrollReveal delay={0} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-6 -xs">
+              <ScrollReveal delay={0} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[var(--background)] p-6 -xs">
                 <div>
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)] -xs">
                     <Phone className="h-5 w-5" />
@@ -123,7 +123,7 @@ export default async function ContactPage() {
               </ScrollReveal>
 
               {/* Lokasi Alamat Google Maps */}
-              <ScrollReveal delay={0.08} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-6 -xs">
+              <ScrollReveal delay={0.08} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[var(--background)] p-6 -xs">
                 <div>
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)] -xs">
                     <MapPin className="h-5 w-5" />
@@ -152,7 +152,7 @@ export default async function ContactPage() {
               </ScrollReveal>
 
               {/* Jam Operasional Terjadwal */}
-              <ScrollReveal delay={0.16} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-6 -xs">
+              <ScrollReveal delay={0.16} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[var(--background)] p-6 -xs">
                 <div>
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)] -xs">
                     <Clock className="h-5 w-5" />
@@ -176,7 +176,7 @@ export default async function ContactPage() {
               </ScrollReveal>
 
               {/* Layanan Home Visit */}
-              <ScrollReveal delay={0.24} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-6 -xs">
+              <ScrollReveal delay={0.24} className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-[var(--background)] p-6 -xs">
                 <div>
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)] -xs">
                     <Home className="h-5 w-5" />
@@ -208,7 +208,7 @@ export default async function ContactPage() {
         </Section>
 
         {/* Peta Lokasi Google Maps Interaktif */}
-        <Section className="border-t border-stone-200/60 bg-[#FEFEF6] py-14 md:py-20">
+        <Section className="border-t border-stone-200/60 bg-[var(--background)] py-14 md:py-20">
           <Container>
             <div className="grid gap-8 lg:grid-cols-3 lg:items-center lg:gap-12">
               <ScrollReveal direction="left" className="lg:col-span-1">
@@ -334,7 +334,7 @@ export default async function ContactPage() {
         </Section>
 
         {/* Panduan Sebelum Menghubungi Kami (Humanized) */}
-        <Section className="border-t border-stone-200/60 bg-[#FEFEF6] py-14 md:py-20">
+        <Section className="border-t border-stone-200/60 bg-[var(--background)] py-14 md:py-20">
           <Container>
             <ScrollReveal className="mx-auto max-w-2xl text-center">
               <h2 className="text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">

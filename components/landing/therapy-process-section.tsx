@@ -60,7 +60,7 @@ function PortalBadge() {
 
 export function TherapyProcessSection() {
   return (
-    <Section className="border-y border-stone-200/50 bg-[#FEFEF6]">
+    <Section className="border-y border-stone-200/50 bg-[var(--background)]">
       <Container>
         <ScrollAnimation>
           <div className="mx-auto max-w-2xl text-center">
@@ -82,7 +82,7 @@ export function TherapyProcessSection() {
           {steps.map((step, index) => (
             <ScrollAnimation key={step.number} delay={index * 0.06}>
               <div className="relative min-h-20">
-                <div className="absolute -left-[42px] top-0 flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-xs font-bold text-[var(--hafta-org-950)] ring-4 ring-[#FEFEF6]">
+                <div className="absolute -left-[42px] top-0 flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-xs font-bold text-[var(--hafta-org-950)] ring-4 ring-[var(--background)]">
                   {step.number}
                 </div>
                 <div className="flex items-start justify-between gap-3">

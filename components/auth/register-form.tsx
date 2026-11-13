@@ -147,10 +147,10 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
   if (registered) {
     return (
       <div className="space-y-5 text-center">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--hafta-org-100)] text-[#181700]">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--hafta-org-100)] text-[var(--hafta-950)]">
           <CheckCircle2 className="size-8" aria-hidden="true" />
         </div>
-        <h2 className="text-2xl font-bold tracking-tight text-[#181700]">
+        <h2 className="text-2xl font-bold tracking-tight text-[var(--hafta-950)]">
           Akun Berhasil Dibuat
         </h2>
         <p className="text-xs leading-relaxed text-stone-600 sm:text-sm">
@@ -160,13 +160,13 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
         <div className="space-y-3 pt-2">
           <Link
             href="/dashboard"
-            className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
+            className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[var(--hafta-950)] transition-colors hover:bg-[var(--hafta-org-200)]"
           >
             Lanjutkan ke Dashboard
           </Link>
           <p className="text-xs text-stone-500">
             Ingin masuk dengan akun lain?{' '}
-            <Link href="/login" className="font-bold text-[#181700] underline underline-offset-2">
+            <Link href="/login" className="font-bold text-[var(--hafta-950)] underline underline-offset-2">
               Masuk di sini
             </Link>
           </p>
@@ -193,7 +193,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
 
       {/* ── HEADER FORM RATA KIRI (BERSIH & HUMANIZE) ── */}
       <div className="mb-7">
-        <h1 className="text-2xl font-bold tracking-tight text-[#181700] sm:text-3xl">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--hafta-950)] sm:text-3xl">
           Buat Akun Pasien Baru
         </h1>
         <p className="mt-2 text-sm leading-relaxed text-stone-600">
@@ -206,13 +206,13 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
           role="status"
           className="mb-6 rounded-2xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] p-4"
         >
-          <p className="text-sm font-bold text-[#181700]">Akses dashboard memerlukan akun</p>
+          <p className="text-sm font-bold text-[var(--hafta-950)]">Akses dashboard memerlukan akun</p>
           <p className="mt-1 text-xs leading-relaxed text-stone-700">
             Buat akun pasien untuk membuka dashboard dan mengajukan jadwal terapi. Sudah punya
             akun?{' '}
             <Link
               href="/login"
-              className="font-bold text-[#181700] underline decoration-[var(--hafta-org-300)] decoration-2 underline-offset-2 hover:no-underline"
+              className="font-bold text-[var(--hafta-950)] underline decoration-[var(--hafta-org-300)] decoration-2 underline-offset-2 hover:no-underline"
             >
               Masuk di sini
             </Link>
@@ -246,10 +246,10 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
             aria-invalid={Boolean(fieldErrors.name)}
             aria-describedby={fieldErrors.name ? 'name-error' : undefined}
             className={cn(
-              'h-12 w-full rounded-xl border bg-white px-4 text-sm text-[#181700] placeholder:text-stone-400 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50',
+              'h-12 w-full rounded-xl border bg-white px-4 text-sm text-[var(--hafta-950)] placeholder:text-stone-400 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50',
               fieldErrors.name
                 ? 'border-red-500 bg-red-50/30 text-red-950 focus:border-red-600 focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-red-500/20'
-                : 'border-stone-300 hover:border-stone-400 focus:border-[#181700] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/30'
+                : 'border-stone-300 hover:border-stone-400 focus:border-[var(--hafta-950)] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/30'
             )}
           />
           {fieldErrors.name && (
@@ -277,10 +277,10 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
             aria-invalid={Boolean(fieldErrors.email)}
             aria-describedby={fieldErrors.email ? 'email-error' : undefined}
             className={cn(
-              'h-12 w-full rounded-xl border bg-white px-4 text-sm text-[#181700] placeholder:text-stone-400 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50',
+              'h-12 w-full rounded-xl border bg-white px-4 text-sm text-[var(--hafta-950)] placeholder:text-stone-400 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50',
               fieldErrors.email
                 ? 'border-red-500 bg-red-50/30 text-red-950 focus:border-red-600 focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-red-500/20'
-                : 'border-stone-300 hover:border-stone-400 focus:border-[#181700] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/30'
+                : 'border-stone-300 hover:border-stone-400 focus:border-[var(--hafta-950)] focus:outline-none focus-visible:outline-none focus:ring-4 focus:ring-[var(--hafta-org-200)]/30'
             )}
           />
           {fieldErrors.email && (
@@ -329,16 +329,16 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
                 'mt-0.5 h-4 w-4 shrink-0 rounded border cursor-pointer',
                 fieldErrors.terms
                   ? 'border-red-500 accent-red-600 ring-2 ring-red-500/30'
-                  : 'border-stone-300 accent-[#181700]'
+                  : 'border-stone-300 accent-[var(--hafta-950)]'
               )}
             />
             <span className="leading-relaxed">
               Saya menyetujui{' '}
-              <a href="/terms" className="font-semibold text-stone-900 underline hover:text-[#181700]">
+              <a href="/terms" className="font-semibold text-stone-900 underline hover:text-[var(--hafta-950)]">
                 Syarat &amp; Ketentuan
               </a>{' '}
               dan{' '}
-              <a href="/privacy" className="font-semibold text-stone-900 underline hover:text-[#181700]">
+              <a href="/privacy" className="font-semibold text-stone-900 underline hover:text-[var(--hafta-950)]">
                 Kebijakan Privasi
               </a>
               .
@@ -357,7 +357,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[#181700] transition-all duration-200 hover:bg-[var(--hafta-org-200)] active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 cursor-pointer"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[var(--hafta-950)] transition-all duration-200 hover:bg-[var(--hafta-org-200)] active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 cursor-pointer"
           >
             {isPending ? (
               <>
@@ -375,7 +375,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
           Sudah memiliki akun?{' '}
           <Link
             href="/login"
-            className="rounded px-1.5 py-0.5 font-bold text-[#181700] underline decoration-[var(--hafta-org-100)] decoration-2 underline-offset-4 transition-all hover:bg-[var(--hafta-org-100)]/40"
+            className="rounded px-1.5 py-0.5 font-bold text-[var(--hafta-950)] underline decoration-[var(--hafta-org-100)] decoration-2 underline-offset-4 transition-all hover:bg-[var(--hafta-org-100)]/40"
           >
             Masuk ke akun
           </Link>

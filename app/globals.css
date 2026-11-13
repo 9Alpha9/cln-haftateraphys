@@ -8,18 +8,35 @@
    1. RAW HEX VALUES — harus di atas @theme
    ═══════════════════════════════════════════════════ */
 :root {
-  /* ── Hafta Orange ── */
-  --hafta-org-50: #fff4e6;
-  --hafta-org-100: #ffe8cc;
-  --hafta-org-200: #ffd097;
-  --hafta-org-300: #ff971b;
-  --hafta-org-400: #dd7800;
-  --hafta-org-500: #b36100;
-  --hafta-org-600: #8b4b00;
-  --hafta-org-700: #643700;
-  --hafta-org-800: #402300;
-  --hafta-org-900: #1f1100;
-  --hafta-org-950: #050300;
+  /* ── Hafta 12-color design system ── */
+  --hafta-50: #FFF5E5;
+  --hafta-100: #FFE8C7;
+  --hafta-200: #FFD093;
+  --hafta-300: #FF951C;
+  --hafta-400: #D47200;
+  --hafta-500: #A65700;
+  --hafta-600: #7F4100;
+  --hafta-700: #5E2F00;
+  --hafta-800: #3F1E00;
+  --hafta-900: #230F00;
+  --hafta-950: #040100;
+  --hafta-1000: #000000;
+
+  /* ── Legacy aliases (orange) ── */
+  --hafta-org-50: var(--hafta-50);
+  --hafta-org-100: var(--hafta-100);
+  --hafta-org-200: var(--hafta-200);
+  --hafta-org-300: var(--hafta-300);
+  --hafta-org-400: var(--hafta-400);
+  --hafta-org-500: var(--hafta-500);
+  --hafta-org-600: var(--hafta-600);
+  --hafta-org-700: var(--hafta-700);
+  --hafta-org-800: var(--hafta-800);
+  --hafta-org-900: var(--hafta-900);
+  --hafta-org-950: var(--hafta-950);
+  --hafta-ylw-50: var(--hafta-100);
+  --hafta-ylw-100: var(--hafta-300);
+  --hafta-ylw-950: var(--hafta-950);
 
   /* ── Hafta Red ── */
   --hafta-red-50: #fcf3f2;
@@ -60,51 +77,39 @@
   --hafta-ble-900: #03186a;
   --hafta-ble-950: #020e41;
 
-  /* ── Hafta Orange ── */
-  --hafta-org-50: #fff4e6;
-  --hafta-org-100: #ffe8cc;
-  --hafta-org-200: #ffd097;
-  --hafta-org-300: #ff971b;
-  --hafta-org-400: #dd7800;
-  --hafta-org-500: #b36100;
-  --hafta-org-600: #8b4b00;
-  --hafta-org-700: #643700;
-  --hafta-org-800: #402300;
-  --hafta-org-900: #1f1100;
-  --hafta-org-950: #050300;
   /* ── Semantic / shadcn tokens ── */
-  --background: #F9FAFB;
-  --foreground: #111827;
-  --card: #FFFFFF;
-  --card-foreground: #111827;
-  --popover: #FFFFFF;
-  --popover-foreground: #111827;
-  --primary: var(--hafta-org-200);
-  --primary-foreground: #111827;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #475569;
-  --muted: #F1F5F9;
-  --muted-foreground: #6B7280;
-  --accent: var(--hafta-org-50);
-  --accent-foreground: var(--hafta-org-900);
-  --destructive: var(--hafta-red-500);
-  --border: #E5E7EB;
-  --input: #E5E7EB;
-  --ring: var(--hafta-org-200);
-  --chart-1: var(--hafta-org-200);
-  --chart-2: var(--hafta-org-50);
-  --chart-3: var(--hafta-grn-500);
-  --chart-4: var(--hafta-ble-500);
-  --chart-5: var(--hafta-red-500);
+  --background: var(--hafta-50);
+  --foreground: var(--hafta-950);
+  --card: var(--hafta-50);
+  --card-foreground: var(--hafta-950);
+  --popover: var(--hafta-50);
+  --popover-foreground: var(--hafta-950);
+  --primary: var(--hafta-300);
+  --primary-foreground: var(--hafta-950);
+  --secondary: var(--hafta-100);
+  --secondary-foreground: var(--hafta-800);
+  --muted: var(--hafta-100);
+  --muted-foreground: var(--hafta-600);
+  --accent: var(--hafta-200);
+  --accent-foreground: var(--hafta-950);
+  --destructive: var(--hafta-700);
+  --border: var(--hafta-200);
+  --input: var(--hafta-200);
+  --ring: var(--hafta-300);
+  --chart-1: var(--hafta-300);
+  --chart-2: var(--hafta-400);
+  --chart-3: var(--hafta-500);
+  --chart-4: var(--hafta-600);
+  --chart-5: var(--hafta-900);
   --radius: 0.75rem;
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #111827;
-  --sidebar-primary: var(--hafta-org-200);
-  --sidebar-primary-foreground: #111827;
-  --sidebar-accent: var(--hafta-org-50);
-  --sidebar-accent-foreground: var(--hafta-org-900);
-  --sidebar-border: #E5E7EB;
-  --sidebar-ring: var(--hafta-org-200);
+  --sidebar: var(--hafta-900);
+  --sidebar-foreground: var(--hafta-50);
+  --sidebar-primary: var(--hafta-300);
+  --sidebar-primary-foreground: var(--hafta-950);
+  --sidebar-accent: var(--hafta-800);
+  --sidebar-accent-foreground: var(--hafta-50);
+  --sidebar-border: var(--hafta-800);
+  --sidebar-ring: var(--hafta-300);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -160,6 +165,20 @@
   --color-hafta-ble-900: var(--hafta-ble-900);
   --color-hafta-ble-950: var(--hafta-ble-950);
 
+  /* ── Hafta 12-color design system ── */
+  --color-hafta-50: var(--hafta-50);
+  --color-hafta-100: var(--hafta-100);
+  --color-hafta-200: var(--hafta-200);
+  --color-hafta-300: var(--hafta-300);
+  --color-hafta-400: var(--hafta-400);
+  --color-hafta-500: var(--hafta-500);
+  --color-hafta-600: var(--hafta-600);
+  --color-hafta-700: var(--hafta-700);
+  --color-hafta-800: var(--hafta-800);
+  --color-hafta-900: var(--hafta-900);
+  --color-hafta-950: var(--hafta-950);
+  --color-hafta-1000: var(--hafta-1000);
+
   /* ── Fonts ── */
   --font-heading: var(--font-inter), system-ui, sans-serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
@@ -200,15 +219,15 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   /* ── Semantic aliases ── */
-  --color-brand: var(--hafta-org-200);
-  --color-brand-light: var(--hafta-org-50);
-  --color-brand-soft: #F9FAFB;
-  --color-brand-dark: var(--hafta-org-400);
-  --color-surface: #F9FAFB;
-  --color-surface-card: #FFFFFF;
-  --color-border-light: #E8ECEB;
-  --color-text-primary: #111827;
-  --color-text-secondary: #6B7280;
+  --color-brand: var(--primary);
+  --color-brand-light: var(--accent);
+  --color-brand-soft: var(--background);
+  --color-brand-dark: var(--hafta-400);
+  --color-surface: var(--background);
+  --color-surface-card: var(--card);
+  --color-border-light: var(--border);
+  --color-text-primary: var(--foreground);
+  --color-text-secondary: var(--muted-foreground);
   --color-success: var(--hafta-grn-600);
   --color-warning: var(--hafta-org-500);
   --color-danger: var(--hafta-red-600);

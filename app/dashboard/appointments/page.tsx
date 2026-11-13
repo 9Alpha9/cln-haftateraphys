@@ -61,7 +61,14 @@ export default async function AppointmentsPage({
 
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const activeStatus = params.status || 'ALL';
+  const activeStatus = (params.status || 'ALL') as
+    | 'ALL'
+    | 'SCHEDULED'
+    | 'CONFIRMED'
+    | 'COMPLETED'
+    | 'CANCELLED'
+    | 'RESCHEDULED'
+    | 'NO_SHOW';
   const query = params.q?.trim().toLowerCase() || '';
   const perPageParam = Number(params.perPage);
   const perPage = [4, 10, 25, 50].includes(perPageParam) ? perPageParam : 4;
@@ -69,27 +76,17 @@ export default async function AppointmentsPage({
   const canCreate = hasPermission(role, PERMISSIONS.APPOINTMENT_CREATE);
   const canReview = hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE);
   const [result, formOptions, pendingRequests] = await Promise.all([
-    getScopedAppointments(page, perPage),
+    getScopedAppointments(page, perPage, activeStatus, query),
     canCreate
       ? getAppointmentFormOptions().catch(() => ({ patientOptions: [], therapistOptions: [] }))
       : Promise.resolve({ patientOptions: [], therapistOptions: [] }),
     canReview ? getPendingAppointmentRequests().catch(() => []) : Promise.resolve([]),
   ]);
 
-  // Filter lokal status & query
-  const filteredItems = result.items.filter((item) => {
-    if (activeStatus !== 'ALL' && item.status !== activeStatus) return false;
-    if (query) {
-      const matchName = item.patientName.toLowerCase().includes(query);
-      const matchType = item.type.toLowerCase().includes(query);
-      const matchTherapist = item.therapistName?.toLowerCase().includes(query) ?? false;
-      if (!matchName && !matchType && !matchTherapist) return false;
-    }
-    return true;
-  });
+  const filteredItems = result.items;
 
   const countByStatus = {
-    ALL: result.total,
+    ALL: Object.values(result.statusCounts).reduce((a, b) => a + b, 0),
     SCHEDULED: result.statusCounts.SCHEDULED ?? 0,
     COMPLETED: result.statusCounts.COMPLETED ?? 0,
     CANCELLED: result.statusCounts.CANCELLED ?? 0,

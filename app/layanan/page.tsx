@@ -198,7 +198,7 @@ export default function ServicesPage() {
                     className="flex flex-col justify-between md:px-6 first:md:pl-0 last:md:pr-0"
                   >
                     <div>
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#FEFEF6] border border-stone-200/80 text-[var(--hafta-org-950)] ">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--background)] border border-stone-200/80 text-[var(--hafta-org-950)] ">
                         <StepIcon className="h-5 w-5" />
                       </div>
                       <h3 className="mt-4 text-base font-bold text-[var(--hafta-org-950)]">
@@ -220,7 +220,7 @@ export default function ServicesPage() {
             </div>
 
             {/* Banner Penutup Humanize */}
-            <ScrollReveal delay={0.2} className="mt-12 rounded-3xl border border-stone-200/80 bg-[#FEFEF6] p-6 sm:p-8">
+            <ScrollReveal delay={0.2} className="mt-12 rounded-3xl border border-stone-200/80 bg-[var(--background)] p-6 sm:p-8">
               <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
                 <div>
                   <h4 className="text-base font-bold text-[var(--hafta-org-950)]">

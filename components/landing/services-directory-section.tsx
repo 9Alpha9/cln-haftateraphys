@@ -17,7 +17,7 @@ export function ServicesDirectorySection() {
     services.find((s) => s.id === activeId) || services[0];
 
   return (
-    <Section id="panduan-klinis" className="border-t border-stone-200/60 bg-[#FEFEF6] py-12 md:py-20 lg:py-24">
+    <Section id="panduan-klinis" className="border-t border-stone-200/60 bg-[var(--background)] py-12 md:py-20 lg:py-24">
       <Container>
         {/* Header Section Panduan */}
         <div className="max-w-2xl">

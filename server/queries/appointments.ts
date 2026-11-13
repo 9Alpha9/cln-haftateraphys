@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, inArray, isNull } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, inArray, isNull, or } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { appointmentNotificationReads, appointments, patients, profiles, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
@@ -66,35 +66,72 @@ export async function getAppointmentById(appointmentId: string): Promise<Appoint
   return appointment ?? null;
 }
 
-export async function getScopedAppointments(page = 1, pageSize = 6) {
+export async function getScopedAppointments(
+  page = 1,
+  pageSize = 6,
+  activeStatus:
+    | 'ALL'
+    | 'SCHEDULED'
+    | 'CONFIRMED'
+    | 'COMPLETED'
+    | 'CANCELLED'
+    | 'RESCHEDULED'
+    | 'NO_SHOW' = 'ALL',
+  query: string = '',
+) {
   const { session, role } = await requireSession({ redirectToLogin: true });
   if (!hasPermission(role, PERMISSIONS.APPOINTMENT_LIST)) throw new ForbiddenError();
 
   const db = getDb();
-  const where =
+  const baseWhere =
     role === 'USER'
       ? eq(patients.userId, session.user.id)
       : role === 'THERAPIST'
         ? eq(appointments.therapistId, session.user.id)
         : undefined;
-  const [totalRows, statusRows] = await Promise.all([
-    db
-      .select({ value: count() })
-      .from(appointments)
-      .innerJoin(patients, eq(appointments.patientId, patients.id))
-      .where(where),
-    db
-      .select({ status: appointments.status, value: count() })
-      .from(appointments)
-      .innerJoin(patients, eq(appointments.patientId, patients.id))
-      .where(where)
-      .groupBy(appointments.status),
-  ]);
+
+  // statusCounts from base scope (unfiltered) so tabs show full counts
+  const statusRows = await db
+    .select({ status: appointments.status, value: count() })
+    .from(appointments)
+    .innerJoin(patients, eq(appointments.patientId, patients.id))
+    .where(baseWhere)
+    .groupBy(appointments.status);
   const statusCounts = statusRows.reduce<Record<string, number>>((acc, row) => {
     acc[row.status] = Number(row.value);
     return acc;
   }, {});
-  const total = Number(totalRows[0]?.value ?? 0);
+
+  // Build filtered where clause
+  const filters: (ReturnType<typeof eq> | ReturnType<typeof ilike> | ReturnType<typeof or>)[] = [];
+  if (baseWhere) filters.push(baseWhere);
+  if (activeStatus && activeStatus !== 'ALL') {
+    filters.push(
+      eq(
+        appointments.status,
+        activeStatus as 'SCHEDULED' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED' | 'RESCHEDULED' | 'NO_SHOW',
+      ),
+    );
+  }
+  const q = query.trim();
+  if (q) {
+    const like = `%${q}%`;
+    filters.push(
+      or(
+        ilike(patients.fullName, like),
+        ilike(appointments.type, like),
+        ilike(users.name, like),
+      )!,
+    );
+  }
+  const filteredWhere = filters.length > 0 ? and(...filters) : undefined;
+
+  const [totalRows] = await db
+    .select({ value: count() })
+    .from(appointments)
+    .innerJoin(patients, eq(appointments.patientId, patients.id))
+    .where(filteredWhere);
+  const total = Number(totalRows?.value ?? 0);
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.min(Math.max(1, page), totalPages);
   const rawItems = await db
@@ -121,7 +158,7 @@ export async function getScopedAppointments(page = 1, pageSize = 6) {
         eq(appointmentNotificationReads.userId, session.user.id)
       )
     )
-    .where(where)
+    .where(filteredWhere)
     .orderBy(desc(appointments.scheduledDate), asc(appointments.startTime))
     .limit(pageSize)
     .offset((currentPage - 1) * pageSize);

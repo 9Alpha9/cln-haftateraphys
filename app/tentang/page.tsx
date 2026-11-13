@@ -109,7 +109,7 @@ export default function AboutPage() {
           />
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-gradient-to-t from-[#181700] via-[#181700]/85 to-[#181700]/50 lg:bg-gradient-to-r lg:from-[#181700]/90 lg:via-[#181700]/65 lg:to-transparent"
+            className="absolute inset-0 -z-10 bg-gradient-to-t from-[var(--hafta-950)] via-[var(--hafta-950)]/85 to-[var(--hafta-950)]/50 lg:bg-gradient-to-r lg:from-[var(--hafta-950)]/90 lg:via-[var(--hafta-950)]/65 lg:to-transparent"
           />
 
           <Container>
@@ -136,14 +136,14 @@ export default function AboutPage() {
                   href="https://wa.me/6281232932872"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)] focus-visible:ring-offset-2 focus-visible:ring-offset-[#181700]"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--hafta-950)]"
                 >
                   Konsultasi via WhatsApp
                   <ArrowRight className="h-4 w-4" />
                 </a>
                 <Link
                   href="/layanan"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#181700]"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-6 text-sm font-semibold text-white backdrop-blur-sm transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--hafta-950)]"
                 >
                   Jelajahi Layanan
                 </Link>
@@ -183,7 +183,7 @@ export default function AboutPage() {
                     <ScrollReveal
                       key={item.title}
                       delay={idx * 0.08}
-                      className="rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-5 -xs"
+                      className="rounded-2xl border border-stone-200/80 bg-[var(--background)] p-5 -xs"
                     >
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)] -xs">
                         <item.icon className="h-5 w-5" />
@@ -225,7 +225,7 @@ export default function AboutPage() {
         </Section>
 
         {/* Ragam Pendekatan Layanan */}
-        <Section className="border-y border-stone-200/60 bg-[#FEFEF6] py-16 md:py-24">
+        <Section className="border-y border-stone-200/60 bg-[var(--background)] py-16 md:py-24">
           <Container>
             <ScrollReveal className="max-w-2xl">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
@@ -249,7 +249,7 @@ export default function AboutPage() {
                   className="flex flex-col justify-between rounded-2xl border border-stone-200/80 bg-white p-6 -xs transition- hover:"
                 >
                   <div>
-                    <span className="inline-block rounded-full bg-[#FEFEF6] px-3 py-1 text-xs font-semibold text-stone-700 border border-stone-200/70">
+                    <span className="inline-block rounded-full bg-[var(--background)] px-3 py-1 text-xs font-semibold text-stone-700 border border-stone-200/70">
                       {svc.badge}
                     </span>
                     <h3 className="mt-4 text-base font-bold text-[var(--hafta-org-950)]">
@@ -291,7 +291,7 @@ export default function AboutPage() {
             </ScrollReveal>
 
             <div className="mt-12 grid gap-6 md:grid-cols-3">
-              <ScrollReveal delay={0} className="rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-7 -xs">
+              <ScrollReveal delay={0} className="rounded-2xl border border-stone-200/80 bg-[var(--background)] p-7 -xs">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)]">
                   <MapPin className="h-6 w-6" />
                 </div>
@@ -310,7 +310,7 @@ export default function AboutPage() {
                 </a>
               </ScrollReveal>
 
-              <ScrollReveal delay={0.1} className="rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-7 -xs">
+              <ScrollReveal delay={0.1} className="rounded-2xl border border-stone-200/80 bg-[var(--background)] p-7 -xs">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)]">
                   <Clock3 className="h-6 w-6" />
                 </div>
@@ -330,7 +330,7 @@ export default function AboutPage() {
                 </a>
               </ScrollReveal>
 
-              <ScrollReveal delay={0.2} className="rounded-2xl border border-stone-200/80 bg-[#FEFEF6] p-7 -xs">
+              <ScrollReveal delay={0.2} className="rounded-2xl border border-stone-200/80 bg-[var(--background)] p-7 -xs">
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-[var(--hafta-org-950)]">
                   <MessageCircle className="h-6 w-6" />
                 </div>
@@ -354,7 +354,7 @@ export default function AboutPage() {
         </Section>
 
         {/* Dokumentasi Nyata & Aktivitas Klinik */}
-        <Section className="border-t border-stone-200/60 bg-[#FEFEF6] py-16 md:py-24">
+        <Section className="border-t border-stone-200/60 bg-[var(--background)] py-16 md:py-24">
           <Container>
             <ScrollReveal className="mx-auto max-w-2xl text-center">
               <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
