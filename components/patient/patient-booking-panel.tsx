@@ -468,7 +468,7 @@ export function PatientBookingPanel({
               ref={dateScrollRef}
               role="group"
               aria-label="Pilih tanggal terapi"
-              className="mt-2 flex snap-x snap-mandatory gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="mt-2 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 [&>*:first-child]:ml-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {datesForTherapist.map((day) => {
                 const date = parseDateKey(day.date);

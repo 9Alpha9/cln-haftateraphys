@@ -244,7 +244,7 @@ export function PatientDashboardShell({
 
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex min-h-screen bg-[#fff5e5]">
       {/* ═══ SIDEBAR (WeStud Dark Theme #181700) ═══ */}
       <aside
         className={cn(
