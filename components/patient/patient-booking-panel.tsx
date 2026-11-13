@@ -6,6 +6,7 @@ import {
   CalendarDays,
   CalendarPlus,
   CheckCircle2,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
   Clock3,
@@ -119,6 +120,7 @@ export function PatientBookingPanel({
     initialTherapistId,
   );
   const [therapistQuery, setTherapistQuery] = useState('');
+  const [showAllTherapists, setShowAllTherapists] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
@@ -133,6 +135,14 @@ export function PatientBookingPanel({
       therapist.name.toLowerCase().includes(query),
     );
   }, [therapistOptions, therapistQuery]);
+
+  const isSearchingTherapist = therapistQuery.trim().length > 0;
+  const therapistPreviewLimit = 4;
+  const displayedTherapists =
+    isSearchingTherapist || showAllTherapists
+      ? visibleTherapists
+      : visibleTherapists.slice(0, therapistPreviewLimit);
+  const hiddenTherapistCount = visibleTherapists.length - displayedTherapists.length;
 
   const datesForTherapist = useMemo(() => {
     if (!selectedTherapistId) return [];
@@ -343,7 +353,7 @@ export function PatientBookingPanel({
           aria-label="Pilih fisioterapis"
           className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2"
         >
-          {visibleTherapists.map((therapist) => {
+          {displayedTherapists.map((therapist) => {
             const isSelected = therapist.id === selectedTherapistId;
             return (
               <button
@@ -388,6 +398,26 @@ export function PatientBookingPanel({
             <p className="col-span-full rounded-xl bg-[#FAFAF8] px-3 py-3 text-center text-[11px] text-stone-500">
               Fisioterapis tidak ditemukan. Coba kata kunci lain.
             </p>
+          ) : null}
+          {hiddenTherapistCount > 0 ? (
+            <button
+              type="button"
+              onClick={() => setShowAllTherapists(true)}
+              className="col-span-full mt-1 inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-dashed border-stone-300 bg-transparent text-[11px] font-semibold text-stone-600 transition-colors hover:border-stone-400 hover:bg-white hover:text-[#181700]"
+            >
+              Lihat {hiddenTherapistCount} fisioterapis lainnya
+              <ChevronDown className="h-3.5 w-3.5" />
+            </button>
+          ) : null}
+          {!isSearchingTherapist && showAllTherapists && visibleTherapists.length > therapistPreviewLimit ? (
+            <button
+              type="button"
+              onClick={() => setShowAllTherapists(false)}
+              className="col-span-full mt-1 inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-xl text-[11px] font-semibold text-stone-500 transition-colors hover:text-[#181700]"
+            >
+              Tampilkan lebih sedikit
+              <ChevronDown className="h-3.5 w-3.5 rotate-180" />
+            </button>
           ) : null}
         </div>
           </>
@@ -438,7 +468,7 @@ export function PatientBookingPanel({
               ref={dateScrollRef}
               role="group"
               aria-label="Pilih tanggal terapi"
-              className="mt-2 flex snap-x snap-mandatory gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              className="mt-2 flex snap-x snap-mandatory gap-2 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             >
               {datesForTherapist.map((day) => {
                 const date = parseDateKey(day.date);

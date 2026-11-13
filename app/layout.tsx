@@ -95,7 +95,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={`${inter.variable} ${satisfy.variable} ${poppins.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="id" className={`${inter.variable} ${satisfy.variable} ${poppins.variable} bg-background`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
         <ToastProvider>
           {children}
