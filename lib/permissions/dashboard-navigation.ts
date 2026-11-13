@@ -181,11 +181,6 @@ const patientNavigation: DashboardNavGroup[] = [
             icon: UserRound,
           },
           {
-            label: 'Form Awal',
-            href: '/dashboard/intake',
-            icon: ClipboardList,
-          },
-          {
             label: 'Riwayat',
             href: '/dashboard/history',
             icon: FileText,
