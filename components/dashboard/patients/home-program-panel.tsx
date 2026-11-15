@@ -96,19 +96,19 @@ export function HomeProgramPanel({
   return (
     <>
       {!program ? (
-        <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-dashed border-stone-200 bg-white p-4 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
+        <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card p-4 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-foreground">
             <Dumbbell className="h-6 w-6" />
           </span>
-          <p className="mt-3 text-sm font-bold text-[#181700]">Belum ada program latihan</p>
-          <p className="mt-1 max-w-sm text-xs text-stone-500">
+          <p className="mt-3 text-sm font-bold text-foreground">Belum ada program latihan</p>
+          <p className="mt-1 max-w-sm text-xs text-muted-foreground">
             Susun latihan mandiri agar pasien dapat melanjutkan terapi di rumah.
           </p>
           {canManage ? (
             <button
               type="button"
               onClick={() => setFormOpen(true)}
-              className="mt-4 inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
+              className="mt-4 inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)]"
             >
               <Plus className="h-3.5 w-3.5" />
               Buat Program Latihan
@@ -117,7 +117,7 @@ export function HomeProgramPanel({
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="rounded-2xl border border-stone-200/70 bg-white p-3.5 sm:p-4">
+          <div className="rounded-2xl border border-border/70 bg-card p-3.5 sm:p-4">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div>
                 <div className="flex flex-wrap items-center gap-1.5">
@@ -129,7 +129,7 @@ export function HomeProgramPanel({
                     className={cn(
                       'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold',
                       program.patientVisible
-                        ? 'bg-[#F4F4F1] text-stone-600'
+                        ? 'bg-[#F4F4F1] text-muted-foreground'
                         : 'bg-amber-50 text-amber-800',
                     )}
                   >
@@ -137,7 +137,7 @@ export function HomeProgramPanel({
                     {program.patientVisible ? 'Terlihat pasien' : 'Internal'}
                   </span>
                 </div>
-                <p className="mt-2 text-xs text-stone-500">
+                <p className="mt-2 text-xs text-muted-foreground">
                   {program.startsAt || program.endsAt ? (
                     <span className="inline-flex flex-wrap items-center gap-1.5">
                       <CalendarDays className="h-3.5 w-3.5" />
@@ -153,7 +153,7 @@ export function HomeProgramPanel({
                 <button
                   type="button"
                   onClick={() => setFormOpen(true)}
-                  className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-stone-200/90 bg-white px-3 text-[11px] font-semibold text-[#181700] transition-colors hover:bg-stone-100"
+                  className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-muted"
                 >
                   <Pencil className="h-3.5 w-3.5" />
                   Edit Program
@@ -164,16 +164,16 @@ export function HomeProgramPanel({
 
           <div className="space-y-2">
             {program.items.map((item, index) => (
-              <div key={item.id} className="rounded-2xl border border-stone-200/70 bg-white p-3.5">
+              <div key={item.id} className="rounded-2xl border border-border/70 bg-card p-3.5">
                 <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-bold text-[#181700]">
+                  <p className="text-sm font-bold text-foreground">
                     {index + 1}. {item.name}
                   </p>
                 </div>
-                <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-stone-600">
+                <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
                   {item.instruction}
                 </p>
-                <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-semibold text-stone-600">
+                <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-semibold text-muted-foreground">
                   {dosageText(item) ? (
                     <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5">{dosageText(item)}</span>
                   ) : null}
@@ -291,7 +291,7 @@ function HomeProgramForm({
             type="submit"
             form={formId}
             disabled={pending}
-            className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] disabled:cursor-not-allowed disabled:opacity-60 sm:h-11 sm:px-5 sm:text-[13px]"
+            className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] disabled:cursor-not-allowed disabled:opacity-60 sm:h-11 sm:px-5 sm:text-[13px]"
           >
             {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Simpan Program
@@ -300,7 +300,7 @@ function HomeProgramForm({
             type="button"
             onClick={onClose}
             disabled={pending}
-            className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white px-4 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100 disabled:opacity-60 sm:h-11 sm:px-5 sm:text-[13px]"
+            className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card px-4 text-xs font-semibold text-foreground transition-colors hover:bg-muted disabled:opacity-60 sm:h-11 sm:px-5 sm:text-[13px]"
           >
             Batal
           </button>
@@ -315,10 +315,10 @@ function HomeProgramForm({
         ) : null}
 
         <section className="space-y-3">
-          <h3 className="text-sm font-bold text-[#181700]">Pengaturan Program</h3>
+          <h3 className="text-sm font-bold text-foreground">Pengaturan Program</h3>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-1.5">
-              <span className="text-xs font-semibold text-stone-600">Mulai</span>
+              <span className="text-xs font-semibold text-muted-foreground">Mulai</span>
               <DatePicker
                 value={startsAt}
                 onChange={setStartsAt}
@@ -327,7 +327,7 @@ function HomeProgramForm({
               />
             </div>
             <div className="space-y-1.5">
-              <span className="text-xs font-semibold text-stone-600">Selesai</span>
+              <span className="text-xs font-semibold text-muted-foreground">Selesai</span>
               <DatePicker
                 value={endsAt}
                 onChange={setEndsAt}
@@ -337,8 +337,8 @@ function HomeProgramForm({
             </div>
           </div>
           <div>
-            <p className="text-[11px] font-medium text-stone-500">Terlihat oleh</p>
-            <div className="mt-1 grid grid-cols-2 gap-1 rounded-full bg-stone-100 p-1">
+            <p className="text-[11px] font-medium text-muted-foreground">Terlihat oleh</p>
+            <div className="mt-1 grid grid-cols-2 gap-1 rounded-full bg-muted p-1">
               {[
                 { value: false, label: 'Internal', icon: EyeOff },
                 { value: true, label: 'Pasien', icon: Eye },
@@ -352,8 +352,8 @@ function HomeProgramForm({
                     className={cn(
                       'inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full text-xs font-semibold transition-colors',
                       patientVisible === option.value
-                        ? 'bg-[#181700] font-bold text-white'
-                        : 'text-stone-500 hover:text-[#181700]',
+                        ? 'bg-[var(--hafta-900)] font-bold text-white'
+                        : 'text-muted-foreground hover:text-foreground',
                     )}
                   >
                     <Icon className="h-3 w-3" />
@@ -367,19 +367,19 @@ function HomeProgramForm({
 
         <section className="space-y-3">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-bold text-[#181700]">Daftar Latihan</h3>
-            <span className="text-[11px] text-stone-500">{items.length} latihan</span>
+            <h3 className="text-sm font-bold text-foreground">Daftar Latihan</h3>
+            <span className="text-[11px] text-muted-foreground">{items.length} latihan</span>
           </div>
 
           {items.map((item, index) => (
-            <div key={item.key} className="space-y-2.5 rounded-2xl border border-stone-200/80 bg-[#FBFBFA] p-3">
+            <div key={item.key} className="space-y-2.5 rounded-2xl border border-border bg-[var(--hafta-50)] p-3">
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-bold text-[#181700]">Latihan {index + 1}</p>
+                <p className="text-xs font-bold text-foreground">Latihan {index + 1}</p>
                 {items.length > 1 ? (
                   <button
                     type="button"
                     onClick={() => setItems((current) => current.filter((row) => row.key !== item.key))}
-                    className="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                    className="inline-flex h-7 w-7 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600"
                     aria-label={`Hapus latihan ${index + 1}`}
                   >
                     <Trash2 className="h-3.5 w-3.5" />
@@ -399,7 +399,7 @@ function HomeProgramForm({
                 rows={2}
                 placeholder="Instruksi gerakan yang harus dilakukan pasien"
                 required
-                className="w-full resize-y rounded-xl border border-stone-200/90 bg-white px-3 py-2.5 text-sm leading-relaxed text-[#181700] outline-none transition-colors placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-100)]"
+                className="w-full resize-y rounded-xl border border-border bg-card px-3 py-2.5 text-sm leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-100)]"
               />
 
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -412,7 +412,7 @@ function HomeProgramForm({
                     placeholder="Set"
                     aria-label="Set"
                   />
-                  <span className="text-[10px] text-stone-400">Jumlah set latihan</span>
+                  <span className="text-[10px] text-muted-foreground">Jumlah set latihan</span>
                 </div>
                 <div className="space-y-1">
                   <Input
@@ -423,7 +423,7 @@ function HomeProgramForm({
                     placeholder="Repetisi"
                     aria-label="Repetisi"
                   />
-                  <span className="text-[10px] text-stone-400">Repetisi per set</span>
+                  <span className="text-[10px] text-muted-foreground">Repetisi per set</span>
                 </div>
                 <div className="space-y-1">
                   <Input
@@ -434,7 +434,7 @@ function HomeProgramForm({
                     placeholder="Detik"
                     aria-label="Durasi detik"
                   />
-                  <span className="text-[10px] text-stone-400">Durasi gerakan</span>
+                  <span className="text-[10px] text-muted-foreground">Durasi gerakan</span>
                 </div>
                 <div className="space-y-1">
                   <Input
@@ -443,7 +443,7 @@ function HomeProgramForm({
                     placeholder="Frekuensi"
                     aria-label="Frekuensi"
                   />
-                  <span className="text-[10px] text-stone-400">Contoh: 3x sehari</span>
+                  <span className="text-[10px] text-muted-foreground">Contoh: 3x sehari</span>
                 </div>
               </div>
               <div className="space-y-1">
@@ -452,7 +452,7 @@ function HomeProgramForm({
                   onChange={(e) => updateItem(item.key, 'precaution', e.target.value)}
                   placeholder="Perhatian / kontraindikasi (opsional)"
                 />
-                <span className="text-[10px] text-stone-400">Perhatian khusus bagi pasien saat melaksanakan latihan ini.</span>
+                <span className="text-[10px] text-muted-foreground">Perhatian khusus bagi pasien saat melaksanakan latihan ini.</span>
               </div>
             </div>
           ))}
@@ -460,7 +460,7 @@ function HomeProgramForm({
           <button
             type="button"
             onClick={() => setItems((current) => [...current, blankItem()])}
-            className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-stone-300 bg-white text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-50"
+            className="inline-flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-dashed border-border bg-card text-xs font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
           >
             <Plus className="h-3.5 w-3.5" />
             Tambah Latihan

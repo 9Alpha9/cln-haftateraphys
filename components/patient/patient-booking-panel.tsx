@@ -59,7 +59,7 @@ function formatLongDate(key: string) {
 
 function StepBadge({ step }: { step: number }) {
   return (
-    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#181700] text-[11px] font-extrabold text-white">
+    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-900)] text-[11px] font-extrabold text-white">
       {step}
     </span>
   );
@@ -243,21 +243,21 @@ export function PatientBookingPanel({
 
   if (therapistOptions.length === 0) {
     return (
-      <section className="rounded-3xl border border-stone-200/80 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5">
+      <section className="rounded-3xl border border-border bg-card p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5">
         <div className="flex items-start gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-[#181700]">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-foreground">
             <CalendarDays className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="text-base font-bold text-[#181700]">Jadwal Terapi Anda</h2>
-            <p className="mt-1 text-xs leading-relaxed text-stone-500">
+            <h2 className="text-base font-bold text-foreground">Jadwal Terapi Anda</h2>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
               Jadwal fisioterapis belum tersedia saat ini. Silakan muat ulang halaman beberapa saat
               lagi.
             </p>
             <button
               type="button"
               onClick={() => router.refresh()}
-              className="mt-3 inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 "
+              className="mt-3 inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 "
             >
               Muat ulang jadwal
             </button>
@@ -268,9 +268,9 @@ export function PatientBookingPanel({
   }
 
   return (
-    <section className="rounded-3xl border border-stone-200/80 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5">
+    <section className="rounded-3xl border border-border bg-card p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5">
       <div className="flex items-start gap-3">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-[#181700]">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-foreground">
           {mode === 'RESCHEDULE' ? (
             <CalendarDays className="h-5 w-5" />
           ) : (
@@ -278,10 +278,10 @@ export function PatientBookingPanel({
           )}
         </span>
         <div className="min-w-0">
-          <h2 className="text-base font-bold text-[#181700]">
+          <h2 className="text-base font-bold text-foreground">
             {mode === 'RESCHEDULE' ? 'Ubah Jadwal Terapi' : 'Jadwal Terapi Anda'}
           </h2>
-          <p className="mt-1 text-xs leading-relaxed text-stone-500">
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
             {mode === 'RESCHEDULE'
               ? 'Pilih fisioterapis, tanggal, dan jam baru untuk sesi Anda.'
               : 'Pilih fisioterapis, tanggal, dan jam terapi yang tersedia.'}
@@ -291,14 +291,14 @@ export function PatientBookingPanel({
 
       {mode === 'RESCHEDULE' && rescheduleAppointment ? (
         <div className="mt-4 rounded-2xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] px-3.5 py-3">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-500">
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
             Jadwal saat ini
           </p>
-          <p className="mt-1 text-xs font-bold text-[#181700]">
+          <p className="mt-1 text-xs font-bold text-foreground">
             {formatLongDate(rescheduleAppointment.scheduledDate)} ·{' '}
             {rescheduleAppointment.startTime.slice(0, 5)} WIB
           </p>
-          <p className="mt-0.5 text-[11px] text-stone-600">
+          <p className="mt-0.5 text-[11px] text-muted-foreground">
             {rescheduleAppointment.therapistName ?? 'Fisioterapis Hafta'} ·{' '}
             {rescheduleAppointment.durationMinutes} menit
           </p>
@@ -309,26 +309,26 @@ export function PatientBookingPanel({
       <div className="mt-5">
         <div className="flex flex-wrap items-center gap-2">
           <StepBadge step={1} />
-          <p className="text-xs font-bold text-[#181700]">Pilih Fisioterapis</p>
-          <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-stone-500">
+          <p className="text-xs font-bold text-foreground">Pilih Fisioterapis</p>
+          <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
             {therapistOptions.length} tersedia
           </span>
         </div>
 
         {therapistOptions.length === 1 ? (
-          <div className="mt-3 flex items-center gap-2.5 rounded-xl border border-[#181700] bg-[#FAFAF8] px-3 py-2.5 ring-2 ring-[var(--hafta-org-200)]/35">
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#181700] text-xs font-extrabold text-white">
+          <div className="mt-3 flex items-center gap-2.5 rounded-xl border border-[var(--hafta-900)] bg-[#FAFAF8] px-3 py-2.5 ring-2 ring-[var(--hafta-org-200)]/35">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-900)] text-xs font-extrabold text-white">
               {therapistOptions[0]!.name.slice(0, 1).toUpperCase()}
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-xs font-bold text-[#181700]">
+              <span className="block truncate text-xs font-bold text-foreground">
                 {therapistOptions[0]!.name}
               </span>
-              <span className="block text-[10px] text-stone-500">
+              <span className="block text-[10px] text-muted-foreground">
                 {therapistOptions[0]!.dateCount} tanggal tersedia
               </span>
             </span>
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-[#181700]" />
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-foreground" />
           </div>
         ) : null}
 
@@ -336,14 +336,14 @@ export function PatientBookingPanel({
           <>
         {hasManyTherapists ? (
           <div className="relative mt-3">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-stone-400" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
             <input
               type="search"
               value={therapistQuery}
               onChange={(event) => setTherapistQuery(event.target.value)}
               placeholder="Cari nama fisioterapis..."
               aria-label="Cari fisioterapis"
-              className="h-9 w-full rounded-full border border-stone-200 bg-white pl-9 pr-3 text-xs text-[#181700] outline-none transition-colors placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
+              className="h-9 w-full rounded-full border border-border bg-card pl-9 pr-3 text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
             />
           </div>
         ) : null}
@@ -364,38 +364,38 @@ export function PatientBookingPanel({
                 className={cn(
                   'flex cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 ',
                   isSelected
-                    ? 'border-[#181700] bg-[#FAFAF8] ring-2 ring-[var(--hafta-org-200)]/35'
-                    : 'border-stone-200 bg-white hover:bg-stone-50',
+                    ? 'border-[var(--hafta-900)] bg-[#FAFAF8] ring-2 ring-[var(--hafta-org-200)]/35'
+                    : 'border-border bg-card hover:bg-[var(--hafta-50)]',
                 )}
               >
                 <span
                   className={cn(
                     'flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-extrabold',
                     isSelected
-                      ? 'bg-[#181700] text-white'
-                      : 'bg-[var(--hafta-org-100)] text-[#181700]',
+                      ? 'bg-[var(--hafta-900)] text-white'
+                      : 'bg-[var(--hafta-org-100)] text-foreground',
                   )}
                 >
                   {therapist.name.slice(0, 1).toUpperCase()}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-xs font-bold text-[#181700]">
+                  <span className="block truncate text-xs font-bold text-foreground">
                     {therapist.name}
                   </span>
-                  <span className="block text-[10px] text-stone-500">
+                  <span className="block text-[10px] text-muted-foreground">
                     {therapist.dateCount} tanggal tersedia
                   </span>
                 </span>
                 {isSelected ? (
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-[#181700]" />
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-foreground" />
                 ) : (
-                  <UserRound className="h-4 w-4 shrink-0 text-stone-300" />
+                  <UserRound className="h-4 w-4 shrink-0 text-muted-foreground/50" />
                 )}
               </button>
             );
           })}
           {visibleTherapists.length === 0 ? (
-            <p className="col-span-full rounded-xl bg-[#FAFAF8] px-3 py-3 text-center text-[11px] text-stone-500">
+            <p className="col-span-full rounded-xl bg-[#FAFAF8] px-3 py-3 text-center text-[11px] text-muted-foreground">
               Fisioterapis tidak ditemukan. Coba kata kunci lain.
             </p>
           ) : null}
@@ -403,7 +403,7 @@ export function PatientBookingPanel({
             <button
               type="button"
               onClick={() => setShowAllTherapists(true)}
-              className="col-span-full mt-1 inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-dashed border-stone-300 bg-transparent text-[11px] font-semibold text-stone-600 transition-colors hover:border-stone-400 hover:bg-white hover:text-[#181700]"
+              className="col-span-full mt-1 inline-flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-dashed border-border bg-transparent text-[11px] font-semibold text-muted-foreground transition-colors hover:border-stone-400 hover:bg-card hover:text-foreground"
             >
               Lihat {hiddenTherapistCount} fisioterapis lainnya
               <ChevronDown className="h-3.5 w-3.5" />
@@ -413,7 +413,7 @@ export function PatientBookingPanel({
             <button
               type="button"
               onClick={() => setShowAllTherapists(false)}
-              className="col-span-full mt-1 inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-xl text-[11px] font-semibold text-stone-500 transition-colors hover:text-[#181700]"
+              className="col-span-full mt-1 inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-xl text-[11px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
             >
               Tampilkan lebih sedikit
               <ChevronDown className="h-3.5 w-3.5 rotate-180" />
@@ -428,20 +428,20 @@ export function PatientBookingPanel({
       <div className="mt-5">
         <div className="flex items-center gap-2">
           <StepBadge step={2} />
-          <p className="text-xs font-bold text-[#181700]">Pilih Tanggal Terapi</p>
+          <p className="text-xs font-bold text-foreground">Pilih Tanggal Terapi</p>
         </div>
         {!selectedTherapist ? (
-          <p className="mt-3 rounded-xl bg-[#FAFAF8] px-3 py-3 text-[11px] leading-relaxed text-stone-500">
+          <p className="mt-3 rounded-xl bg-[#FAFAF8] px-3 py-3 text-[11px] leading-relaxed text-muted-foreground">
             Pilih fisioterapis terlebih dahulu untuk melihat tanggal yang tersedia.
           </p>
         ) : datesForTherapist.length === 0 ? (
-          <p className="mt-3 rounded-xl bg-[#FAFAF8] px-3 py-3 text-[11px] leading-relaxed text-stone-500">
+          <p className="mt-3 rounded-xl bg-[#FAFAF8] px-3 py-3 text-[11px] leading-relaxed text-muted-foreground">
             Belum ada jadwal untuk fisioterapis ini. Silakan pilih fisioterapis lain.
           </p>
         ) : (
           <>
             <div className="mt-3 flex items-center justify-between gap-2">
-              <p className="text-[10px] leading-relaxed text-stone-500">
+              <p className="text-[10px] leading-relaxed text-muted-foreground">
                 Geser untuk melihat tanggal lain. Tanggal{' '}
                 <span className="font-semibold text-red-600">merah</span> sudah penuh.
               </p>
@@ -450,7 +450,7 @@ export function PatientBookingPanel({
                   type="button"
                   aria-label="Lihat tanggal sebelumnya"
                   onClick={() => scrollDates('prev')}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-[#181700] transition-colors hover:bg-stone-50"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-[var(--hafta-50)]"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
@@ -458,7 +458,7 @@ export function PatientBookingPanel({
                   type="button"
                   aria-label="Lihat tanggal berikutnya"
                   onClick={() => scrollDates('next')}
-                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-[#181700] transition-colors hover:bg-stone-50"
+                  className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-[var(--hafta-50)]"
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -495,16 +495,16 @@ export function PatientBookingPanel({
                         ? 'cursor-not-allowed border-red-200 bg-red-50 text-red-700'
                         : 'cursor-pointer',
                       !isFull && isSelected
-                        ? 'border-[#181700] bg-[#181700] text-white'
+                        ? 'border-[var(--hafta-900)] bg-[var(--hafta-900)] text-white'
                         : !isFull
-                          ? 'border-stone-200 bg-white text-[#181700] hover:bg-stone-50'
+                          ? 'border-border bg-card text-foreground hover:bg-[var(--hafta-50)]'
                           : null,
                     )}
                   >
                     <span
                       className={cn(
                         'text-[10px] font-semibold uppercase tracking-wide',
-                        isSelected ? 'text-white/70' : isFull ? 'text-red-500' : 'text-stone-400',
+                        isSelected ? 'text-white/70' : isFull ? 'text-red-500' : 'text-muted-foreground',
                       )}
                     >
                       {WEEKDAYS_SHORT[date.getDay()]}
@@ -513,7 +513,7 @@ export function PatientBookingPanel({
                     <span
                       className={cn(
                         'text-[10px] font-medium',
-                        isSelected ? 'text-white/80' : isFull ? 'text-red-600' : 'text-stone-500',
+                        isSelected ? 'text-white/80' : isFull ? 'text-red-600' : 'text-muted-foreground',
                       )}
                     >
                       {MONTHS_SHORT[date.getMonth()]}
@@ -525,7 +525,7 @@ export function PatientBookingPanel({
                           ? 'text-[var(--hafta-org-100)]'
                           : isFull
                             ? 'text-red-600'
-                            : 'text-stone-400',
+                            : 'text-muted-foreground',
                       )}
                     >
                       {isFull ? 'Penuh' : `${slotCount} jam`}
@@ -547,14 +547,14 @@ export function PatientBookingPanel({
       <div className="mt-5">
         <div className="flex items-center gap-2">
           <StepBadge step={3} />
-          <p className="text-xs font-bold text-[#181700]">Pilih Jam Terapi</p>
+          <p className="text-xs font-bold text-foreground">Pilih Jam Terapi</p>
         </div>
         {!selectedDate ? (
-          <p className="mt-3 rounded-xl bg-[#FAFAF8] px-3 py-3 text-[11px] leading-relaxed text-stone-500">
+          <p className="mt-3 rounded-xl bg-[#FAFAF8] px-3 py-3 text-[11px] leading-relaxed text-muted-foreground">
             Pilih tanggal terlebih dahulu untuk melihat jam yang tersedia.
           </p>
         ) : timeGroups.length === 0 ? (
-          <p className="mt-3 rounded-xl bg-[#FAFAF8] px-3 py-3 text-[11px] leading-relaxed text-stone-500">
+          <p className="mt-3 rounded-xl bg-[#FAFAF8] px-3 py-3 text-[11px] leading-relaxed text-muted-foreground">
             Belum ada jam tersedia pada tanggal ini.
           </p>
         ) : (
@@ -584,9 +584,9 @@ export function PatientBookingPanel({
                       ? 'cursor-not-allowed border-red-200 bg-red-50 text-red-700'
                       : 'cursor-pointer',
                     group.available && isSelected
-                      ? 'border-[#181700] bg-[#181700] text-white'
+                      ? 'border-[var(--hafta-900)] bg-[var(--hafta-900)] text-white'
                       : group.available
-                        ? 'border-stone-200 bg-white text-[#181700] hover:bg-stone-50'
+                        ? 'border-border bg-card text-foreground hover:bg-[var(--hafta-50)]'
                         : null,
                   )}
                 >
@@ -601,7 +601,7 @@ export function PatientBookingPanel({
                         ? 'font-semibold text-red-600'
                         : isSelected
                           ? 'text-white/70'
-                          : 'text-stone-500',
+                          : 'text-muted-foreground',
                     )}
                   >
                     {group.available ? 'Tersedia · 60 menit' : 'Penuh · tidak bisa dipilih'}
@@ -616,13 +616,13 @@ export function PatientBookingPanel({
       {/* Ringkasan & aksi */}
       <div className="mt-5 rounded-2xl bg-[#FAFAF8] p-3.5">
         {selectedTherapist && selectedDate && selectedTime ? (
-          <p className="text-[11px] leading-relaxed text-stone-600" aria-live="polite">
-            <span className="font-bold text-[#181700]">Jadwal pilihan:</span>{' '}
+          <p className="text-[11px] leading-relaxed text-muted-foreground" aria-live="polite">
+            <span className="font-bold text-foreground">Jadwal pilihan:</span>{' '}
             {selectedTherapist.name} · {formatLongDate(selectedDate)} ·{' '}
             {selectedTime.slice(0, 5)} WIB
           </p>
         ) : (
-          <p className="text-[11px] leading-relaxed text-stone-500">
+          <p className="text-[11px] leading-relaxed text-muted-foreground">
             Lengkapi fisioterapis, tanggal, dan jam untuk mengajukan jadwal.
           </p>
         )}
@@ -631,7 +631,7 @@ export function PatientBookingPanel({
             type="button"
             onClick={submitRequest}
             disabled={!canSubmit}
-            className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {pending ? (
               <>
@@ -650,7 +650,7 @@ export function PatientBookingPanel({
               type="button"
               onClick={onRescheduleCancel}
               disabled={pending}
-              className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100 focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:opacity-60"
+              className="inline-flex h-11 cursor-pointer items-center justify-center rounded-full border border-border bg-card px-5 text-xs font-semibold text-foreground transition-colors hover:bg-accent focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:opacity-60"
             >
               Batal Ubah
             </button>

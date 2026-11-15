@@ -35,8 +35,8 @@ export function AppointmentStatusFilter({
   return (
     <div className="flex items-center justify-between gap-2">
       <FilterPendingBar active={pending} />
-      <p className="text-xs font-semibold text-stone-500">
-        Menampilkan status: <span className="text-[#181700]">{active.label}</span>
+      <p className="text-xs font-semibold text-muted-foreground">
+        Menampilkan status: <span className="text-foreground">{active.label}</span>
       </p>
       <SmartFilterMenu count={counts[activeStatus] ?? counts.ALL ?? 0} pending={pending}>
         {(close) => (
@@ -53,15 +53,15 @@ export function AppointmentStatusFilter({
                   className={cn(
                     'flex w-full cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors sm:text-[13px]',
                     selected
-                      ? 'border-stone-200 bg-[#F4F4F1] font-bold text-[#181700]'
-                      : 'border-transparent font-medium text-stone-600 hover:bg-stone-100 hover:text-[#181700]',
+                      ? 'border-border bg-[var(--hafta-50)] font-bold text-foreground'
+                      : 'border-transparent font-medium text-muted-foreground hover:bg-[var(--hafta-50)] hover:text-foreground',
                   )}
                 >
-                  <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-[#181700]' : 'text-stone-400')} />
+                  <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-foreground' : 'text-muted-foreground')} />
                   <span className="flex-1">
                     {option.label} ({counts[option.value] ?? 0})
                   </span>
-                  {selected ? <Check className="h-3.5 w-3.5 shrink-0 text-[#181700]" /> : null}
+                  {selected ? <Check className="h-3.5 w-3.5 shrink-0 text-foreground" /> : null}
                 </button>
               );
             })}

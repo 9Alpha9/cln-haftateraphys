@@ -56,8 +56,8 @@ const SECTIONS: {
 ];
 
 const fieldClass =
-  'h-11 rounded-xl border-stone-200 bg-white text-sm shadow-none focus-visible:border-[var(--hafta-org-300)] focus-visible:ring-[var(--hafta-org-100)]';
-const labelClass = 'text-xs font-semibold text-stone-600';
+  'h-11 rounded-xl border-border bg-card text-sm shadow-none focus-visible:border-[var(--hafta-org-300)] focus-visible:ring-[var(--hafta-org-100)]';
+const labelClass = 'text-xs font-semibold text-muted-foreground';
 
 function calculateAge(dateOfBirth?: string) {
   if (!dateOfBirth) return '-';
@@ -88,7 +88,7 @@ function Field({
       <span className={labelClass}>{label}</span>
       {children}
       {error ? <span className="text-[11px] font-medium text-[var(--hafta-red-600)]">{error}</span> : null}
-      {!error && hint ? <span className="text-[11px] leading-relaxed text-stone-400">{hint}</span> : null}
+      {!error && hint ? <span className="text-[11px] leading-relaxed text-muted-foreground">{hint}</span> : null}
     </label>
   );
 }
@@ -213,10 +213,10 @@ export function PatientProfileTabs({
   return (
     <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-12">
       <aside className="min-w-0 space-y-4 lg:col-span-4 lg:sticky lg:top-[88px] lg:self-start">
-        <section className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
+        <section className="rounded-3xl border border-border bg-card p-3.5 sm:p-5">
           <div className="flex items-start gap-4">
             <div className="relative h-24 w-24 shrink-0">
-              <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-[#FAFAF8] text-2xl font-bold text-[#181700] ring-1 ring-stone-200">
+              <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-[#FAFAF8] text-2xl font-bold text-foreground ring-1 ring-border">
                 {avatarPreview ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={avatarPreview} alt="Foto profil" className="h-full w-full object-cover" />
@@ -227,7 +227,7 @@ export function PatientProfileTabs({
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="absolute -bottom-0.5 -right-0.5 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[#181700] text-[var(--hafta-org-100)] ring-4 ring-white transition-colors hover:bg-[var(--hafta-org-100)] hover:text-[#181700]"
+                className="absolute -bottom-0.5 -right-0.5 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-900)] text-[var(--hafta-org-100)] ring-4 ring-white transition-colors hover:bg-[var(--hafta-org-100)] hover:text-foreground"
                 aria-label="Ubah foto profil"
               >
                 <Camera className="h-4 w-4" />
@@ -243,8 +243,8 @@ export function PatientProfileTabs({
             </div>
 
             <div className="min-w-0 pt-1">
-              <h2 className="truncate text-lg font-bold text-[#181700]">{fullName}</h2>
-              <p className="mt-1 flex items-center gap-1.5 truncate text-xs text-stone-500">
+              <h2 className="truncate text-lg font-bold text-foreground">{fullName}</h2>
+              <p className="mt-1 flex items-center gap-1.5 truncate text-xs text-muted-foreground">
                 <Mail className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate">{email}</span>
               </p>
@@ -257,7 +257,7 @@ export function PatientProfileTabs({
                     if (fileRef.current) fileRef.current.value = '';
                     toast.success('Foto dihapus. Klik Simpan Perubahan untuk menerapkan.');
                   }}
-                  className="mt-2 cursor-pointer text-[11px] font-semibold text-stone-500 transition-colors hover:text-red-600"
+                  className="mt-2 cursor-pointer text-[11px] font-semibold text-muted-foreground transition-colors hover:text-red-600"
                 >
                   Hapus Foto
                 </button>
@@ -279,29 +279,29 @@ export function PatientProfileTabs({
 
           <dl className="mt-5 grid grid-cols-2 gap-2.5 sm:gap-3 rounded-2xl bg-[#FAFAF8] p-3 sm:p-4">
             <div>
-              <dt className="text-[10px] font-medium uppercase tracking-wide text-stone-400">No. RM</dt>
-              <dd className="mt-1 font-mono text-xs font-bold text-[#181700]">
+              <dt className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">No. RM</dt>
+              <dd className="mt-1 font-mono text-xs font-bold text-foreground">
                 {initialValues.medicalRecordNumber || 'Belum tersedia'}
               </dd>
             </div>
             <div>
-              <dt className="text-[10px] font-medium uppercase tracking-wide text-stone-400">Usia</dt>
-              <dd className="mt-1 text-xs font-bold text-[#181700]">{calculateAge(dateOfBirth)}</dd>
+              <dt className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">Usia</dt>
+              <dd className="mt-1 text-xs font-bold text-foreground">{calculateAge(dateOfBirth)}</dd>
             </div>
           </dl>
 
           <div className="mt-5">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-xs font-semibold text-stone-600">Kelengkapan profil</span>
-              <span className="font-mono text-xs font-bold text-[#181700]">{completion}%</span>
+              <span className="text-xs font-semibold text-muted-foreground">Kelengkapan profil</span>
+              <span className="font-mono text-xs font-bold text-foreground">{completion}%</span>
             </div>
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-100">
+            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full rounded-full bg-[var(--hafta-org-100)] transition-all duration-300"
                 style={{ width: `${completion}%` }}
               />
             </div>
-            <p className="mt-2 text-[11px] leading-relaxed text-stone-400">
+            <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
               Data lengkap membantu fisioterapis menyiapkan asesmen yang tepat.
             </p>
           </div>
@@ -317,16 +317,16 @@ export function PatientProfileTabs({
                   className={cn(
                     'flex cursor-pointer items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-colors',
                     isActive
-                      ? 'bg-[#181700] text-white'
-                      : 'text-stone-600 hover:bg-[#FAFAF8] hover:text-[#181700]',
+                      ? 'bg-[var(--hafta-900)] text-white'
+                      : 'text-muted-foreground hover:bg-[#FAFAF8] hover:text-foreground',
                   )}
                 >
                   <span
                     className={cn(
                       'flex h-8 w-8 shrink-0 items-center justify-center rounded-full',
                       isActive
-                        ? 'bg-white/10 text-[var(--hafta-org-100)]'
-                        : 'bg-stone-100 text-stone-500',
+                        ? 'bg-card/10 text-[var(--hafta-org-100)]'
+                        : 'bg-muted text-muted-foreground',
                     )}
                   >
                     <Icon className="h-4 w-4" />
@@ -336,14 +336,14 @@ export function PatientProfileTabs({
                     <span
                       className={cn(
                         'mt-0.5 block truncate text-[10px]',
-                        isActive ? 'text-stone-400' : 'text-stone-400',
+                        isActive ? 'text-muted-foreground' : 'text-muted-foreground',
                       )}
                     >
                       {description}
                     </span>
                   </span>
                   <ChevronRight
-                    className={cn('h-4 w-4 shrink-0', isActive ? 'text-[var(--hafta-org-100)]' : 'text-stone-300')}
+                    className={cn('h-4 w-4 shrink-0', isActive ? 'text-[var(--hafta-org-100)]' : 'text-muted-foreground/50')}
                   />
                 </button>
               );
@@ -352,9 +352,9 @@ export function PatientProfileTabs({
         </section>
       </aside>
 
-      <section className="flex min-w-0 flex-col overflow-hidden rounded-3xl border border-stone-200 bg-white lg:col-span-8">
-        <div className="border-b border-stone-200 p-3.5 sm:p-5">
-          <div className="overflow-hidden rounded-2xl border border-stone-200 lg:hidden">
+      <section className="flex min-w-0 flex-col overflow-hidden rounded-3xl border border-border bg-card lg:col-span-8">
+        <div className="border-b border-border p-3.5 sm:p-5">
+          <div className="overflow-hidden rounded-2xl border border-border lg:hidden">
             {SECTIONS.map(({ id, label, description, icon: Icon }, index) => {
               const isActive = activeSection === id;
               return (
@@ -365,30 +365,30 @@ export function PatientProfileTabs({
                   aria-current={isActive ? 'true' : undefined}
                   className={cn(
                     'flex w-full cursor-pointer items-center gap-3 px-3.5 py-3 text-left transition-colors',
-                    index > 0 && 'border-t border-stone-100',
-                    isActive ? 'bg-[#FAFAF8]' : 'bg-white hover:bg-stone-50',
+                    index > 0 && 'border-t border-border',
+                    isActive ? 'bg-[#FAFAF8]' : 'bg-card hover:bg-[var(--hafta-50)]',
                   )}
                 >
                   <span
                     className={cn(
                       'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
                       isActive
-                        ? 'bg-[#181700] text-[var(--hafta-org-100)]'
-                        : 'bg-stone-100 text-stone-500',
+                        ? 'bg-[var(--hafta-900)] text-[var(--hafta-org-100)]'
+                        : 'bg-muted text-muted-foreground',
                     )}
                   >
                     <Icon className="h-4 w-4" />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-xs font-bold text-[#181700]">{label}</span>
-                    <span className="mt-0.5 block truncate text-[10px] text-stone-500">
+                    <span className="block text-xs font-bold text-foreground">{label}</span>
+                    <span className="mt-0.5 block truncate text-[10px] text-muted-foreground">
                       {description}
                     </span>
                   </span>
                   {isActive ? (
-                    <Check className="h-4 w-4 shrink-0 text-[#181700]" />
+                    <Check className="h-4 w-4 shrink-0 text-foreground" />
                   ) : (
-                    <ChevronRight className="h-4 w-4 shrink-0 text-stone-300" />
+                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50" />
                   )}
                 </button>
               );
@@ -396,12 +396,12 @@ export function PatientProfileTabs({
           </div>
 
           <div className="mt-4 flex items-start gap-3 lg:mt-0">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-50)] text-[#181700]">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-50)] text-foreground">
               <ActiveSectionIcon className="h-4 w-4" />
             </span>
             <div className="min-w-0">
-              <h3 className="text-base font-bold text-[#181700]">{activeSectionMeta.label}</h3>
-              <p className="mt-1 text-xs leading-relaxed text-stone-500">
+              <h3 className="text-base font-bold text-foreground">{activeSectionMeta.label}</h3>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                 {activeSectionMeta.description}
               </p>
             </div>
@@ -432,14 +432,14 @@ export function PatientProfileTabs({
                     <Input disabled={pending} className={fieldClass} {...register('preferredName')} />
                   </Field>
                   <Field label="Email akun" hint="Email tidak dapat diubah di halaman ini.">
-                    <Input value={email} disabled className={cn(fieldClass, 'bg-stone-50 text-stone-500')} />
+                    <Input value={email} disabled className={cn(fieldClass, 'bg-[var(--hafta-50)] text-muted-foreground')} />
                   </Field>
                   <Field label="Nomor rekam medis" hint="Dibuat otomatis oleh sistem.">
                     <Input
                       value={initialValues.medicalRecordNumber ?? ''}
                       disabled
                       placeholder="Belum tersedia"
-                      className={cn(fieldClass, 'bg-stone-50 font-mono text-stone-500')}
+                      className={cn(fieldClass, 'bg-[var(--hafta-50)] font-mono text-muted-foreground')}
                     />
                   </Field>
                   <Field label="Jenis kelamin">
@@ -469,14 +469,14 @@ export function PatientProfileTabs({
                     />
                   </Field>
                   <Field label="Usia" hint="Dihitung otomatis dari tanggal lahir.">
-                    <Input value={calculateAge(dateOfBirth)} disabled className={cn(fieldClass, 'bg-stone-50 text-stone-500')} />
+                    <Input value={calculateAge(dateOfBirth)} disabled className={cn(fieldClass, 'bg-[var(--hafta-50)] text-muted-foreground')} />
                   </Field>
                   <Field label="Pekerjaan">
                     <Input disabled={pending} className={fieldClass} {...register('occupation')} />
                   </Field>
                   <Field label="Nomor telepon" className="sm:col-span-2">
                     <div className="relative">
-                      <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                      <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         type="tel"
                         inputMode="numeric"
@@ -562,7 +562,7 @@ export function PatientProfileTabs({
                   >
                     <textarea
                       disabled={pending}
-                      className="flex min-h-28 w-full resize-none rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-sm leading-relaxed outline-none transition-colors placeholder:text-stone-400 focus-visible:border-[var(--hafta-org-300)] focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)] disabled:cursor-not-allowed disabled:bg-stone-50 disabled:text-stone-500"
+                      className="flex min-h-28 w-full resize-none rounded-xl border border-border bg-card px-3 py-2.5 text-sm leading-relaxed outline-none transition-colors placeholder:text-muted-foreground focus-visible:border-[var(--hafta-org-300)] focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)] disabled:cursor-not-allowed disabled:bg-[var(--hafta-50)] disabled:text-muted-foreground"
                       placeholder="Jl. Nama Jalan No. RT/RW, Kelurahan, Kecamatan"
                       {...register('addressLine')}
                     />
@@ -590,7 +590,7 @@ export function PatientProfileTabs({
                   </Field>
                   <Field label="Nomor telepon kontak" className="sm:col-span-2">
                     <div className="relative">
-                      <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+                      <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         type="tel"
                         disabled={pending}
@@ -604,8 +604,8 @@ export function PatientProfileTabs({
               ) : null}
             </div>
 
-            <footer className="flex flex-col-reverse gap-3 border-t border-stone-100 bg-[#FAFAF8] px-4 sm:px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
-              <p className="text-[11px] text-stone-400">
+            <footer className="flex flex-col-reverse gap-3 border-t border-border bg-[#FAFAF8] px-4 sm:px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+              <p className="text-[11px] text-muted-foreground">
                 {isDirty ? 'Ada perubahan yang belum disimpan.' : 'Data profil Anda tersimpan dengan aman.'}
               </p>
               <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
@@ -614,14 +614,14 @@ export function PatientProfileTabs({
                   variant="outline"
                   disabled={pending || !isDirty}
                   onClick={resetForm}
-                  className="h-10 w-full whitespace-nowrap rounded-full border-stone-200 px-4 text-xs font-semibold sm:h-11 sm:w-auto sm:px-5"
+                  className="h-10 w-full whitespace-nowrap rounded-full border-border px-4 text-xs font-semibold sm:h-11 sm:w-auto sm:px-5"
                 >
                   Reset
                 </Button>
                 <Button
                   type="submit"
                   disabled={pending || !isDirty}
-                  className="h-10 w-full gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-org-200)] sm:h-11 sm:w-auto sm:px-5"
+                  className="h-10 w-full gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground hover:bg-[var(--hafta-org-200)] sm:h-11 sm:w-auto sm:px-5"
                 >
                   {pending ? <CalendarDays className="h-4 w-4 animate-pulse" /> : <Save className="h-4 w-4" />}
                   {pending ? 'Menyimpan...' : 'Simpan Perubahan'}

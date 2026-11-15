@@ -44,7 +44,7 @@ export const INTAKE_STATUS_META: Record<
 > = {
   DRAFT: {
     label: 'Draft',
-    tone: 'bg-white text-stone-600 border-stone-200',
+    tone: 'bg-card text-muted-foreground border-border',
     description: 'Form awal belum dikirim. Lengkapi dan kirim saat Anda sudah siap.',
   },
   NEEDS_REVISION: {
@@ -54,12 +54,12 @@ export const INTAKE_STATUS_META: Record<
   },
   SUBMITTED: {
     label: 'Terkirim',
-    tone: 'bg-[var(--hafta-org-50)]/60 text-[#181700] border-[var(--hafta-org-200)]',
+    tone: 'bg-[var(--hafta-org-50)]/60 text-foreground border-[var(--hafta-org-200)]',
     description: 'Form awal Anda sudah terkirim dan sedang menunggu tinjauan fisioterapis.',
   },
   UNDER_REVIEW: {
     label: 'Sedang ditinjau',
-    tone: 'bg-[var(--hafta-org-50)]/60 text-[#181700] border-[var(--hafta-org-200)]',
+    tone: 'bg-[var(--hafta-org-50)]/60 text-foreground border-[var(--hafta-org-200)]',
     description: 'Fisioterapis sedang meninjau keluhan awal Anda.',
   },
   ACCEPTED: {
@@ -69,7 +69,7 @@ export const INTAKE_STATUS_META: Record<
   },
   ARCHIVED: {
     label: 'Diarsipkan',
-    tone: 'bg-stone-100 text-stone-500 border-stone-200',
+    tone: 'bg-muted text-muted-foreground border-border',
     description: 'Form awal ini sudah menjadi riwayat episode sebelumnya.',
   },
 };
@@ -154,22 +154,22 @@ export function PatientIntakeSummaryContent({ intake }: { intake: PatientIntakeH
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      <div className="border-b border-stone-200 pb-5">
+      <div className="border-b border-border pb-5">
         <div className="flex flex-wrap items-center gap-2">
           <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${meta.tone}`}>
             {meta.label}
           </span>
-          <span className="text-xs text-stone-500">Versi {intake.version}</span>
+          <span className="text-xs text-muted-foreground">Versi {intake.version}</span>
         </div>
-        <p className="mt-3 text-sm leading-relaxed text-stone-600">{meta.description}</p>
+        <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{meta.description}</p>
         <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
           <div>
-            <dt className="text-xs text-stone-500">Dikirim</dt>
-            <dd className="mt-1 font-semibold text-[#181700]">{formatDate(intake.submittedAt)}</dd>
+            <dt className="text-xs text-muted-foreground">Dikirim</dt>
+            <dd className="mt-1 font-semibold text-foreground">{formatDate(intake.submittedAt)}</dd>
           </div>
           <div>
-            <dt className="text-xs text-stone-500">Terakhir diperbarui</dt>
-            <dd className="mt-1 font-semibold text-[#181700]">{formatDate(intake.updatedAt)}</dd>
+            <dt className="text-xs text-muted-foreground">Terakhir diperbarui</dt>
+            <dd className="mt-1 font-semibold text-foreground">{formatDate(intake.updatedAt)}</dd>
           </div>
         </dl>
         {intake.reviewMessage ? (
@@ -182,14 +182,14 @@ export function PatientIntakeSummaryContent({ intake }: { intake: PatientIntakeH
 
       {parsePhotos(intake.photos).length > 0 ? (
         <section>
-          <h3 className="text-sm font-bold text-[#181700]">Foto kondisi</h3>
+          <h3 className="text-sm font-bold text-foreground">Foto kondisi</h3>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
             {parsePhotos(intake.photos).map((photo, index) => (
               <button
                 key={`${photo.name}-${index}`}
                 type="button"
                 onClick={() => setSelectedPhoto(photo)}
-                className="relative group h-32 w-full rounded-2xl border border-stone-200 overflow-hidden"
+                className="relative group h-32 w-full rounded-2xl border border-border overflow-hidden"
                 aria-label={`Lihat foto ${photo.name}`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -216,12 +216,12 @@ export function PatientIntakeSummaryContent({ intake }: { intake: PatientIntakeH
               <img
                 src={selectedPhoto.data}
                 alt={selectedPhoto.name}
-                className="max-h-[60vh] rounded-2xl border border-stone-200 object-contain shadow-lg"
+                className="max-h-[60vh] rounded-2xl border border-border object-contain shadow-lg"
               />
             </div>
             <button
               type="button"
-              className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-50"
+              className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border bg-card px-4 text-xs font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
               onClick={() => setSelectedPhoto(null)}
             >
               <X className="h-3.5 w-3.5" /> Tutup
@@ -232,15 +232,15 @@ export function PatientIntakeSummaryContent({ intake }: { intake: PatientIntakeH
 
       {SUMMARY_SECTIONS.map((section) => (
         <section key={section.title}>
-          <h3 className="text-sm font-bold text-[#181700]">{section.title}</h3>
-          <dl className="mt-3 divide-y divide-stone-100">
+          <h3 className="text-sm font-bold text-foreground">{section.title}</h3>
+          <dl className="mt-3 divide-y divide-border">
             {section.fields.map(([label, field]) => {
               const value = intake[field];
               return (
                 <div key={field} className="grid gap-1 py-3 sm:grid-cols-[13rem_minmax(0,1fr)] sm:gap-4">
-                  <dt className="text-xs text-stone-500">{label}</dt>
-                  <dd className="whitespace-pre-wrap text-sm leading-relaxed text-[#181700]">
-                    {value || <span className="text-stone-400">Belum diisi</span>}
+                  <dt className="text-xs text-muted-foreground">{label}</dt>
+                  <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+                    {value || <span className="text-muted-foreground">Belum diisi</span>}
                   </dd>
                 </div>
               );

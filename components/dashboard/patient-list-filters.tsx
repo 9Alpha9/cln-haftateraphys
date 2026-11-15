@@ -85,12 +85,12 @@ export function PatientListFilters({
     <div className="flex w-full items-center justify-between gap-2.5">
       <FilterPendingBar active={pending} />
       <div className="relative min-w-0 flex-1">
-        <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+        <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           value={search}
           onChange={(event) => handleSearchChange(event.target.value)}
           placeholder="Cari nama pasien"
-          className="h-10 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-10 text-xs text-[#181700] outline-none transition-all placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
+          className="h-10 w-full rounded-full border border-border bg-card pl-10 pr-10 text-xs text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
         />
         {search ? (
           <button
@@ -100,7 +100,7 @@ export function PatientListFilters({
               setSearch('');
               applyFilters('', status, therapist);
             }}
-            className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-stone-100 hover:text-[#181700]"
+            className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] hover:text-foreground"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -111,7 +111,7 @@ export function PatientListFilters({
         <SmartFilterMenu count={activeFilterCount} pending={pending}>
           {(close) => (
             <>
-              <p className="px-3 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+              <p className="px-3 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                 Status
               </p>
               {statusOptions.map((option) => {
@@ -126,18 +126,18 @@ export function PatientListFilters({
                     className={cn(
                       'flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs transition-colors',
                       selected
-                        ? 'bg-[#F4F4F1] font-bold text-[#181700]'
-                        : 'font-medium text-stone-600 hover:bg-stone-100 hover:text-[#181700]',
+                        ? 'bg-[var(--hafta-50)] font-bold text-foreground'
+                        : 'font-medium text-muted-foreground hover:bg-[var(--hafta-50)] hover:text-foreground',
                     )}
                   >
-                    <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-[#181700]' : 'text-stone-400')} />
+                    <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-foreground' : 'text-muted-foreground')} />
                     <span className="flex-1 truncate">{option.label}</span>
-                    {selected ? <Check className="h-3.5 w-3.5 shrink-0 text-[#181700]" /> : null}
+                    {selected ? <Check className="h-3.5 w-3.5 shrink-0 text-foreground" /> : null}
                   </button>
                 );
               })}
 
-              <p className="mt-1 px-3 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+              <p className="mt-1 px-3 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                 Terapis
               </p>
               <button
@@ -147,13 +147,13 @@ export function PatientListFilters({
                 className={cn(
                   'flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs transition-colors',
                   !therapist
-                    ? 'bg-[#F4F4F1] font-bold text-[#181700]'
-                    : 'font-medium text-stone-600 hover:bg-stone-100 hover:text-[#181700]',
+                    ? 'bg-[var(--hafta-50)] font-bold text-foreground'
+                    : 'font-medium text-muted-foreground hover:bg-[var(--hafta-50)] hover:text-foreground',
                 )}
               >
-                <LayoutList className={cn('h-4 w-4 shrink-0', !therapist ? 'text-[#181700]' : 'text-stone-400')} />
+                <LayoutList className={cn('h-4 w-4 shrink-0', !therapist ? 'text-foreground' : 'text-muted-foreground')} />
                 <span className="flex-1 truncate">Semua terapis</span>
-                {!therapist ? <Check className="h-3.5 w-3.5 shrink-0 text-[#181700]" /> : null}
+                {!therapist ? <Check className="h-3.5 w-3.5 shrink-0 text-foreground" /> : null}
               </button>
               {therapistOptions.map((option) => {
                 const selected = therapist === option.id;
@@ -166,20 +166,20 @@ export function PatientListFilters({
                     className={cn(
                       'flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs transition-colors',
                       selected
-                        ? 'bg-[#F4F4F1] font-bold text-[#181700]'
-                        : 'font-medium text-stone-600 hover:bg-stone-100 hover:text-[#181700]',
+                        ? 'bg-[var(--hafta-50)] font-bold text-foreground'
+                        : 'font-medium text-muted-foreground hover:bg-[var(--hafta-50)] hover:text-foreground',
                     )}
                   >
                     <Stethoscope
-                      className={cn('h-4 w-4 shrink-0', selected ? 'text-[#181700]' : 'text-stone-400')}
+                      className={cn('h-4 w-4 shrink-0', selected ? 'text-foreground' : 'text-muted-foreground')}
                     />
                     <span className="flex-1 truncate">{option.label}</span>
-                    {selected ? <Check className="h-3.5 w-3.5 shrink-0 text-[#181700]" /> : null}
+                    {selected ? <Check className="h-3.5 w-3.5 shrink-0 text-foreground" /> : null}
                   </button>
                 );
               })}
               {therapistOptions.length === 0 ? (
-                <p className="px-3 pb-1 text-[11px] text-stone-400">
+                <p className="px-3 pb-1 text-[11px] text-muted-foreground">
                   <UserRound className="mr-1 inline h-3 w-3" />
                   Belum ada terapis aktif.
                 </p>

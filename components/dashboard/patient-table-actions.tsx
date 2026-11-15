@@ -115,9 +115,9 @@ export function PatientTableActions({
             openMenu();
           }
         }}
-        className="h-10 w-10 min-w-[40px] min-h-[40px] aspect-square p-0 rounded-full border border-stone-200/90 bg-white text-[#181700] inline-flex shrink-0 cursor-pointer items-center justify-center gap-0 transition-all hover:bg-stone-100 focus-visible:outline-none focus-visible:border-[var(--hafta-950)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+        className="h-10 w-10 min-w-[40px] min-h-[40px] aspect-square p-0 rounded-full border border-border bg-card text-foreground inline-flex shrink-0 cursor-pointer items-center justify-center gap-0 transition-all hover:bg-accent focus-visible:outline-none focus-visible:border-[var(--hafta-950)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
       >
-        <MoreVertical className="w-4 h-4 shrink-0 text-[#181700]" />
+        <MoreVertical className="w-4 h-4 shrink-0 text-foreground" />
       </button>
 
       {isMenuOpen && typeof document !== 'undefined' && createPortal(
@@ -132,7 +132,7 @@ export function PatientTableActions({
             transform: menuPosition.direction === 'top' ? 'translateY(-100%)' : undefined,
           }}
           className={cn(
-            'z-20 flex flex-col gap-1 rounded-2xl border border-stone-200/90 bg-white p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]',
+            'z-20 flex flex-col gap-1 rounded-2xl border border-border bg-card p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]',
             menuPosition.direction === 'top' ? 'origin-bottom-right' : 'origin-top-right',
           )}
         >
@@ -143,9 +143,9 @@ export function PatientTableActions({
               closeMenu();
               setShowConfirm(true);
             }}
-            className="group w-full rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold text-[#181700] bg-transparent hover:bg-red-600 hover:text-white flex items-center gap-3 cursor-pointer transition-colors justify-start sm:text-[13px]"
+            className="group w-full rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold text-foreground bg-transparent hover:bg-red-600 hover:text-white flex items-center gap-3 cursor-pointer transition-colors justify-start sm:text-[13px]"
           >
-            <Archive className="w-4 h-4 shrink-0 text-stone-600 transition-colors group-hover:text-white" />
+            <Archive className="w-4 h-4 shrink-0 text-muted-foreground transition-colors group-hover:text-white" />
             <span className="truncate transition-colors group-hover:text-white">Arsipkan Pasien</span>
           </button>
         </div>,

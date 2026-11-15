@@ -80,13 +80,13 @@ function TextField({
 
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={name} className="text-sm sm:text-base font-bold text-[#181700]">
+      <Label htmlFor={name} className="text-sm sm:text-base font-bold text-foreground">
         <span>
           {label}
           {required ? <span className="text-[var(--hafta-red-600)]">*</span> : null}
         </span>
       </Label>
-      {hint ? <p className="text-xs text-stone-500 leading-normal">{hint}</p> : null}
+      {hint ? <p className="text-xs text-muted-foreground leading-normal">{hint}</p> : null}
       {multiline ? (
         <textarea
           id={name}
@@ -94,7 +94,7 @@ function TextField({
           disabled={disabled}
           placeholder={placeholder}
           className={cn(
-            "flex w-full resize-y overflow-y-auto min-h-[5.5rem] max-h-[24rem] rounded-2xl border border-stone-200/90 bg-[var(--background)] px-4 py-3 text-sm sm:text-base leading-relaxed text-[#181700] placeholder:text-stone-400 focus-visible:outline-none focus-visible:border-[var(--hafta-org-400)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-400)]/20 disabled:cursor-not-allowed disabled:opacity-60 transition-all scrollbar-thin",
+            "flex w-full resize-y overflow-y-auto min-h-[5.5rem] max-h-[24rem] rounded-2xl border border-border bg-[var(--background)] px-4 py-3 text-sm sm:text-base leading-relaxed text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-[var(--hafta-org-400)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-400)]/20 disabled:cursor-not-allowed disabled:opacity-60 transition-all scrollbar-thin",
             className
           )}
           {...field}
@@ -105,7 +105,7 @@ function TextField({
           disabled={disabled}
           placeholder={placeholder}
           className={cn(
-            "h-12 rounded-2xl border border-stone-200/90 bg-[var(--background)] px-4 py-2.5 text-sm sm:text-base text-[#181700] focus-visible:border-[var(--hafta-org-400)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-400)]/20 disabled:cursor-not-allowed disabled:opacity-60",
+            "h-12 rounded-2xl border border-border bg-[var(--background)] px-4 py-2.5 text-sm sm:text-base text-foreground focus-visible:border-[var(--hafta-org-400)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-400)]/20 disabled:cursor-not-allowed disabled:opacity-60",
             className
           )}
           {...field}
@@ -191,10 +191,10 @@ function PhotoUploader({
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-bold text-[#181700] sm:text-base">
-        Foto kondisi <span className="font-normal text-stone-500">(opsional)</span>
+      <p className="text-sm font-bold text-foreground sm:text-base">
+        Foto kondisi <span className="font-normal text-muted-foreground">(opsional)</span>
       </p>
-      <p className="text-xs leading-relaxed text-stone-500">
+      <p className="text-xs leading-relaxed text-muted-foreground">
         Unggah foto area keluhan bila membantu. Maksimal 4 foto, masing-masing tidak lebih dari 5 MB.
         Foto akan diteruskan ke fisioterapis.
       </p>
@@ -202,7 +202,7 @@ function PhotoUploader({
         {photos.map((photo, index) => (
           <div
             key={`${photo.name}-${index}`}
-            className="relative overflow-hidden rounded-2xl border border-stone-200 bg-[#FAFAF8]"
+            className="relative overflow-hidden rounded-2xl border border-border bg-[#FAFAF8]"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={photo.data} alt={photo.name} className="h-24 w-full object-cover" />
@@ -222,7 +222,7 @@ function PhotoUploader({
             type="button"
             onClick={() => inputRef.current?.click()}
             disabled={disabled || processing}
-            className="flex h-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-stone-300 bg-white text-stone-500 transition-colors hover:border-[#181700] hover:text-[#181700] disabled:opacity-50"
+            className="flex h-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-border bg-card text-muted-foreground transition-colors hover:border-[var(--hafta-900)] hover:text-foreground disabled:opacity-50"
           >
             <ImagePlus className="h-5 w-5" />
             <span className="text-[10px] font-semibold">
@@ -440,7 +440,7 @@ export function PatientIntakeForm({
                 setStep((current) => current - 1);
                 scrollFormToTop();
               }}
-              className="h-10 flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full border border-stone-200/90 bg-white px-4 text-xs font-semibold text-[#181700] transition-all hover:bg-stone-100 disabled:opacity-50 sm:h-11 sm:flex-none sm:px-5 sm:text-[13px]"
+              className="h-10 flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-card px-4 text-xs font-semibold text-foreground transition-all hover:bg-accent disabled:opacity-50 sm:h-11 sm:flex-none sm:px-5 sm:text-[13px]"
             >
               Kembali
             </button>
@@ -449,7 +449,7 @@ export function PatientIntakeForm({
             type="button"
             disabled={pending}
             onClick={save('draft')}
-            className="h-10 flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full border border-stone-200/90 bg-white px-4 text-xs font-semibold text-[#181700] transition-all hover:bg-stone-100 disabled:opacity-50 sm:h-11 sm:flex-none sm:px-5 sm:text-[13px]"
+            className="h-10 flex-1 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-card px-4 text-xs font-semibold text-foreground transition-all hover:bg-accent disabled:opacity-50 sm:h-11 sm:flex-none sm:px-5 sm:text-[13px]"
           >
             Simpan Draft
           </button>
@@ -460,7 +460,7 @@ export function PatientIntakeForm({
               type="button"
               disabled={pending}
               onClick={next}
-              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] transition-all hover:bg-[var(--hafta-org-200)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
+              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-foreground transition-all hover:bg-[var(--hafta-org-200)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
             >
               Lanjut
             </button>
@@ -469,7 +469,7 @@ export function PatientIntakeForm({
               type="submit"
               form={formId}
               disabled={pending}
-              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] transition-all hover:bg-[var(--hafta-org-200)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
+              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-foreground transition-all hover:bg-[var(--hafta-org-200)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
             >
               {pending ? 'Mengirim...' : 'Kirim untuk Ditinjau'}
             </button>
@@ -486,11 +486,11 @@ export function PatientIntakeForm({
   return (
     <form id={formId} className="flex min-h-full flex-col gap-4 sm:gap-6" onSubmit={save('submit')}>
       {status ? (
-        <Alert className="border-stone-200/80 bg-[var(--background)] text-stone-700">
+        <Alert className="border-border bg-[var(--background)] text-muted-foreground">
           <AlertDescription className="flex items-center gap-2 text-sm">
-            <span className="text-stone-500">Status:</span>
-            <strong className="font-semibold text-[#181700]">{statusLabel[status]}</strong>
-            {locked ? <span className="text-stone-500">· Form tidak dapat diubah sampai tim Hafta meminta perbaikan.</span> : null}
+            <span className="text-muted-foreground">Status:</span>
+            <strong className="font-semibold text-foreground">{statusLabel[status]}</strong>
+            {locked ? <span className="text-muted-foreground">· Form tidak dapat diubah sampai tim Hafta meminta perbaikan.</span> : null}
           </AlertDescription>
         </Alert>
       ) : null}
@@ -513,7 +513,7 @@ export function PatientIntakeForm({
                     href={rootErrorDetail.actionHref}
                     target={rootErrorDetail.actionHref.startsWith('http') ? '_blank' : undefined}
                     rel={rootErrorDetail.actionHref.startsWith('http') ? 'noopener noreferrer' : undefined}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-white px-3 py-1.5 text-xs font-bold text-[var(--hafta-red-900)] border border-[var(--hafta-red-200)] transition-colors hover:bg-[var(--hafta-red-100)]/50"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-card px-3 py-1.5 text-xs font-bold text-[var(--hafta-red-900)] border border-[var(--hafta-red-200)] transition-colors hover:bg-[var(--hafta-red-100)]/50"
                   >
                     <span>{rootErrorDetail.actionText}</span>
                     <ExternalLink className="h-3 w-3" />
@@ -530,7 +530,7 @@ export function PatientIntakeForm({
             type="button"
             disabled={pending}
             onClick={startNewVersion}
-            className="font-bold text-[#181700]"
+            className="font-bold text-foreground"
           >
             {pending ? 'Membuat...' : 'Isi Form Awal Baru'}
           </Button>
@@ -572,8 +572,8 @@ export function PatientIntakeForm({
                       className={cn(
                         'flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all',
                         isPassed
-                          ? 'bg-[var(--hafta-org-100)] text-[#181700] ring-3 ring-[var(--hafta-org-100)]/30'
-                          : 'border border-stone-200 bg-white text-stone-400 hover:border-stone-300',
+                          ? 'bg-[var(--hafta-org-100)] text-foreground ring-3 ring-[var(--hafta-org-100)]/30'
+                          : 'border border-border bg-card text-muted-foreground hover:border-border',
                         index <= step && !locked ? 'cursor-pointer hover:opacity-90' : 'cursor-default'
                       )}
                       aria-current={isCurrent ? 'step' : undefined}
@@ -583,7 +583,7 @@ export function PatientIntakeForm({
                     <span
                       className={cn(
                         'mt-1.5 text-center text-xs font-semibold whitespace-nowrap',
-                        isCurrent ? 'text-[#181700]' : isCompleted ? 'text-stone-700' : 'text-stone-400'
+                        isCurrent ? 'text-foreground' : isCompleted ? 'text-muted-foreground' : 'text-muted-foreground'
                       )}
                     >
                       {item.title}
@@ -592,7 +592,7 @@ export function PatientIntakeForm({
 
                   {/* Connector segment between steps */}
                   {index < steps.length - 1 && (
-                    <div className="flex-1 h-0.5 mx-2 sm:mx-3 -mt-5 bg-stone-200 rounded-full overflow-hidden">
+                    <div className="flex-1 h-0.5 mx-2 sm:mx-3 -mt-5 bg-muted rounded-full overflow-hidden">
                       <div
                         className={cn(
                           'h-full transition-all duration-300 ease-out',
@@ -610,76 +610,76 @@ export function PatientIntakeForm({
 
       {/* Document View (locked) — compact read-only summary */}
       {locked ? (
-        <div className="rounded-xl border border-stone-200 bg-white divide-y divide-stone-200 overflow-hidden">
+        <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
           {/* Section: Keluhan Utama */}
           <div className="px-4 sm:px-5 py-4">
-            <p className="text-xs font-semibold text-stone-500 mb-3">Keluhan Utama</p>
+            <p className="text-xs font-semibold text-muted-foreground mb-3">Keluhan Utama</p>
             <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <div>
-                <p className="text-xs text-stone-500 mb-0.5">Keluhan utama</p>
-                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('chiefComplaint') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Keluhan utama</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{getValues('chiefComplaint') || <span className="italic text-muted-foreground">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-stone-500 mb-0.5">Area yang dikeluhkan</p>
-                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('affectedArea') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Area yang dikeluhkan</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{getValues('affectedArea') || <span className="italic text-muted-foreground">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-stone-500 mb-0.5">Awal keluhan</p>
-                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('onsetDescription') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Awal keluhan</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{getValues('onsetDescription') || <span className="italic text-muted-foreground">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-stone-500 mb-0.5">Pemicu</p>
-                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('triggeringEvent') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Pemicu</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{getValues('triggeringEvent') || <span className="italic text-muted-foreground">Tidak diisi</span>}</p>
               </div>
             </div>
           </div>
 
           {/* Section: Aktivitas & Target */}
           <div className="px-4 sm:px-5 py-4">
-            <p className="text-xs font-semibold text-stone-500 mb-3">Aktivitas & Target</p>
+            <p className="text-xs font-semibold text-muted-foreground mb-3">Aktivitas & Target</p>
             <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <div>
-                <p className="text-xs text-stone-500 mb-0.5">Keterbatasan aktivitas</p>
-                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('dailyLimitations') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Keterbatasan aktivitas</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{getValues('dailyLimitations') || <span className="italic text-muted-foreground">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-stone-500 mb-0.5">Target pasien</p>
-                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('patientGoal') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Target pasien</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{getValues('patientGoal') || <span className="italic text-muted-foreground">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-stone-500 mb-0.5">Hal yang memperberat</p>
-                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('aggravatingFactors') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Hal yang memperberat</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{getValues('aggravatingFactors') || <span className="italic text-muted-foreground">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-stone-500 mb-0.5">Hal yang membantu meredakan</p>
-                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('relievingFactors') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Hal yang membantu meredakan</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{getValues('relievingFactors') || <span className="italic text-muted-foreground">Tidak diisi</span>}</p>
               </div>
             </div>
           </div>
 
           {/* Section: Riwayat */}
           <div className="px-4 sm:px-5 py-4">
-            <p className="text-xs font-semibold text-stone-500 mb-3">Riwayat Relevan</p>
+            <p className="text-xs font-semibold text-muted-foreground mb-3">Riwayat Relevan</p>
             <div className="grid gap-x-8 gap-y-3 sm:grid-cols-2">
               <div>
-                <p className="text-xs text-stone-500 mb-0.5">Riwayat cedera</p>
-                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('previousInjuryHistory') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Riwayat cedera</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{getValues('previousInjuryHistory') || <span className="italic text-muted-foreground">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-stone-500 mb-0.5">Riwayat operasi</p>
-                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('surgeryHistory') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Riwayat operasi</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{getValues('surgeryHistory') || <span className="italic text-muted-foreground">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-stone-500 mb-0.5">Riwayat medis relevan</p>
-                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('relevantMedicalHistory') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Riwayat medis relevan</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{getValues('relevantMedicalHistory') || <span className="italic text-muted-foreground">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-stone-500 mb-0.5">Obat saat ini</p>
-                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('currentMedication') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Obat saat ini</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{getValues('currentMedication') || <span className="italic text-muted-foreground">Tidak diisi</span>}</p>
               </div>
               <div>
-                <p className="text-xs text-stone-500 mb-0.5">Alergi</p>
-                <p className="text-sm text-[#181700] leading-relaxed whitespace-pre-wrap">{getValues('allergies') || <span className="italic text-stone-400">Tidak diisi</span>}</p>
+                <p className="text-xs text-muted-foreground mb-0.5">Alergi</p>
+                <p className="text-sm text-foreground leading-relaxed whitespace-pre-wrap">{getValues('allergies') || <span className="italic text-muted-foreground">Tidak diisi</span>}</p>
               </div>
             </div>
           </div>
@@ -690,8 +690,8 @@ export function PatientIntakeForm({
       {step === 0 && !locked ? (
         <section className="space-y-4 sm:space-y-5">
           <div className="space-y-1">
-            <h2 className="text-base font-bold text-[#181700] sm:text-lg">Keluhan Utama</h2>
-            <p className="text-xs leading-relaxed text-stone-500 sm:text-sm">
+            <h2 className="text-base font-bold text-foreground sm:text-lg">Keluhan Utama</h2>
+            <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
               Tuliskan dengan kata-kata Anda sendiri sesuai yang dirasakan. Form ini bukan diagnosis
               medis.
             </p>
@@ -726,12 +726,12 @@ export function PatientIntakeForm({
 
       {/* Step 1: Riwayat Penyakit Sekarang */}
       {step === 1 && !locked ? (
-        <section className="space-y-4 sm:space-y-5 border-t border-stone-200 pt-6">
+        <section className="space-y-4 sm:space-y-5 border-t border-border pt-6">
           <div className="space-y-1">
-            <h2 className="text-base font-bold text-[#181700] sm:text-lg">
+            <h2 className="text-base font-bold text-foreground sm:text-lg">
               Riwayat Penyakit Sekarang (RPS)
             </h2>
-            <p className="text-xs leading-relaxed text-stone-500 sm:text-sm">
+            <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
               Jelaskan bagaimana keluhan berkembang dan apa yang memengaruhi rasa nyeri Anda.
             </p>
           </div>
@@ -797,12 +797,12 @@ export function PatientIntakeForm({
 
       {/* Step 2: Riwayat Penyakit Dahulu */}
       {step === 2 && !locked ? (
-        <section className="space-y-4 sm:space-y-5 border-t border-stone-200 pt-6">
+        <section className="space-y-4 sm:space-y-5 border-t border-border pt-6">
           <div className="space-y-1">
-            <h2 className="text-base font-bold text-[#181700] sm:text-lg">
+            <h2 className="text-base font-bold text-foreground sm:text-lg">
               Riwayat Penyakit Dahulu (RPD)
             </h2>
-            <p className="text-xs leading-relaxed text-stone-500 sm:text-sm">
+            <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
               Riwayat relevan. Jika tidak ada, cukup tulis &quot;Tidak ada&quot;.
             </p>
           </div>
@@ -868,10 +868,10 @@ export function PatientIntakeForm({
 
       {/* Step 3: Target Pemulihan */}
       {step === 3 && !locked ? (
-        <section className="space-y-4 sm:space-y-5 border-t border-stone-200 pt-6">
+        <section className="space-y-4 sm:space-y-5 border-t border-border pt-6">
           <div className="space-y-1">
-            <h2 className="text-base font-bold text-[#181700] sm:text-lg">Target Pemulihan</h2>
-            <p className="text-xs leading-relaxed text-stone-500 sm:text-sm">
+            <h2 className="text-base font-bold text-foreground sm:text-lg">Target Pemulihan</h2>
+            <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
               Bantu tim fisioterapis memahami hasil yang ingin Anda capai.
             </p>
           </div>
@@ -893,25 +893,25 @@ export function PatientIntakeForm({
 
       {/* Step 4: Review & Kirim */}
       {step === 4 && !locked ? (
-        <section className="space-y-4 sm:space-y-5 border-t border-stone-200 pt-6">
+        <section className="space-y-4 sm:space-y-5 border-t border-border pt-6">
           <div className="space-y-1">
-            <h2 className="text-base font-bold text-[#181700]">Review & Kirim</h2>
-            <p className="text-sm text-stone-500">
+            <h2 className="text-base font-bold text-foreground">Review & Kirim</h2>
+            <p className="text-sm text-muted-foreground">
               Setelah dikirim, Form Awal akan ditinjau tim Hafta. Anda masih dapat memperbarui jawaban selama proses peninjauan.
             </p>
           </div>
-          <div className="rounded-xl border border-stone-200 bg-[var(--background)] p-3 sm:p-4 text-sm text-stone-600 space-y-2">
+          <div className="rounded-xl border border-border bg-[var(--background)] p-3 sm:p-4 text-sm text-muted-foreground space-y-2">
             <p>
-              <strong className="text-[#181700]">Keluhan:</strong> {getValues('chiefComplaint') || 'Belum diisi'}
+              <strong className="text-foreground">Keluhan:</strong> {getValues('chiefComplaint') || 'Belum diisi'}
             </p>
             <p>
-              <strong className="text-[#181700]">Area yang dikeluhkan:</strong> {getValues('affectedArea') || 'Belum diisi'}
+              <strong className="text-foreground">Area yang dikeluhkan:</strong> {getValues('affectedArea') || 'Belum diisi'}
             </p>
             <p>
-              <strong className="text-[#181700]">Target Terapi:</strong> {getValues('patientGoal') || 'Belum diisi'}
+              <strong className="text-foreground">Target Terapi:</strong> {getValues('patientGoal') || 'Belum diisi'}
             </p>
           </div>
-          <div className="flex items-start gap-3 rounded-xl border border-stone-200 bg-white p-3 sm:p-4 text-sm">
+          <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-3 sm:p-4 text-sm">
             <input
               id="privacyConsent"
               type="checkbox"
@@ -919,7 +919,7 @@ export function PatientIntakeForm({
               disabled={pending}
               {...register('privacyConsent')}
             />
-            <label htmlFor="privacyConsent" className="select-none text-[#181700] cursor-pointer">
+            <label htmlFor="privacyConsent" className="select-none text-foreground cursor-pointer">
               Saya menyetujui pemrosesan data pasien sesuai{' '}
               <Link href="/privacy" className="font-semibold underline underline-offset-2">
                 Kebijakan Privasi
@@ -937,7 +937,7 @@ export function PatientIntakeForm({
             </p>
           ) : null}
 
-          <div className="flex items-start gap-3 rounded-xl border border-stone-200 bg-white p-3 sm:p-4 text-sm">
+          <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-3 sm:p-4 text-sm">
             <input
               id="mediaConsent"
               type="checkbox"
@@ -945,13 +945,13 @@ export function PatientIntakeForm({
               disabled={pending}
               {...register('mediaConsent')}
             />
-            <label htmlFor="mediaConsent" className="select-none text-[#181700] cursor-pointer">
+            <label htmlFor="mediaConsent" className="select-none text-foreground cursor-pointer">
               Saya mengizinkan publikasi media (foto/video) untuk dokumentasi dan edukasi Hafta.
               Opsional dan terpisah dari persetujuan layanan.
             </label>
           </div>
 
-          <div className="flex items-start gap-3 rounded-xl border border-stone-200 bg-white p-3 sm:p-4 text-sm">
+          <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-3 sm:p-4 text-sm">
             <input
               id="dataAccuracyAcknowledged"
               type="checkbox"
@@ -959,7 +959,7 @@ export function PatientIntakeForm({
               disabled={pending}
               {...register('dataAccuracyAcknowledged', { required: 'Konfirmasi ketepatan data diperlukan.' })}
             />
-            <label htmlFor="dataAccuracyAcknowledged" className="select-none text-[#181700] cursor-pointer">
+            <label htmlFor="dataAccuracyAcknowledged" className="select-none text-foreground cursor-pointer">
               Saya mengonfirmasi bahwa informasi yang saya kirimkan akurat sesuai pengetahuan saya.
             </label>
           </div>
@@ -971,7 +971,7 @@ export function PatientIntakeForm({
 
       {/* Action Buttons (Render inline only when drawer footer is not used) */}
       {!locked && !onFooterChange ? (
-        <div className="sticky bottom-0 z-10 mt-auto -mx-3.5 -mb-3.5 flex flex-col-reverse gap-3 border-t border-stone-200 bg-[var(--background)] px-3.5 py-3.5 sm:-mx-5 sm:-mb-5 sm:px-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="sticky bottom-0 z-10 mt-auto -mx-3.5 -mb-3.5 flex flex-col-reverse gap-3 border-t border-border bg-[var(--background)] px-3.5 py-3.5 sm:-mx-5 sm:-mb-5 sm:px-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div>
             {step > 0 ? (
               <Button
@@ -982,7 +982,7 @@ export function PatientIntakeForm({
                 setStep((current) => current - 1);
                 scrollFormToTop();
               }}
-                className="border border-stone-200 bg-white font-semibold text-[#181700] hover:bg-stone-50 hover:text-[#181700]"
+                className="border border-border bg-card font-semibold text-foreground hover:bg-[var(--hafta-50)] hover:text-foreground"
               >
                 Kembali
               </Button>
@@ -994,7 +994,7 @@ export function PatientIntakeForm({
               variant="outline"
               disabled={pending}
               onClick={save('draft')}
-              className="border border-stone-200 bg-white font-semibold text-[#181700] hover:bg-stone-50 hover:text-[#181700]"
+              className="border border-border bg-card font-semibold text-foreground hover:bg-[var(--hafta-50)] hover:text-foreground"
             >
               Simpan Draft
             </Button>

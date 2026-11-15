@@ -37,12 +37,12 @@ function SectionHeading({
 }) {
   return (
     <div className="flex items-start gap-2.5">
-      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-[#181700] ring-1 ring-stone-200/80">
+      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-card text-foreground ring-1 ring-border/80">
         {icon}
       </div>
       <div className="min-w-0">
-        <h3 className="text-sm font-bold text-[#181700]">{title}</h3>
-        {description ? <p className="mt-0.5 text-[11px] leading-relaxed text-stone-500">{description}</p> : null}
+        <h3 className="text-sm font-bold text-foreground">{title}</h3>
+        {description ? <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">{description}</p> : null}
       </div>
     </div>
   );
@@ -94,7 +94,7 @@ export function MedicalRecordFormDrawer({
             type="submit"
             form={formId}
             disabled={isSaving || !canSubmit}
-            className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--hafta-org-100)]"
+            className="h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--hafta-org-100)]"
           >
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Simpan
@@ -103,7 +103,7 @@ export function MedicalRecordFormDrawer({
             type="button"
             onClick={handleClose}
             disabled={isSaving}
-            className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
+            className="h-11 px-4 sm:px-5 rounded-full bg-card hover:bg-accent text-foreground border border-border font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
           >
             Batal
           </button>
@@ -239,7 +239,7 @@ function MedicalRecordForm({
             {patientOptions.length === 1 ? (
               <>
                 <input type="hidden" name="patientId" value={patientOptions[0].id} />
-                <div className="mt-3 flex h-10 items-center rounded-xl border border-stone-200 bg-stone-50/60 px-3.5 text-sm font-semibold text-[#181700]">
+                <div className="mt-3 flex h-10 items-center rounded-xl border border-border bg-[var(--hafta-50)]/60 px-3.5 text-sm font-semibold text-foreground">
                   {patientOptions[0].label}
                 </div>
               </>
@@ -270,10 +270,10 @@ function MedicalRecordForm({
           {SCORE_FIELDS.map((field) => (
             <div key={field.name} className="space-y-2">
               <div className="flex items-center justify-between gap-3">
-                <label htmlFor={field.name} className="text-xs font-semibold text-[#181700]">
+                <label htmlFor={field.name} className="text-xs font-semibold text-foreground">
                   {field.label}
                 </label>
-                <span className="flex h-7 min-w-7 items-center justify-center rounded-full bg-[#181700] px-2 font-mono text-xs font-bold text-white">
+                <span className="flex h-7 min-w-7 items-center justify-center rounded-full bg-[var(--hafta-900)] px-2 font-mono text-xs font-bold text-white">
                   {scores[field.name]}
                 </span>
               </div>
@@ -288,13 +288,13 @@ function MedicalRecordForm({
                   setScores((current) => ({ ...current, [field.name]: Number(event.target.value) }))
                 }
                 disabled={fieldsDisabled}
-                className="mt-4 h-1.5 w-full cursor-pointer accent-[#181700] disabled:cursor-not-allowed disabled:opacity-50"
+                className="mt-4 h-1.5 w-full cursor-pointer accent-[var(--hafta-900)] disabled:cursor-not-allowed disabled:opacity-50"
               />
-              <div className="mt-1 flex justify-between font-mono text-[9px] text-stone-400">
+              <div className="mt-1 flex justify-between font-mono text-[9px] text-muted-foreground">
                 <span>0</span>
                 <span>10</span>
               </div>
-              <p className="mt-1 text-[10px] leading-relaxed text-stone-400">{field.hint}</p>
+              <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">{field.hint}</p>
             </div>
           ))}
         </div>
@@ -308,8 +308,8 @@ function MedicalRecordForm({
           />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="space-y-2">
-              <p className="text-[11px] font-medium text-stone-500">Status rekam</p>
-              <div className="grid grid-cols-2 gap-1 rounded-full bg-stone-100 p-1">
+              <p className="text-[11px] font-medium text-muted-foreground">Status rekam</p>
+              <div className="grid grid-cols-2 gap-1 rounded-full bg-muted p-1">
                 {(['DRAFT', 'FINALIZED'] as const).map((option) => (
                   <button
                     key={option}
@@ -318,8 +318,8 @@ function MedicalRecordForm({
                     disabled={fieldsDisabled}
                     className={
                       status === option
-                        ? 'flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[#181700] text-xs font-bold text-white'
-                        : 'flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-full text-xs font-semibold text-stone-500 transition-colors hover:text-[#181700]'
+                        ? 'flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-900)] text-xs font-bold text-white'
+                        : 'flex h-8 cursor-pointer items-center justify-center gap-1.5 rounded-full text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground'
                     }
                   >
                     {option === 'DRAFT' ? <FilePenLine className="h-3 w-3" /> : <Lock className="h-3 w-3" />}
@@ -327,13 +327,13 @@ function MedicalRecordForm({
                   </button>
                 ))}
               </div>
-              <p className="text-[10px] leading-relaxed text-stone-500">
+              <p className="text-[10px] leading-relaxed text-muted-foreground">
                 Draft masih dapat diedit. Final Terkunci menyegel laporan dan tidak dapat diubah lagi.
               </p>
             </div>
             <div className="space-y-2">
-              <p className="text-[11px] font-medium text-stone-500">Terlihat oleh</p>
-              <div className="grid grid-cols-2 gap-1 rounded-full bg-stone-100 p-1">
+              <p className="text-[11px] font-medium text-muted-foreground">Terlihat oleh</p>
+              <div className="grid grid-cols-2 gap-1 rounded-full bg-muted p-1">
                 {[
                   { value: '0', label: 'Internal', icon: EyeOff },
                   { value: '1', label: 'Pasien', icon: Eye },
@@ -347,8 +347,8 @@ function MedicalRecordForm({
                       disabled={fieldsDisabled}
                       className={
                         patientVisible === option.value
-                          ? 'inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full bg-[#181700] text-xs font-bold text-white'
-                          : 'inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full text-xs font-semibold text-stone-500 transition-colors hover:text-[#181700]'
+                          ? 'inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full bg-[var(--hafta-900)] text-xs font-bold text-white'
+                          : 'inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground'
                       }
                     >
                       <Icon className="h-3 w-3" />
@@ -357,7 +357,7 @@ function MedicalRecordForm({
                   );
                 })}
               </div>
-              <p className="text-[10px] leading-relaxed text-stone-500">
+              <p className="text-[10px] leading-relaxed text-muted-foreground">
                 Internal hanya terlihat oleh terapis dan admin. Pasien menampilkan laporan final di portal pasien.
               </p>
             </div>
@@ -381,7 +381,7 @@ function MedicalRecordForm({
           { name: 'summary', label: 'Catatan Klinis', placeholder: 'Catatan klinis tambahan yang perlu diketahui...' },
         ].map((field) => (
           <div key={field.name} className="space-y-2">
-            <label htmlFor={field.name} className="text-xs font-semibold text-[#181700]">
+            <label htmlFor={field.name} className="text-xs font-semibold text-foreground">
               {field.label}
             </label>
             <textarea
@@ -391,7 +391,7 @@ function MedicalRecordForm({
               defaultValue={record?.[field.name as keyof TherapyProgressView] as string | null | undefined ?? ''}
               placeholder={field.placeholder}
               disabled={fieldsDisabled}
-              className="w-full resize-y rounded-xl border border-stone-200 bg-stone-50/40 px-3.5 py-3 text-sm leading-relaxed text-[#181700] outline-none transition-colors placeholder:text-stone-400 focus:border-[#181700] focus:bg-white focus:ring-4 focus:ring-[var(--hafta-org-100)]"
+              className="w-full resize-y rounded-xl border border-border bg-[var(--hafta-50)]/40 px-3.5 py-3 text-sm leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:bg-card focus:ring-4 focus:ring-[var(--hafta-org-100)]"
             />
           </div>
         ))}

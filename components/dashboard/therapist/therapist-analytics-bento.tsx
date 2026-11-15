@@ -93,31 +93,31 @@ export function TherapistAnalyticsBento({
       {panel !== 'status' ? (
         <>
       {/* ── 1. GRAFIK UTAMA: TREN SESI & EVALUASI KLINIS (7 KOLOM) ── */}
-      <div className={cn("rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-5 flex flex-col justify-between", panel === 'all' && "lg:col-span-7")}>
+      <div className={cn("rounded-3xl border border-border bg-card p-4 sm:p-5 flex flex-col justify-between", panel === 'all' && "lg:col-span-7")}>
         {/* Header Baris Atas */}
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-stone-100 pb-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-border pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-[#181700]">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-foreground">
               <TrendingUp className="h-5 w-5" strokeWidth={2.2} />
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#181700]">
+              <h3 className="text-base font-bold text-foreground">
                 {isTherapist ? 'Tren Sesi & Rekam Medis' : 'Tren Aktivitas Operasional'}
               </h3>
-              <p className="text-xs text-stone-500">
+              <p className="text-xs text-muted-foreground">
                 Aktivitas pendampingan terapi dan pencatatan perkembangan
               </p>
             </div>
           </div>
 
           {/* Time-Range Switcher */}
-          <div className="flex items-center gap-1 rounded-full bg-stone-100/90 p-1 self-start sm:self-auto">
+          <div className="flex items-center gap-1 rounded-full bg-muted/90 p-1 self-start sm:self-auto">
             <button
               type="button"
               onClick={() => setRange('7d')}
               className={cn(
                 'rounded-full px-3 py-1 font-mono text-[11px] font-bold transition-all cursor-pointer',
-                range === '7d' ? 'bg-[#181700] text-white' : 'text-stone-500 hover:text-stone-800'
+                range === '7d' ? 'bg-[var(--hafta-900)] text-white' : 'text-muted-foreground hover:text-foreground'
               )}
             >
               7 Hari
@@ -127,7 +127,7 @@ export function TherapistAnalyticsBento({
               onClick={() => setRange('14d')}
               className={cn(
                 'rounded-full px-3 py-1 font-mono text-[11px] font-bold transition-all cursor-pointer',
-                range === '14d' ? 'bg-[#181700] text-white' : 'text-stone-500 hover:text-stone-800'
+                range === '14d' ? 'bg-[var(--hafta-900)] text-white' : 'text-muted-foreground hover:text-foreground'
               )}
             >
               14 Hari
@@ -139,18 +139,18 @@ export function TherapistAnalyticsBento({
         <div className="flex items-center gap-4 pt-3 text-xs">
           <div className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-org-200)]" />
-            <span className="font-semibold text-stone-700">Janji Temu</span>
+            <span className="font-semibold text-muted-foreground">Janji Temu</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#181700]" />
-            <span className="font-semibold text-stone-700">Evaluasi Rekam Medis</span>
+            <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-900)]" />
+            <span className="font-semibold text-muted-foreground">Evaluasi Rekam Medis</span>
           </div>
         </div>
 
         {/* Chart View */}
         <div className="mt-3 flex-1 min-h-[200px]">
           {trendData.length === 0 ? (
-            <div className="flex h-full min-h-[200px] items-center justify-center text-xs text-stone-400">
+            <div className="flex h-full min-h-[200px] items-center justify-center text-xs text-muted-foreground">
               Belum ada riwayat aktivitas pada rentang ini.
             </div>
           ) : (
@@ -206,15 +206,15 @@ export function TherapistAnalyticsBento({
       {panel !== 'trend' ? (
         <>
       {/* ── 2. STATUS PASIEN & DISTRIBUSI SESI (5 KOLOM BENTO) ── */}
-      <div className={cn("rounded-3xl border border-stone-200/90 bg-white p-4 sm:p-5 flex flex-col justify-between", panel === 'all' && "lg:col-span-5")}>
-        <div className="flex items-center justify-between border-b border-stone-100 pb-4">
+      <div className={cn("rounded-3xl border border-border bg-card p-4 sm:p-5 flex flex-col justify-between", panel === 'all' && "lg:col-span-5")}>
+        <div className="flex items-center justify-between border-b border-border pb-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-[#181700]">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-foreground">
               <Users className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#181700]">Status Pasien &amp; Sesi</h3>
-              <p className="text-xs text-stone-500">Komposisi penanganan pasien terapis</p>
+              <h3 className="text-base font-bold text-foreground">Status Pasien &amp; Sesi</h3>
+              <p className="text-xs text-muted-foreground">Komposisi penanganan pasien terapis</p>
             </div>
           </div>
         </div>
@@ -259,27 +259,27 @@ export function TherapistAnalyticsBento({
               </PieChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center">
-              <span className="font-mono text-xl font-extrabold text-[#181700] leading-none">
+              <span className="font-mono text-xl font-extrabold text-foreground leading-none">
                 {patientPieData.reduce((a, b) => a + b.value, 0)}
               </span>
-              <span className="text-[9px] font-bold text-stone-400 mt-0.5">Pasien</span>
+              <span className="text-[9px] font-bold text-muted-foreground mt-0.5">Pasien</span>
             </div>
           </div>
 
           {/* Legenda Pasien */}
           <div className="w-full sm:flex-1 space-y-1.5">
             {patientPieData.length === 0 ? (
-              <p className="text-xs text-stone-400">Belum ada pasien terhubung.</p>
+              <p className="text-xs text-muted-foreground">Belum ada pasien terhubung.</p>
             ) : (
               patientPieData.map((item) => (
                 <div key={item.name} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                    <span className="text-stone-600 font-medium truncate">{item.name}</span>
+                    <span className="text-muted-foreground font-medium truncate">{item.name}</span>
                   </div>
-                  <span className="font-mono font-bold text-[#181700]">
+                  <span className="font-mono font-bold text-foreground">
                     {item.value}{' '}
-                    <span className="font-normal text-stone-400 text-[10px]">
+                    <span className="font-normal text-muted-foreground text-[10px]">
                       ({Math.round((item.value / totalPatients) * 100)}%)
                     </span>
                   </span>
@@ -290,15 +290,15 @@ export function TherapistAnalyticsBento({
         </div>
 
         {/* Mini Distribution Bar for Appointments */}
-        <div className="mt-5 pt-4 border-t border-stone-100">
+        <div className="mt-5 pt-4 border-t border-border">
           <div className="flex items-center justify-between text-xs mb-2">
-            <span className="font-bold text-[#181700]">Distribusi Status Sesi</span>
-            <span className="text-[11px] text-stone-500 font-mono">
+            <span className="font-bold text-foreground">Distribusi Status Sesi</span>
+            <span className="text-[11px] text-muted-foreground font-mono">
               {apptBarData.reduce((a, b) => a + b.value, 0)} Total Sesi
             </span>
           </div>
 
-          <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-stone-100 gap-0.5">
+          <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-muted gap-0.5">
             {apptBarData.map((b) => (
               <div
                 key={b.name}
@@ -312,7 +312,7 @@ export function TherapistAnalyticsBento({
             ))}
           </div>
 
-          <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-stone-600">
+          <div className="mt-2.5 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
             {apptBarData.map((b) => (
               <div key={b.name} className="flex items-center gap-1">
                 <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: b.color }} />

@@ -35,25 +35,25 @@ export function UserDetailButton({ user }: { user: UserDetailData }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-stone-200/90 bg-white px-3 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100"
+        className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-semibold text-foreground transition-colors hover:bg-accent"
       >
         <Eye className="h-3.5 w-3.5" />
         Detail
       </button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md rounded-3xl border-stone-200/70 p-0">
-          <DialogHeader className="border-b border-stone-100 p-5 text-left">
-            <DialogTitle className="text-base font-bold text-[#181700]">Detail Pengguna</DialogTitle>
-            <DialogDescription className="text-xs text-stone-500">
+        <DialogContent className="max-w-md rounded-3xl border-border/70 p-0">
+          <DialogHeader className="border-b border-border p-5 text-left">
+            <DialogTitle className="text-base font-bold text-foreground">Detail Pengguna</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
               Informasi akun dan status akses.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 p-5">
             <div>
-              <p className="text-lg font-bold text-[#181700]">{user.name}</p>
-              <div className="mt-1.5 flex items-center gap-1.5 text-xs text-stone-500">
+              <p className="text-lg font-bold text-foreground">{user.name}</p>
+              <div className="mt-1.5 flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Mail className="h-3.5 w-3.5" />
                 <span className="truncate">{user.email}</span>
               </div>
@@ -86,22 +86,22 @@ export function UserDetailButton({ user }: { user: UserDetailData }) {
               </span>
             </div>
 
-            <dl className="space-y-2.5 rounded-2xl bg-[#FBFBFA] p-3.5 text-xs">
+            <dl className="space-y-2.5 rounded-2xl bg-[var(--hafta-50)] p-3.5 text-xs">
               <div className="flex items-center justify-between gap-3">
-                <dt className="text-stone-500">Telepon</dt>
-                <dd className="inline-flex items-center gap-1.5 font-semibold text-[#181700]">
-                  <Phone className="h-3.5 w-3.5 text-stone-400" />
+                <dt className="text-muted-foreground">Telepon</dt>
+                <dd className="inline-flex items-center gap-1.5 font-semibold text-foreground">
+                  <Phone className="h-3.5 w-3.5 text-muted-foreground" />
                   {user.phone || '-'}
                 </dd>
               </div>
               <div className="flex items-center justify-between gap-3">
-                <dt className="text-stone-500">Terdaftar</dt>
-                <dd className="font-semibold text-[#181700]">{created}</dd>
+                <dt className="text-muted-foreground">Terdaftar</dt>
+                <dd className="font-semibold text-foreground">{created}</dd>
               </div>
               <div className="flex items-center justify-between gap-3">
-                <dt className="text-stone-500">Akses</dt>
-                <dd className="inline-flex items-center gap-1.5 font-semibold text-[#181700]">
-                  <ShieldCheck className="h-3.5 w-3.5 text-stone-400" />
+                <dt className="text-muted-foreground">Akses</dt>
+                <dd className="inline-flex items-center gap-1.5 font-semibold text-foreground">
+                  <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground" />
                   {getRoleLabel(user.role)}
                 </dd>
               </div>

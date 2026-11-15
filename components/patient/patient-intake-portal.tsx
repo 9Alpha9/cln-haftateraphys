@@ -146,8 +146,8 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
     <div className="space-y-8">
       <section className="space-y-3">
         <div>
-          <h2 className="text-base font-bold text-[#181700]">Form Awal Aktif</h2>
-          <p className="mt-1 text-sm text-stone-500">
+          <h2 className="text-base font-bold text-foreground">Form Awal Aktif</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
             Satu form mewakili satu episode keluhan. Perbarui jawaban yang sama bila ada informasi tambahan.
           </p>
         </div>
@@ -174,24 +174,24 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
             showRings
           />
 
-          <div className="rounded-3xl border border-stone-200/90 bg-white p-3.5 sm:p-5">
-            <h3 className="text-sm font-bold text-[#181700]">Ringkasan episode</h3>
+          <div className="rounded-3xl border border-border bg-card p-3.5 sm:p-5">
+            <h3 className="text-sm font-bold text-foreground">Ringkasan episode</h3>
             <dl className="mt-4 space-y-3 text-sm">
-              <div className="flex items-start justify-between gap-3 border-b border-stone-100 pb-3">
-                <dt className="text-stone-500">Area keluhan</dt>
-                <dd className="max-w-[60%] text-right font-semibold text-[#181700]">
+              <div className="flex items-start justify-between gap-3 border-b border-border pb-3">
+                <dt className="text-muted-foreground">Area keluhan</dt>
+                <dd className="max-w-[60%] text-right font-semibold text-foreground">
                   {current.affectedArea || '-'}
                 </dd>
               </div>
-              <div className="flex items-start justify-between gap-3 border-b border-stone-100 pb-3">
-                <dt className="text-stone-500">Tujuan terapi</dt>
-                <dd className="max-w-[60%] text-right font-semibold text-[#181700]">
+              <div className="flex items-start justify-between gap-3 border-b border-border pb-3">
+                <dt className="text-muted-foreground">Tujuan terapi</dt>
+                <dd className="max-w-[60%] text-right font-semibold text-foreground">
                   {current.patientGoal || '-'}
                 </dd>
               </div>
               <div className="flex items-start justify-between gap-3">
-                <dt className="text-stone-500">Versi form</dt>
-                <dd className="font-semibold text-[#181700]">Ke-{current.version}</dd>
+                <dt className="text-muted-foreground">Versi form</dt>
+                <dd className="font-semibold text-foreground">Ke-{current.version}</dd>
               </div>
             </dl>
             {current.reviewMessage ? (
@@ -203,17 +203,17 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
         </div>
 
         {canStartEpisode ? (
-          <div className="flex flex-col gap-3 rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 sm:p-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-bold text-[#181700]">Punya keluhan baru di area berbeda?</p>
-              <p className="mt-1 text-xs leading-relaxed text-stone-500">
+              <p className="text-sm font-bold text-foreground">Punya keluhan baru di area berbeda?</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                 Ajukan episode baru agar riwayat keluhan sebelumnya tetap tersimpan sebagai referensi.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setShowNewEpisodeConfirm(true)}
-              className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
+              className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)]"
             >
               <FilePlus2 className="h-4 w-4" />
               Ajukan Keluhan Baru (Episode Baru)
@@ -225,8 +225,8 @@ export function PatientIntakePortal({ history }: { history: PatientIntakeHistory
       {history.length > 1 ? (
         <section className="space-y-3">
           <div>
-            <h2 className="text-base font-bold text-[#181700]">Riwayat Form Awal</h2>
-            <p className="mt-1 text-sm text-stone-500">
+            <h2 className="text-base font-bold text-foreground">Riwayat Form Awal</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
               Semua form yang pernah Anda kirim, termasuk episode keluhan sebelumnya.
             </p>
           </div>
@@ -322,7 +322,7 @@ function IntakeDrawer({
             <button
               type="button"
               onClick={onEdit}
-              className="w-full h-11 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer transition-all px-4 sm:px-5"
+              className="w-full h-11 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground font-bold text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer transition-all px-4 sm:px-5"
             >
               <PencilLine className="h-4 w-4" />
               Perbarui Jawaban
@@ -365,7 +365,7 @@ function IntakeDrawer({
           showStartNewAction={false}
         />
       ) : (
-        <div className="flex min-h-48 items-center justify-center text-stone-400">
+        <div className="flex min-h-48 items-center justify-center text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
         </div>
       )}

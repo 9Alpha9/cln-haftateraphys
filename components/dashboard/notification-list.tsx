@@ -92,7 +92,7 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
   return (
     <div>
       {/* Top Bar Filter + Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-stone-200/80 px-4 sm:px-5 py-3.5 gap-3 bg-white">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-border px-4 sm:px-5 py-3.5 gap-3 bg-card">
         <div className="inline-flex items-center gap-1 self-start rounded-full bg-[#F4F4F1] p-1">
           <button
             type="button"
@@ -100,8 +100,8 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
             className={cn(
               'inline-flex h-9 cursor-pointer items-center justify-center rounded-full px-3.5 text-xs font-semibold transition-all',
               filter === 'all'
-                ? 'bg-[#181700] text-white'
-                : 'text-stone-500 hover:bg-white/60 hover:text-[#181700]'
+                ? 'bg-[var(--hafta-900)] text-white'
+                : 'text-muted-foreground hover:bg-card/60 hover:text-foreground'
             )}
           >
             Semua ({list.length})
@@ -112,13 +112,13 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
             className={cn(
               'inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full px-3.5 text-xs font-semibold transition-all',
               filter === 'unread'
-                ? 'bg-[#181700] text-white'
-                : 'text-stone-500 hover:bg-white/60 hover:text-[#181700]'
+                ? 'bg-[var(--hafta-900)] text-white'
+                : 'text-muted-foreground hover:bg-card/60 hover:text-foreground'
             )}
           >
             Belum Dibaca
             {hasUnread && (
-              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[#181700] px-1 text-[10px] font-bold text-white">
+              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[var(--hafta-900)] px-1 text-[10px] font-bold text-white">
                 {list.filter((i) => !i.isRead).length}
               </span>
             )}
@@ -131,7 +131,7 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
             size="sm"
             onClick={markAll}
             disabled={pending || done}
-            className="rounded-xl border-stone-200/90 text-[12px] font-semibold text-hafta-org-900 hover:bg-hafta-org-50 hover:text-hafta-org-900"
+            className="rounded-xl border-border text-[12px] font-semibold text-hafta-org-900 hover:bg-hafta-org-50 hover:text-hafta-org-900"
           >
             <CheckCheck className="h-4 w-4 text-hafta-org-700" aria-hidden="true" />
             Tandai semua dibaca
@@ -141,7 +141,7 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
 
       {/* Items List */}
       {filteredItems.length === 0 ? (
-        <div className="py-8 sm:py-12 text-center text-[13px] text-stone-500 font-medium">
+        <div className="py-8 sm:py-12 text-center text-[13px] text-muted-foreground font-medium">
           {filter === 'unread' ? 'Tidak ada notifikasi yang belum dibaca.' : 'Tidak ada notifikasi.'}
         </div>
       ) : (
@@ -155,15 +155,15 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
                   'flex items-start gap-3 rounded-2xl border p-3.5 transition-colors sm:gap-3.5 sm:p-4',
                   !notif.isRead
                     ? 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)]/35'
-                    : 'border-stone-200/70 bg-white hover:bg-[#FBFBFA]'
+                    : 'border-border/70 bg-card hover:bg-[var(--hafta-50)]'
                 )}
               >
                 <div
                   className={cn(
                     'flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition-colors',
                     !notif.isRead
-                      ? 'bg-stone-50 text-stone-500'
-                      : 'bg-stone-50 text-stone-400'
+                      ? 'bg-[var(--hafta-50)] text-muted-foreground'
+                      : 'bg-[var(--hafta-50)] text-muted-foreground'
                   )}
                 >
                   <Icon className="h-5 w-5" strokeWidth={2.25} />
@@ -172,11 +172,11 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className={cn('text-[13px] leading-snug', !notif.isRead ? 'font-bold text-[#181700]' : 'font-medium text-stone-700')}>
+                      <p className={cn('text-[13px] leading-snug', !notif.isRead ? 'font-bold text-foreground' : 'font-medium text-muted-foreground')}>
                         {notif.title}
                       </p>
                       {notif.message && (
-                        <p className="mt-0.5 text-[12px] leading-relaxed text-stone-500 whitespace-pre-line">
+                        <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground whitespace-pre-line">
                           {notif.message}
                         </p>
                       )}
@@ -186,7 +186,7 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
                   </div>
 
                   <div className="mt-2 flex items-center justify-between gap-3">
-                    <time className="text-[11px] font-medium text-stone-400" dateTime={notif.createdAt.toISOString()}>
+                    <time className="text-[11px] font-medium text-muted-foreground" dateTime={notif.createdAt.toISOString()}>
                       {timeAgo(notif.createdAt)}
                     </time>
 
@@ -195,7 +195,7 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
                         <button
                           type="button"
                           onClick={() => markSingle(notif.id)}
-                          className="text-[11px] font-semibold text-stone-400 hover:text-stone-700 transition-colors"
+                          className="text-[11px] font-semibold text-muted-foreground hover:text-muted-foreground transition-colors"
                         >
                           Tandai dibaca
                         </button>
@@ -204,7 +204,7 @@ export function NotificationList({ items }: { items: NotificationView[] }) {
                       {notif.actionUrl && (
                         <Link
                           href={notif.actionUrl}
-                          className="inline-flex items-center gap-1 text-[11px] font-bold text-stone-700 transition-colors hover:text-[#181700]"
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground transition-colors hover:text-foreground"
                         >
                           Lihat <ArrowRight className="h-3 w-3" />
                         </Link>

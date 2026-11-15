@@ -140,7 +140,7 @@ export function CreatePatientForm({
               <button
                 type="button"
                 onClick={() => setMode('pick-user')}
-                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
+                className="h-11 px-4 sm:px-5 rounded-full bg-card hover:bg-accent text-foreground border border-border font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
               >
                 <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
                 Kembali
@@ -150,7 +150,7 @@ export function CreatePatientForm({
                 type="button"
                 disabled={createPending}
                 onClick={() => setMode('create-user')}
-                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:opacity-60"
+                className="h-11 px-4 sm:px-5 rounded-full bg-card hover:bg-accent text-foreground border border-border font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:opacity-60"
               >
                 {createPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <UserPlus className="h-3.5 w-3.5 shrink-0" />}
                 Buat baru
@@ -163,7 +163,7 @@ export function CreatePatientForm({
                 type="button"
                 disabled={createPending || !newName.trim() || !newEmail.trim() || !newPassword.trim()}
                 onClick={handleCreateUser}
-                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--hafta-org-100)]"
+                className="h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--hafta-org-100)]"
               >
                 {createPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
                 Simpan & Daftarkan
@@ -173,7 +173,7 @@ export function CreatePatientForm({
                 type="submit"
                 form="create-patient-form"
                 disabled={pendingSubmit || pending || userOptions.length === 0 || !selectedUserId}
-                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--hafta-org-100)]"
+                className="h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-[var(--hafta-org-100)]"
               >
                 {pendingSubmit || pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
                 Simpan & Daftarkan
@@ -183,7 +183,7 @@ export function CreatePatientForm({
               type="button"
               disabled={mode === 'create-user' ? createPending : false}
               onClick={onClose}
-              className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:opacity-60"
+              className="h-11 px-4 sm:px-5 rounded-full bg-card hover:bg-accent text-foreground border border-border font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:opacity-60"
             >
               Batal
             </button>
@@ -216,7 +216,7 @@ export function CreatePatientForm({
               ))}
             </Select>
             {userOptions.length === 0 ? (
-              <p className="text-sm text-stone-500">
+              <p className="text-sm text-muted-foreground">
                 Belum ada akun USER yang tersedia. Klik tombol <strong>Buat akun baru</strong> di bawah untuk membuat akun pasien baru dari nol.
               </p>
             ) : null}
@@ -232,7 +232,7 @@ export function CreatePatientForm({
                 placeholder="Masukkan nama lengkap pasien"
                 className={cn(
                   'text-xs sm:text-sm border rounded-xl p-2.5',
-                  nameError ? 'border-red-500 focus:ring-red-500' : 'border-stone-200 focus:border-stone-400'
+                  nameError ? 'border-red-500 focus:ring-red-500' : 'border-border focus:border-[var(--hafta-400)]'
                 )}
               />
               {nameError && <p className="text-[11px] text-red-600">{nameError}</p>}
@@ -247,7 +247,7 @@ export function CreatePatientForm({
                 placeholder="masukkan@email.com"
                 className={cn(
                   'text-xs sm:text-sm border rounded-xl p-2.5',
-                  emailError ? 'border-red-500 focus:ring-red-500' : 'border-stone-200 focus:border-stone-400'
+                  emailError ? 'border-red-500 focus:ring-red-500' : 'border-border focus:border-[var(--hafta-400)]'
                 )}
               />
               {emailError && <p className="text-[11px] text-red-600">{emailError}</p>}
@@ -263,7 +263,7 @@ export function CreatePatientForm({
                   setNewPhone(digits.slice(0, 12));
                 }}
                 placeholder="08123456789"
-                className="text-xs sm:text-sm border rounded-xl p-2.5 border-stone-200 focus:border-stone-400"
+                className="text-xs sm:text-sm border rounded-xl p-2.5 border-border focus:border-[var(--hafta-400)]"
                 maxLength={12}
               />
             </div>
@@ -278,13 +278,13 @@ export function CreatePatientForm({
                   placeholder="••••••••••••"
                   className={cn(
                     'text-xs sm:text-sm border rounded-xl p-2.5 pr-10',
-                    passwordError ? 'border-red-500 focus:ring-red-500' : 'border-stone-200 focus:border-stone-400'
+                    passwordError ? 'border-red-500 focus:ring-red-500' : 'border-border focus:border-[var(--hafta-400)]'
                   )}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-2 my-auto p-1 text-stone-400 hover:text-stone-600 transition-colors"
+                  className="absolute inset-y-0 right-2 my-auto p-1 text-muted-foreground hover:text-foreground transition-colors"
                   aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -292,7 +292,7 @@ export function CreatePatientForm({
               </div>
               {passwordError && <p className="text-[11px] text-red-600">{passwordError}</p>}
             </div>
-            <p className="text-[11px] text-stone-500">
+            <p className="text-[11px] text-muted-foreground">
               Akun baru akan dibuat dengan peran <strong>Pasien (USER)</strong> dan terhubung otomatis ke Anda sebagai terapis penanggung jawab.
             </p>
           </div>

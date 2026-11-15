@@ -164,13 +164,13 @@ export function DocumentsManager({
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <div className="relative min-w-0 flex-1">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Cari nama file, pasien, atau No. RM"
             aria-label="Cari dokumen"
-            className="h-10 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-3 text-xs text-[#181700] outline-none transition-colors placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
+            className="h-10 w-full rounded-full border border-border bg-card pl-10 pr-3 text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
           />
         </div>
         <div className="w-full sm:w-52">
@@ -195,12 +195,12 @@ export function DocumentsManager({
       </div>
 
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-stone-200 bg-white px-5 py-12 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-border bg-card px-5 py-12 text-center">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-foreground">
             <Paperclip className="h-7 w-7" />
           </span>
-          <p className="mt-4 text-sm font-bold text-[#181700]">Belum ada dokumen</p>
-          <p className="mt-1 max-w-sm text-xs leading-relaxed text-stone-500">
+          <p className="mt-4 text-sm font-bold text-foreground">Belum ada dokumen</p>
+          <p className="mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
             Dokumen pendukung pasien seperti hasil pemeriksaan atau surat rujukan akan tampil di
             sini.
           </p>
@@ -221,18 +221,18 @@ export function DocumentsManager({
           {filtered.map((document) => (
             <article
               key={document.id}
-              className="flex flex-col gap-3 rounded-2xl border border-stone-200 bg-white p-3.5 sm:flex-row sm:items-center sm:justify-between sm:p-4"
+              className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3.5 sm:flex-row sm:items-center sm:justify-between sm:p-4"
             >
               <div className="flex min-w-0 items-start gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F4F4F1] text-[#181700]">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F4F4F1] text-foreground">
                   <DocumentIcon mimeType={document.mimeType} />
                 </span>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="truncate text-sm font-bold text-[#181700]">
+                    <p className="truncate text-sm font-bold text-foreground">
                       {document.originalFilename ?? 'Dokumen'}
                     </p>
-                    <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-stone-600">
+                    <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                       {DOCUMENT_TYPE_LABELS[document.documentType] ?? document.documentType}
                     </span>
                     {document.patientVisible ? (
@@ -241,12 +241,12 @@ export function DocumentsManager({
                       </span>
                     ) : null}
                     {document.status === 'ARCHIVED' ? (
-                      <span className="rounded-full bg-stone-100 px-2 py-0.5 text-[10px] font-semibold text-stone-500">
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                         Arsip
                       </span>
                     ) : null}
                   </div>
-                  <p className="mt-1 truncate text-[11px] text-stone-500">
+                  <p className="mt-1 truncate text-[11px] text-muted-foreground">
                     {document.patientName}
                     {document.medicalRecordNumber ? ` · ${document.medicalRecordNumber}` : ''}
                     {' · '}
@@ -260,7 +260,7 @@ export function DocumentsManager({
                 {canDownload && document.status === 'ACTIVE' ? (
                   <a
                     href={`/api/documents/${document.id}`}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 text-[11px] font-semibold text-[#181700] transition-colors hover:bg-stone-100"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent"
                   >
                     <Download className="h-3.5 w-3.5" />
                     Unduh
@@ -270,7 +270,7 @@ export function DocumentsManager({
                   <button
                     type="button"
                     onClick={() => setArchiveTarget(document)}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 text-[11px] font-semibold text-stone-600 transition-colors hover:bg-stone-100"
+                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-accent"
                   >
                     <Archive className="h-3.5 w-3.5" />
                     Arsipkan
@@ -284,9 +284,9 @@ export function DocumentsManager({
 
       <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>
         <DialogContent className="max-w-md gap-0 overflow-hidden rounded-3xl p-0">
-          <DialogHeader className="border-b border-stone-100 p-5 text-left">
-            <DialogTitle className="text-base font-bold text-[#181700]">Unggah Dokumen</DialogTitle>
-            <DialogDescription className="text-xs text-stone-500">
+          <DialogHeader className="border-b border-border p-5 text-left">
+            <DialogTitle className="text-base font-bold text-foreground">Unggah Dokumen</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
               Dokumen disimpan privat dan hanya dapat diakses sesuai kewenangan.
             </DialogDescription>
           </DialogHeader>
@@ -324,17 +324,17 @@ export function DocumentsManager({
                 multiple
                 required
                 accept="application/pdf,image/jpeg,image/png,image/webp"
-                className="flex min-h-11 w-full cursor-pointer items-center rounded-xl border border-stone-200 bg-white px-3 py-2 text-xs text-stone-600 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-[var(--hafta-org-100)] file:px-3 file:py-1.5 file:text-[11px] file:font-bold file:text-[#181700]"
+                className="flex min-h-11 w-full cursor-pointer items-center rounded-xl border border-border bg-card px-3 py-2 text-xs text-muted-foreground file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-[var(--hafta-org-100)] file:px-3 file:py-1.5 file:text-[11px] file:font-bold file:text-foreground"
               />
-              <p className="text-[10px] text-stone-400">
+              <p className="text-[10px] text-muted-foreground">
                 PDF/JPG/PNG/WEBP · maksimal 10 MB per file · pilih beberapa file sekaligus.
               </p>
             </div>
-            <label className="flex cursor-pointer items-start gap-2 rounded-xl bg-[#FAFAF8] p-3 text-xs text-stone-600">
+            <label className="flex cursor-pointer items-start gap-2 rounded-xl bg-[#FAFAF8] p-3 text-xs text-muted-foreground">
               <input
                 type="checkbox"
                 name="patientVisible"
-                className="mt-0.5 h-4 w-4 rounded border-stone-300"
+                className="mt-0.5 h-4 w-4 rounded border-border"
               />
               <span>Izinkan pasien melihat dokumen ini di portal (opsional).</span>
             </label>
@@ -372,7 +372,7 @@ export function DocumentsManager({
         onCancel={() => setArchiveTarget(null)}
       />
 
-      <p className={cn('text-[10px] leading-relaxed text-stone-400')}>
+      <p className={cn('text-[10px] leading-relaxed text-muted-foreground')}>
         Semua unggahan dan unduhan dokumen dicatat pada log audit. Jangan mengunggah dokumen yang
         tidak relevan dengan layanan pasien.
       </p>

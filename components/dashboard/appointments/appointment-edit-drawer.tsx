@@ -93,7 +93,7 @@ export function AppointmentEditDrawer({
               type="submit"
               form={formId}
               disabled={isSaving}
-              className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
+              className="h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
             >
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Simpan
@@ -102,7 +102,7 @@ export function AppointmentEditDrawer({
               type="button"
               onClick={handleClose}
               disabled={isSaving}
-              className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
+              className="h-11 px-4 sm:px-5 rounded-full bg-card hover:bg-accent text-foreground border border-border font-semibold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
             >
               Batal
             </button>
@@ -115,14 +115,14 @@ export function AppointmentEditDrawer({
           <div className="grid gap-4 sm:grid-cols-2">
             {[0, 1, 2, 3].map((item) => (
               <div key={item} className="space-y-2">
-                <SkeletonLine className="w-24 bg-stone-100" />
-                <SkeletonBlock className="h-10 w-full rounded-xl bg-stone-100" />
+                <SkeletonLine className="w-24 bg-muted" />
+                <SkeletonBlock className="h-10 w-full rounded-xl bg-muted" />
               </div>
             ))}
           </div>
           <div className="space-y-2">
-            <SkeletonLine className="w-24 bg-stone-100" />
-            <SkeletonBlock className="h-24 w-full rounded-xl bg-stone-100" />
+            <SkeletonLine className="w-24 bg-muted" />
+            <SkeletonBlock className="h-24 w-full rounded-xl bg-muted" />
           </div>
         </div>
       ) : (

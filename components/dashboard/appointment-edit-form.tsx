@@ -77,11 +77,11 @@ export function AppointmentEditForm({
         defaultDuration={String(appointment.durationMinutes)}
         defaultNote={appointment.administrativeNote ?? ''}
         durationRequired
-        noteClassName="flex min-h-28 w-full resize-none rounded-xl border border-stone-300 bg-white px-3 py-2 text-sm leading-relaxed text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/30"
+        noteClassName="flex min-h-28 w-full resize-none rounded-xl border border-border bg-card px-3 py-2 text-sm leading-relaxed text-foreground focus:outline-none focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/30"
         patientField={
           <>
             <input type="hidden" name="patientId" value={appointment.patientId} />
-            <div className="flex h-10 w-full items-center rounded-xl border border-stone-300 bg-stone-100 px-3 text-sm text-stone-500">
+            <div className="flex h-10 w-full items-center rounded-xl border border-border bg-muted px-3 text-sm text-muted-foreground">
               {appointment.patientName}
             </div>
           </>

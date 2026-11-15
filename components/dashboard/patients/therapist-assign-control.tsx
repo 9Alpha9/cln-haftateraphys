@@ -39,7 +39,7 @@ export function TherapistAssignControl({
 
   return (
     <div className="mt-3 space-y-1.5">
-      <label htmlFor="patient-therapist" className="text-[11px] font-semibold text-stone-500">
+      <label htmlFor="patient-therapist" className="text-[11px] font-semibold text-muted-foreground">
         Tetapkan terapis penanggung jawab
       </label>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -56,7 +56,7 @@ export function TherapistAssignControl({
           type="button"
           onClick={save}
           disabled={pending || !value || value === currentTherapistId}
-          className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[var(--hafta-org-100)]"
+          className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-[var(--hafta-org-100)]"
         >
           {pending ? (
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -67,7 +67,7 @@ export function TherapistAssignControl({
         </button>
       </div>
       {options.length === 0 ? (
-        <p className="text-[11px] text-stone-500">
+        <p className="text-[11px] text-muted-foreground">
           Belum ada akun terapis aktif yang dapat ditetapkan.
         </p>
       ) : null}

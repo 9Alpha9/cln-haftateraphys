@@ -21,17 +21,17 @@ export function DashboardPageHeader({
       <div className="mt-3 flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 items-start gap-3">
           {icon ? (
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#181700] text-[var(--hafta-org-100)] [&_svg]:h-5 [&_svg]:w-5 [&_svg]:text-[var(--hafta-org-100)]">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-900)] text-[var(--hafta-org-100)] [&_svg]:h-5 [&_svg]:w-5 [&_svg]:text-[var(--hafta-org-100)]">
               {icon}
             </span>
           ) : null}
 
           <div className="min-w-0">
-            <h1 className="text-2xl font-semibold tracking-tight text-[#181700] sm:text-[28px]">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[28px]">
               {title}
             </h1>
             {description ? (
-              <p className="mt-1.5 max-w-3xl text-xs leading-relaxed text-stone-500 sm:text-sm">
+              <p className="mt-1.5 max-w-3xl text-xs leading-relaxed text-muted-foreground sm:text-sm">
                 {description}
               </p>
             ) : null}

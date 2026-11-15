@@ -299,6 +299,18 @@
   .font-slogan {
     font-family: var(--font-satisfy), cursive;
   }
+
+  /* ── Resep kartu global Hafta ─────────────────────────────────
+     Satu-satunya gaya kartu aplikasi: kanvas putih, border abu
+     tipis dari token, radius 2xl, shadow 1 layer tipis. */
+  .hafta-card {
+    @apply rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(28,25,23,0.04)];
+  }
+
+  /* Blok tint di dalam kartu (stat pill, metrik) — tanpa border. */
+  .hafta-tint {
+    @apply rounded-xl bg-[var(--hafta-50)];
+  }
 }
 
 html {

@@ -136,25 +136,25 @@ export function SmartFilterMenu({
         className={cn(
           'inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold  transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:text-[13px]',
           count > 0
-            ? 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-[#181700]'
-            : 'border-stone-200/90 bg-white text-[#181700] hover:bg-stone-100',
+            ? 'border-[var(--hafta-200)] bg-[var(--hafta-50)] text-foreground'
+            : 'border-border bg-card text-foreground hover:bg-accent',
           className,
         )}
       >
         {pending ? (
-          <Loader2 className="h-4 w-4 shrink-0 animate-spin text-stone-500" />
+          <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
         ) : (
-          <Filter className="h-4 w-4 shrink-0 text-stone-500" />
+          <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
         )}
         <span>{label}</span>
         {count > 0 ? (
-          <span className="rounded-full bg-[#181700] px-1.5 py-0.5 text-[10px] font-bold text-white">
+          <span className="rounded-full bg-[var(--hafta-900)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--hafta-50)]">
             {count > 99 ? '99+' : count}
           </span>
         ) : null}
         <ChevronDown
           aria-hidden="true"
-          className={cn('h-3.5 w-3.5 shrink-0 text-stone-400 transition-transform', open && 'rotate-180')}
+          className={cn('h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform', open && 'rotate-180')}
         />
       </button>
 
@@ -174,7 +174,7 @@ export function SmartFilterMenu({
                 maxHeight: position.maxHeight,
               }}
               className={cn(
-                'z-[80] flex flex-col gap-1 overflow-y-auto overscroll-contain rounded-2xl border border-stone-200/90 bg-white p-2 -[0_12px_32px_rgba(24,23,0,0.14)]',
+                'z-[80] flex flex-col gap-1 overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]',
                 panelClassName,
               )}
             >

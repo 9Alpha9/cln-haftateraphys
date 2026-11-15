@@ -68,42 +68,42 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
     <section className="rounded-3xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)]/35 p-4 sm:p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-[#181700] ring-1 ring-[var(--hafta-org-200)]">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-card text-foreground ring-1 ring-[var(--hafta-org-200)]">
             <CalendarClock className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="text-sm font-bold text-[#181700]">Pengajuan Jadwal Pasien</h2>
-            <p className="text-xs text-stone-500">Tinjau permintaan slot sebelum membuat jadwal.</p>
+            <h2 className="text-sm font-bold text-foreground">Pengajuan Jadwal Pasien</h2>
+            <p className="text-xs text-muted-foreground">Tinjau permintaan slot sebelum membuat jadwal.</p>
           </div>
         </div>
-        <span className="rounded-full bg-[#181700] px-3 py-1 text-[11px] font-semibold text-white">
+        <span className="rounded-full bg-[var(--hafta-900)] px-3 py-1 text-[11px] font-semibold text-white">
           {requests.length} menunggu
         </span>
       </div>
 
-      <div className="mt-4 divide-y divide-[var(--hafta-org-200)]/60 bg-white/70 px-4 sm:rounded-2xl">
+      <div className="mt-4 divide-y divide-[var(--hafta-org-200)]/60 bg-card/70 px-4 sm:rounded-2xl">
         {requests.map((request) => (
           <div key={request.id} className="flex flex-col gap-3 py-3.5 sm:flex-row sm:items-center">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="truncate text-sm font-bold text-[#181700]">{request.patientName}</p>
+                <p className="truncate text-sm font-bold text-foreground">{request.patientName}</p>
                 {request.rescheduleAppointmentId ? (
-                  <span className="rounded-full border border-dashed border-[var(--hafta-org-400)] bg-[var(--hafta-org-50)] px-2.5 py-0.5 text-[10px] font-bold text-[#181700]">
+                  <span className="rounded-full border border-dashed border-[var(--hafta-org-400)] bg-[var(--hafta-org-50)] px-2.5 py-0.5 text-[10px] font-bold text-foreground">
                     Permintaan Ubah Jadwal (Reschedule)
                   </span>
                 ) : null}
               </div>
               {request.rescheduleAppointmentId && request.rescheduleFromDate ? (
-                <p className="mt-0.5 text-xs font-semibold text-[#181700]">
+                <p className="mt-0.5 text-xs font-semibold text-foreground">
                   Jadwal Asal: {formatShortDate(request.rescheduleFromDate)} · {request.rescheduleFromTime}
                   {' → '}Jadwal Diajukan: {formatShortDate(request.requestedDate)} · {request.startTime}
                 </p>
               ) : (
-                <p className="mt-0.5 text-xs text-stone-500">
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   {formatDate(request.requestedDate)} · {request.startTime} WIB ({request.durationMinutes} menit)
                 </p>
               )}
-              <p className="mt-0.5 text-[11px] text-stone-400">
+              <p className="mt-0.5 text-[11px] text-muted-foreground">
                 Fisioterapis: {request.therapistName}
               </p>
             </div>
@@ -113,7 +113,7 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
                 setSelected(request);
                 setReviewNote('');
               }}
-              className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-stone-200 bg-white px-3.5 text-xs font-semibold text-[#181700] transition-colors hover:bg-[var(--hafta-org-50)]"
+              className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-border bg-card px-3.5 text-xs font-semibold text-foreground transition-colors hover:bg-[var(--hafta-org-50)]"
             >
               <Search className="h-3.5 w-3.5" />
               Tinjau
@@ -138,7 +138,7 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
                 type="button"
                 disabled={isPending}
                 onClick={() => submit('approve')}
-                className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
+                className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
               >
                 {isPending && pendingAction === 'approve' ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -151,7 +151,7 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
                 type="button"
                 disabled={isPending}
                 onClick={() => submit('decline')}
-                className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-[var(--hafta-red-200)] bg-white px-4 sm:px-5 text-xs font-semibold text-[var(--hafta-red-700)] transition-colors hover:bg-[var(--hafta-red-50)] disabled:opacity-60"
+                className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-[var(--hafta-red-200)] bg-card px-4 sm:px-5 text-xs font-semibold text-[var(--hafta-red-700)] transition-colors hover:bg-[var(--hafta-red-50)] disabled:opacity-60"
               >
                 {isPending && pendingAction === 'decline' ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -168,52 +168,52 @@ export function AppointmentRequestQueue({ requests }: { requests: PendingAppoint
           <div className="space-y-4 sm:space-y-5">
             {selected.rescheduleAppointmentId && selected.rescheduleFromDate ? (
               <div className="rounded-2xl border border-dashed border-[var(--hafta-org-400)] bg-[var(--hafta-org-50)] px-4 py-3">
-                <p className="text-[11px] font-bold text-[#181700]">
+                <p className="text-[11px] font-bold text-foreground">
                   Permintaan Ubah Jadwal (Reschedule)
                 </p>
-                <p className="mt-1.5 text-xs leading-relaxed text-[#181700]">
+                <p className="mt-1.5 text-xs leading-relaxed text-foreground">
                   Jadwal Asal: {formatDate(selected.rescheduleFromDate)} · {selected.rescheduleFromTime}
                   <br />→ Jadwal Diajukan: {formatDate(selected.requestedDate)} · {selected.startTime}
                 </p>
               </div>
             ) : null}
 
-            <dl className="divide-y divide-stone-100 text-sm">
+            <dl className="divide-y divide-border text-sm">
               <div className="flex items-start justify-between gap-4 py-3">
-                <dt className="text-xs text-stone-500">Pasien</dt>
-                <dd className="text-right font-semibold text-[#181700]">{selected.patientName}</dd>
+                <dt className="text-xs text-muted-foreground">Pasien</dt>
+                <dd className="text-right font-semibold text-foreground">{selected.patientName}</dd>
               </div>
               <div className="flex items-start justify-between gap-4 py-3">
-                <dt className="text-xs text-stone-500">Tanggal</dt>
-                <dd className="text-right font-semibold text-[#181700]">{formatDate(selected.requestedDate)}</dd>
+                <dt className="text-xs text-muted-foreground">Tanggal</dt>
+                <dd className="text-right font-semibold text-foreground">{formatDate(selected.requestedDate)}</dd>
               </div>
               <div className="flex items-start justify-between gap-4 py-3">
-                <dt className="text-xs text-stone-500">Waktu</dt>
-                <dd className="text-right font-semibold text-[#181700]">
+                <dt className="text-xs text-muted-foreground">Waktu</dt>
+                <dd className="text-right font-semibold text-foreground">
                   {selected.startTime} WIB · {selected.durationMinutes} menit
                 </dd>
               </div>
               <div className="flex items-start justify-between gap-4 py-3">
-                <dt className="text-xs text-stone-500">Fisioterapis</dt>
-                <dd className="text-right font-semibold text-[#181700]">{selected.therapistName}</dd>
+                <dt className="text-xs text-muted-foreground">Fisioterapis</dt>
+                <dd className="text-right font-semibold text-foreground">{selected.therapistName}</dd>
               </div>
             </dl>
 
             {selected.patientNote ? (
-              <div className="rounded-2xl bg-stone-50 px-4 py-3">
-                <p className="text-[11px] font-semibold text-stone-500">Catatan pasien</p>
-                <p className="mt-1 text-sm leading-relaxed text-[#181700]">{selected.patientNote}</p>
+              <div className="rounded-2xl bg-[var(--hafta-50)] px-4 py-3">
+                <p className="text-[11px] font-semibold text-muted-foreground">Catatan pasien</p>
+                <p className="mt-1 text-sm leading-relaxed text-foreground">{selected.patientNote}</p>
               </div>
             ) : null}
 
             <label className="block">
-              <span className="text-xs font-semibold text-[#181700]">Catatan untuk pasien (opsional)</span>
+              <span className="text-xs font-semibold text-foreground">Catatan untuk pasien (opsional)</span>
               <textarea
                 value={reviewNote}
                 onChange={(event) => setReviewNote(event.target.value)}
                 rows={3}
                 placeholder="Contoh: jadwal disetujui, mohon datang 10 menit lebih awal."
-                className="mt-1.5 w-full resize-none rounded-2xl border border-stone-200 bg-white px-3.5 py-2.5 text-sm text-[#181700] outline-none transition-colors focus:border-[var(--hafta-org-300)] focus:ring-2 focus:ring-[var(--hafta-org-100)]/60"
+                className="mt-1.5 w-full resize-none rounded-2xl border border-border bg-card px-3.5 py-2.5 text-sm text-foreground outline-none transition-colors focus:border-[var(--hafta-org-300)] focus:ring-2 focus:ring-[var(--hafta-org-100)]/60"
               />
             </label>
           </div>

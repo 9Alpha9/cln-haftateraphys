@@ -89,7 +89,7 @@ export function AppointmentCalendar({
   }
 
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-white p-3.5 sm:p-5">
+    <section className="rounded-2xl border border-[var(--border)] bg-card p-3.5 sm:p-5">
       <div className="flex flex-col gap-3 border-b border-[var(--border)] pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-hafta-org-50">
@@ -237,7 +237,7 @@ export function AppointmentCalendar({
                       key={appointment.id}
                       initial={{ opacity: 0, x: -6 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className="rounded-xl border border-[#E5E7EB] bg-white p-4"
+                      className="rounded-xl border border-[#E5E7EB] bg-card p-4"
                     >
                       <div className="flex items-start gap-3.5">
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#F1F5F9] text-[#64748B]">

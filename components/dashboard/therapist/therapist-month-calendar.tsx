@@ -111,41 +111,41 @@ export function TherapistMonthCalendar({
   return (
     <section className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex w-full min-w-0 items-center gap-1 rounded-full border border-stone-200 bg-white p-1 sm:w-auto">
+        <div className="flex w-full min-w-0 items-center gap-1 rounded-full border border-border bg-card p-1 sm:w-auto">
           <button
             type="button"
             aria-label="Bulan sebelumnya"
             onClick={() => changeMonth(-1)}
-            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-[#181700] transition-colors hover:bg-stone-100 sm:h-10 sm:w-10"
+            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent sm:h-10 sm:w-10"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <p className="min-w-0 flex-1 text-center text-xs font-bold text-[#181700] sm:min-w-32 sm:flex-none sm:text-sm">
+          <p className="min-w-0 flex-1 text-center text-xs font-bold text-foreground sm:min-w-32 sm:flex-none sm:text-sm">
             {MONTHS[month.getMonth()]} {month.getFullYear()}
           </p>
           <button
             type="button"
             aria-label="Bulan berikutnya"
             onClick={() => changeMonth(1)}
-            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-[#181700] transition-colors hover:bg-stone-100 sm:h-10 sm:w-10"
+            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent sm:h-10 sm:w-10"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
           <button
             type="button"
             onClick={goToToday}
-            className="ml-0.5 h-9 shrink-0 cursor-pointer rounded-full bg-[#181700] px-2.5 text-[10px] font-semibold text-white transition-colors hover:bg-[#2a2800] sm:h-10 sm:px-3.5 sm:text-[11px]"
+            className="ml-0.5 h-9 shrink-0 cursor-pointer rounded-full bg-[var(--hafta-900)] px-2.5 text-[10px] font-semibold text-white transition-colors hover:bg-[#2a2800] sm:h-10 sm:px-3.5 sm:text-[11px]"
           >
             Hari ini
           </button>
         </div>
-        <p className="text-[11px] leading-relaxed text-stone-500">
+        <p className="text-[11px] leading-relaxed text-muted-foreground">
           {appointments.length} sesi pada rentang jadwal aktif
         </p>
       </div>
 
       <div>
-        <div className="mx-auto grid w-full max-w-[460px] grid-cols-7 text-center text-[11px] font-semibold uppercase tracking-wide text-stone-400 sm:max-w-[560px] lg:max-w-none">
+        <div className="mx-auto grid w-full max-w-[460px] grid-cols-7 text-center text-[11px] font-semibold uppercase tracking-wide text-muted-foreground sm:max-w-[560px] lg:max-w-none">
           {WEEKDAYS.map((label) => (
             <span key={label} className="py-2">
               {label}
@@ -182,12 +182,12 @@ export function TherapistMonthCalendar({
                   className={cn(
                     'mx-auto flex h-9 w-9 aspect-square items-center justify-center rounded-full leading-none transition-all sm:h-10 sm:w-10',
                     sessions.length > 0
-                      ? 'bg-[#181700] text-white'
+                      ? 'bg-[var(--hafta-900)] text-white'
                       : unavailable
                         ? isSunday || holidayName
                           ? 'text-[var(--hafta-red-400)]'
-                          : 'text-stone-300'
-                        : 'text-stone-600 group-hover:bg-stone-100',
+                          : 'text-muted-foreground/50'
+                        : 'text-muted-foreground group-hover:bg-accent',
                     isToday && !isSelected && 'ring-1 ring-[#181700]/25',
                     isSelected && 'ring-2 ring-[#181700] ring-offset-2 ring-offset-white',
                   )}
@@ -203,7 +203,7 @@ export function TherapistMonthCalendar({
                       />
                     ))}
                     {sessions.length > 4 ? (
-                      <span className="text-[8px] font-bold leading-none text-stone-500">
+                      <span className="text-[8px] font-bold leading-none text-muted-foreground">
                         +{sessions.length - 4}
                       </span>
                     ) : null}
@@ -212,7 +212,7 @@ export function TherapistMonthCalendar({
                   <span className="h-1.5 w-1.5 rounded-full bg-transparent" />
                 )}
                 {sessions.length > 0 ? (
-                  <span className="hidden max-w-full truncate text-[9px] font-semibold text-stone-500 lg:block">
+                  <span className="hidden max-w-full truncate text-[9px] font-semibold text-muted-foreground lg:block">
                     {sessions[0].startTime.slice(0, 5)}
                     {sessions.length > 1 ? ` +${sessions.length - 1}` : ''}
                   </span>
@@ -222,9 +222,9 @@ export function TherapistMonthCalendar({
           })}
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-stone-100 pt-3 text-[10px] text-stone-500">
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-3 text-[10px] text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-full bg-[#181700]" /> Ada sesi
+            <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-900)]" /> Ada sesi
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-red-400)]" /> Hari Libur / Minggu
@@ -239,14 +239,14 @@ export function TherapistMonthCalendar({
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         size="sm"
-        icon={<CalendarDays className="h-5 w-5 text-[#181700]" />}
+        icon={<CalendarDays className="h-5 w-5 text-foreground" />}
         title="Detail Tanggal"
         subtitle={selectedDate ? formatLongDate(selectedDate) : undefined}
         footer={
           <button
             type="button"
             onClick={() => setIsDrawerOpen(false)}
-            className="flex h-10 w-full cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-xs font-semibold text-[#181700] hover:bg-stone-50"
+            className="flex h-10 w-full cursor-pointer items-center justify-center rounded-full border border-border bg-card text-xs font-semibold text-foreground hover:bg-[var(--hafta-50)]"
           >
             Tutup
           </button>
@@ -254,31 +254,31 @@ export function TherapistMonthCalendar({
       >
         <div className="space-y-3">
           {selectedAppointments.length === 0 ? (
-            <div className="rounded-2xl border border-stone-200 bg-white px-4 py-8 text-center">
-              <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#FAFAF8] text-stone-400">
+            <div className="rounded-2xl border border-border bg-card px-4 py-8 text-center">
+              <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#FAFAF8] text-muted-foreground">
                 <CalendarX2 className="h-5 w-5" />
               </span>
-              <p className="mt-2 text-sm font-semibold text-[#181700]">Tidak ada sesi</p>
-              <p className="mt-1 text-xs text-stone-500">
+              <p className="mt-2 text-sm font-semibold text-foreground">Tidak ada sesi</p>
+              <p className="mt-1 text-xs text-muted-foreground">
                 Belum ada jadwal terapi pada tanggal ini.
               </p>
             </div>
           ) : (
             selectedAppointments.map((appointment) => (
-              <div key={appointment.id} className="rounded-2xl bg-[#181700] p-3 text-white">
+              <div key={appointment.id} className="rounded-2xl bg-[var(--hafta-900)] p-3 text-white">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-bold">{appointment.patientName}</p>
-                    <p className="mt-1 flex items-center gap-1.5 text-xs text-stone-300">
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground/50">
                       <Clock3 className="h-3.5 w-3.5" />
                       {appointment.startTime.slice(0, 5)} WIB · {appointment.durationMinutes} menit
                     </p>
                   </div>
-                  <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-semibold text-[var(--hafta-org-100)]">
+                  <span className="rounded-full bg-card/10 px-2.5 py-1 text-[10px] font-semibold text-[var(--hafta-org-100)]">
                     {STATUS_LABELS[appointment.status] ?? appointment.status}
                   </span>
                 </div>
-                <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-2 text-xs text-stone-300">
+                <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-2 text-xs text-muted-foreground/50">
                   <UserRound className="h-4 w-4 text-[var(--hafta-org-100)]" />
                   Fisioterapis Hafta
                 </div>

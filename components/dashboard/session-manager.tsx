@@ -114,11 +114,11 @@ export function SessionManager() {
   const otherSessions = sessions.filter((item) => !item.isCurrent);
 
   return (
-    <div className="mt-5 border-t border-stone-100 pt-4">
+    <div className="mt-5 border-t border-border pt-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h3 className="text-sm font-bold text-[#181700]">Perangkat &amp; Sesi Aktif</h3>
-          <p className="mt-0.5 text-[11px] text-stone-500">
+          <h3 className="text-sm font-bold text-foreground">Perangkat &amp; Sesi Aktif</h3>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">
             Cabut sesi yang tidak Anda kenali untuk melindungi akun.
           </p>
         </div>
@@ -127,7 +127,7 @@ export function SessionManager() {
             type="button"
             disabled={pending}
             onClick={() => setConfirmTarget({ type: 'others' })}
-            className="inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-red-200 bg-white px-3 text-[11px] font-semibold text-red-700 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-red-200 bg-card px-3 text-[11px] font-semibold text-red-700 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <ShieldOff className="h-3.5 w-3.5" />
             Cabut semua sesi lain
@@ -139,10 +139,10 @@ export function SessionManager() {
         <div className="mt-3 space-y-3" aria-busy="true" aria-label="Memuat sesi">
           {[0, 1].map((item) => (
             <div key={item} className="flex items-start gap-2.5 py-2.5">
-              <SkeletonBlock className="h-8 w-8 shrink-0 rounded-xl bg-stone-100" />
+              <SkeletonBlock className="h-8 w-8 shrink-0 rounded-xl bg-muted" />
               <div className="min-w-0 flex-1 space-y-2">
-                <SkeletonBlock className="h-3 w-44 max-w-full rounded-md bg-stone-200/80" />
-                <SkeletonLine className="w-56 max-w-full bg-stone-100" />
+                <SkeletonBlock className="h-3 w-44 max-w-full rounded-md bg-muted/80" />
+                <SkeletonLine className="w-56 max-w-full bg-muted" />
               </div>
             </div>
           ))}
@@ -150,15 +150,15 @@ export function SessionManager() {
       ) : error ? (
         <p className="mt-3 rounded-xl bg-red-50 px-3 py-2 text-xs text-red-700">{error}</p>
       ) : (
-        <ul className="mt-3 divide-y divide-stone-100">
+        <ul className="mt-3 divide-y divide-border">
           {sessions.map((item) => (
             <li key={item.id} className="flex items-start justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
               <div className="flex min-w-0 items-start gap-2.5">
-                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#F4F4F1] text-[#181700]">
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#F4F4F1] text-foreground">
                   <Monitor className="h-4 w-4" />
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-bold text-[#181700]">
+                  <p className="truncate text-xs font-bold text-foreground">
                     {describeAgent(item.userAgent)}
                     {item.isCurrent ? (
                       <span className="ml-2 inline-flex rounded-full border border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)] px-2 py-0.5 text-[9px] font-bold text-[var(--hafta-grn-700)]">
@@ -166,11 +166,11 @@ export function SessionManager() {
                       </span>
                     ) : null}
                   </p>
-                  <p className="mt-0.5 truncate font-mono text-[10px] text-stone-500">
+                  <p className="mt-0.5 truncate font-mono text-[10px] text-muted-foreground">
                     {item.ipAddress ? `${item.ipAddress} · ` : ''}
                     Masuk {formatDate(item.createdAt)}
                   </p>
-                  <p className="text-[10px] text-stone-400">
+                  <p className="text-[10px] text-muted-foreground">
                     Berlaku sampai {formatDate(item.expiresAt)}
                   </p>
                 </div>
@@ -186,7 +186,7 @@ export function SessionManager() {
                       label: describeAgent(item.userAgent),
                     })
                   }
-                  className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white px-3 text-[11px] font-semibold text-[#181700] transition-colors hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Cabut
                 </button>

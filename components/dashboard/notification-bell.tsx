@@ -138,7 +138,7 @@ export function NotificationBell({
           if (pathname !== '/dashboard/notifications') setOpen(true);
         }}
         className={cn(
-          'group relative h-11 w-11 cursor-pointer rounded-full text-[#181700] transition-all duration-300',
+          'group relative h-11 w-11 cursor-pointer rounded-full text-foreground transition-all duration-300',
           className,
         )}
         aria-label="Buka notifikasi"
@@ -147,7 +147,7 @@ export function NotificationBell({
           size={18}
           strokeWidth={2}
           aria-hidden="true"
-          className="text-[#181700]"
+          className="text-foreground"
           animate={count > 0}
           animateOnTap
           loop={count > 0}
@@ -177,8 +177,8 @@ export function NotificationBell({
                 className={cn(
                   'inline-flex h-9 cursor-pointer items-center rounded-full px-3.5 text-xs font-semibold transition-colors',
                   tab === 'all'
-                    ? 'bg-[#181700] text-white'
-                    : 'text-stone-500 hover:text-[#181700]'
+                    ? 'bg-[var(--hafta-900)] text-white'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 Semua
@@ -189,8 +189,8 @@ export function NotificationBell({
                 className={cn(
                   'inline-flex h-9 cursor-pointer items-center rounded-full px-3.5 text-xs font-semibold transition-colors',
                   tab === 'unread'
-                    ? 'bg-[#181700] text-white'
-                    : 'text-stone-500 hover:text-[#181700]'
+                    ? 'bg-[var(--hafta-900)] text-white'
+                    : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 Belum Dibaca
@@ -202,7 +202,7 @@ export function NotificationBell({
                 type="button"
                 onClick={markAll}
                 disabled={pending}
-                className="inline-flex items-center gap-1 text-[11px] font-bold text-stone-600 hover:text-[#181700] transition-colors cursor-pointer disabled:opacity-50"
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-muted-foreground hover:text-foreground transition-colors cursor-pointer disabled:opacity-50"
               >
                 <CheckCheck className="h-3.5 w-3.5" />
                 <span>Tandai Semua</span>
@@ -214,7 +214,7 @@ export function NotificationBell({
           <Link
             href="/dashboard/notifications"
             onClick={() => setOpen(false)}
-            className="text-xs font-bold text-[#181700] hover:underline"
+            className="text-xs font-bold text-foreground hover:underline"
           >
             Buka Halaman Notifikasi Lengkap &rarr;
           </Link>
@@ -224,16 +224,16 @@ export function NotificationBell({
         <div>
           {filtered.length === 0 ? (
             <div className="flex min-h-[220px] flex-col items-center justify-center text-center px-4 py-8">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-foreground">
                 <Bell className="h-6 w-6" />
               </div>
-              <p className="mt-3 text-xs font-bold text-[#181700]">Tidak ada notifikasi</p>
-              <p className="mt-1 max-w-xs text-[11px] text-stone-400">
+              <p className="mt-3 text-xs font-bold text-foreground">Tidak ada notifikasi</p>
+              <p className="mt-1 max-w-xs text-[11px] text-muted-foreground">
                 Semua notifikasi pembaruan jadwal dan klinis Anda akan muncul di sini.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-stone-100">
+            <div className="divide-y divide-border">
               {filtered.map((item) => {
                 const Icon = getNotificationIcon(item.title, item.message);
                 return (
@@ -242,10 +242,10 @@ export function NotificationBell({
                     onClick={() => !item.isRead && markRead(item.id)}
                     className={cn(
                       'group flex cursor-pointer items-start gap-2.5 py-3 first:pt-0 last:pb-0',
-                      !item.isRead && 'hover:bg-stone-50/60',
+                      !item.isRead && 'hover:bg-[var(--hafta-50)]/60',
                     )}
                   >
-                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#F7F7F4] text-stone-500">
+                    <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#F7F7F4] text-muted-foreground">
                       <Icon className="h-4 w-4" />
                     </div>
 
@@ -254,7 +254,7 @@ export function NotificationBell({
                         <p
                           className={cn(
                             'flex min-w-0 items-center gap-1.5 truncate text-[11px] leading-snug',
-                            item.isRead ? 'font-medium text-stone-600' : 'font-bold text-[#181700]',
+                            item.isRead ? 'font-medium text-muted-foreground' : 'font-bold text-foreground',
                           )}
                         >
                           {!item.isRead ? (
@@ -262,13 +262,13 @@ export function NotificationBell({
                           ) : null}
                           <span className="truncate">{item.title}</span>
                         </p>
-                        <span className="shrink-0 whitespace-nowrap text-[10px] text-stone-400">
+                        <span className="shrink-0 whitespace-nowrap text-[10px] text-muted-foreground">
                           {timeAgo(item.createdAt)}
                         </span>
                       </div>
 
                       {item.message ? (
-                        <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-stone-500">
+                        <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">
                           {item.message}
                         </p>
                       ) : null}
@@ -280,7 +280,7 @@ export function NotificationBell({
                             if (!item.isRead) markRead(item.id);
                             setOpen(false);
                           }}
-                          className="mt-1 inline-flex items-center gap-0.5 text-[10px] font-semibold text-stone-500 transition-colors hover:text-[#181700]"
+                          className="mt-1 inline-flex items-center gap-0.5 text-[10px] font-semibold text-muted-foreground transition-colors hover:text-foreground"
                         >
                           <span>Lihat rincian</span>
                           <ChevronRight className="h-3 w-3" />

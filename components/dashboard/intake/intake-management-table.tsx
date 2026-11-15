@@ -84,16 +84,16 @@ const statusBadgeStyles: Record<
   ARCHIVED: {
     label: 'Diarsipkan',
     dot: 'bg-stone-400',
-    text: 'text-stone-600',
-    bg: 'bg-stone-100',
-    border: 'border-stone-200',
+    text: 'text-muted-foreground',
+    bg: 'bg-muted',
+    border: 'border-border',
   },
   DRAFT: {
     label: 'Draf',
     dot: 'bg-stone-400',
-    text: 'text-stone-600',
-    bg: 'bg-stone-100',
-    border: 'border-stone-200',
+    text: 'text-muted-foreground',
+    bg: 'bg-muted',
+    border: 'border-border',
   },
 };
 
@@ -166,20 +166,20 @@ export function IntakeManagementTable({
       {/* ── 1. CONTROL BAR (SEARCH + FILTER DROPDOWN) ── */}
       <div className="flex items-center gap-2">
         <div className="relative min-w-0 flex-1">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari pasien atau keluhan..."
-            className="h-10 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-10 text-xs text-[#181700] outline-none transition-all placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
+            className="h-10 w-full rounded-full border border-border bg-card pl-10 pr-10 text-xs text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
           />
           {searchQuery ? (
             <button
               type="button"
               aria-label="Bersihkan pencarian"
               onClick={() => setSearchQuery('')}
-              className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-stone-100 hover:text-[#181700]"
+              className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -190,20 +190,20 @@ export function IntakeManagementTable({
             className={cn(
               'ml-auto inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 sm:px-4 sm:text-[13px]',
               statusFilter !== 'ALL'
-                ? 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-[#181700]'
-                : 'border-stone-200/90 bg-white text-[#181700] hover:bg-stone-100',
+                ? 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-foreground'
+                : 'border-border bg-card text-foreground hover:bg-accent',
             )}
           >
-            <Filter className="h-4 w-4 shrink-0 text-stone-500" />
+            <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
             <span>Filter</span>
-            <span className="rounded-full bg-[#181700] px-1.5 py-0.5 text-[10px] font-bold text-white">
+            <span className="rounded-full bg-[var(--hafta-900)] px-1.5 py-0.5 text-[10px] font-bold text-white">
               {statusFilter === 'ALL'
                 ? items.length
                 : statusFilter === 'PENDING'
                   ? countPending
                   : countAccepted}
             </span>
-            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-stone-400" />
+            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             {[
@@ -219,10 +219,10 @@ export function IntakeManagementTable({
                   onClick={() => setStatusFilter(option.value)}
                   className={cn(
                     'gap-2.5',
-                    selected && 'border border-stone-200 bg-[#F4F4F1] font-bold',
+                    selected && 'border border-border bg-[#F4F4F1] font-bold',
                   )}
                 >
-                  <Icon className="h-4 w-4 shrink-0 text-stone-500" />
+                  <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
                   <span className="flex-1">{option.label}</span>
                   {selected ? <Check className="h-3.5 w-3.5" /> : null}
                 </DropdownMenuItem>
@@ -236,32 +236,32 @@ export function IntakeManagementTable({
       {isFiltering ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
           {[0, 1, 2, 3, 4, 5].map((item) => (
-            <div key={item} className="animate-pulse rounded-3xl border border-stone-200 bg-white p-4 sm:p-5">
+            <div key={item} className="animate-pulse rounded-3xl border border-border bg-card p-4 sm:p-5">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-11 w-11 rounded-2xl bg-stone-100" />
+                  <div className="h-11 w-11 rounded-2xl bg-muted" />
                   <div className="space-y-2">
-                    <div className="h-4 w-32 rounded bg-stone-200" />
-                    <div className="h-3 w-24 rounded bg-stone-100" />
+                    <div className="h-4 w-32 rounded bg-muted" />
+                    <div className="h-3 w-24 rounded bg-muted" />
                   </div>
                 </div>
-                <div className="h-6 w-20 rounded-full bg-stone-100" />
+                <div className="h-6 w-20 rounded-full bg-muted" />
               </div>
-              <div className="mt-4 space-y-2 rounded-2xl bg-stone-50 p-3">
-                <div className="h-3 w-full rounded bg-stone-100" />
-                <div className="h-3 w-4/5 rounded bg-stone-100" />
-                <div className="h-3 w-2/3 rounded bg-stone-100" />
+              <div className="mt-4 space-y-2 rounded-2xl bg-[var(--hafta-50)] p-3">
+                <div className="h-3 w-full rounded bg-muted" />
+                <div className="h-3 w-4/5 rounded bg-muted" />
+                <div className="h-3 w-2/3 rounded bg-muted" />
               </div>
             </div>
           ))}
         </div>
       ) : filteredItems.length === 0 ? (
-        <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
+        <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card p-3.5 text-center sm:p-5">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-foreground">
             <ClipboardList className="h-6 w-6" />
           </span>
-          <h3 className="mt-3 text-sm font-bold text-[#181700]">Tidak ada data intake yang cocok</h3>
-          <p className="mt-1 max-w-sm text-xs text-stone-500">
+          <h3 className="mt-3 text-sm font-bold text-foreground">Tidak ada data intake yang cocok</h3>
+          <p className="mt-1 max-w-sm text-xs text-muted-foreground">
             Silakan ubah filter status atau kata kunci pencarian Anda.
           </p>
         </div>
@@ -291,10 +291,10 @@ export function IntakeManagementTable({
                     <img
                       src={item.avatarKey}
                       alt={item.patientName}
-                      className="h-11 w-11 rounded-2xl object-cover ring-1 ring-stone-200"
+                      className="h-11 w-11 rounded-2xl object-cover ring-1 ring-border"
                     />
                   ) : (
-                    <span className={cn('flex h-11 w-11 items-center justify-center rounded-2xl font-bold text-xs', isNewIntake ? 'bg-[#181700] text-[var(--hafta-org-100)]' : 'bg-[var(--hafta-org-50)] text-[#181700]')}>
+                    <span className={cn('flex h-11 w-11 items-center justify-center rounded-2xl font-bold text-xs', isNewIntake ? 'bg-[var(--hafta-900)] text-[var(--hafta-org-100)]' : 'bg-[var(--hafta-org-50)] text-foreground')}>
                       {initial}
                     </span>
                   )
@@ -303,7 +303,7 @@ export function IntakeManagementTable({
                   <div className="flex items-center gap-1.5">
                     {/* Tulisan BARU tetap muncul selama intake berstatus SUBMITTED (belum diproses/ACC) */}
                     {isNewIntake && (
-                      <span className="rounded-full bg-[#181700] px-2 py-0.5 font-mono text-[9px] font-black uppercase text-[var(--hafta-org-100)] animate-pulse">
+                      <span className="rounded-full bg-[var(--hafta-900)] px-2 py-0.5 font-mono text-[9px] font-black uppercase text-[var(--hafta-org-100)] animate-pulse">
                         BARU
                       </span>
                     )}
@@ -322,7 +322,7 @@ export function IntakeManagementTable({
                 }
                 title={item.patientName}
                 description={
-                  <span className={cn('font-mono text-[11px]', isNewIntake ? 'text-[#181700]/70' : 'text-stone-400')}>
+                  <span className={cn('font-mono text-[11px]', isNewIntake ? 'text-foreground/70' : 'text-muted-foreground')}>
                     ID Pasien: {item.patientId.slice(0, 8)}
                   </span>
                 }
@@ -334,28 +334,28 @@ export function IntakeManagementTable({
                 <div className="mt-4 space-y-2.5 pt-3 border-t border-current/10 text-xs">
                   {/* Area Keluhan */}
                   <div className="space-y-1">
-                    <span className={cn('block font-medium', isNewIntake ? 'text-[#181700]/80' : 'text-stone-500')}>
+                    <span className={cn('block font-medium', isNewIntake ? 'text-foreground/80' : 'text-muted-foreground')}>
                       Area Keluhan
                     </span>
                     <span
                       title={item.affectedArea || 'Keluhan Umum'}
-                      className="block max-w-full whitespace-normal break-words rounded-lg bg-stone-100/90 px-2.5 py-1.5 text-xs font-bold capitalize leading-snug text-[#181700]"
+                      className="block max-w-full whitespace-normal break-words rounded-lg bg-muted/90 px-2.5 py-1.5 text-xs font-bold capitalize leading-snug text-foreground"
                     >
                       {item.affectedArea || 'Keluhan Umum'}
                     </span>
                   </div>
 
                   {/* Tanggal Diperbarui */}
-                  <div className={cn('flex items-center justify-between', isNewIntake ? 'text-[#181700]/80' : 'text-stone-500')}>
+                  <div className={cn('flex items-center justify-between', isNewIntake ? 'text-foreground/80' : 'text-muted-foreground')}>
                     <span className="flex items-center gap-1.5">
                       <Clock className="h-3.5 w-3.5" /> Diperbarui:
                     </span>
-                    <span className="font-mono text-[11px] font-semibold text-[#181700]">{dateStr}</span>
+                    <span className="font-mono text-[11px] font-semibold text-foreground">{dateStr}</span>
                   </div>
 
                   {/* Status Asesmen / Catatan Singkat */}
                   <div className="pt-2">
-                    <p className={cn('line-clamp-2 text-[11px] leading-relaxed italic', isNewIntake ? 'text-[#181700]/90 font-medium' : 'text-stone-600')}>
+                    <p className={cn('line-clamp-2 text-[11px] leading-relaxed italic', isNewIntake ? 'text-foreground/90 font-medium' : 'text-muted-foreground')}>
                       {isNewIntake
                         ? 'Form baru masuk! Menunggu verifikasi dan peninjauan awal oleh fisioterapis.'
                         : isUnderReview

@@ -17,10 +17,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  SCHEDULED: 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-[#181700]',
+  SCHEDULED: 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-foreground',
   CONFIRMED: 'border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]',
   IN_PROGRESS: 'border-hafta-ble-200 bg-hafta-ble-50 text-hafta-ble-700',
-  COMPLETED: 'border-stone-200 bg-stone-100 text-stone-700',
+  COMPLETED: 'border-border bg-muted text-muted-foreground',
   CANCELLED: 'border-red-200 bg-red-50 text-red-700',
   RESCHEDULED: 'border-amber-200 bg-amber-50 text-amber-800',
   NO_SHOW: 'border-red-200 bg-red-100 text-red-800',
@@ -49,18 +49,18 @@ function SessionRow({ appointment }: { appointment: PatientPortalAppointment }) 
   return (
     <li className="flex flex-col gap-2.5 py-3.5 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
-        <p className="text-sm font-bold text-[#181700]">{formatDate(appointment.scheduledDate)}</p>
-        <p className="mt-0.5 text-xs text-stone-600">
+        <p className="text-sm font-bold text-foreground">{formatDate(appointment.scheduledDate)}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">
           {appointment.startTime} · {appointment.durationMinutes} menit
         </p>
-        <p className="mt-0.5 text-xs text-stone-500">
+        <p className="mt-0.5 text-xs text-muted-foreground">
           {appointment.therapistName ?? 'Fisioterapis Hafta'}
         </p>
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <span
           className={`inline-flex h-8 items-center rounded-full border px-3 text-[11px] font-semibold ${
-            STATUS_STYLES[appointment.status] ?? 'border-stone-200 bg-stone-100 text-stone-700'
+            STATUS_STYLES[appointment.status] ?? 'border-border bg-muted text-muted-foreground'
           }`}
         >
           {STATUS_LABELS[appointment.status] ?? appointment.status}
@@ -68,7 +68,7 @@ function SessionRow({ appointment }: { appointment: PatientPortalAppointment }) 
         {canPrint ? (
           <Link
             href={`/dashboard/appointments/${appointment.id}/print`}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-stone-200 bg-white px-3 text-[11px] font-semibold text-[#181700] transition-colors hover:bg-stone-50"
+            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
           >
             <Printer className="h-3.5 w-3.5" />
             Cetak
@@ -125,27 +125,27 @@ export function PatientSessionList({ appointments }: { appointments: PatientPort
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-base font-bold text-[#181700]">Daftar Sesi</h2>
-        <p className="mt-1 text-xs leading-relaxed text-stone-500">
+        <h2 className="text-base font-bold text-foreground">Daftar Sesi</h2>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
           Ringkasan kronologis sesi terapi Anda, termasuk status dan fisioterapis yang menangani.
         </p>
       </div>
 
-      <div className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
+      <div className="rounded-3xl border border-border bg-card p-3.5 sm:p-5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <CalendarDays className="h-4 w-4 text-[#181700]" />
-            <h3 className="text-sm font-bold text-[#181700]">Sesi Mendatang</h3>
+            <CalendarDays className="h-4 w-4 text-foreground" />
+            <h3 className="text-sm font-bold text-foreground">Sesi Mendatang</h3>
           </div>
-          <span className="text-[11px] text-stone-500">{upcoming.length} sesi</span>
+          <span className="text-[11px] text-muted-foreground">{upcoming.length} sesi</span>
         </div>
         {visibleUpcoming.length === 0 ? (
-          <p className="mt-3 rounded-2xl bg-[#FAFAF8] px-4 py-4 sm:py-6 text-center text-xs text-stone-500">
+          <p className="mt-3 rounded-2xl bg-[#FAFAF8] px-4 py-4 sm:py-6 text-center text-xs text-muted-foreground">
             Belum ada sesi mendatang. Ajukan jadwal lewat kalender di atas.
           </p>
         ) : (
           <>
-            <ul className="mt-2 divide-y divide-stone-100">
+            <ul className="mt-2 divide-y divide-border">
               {visibleUpcoming.map((appointment) => (
                 <SessionRow key={appointment.id} appointment={appointment} />
               ))}
@@ -167,21 +167,21 @@ export function PatientSessionList({ appointments }: { appointments: PatientPort
 
       </div>
 
-      <div className="rounded-3xl border border-stone-200 bg-white p-3.5 sm:p-5">
+      <div className="rounded-3xl border border-border bg-card p-3.5 sm:p-5">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <History className="h-4 w-4 text-[#181700]" />
-            <h3 className="text-sm font-bold text-[#181700]">Riwayat Sesi</h3>
+            <History className="h-4 w-4 text-foreground" />
+            <h3 className="text-sm font-bold text-foreground">Riwayat Sesi</h3>
           </div>
-          <span className="text-[11px] text-stone-500">{history.length} sesi</span>
+          <span className="text-[11px] text-muted-foreground">{history.length} sesi</span>
         </div>
         {visibleHistory.length === 0 ? (
-          <p className="mt-3 rounded-2xl bg-[#FAFAF8] px-4 py-4 sm:py-6 text-center text-xs text-stone-500">
+          <p className="mt-3 rounded-2xl bg-[#FAFAF8] px-4 py-4 sm:py-6 text-center text-xs text-muted-foreground">
             Belum ada riwayat sesi terapi.
           </p>
         ) : (
           <>
-            <ul className="mt-2 divide-y divide-stone-100">
+            <ul className="mt-2 divide-y divide-border">
               {visibleHistory.map((appointment) => (
                 <SessionRow key={appointment.id} appointment={appointment} />
               ))}

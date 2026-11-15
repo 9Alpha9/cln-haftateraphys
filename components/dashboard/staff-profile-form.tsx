@@ -81,15 +81,15 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      <section className="rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5">
+      <section className="hafta-card p-4 sm:p-5">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <div className="relative mx-auto shrink-0 sm:mx-0">
-            <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-white ring-1 ring-stone-200">
+            <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-white bg-card ring-1 ring-border">
               {avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={avatar} alt="Foto profil" className="h-full w-full object-cover" />
               ) : (
-                <span className="flex h-full w-full items-center justify-center bg-[var(--hafta-org-50)] text-2xl font-bold text-[#181700]">
+                <span className="flex h-full w-full items-center justify-center bg-[var(--hafta-org-50)] text-2xl font-bold text-foreground">
                   {initials || <UserRound className="h-8 w-8" />}
                 </span>
               )}
@@ -97,7 +97,7 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-[#181700] transition-colors hover:bg-stone-100"
+              className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-muted"
               aria-label="Ubah foto profil"
             >
               <Camera className="h-4 w-4" />
@@ -106,12 +106,12 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
 
           <div className="flex-1 text-center sm:text-left">
             <div className="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
-              <h2 className="text-sm font-bold text-[#181700]">Foto Profil</h2>
-              <span className="rounded-full border border-stone-200 bg-stone-50 px-2.5 py-0.5 text-[10px] font-bold text-stone-600">
+              <h2 className="text-sm font-bold text-foreground">Foto Profil</h2>
+              <span className="rounded-full border border-border bg-[var(--hafta-50)] px-2.5 py-0.5 text-[10px] font-bold text-muted-foreground">
                 {ROLE_LABELS[initial.role] ?? initial.role}
               </span>
             </div>
-            <p className="mt-1 text-xs leading-relaxed text-stone-500">
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
               JPG, PNG, atau WebP maksimal 2MB. Klik ikon kamera pada foto untuk mengganti.
               Foto ini tampil pada header dan daftar terapis.
             </p>
@@ -142,10 +142,10 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5">
+      <section className="hafta-card p-4 sm:p-5">
         <div className="mb-4 flex items-center gap-2">
-          <UserRound className="h-4 w-4 text-stone-500" />
-          <h2 className="text-sm font-bold text-[#181700]">Identitas Terapis</h2>
+          <UserRound className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-bold text-foreground">Identitas Terapis</h2>
         </div>
 
         {error ? (
@@ -156,7 +156,7 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="staff-name" className="text-xs font-semibold text-stone-600">
+            <Label htmlFor="staff-name" className="text-xs font-semibold text-muted-foreground">
               Nama Lengkap
             </Label>
             <Input
@@ -164,11 +164,11 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
               value={name}
               onChange={(event) => setName(event.target.value)}
               disabled={pending}
-              className="h-10 rounded-xl border-stone-200 bg-white text-sm"
+              className="h-10 rounded-xl border-border bg-card text-sm"
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="staff-display-name" className="text-xs font-semibold text-stone-600">
+            <Label htmlFor="staff-display-name" className="text-xs font-semibold text-muted-foreground">
               Nama Tampilan
             </Label>
             <Input
@@ -177,11 +177,11 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
               onChange={(event) => setDisplayName(event.target.value)}
               placeholder="Nama yang tampil di daftar terapis"
               disabled={pending}
-              className="h-10 rounded-xl border-stone-200 bg-white text-sm"
+              className="h-10 rounded-xl border-border bg-card text-sm"
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="staff-phone" className="text-xs font-semibold text-stone-600">
+            <Label htmlFor="staff-phone" className="text-xs font-semibold text-muted-foreground">
               Nomor Telepon
             </Label>
             <Input
@@ -190,11 +190,11 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
               onChange={(event) => setPhone(event.target.value)}
               placeholder="08xxxxxxxxxx"
               disabled={pending}
-              className="h-10 rounded-xl border-stone-200 bg-white text-sm"
+              className="h-10 rounded-xl border-border bg-card text-sm"
             />
           </div>
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="staff-email" className="text-xs font-semibold text-stone-600">
+            <Label htmlFor="staff-email" className="text-xs font-semibold text-muted-foreground">
               Email Akun
             </Label>
             <Input
@@ -202,17 +202,17 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
               value={initial.email}
               readOnly
               disabled
-              className="h-10 rounded-xl border-stone-200 bg-stone-50 text-sm text-stone-500"
+              className="h-10 rounded-xl border-border bg-[var(--hafta-50)] text-sm text-muted-foreground"
             />
           </div>
         </div>
 
-        <div className="mt-4 flex justify-end border-t border-stone-100 pt-4">
+        <div className="mt-4 flex justify-end border-t border-border pt-4">
           <Button
             type="button"
             onClick={save}
             disabled={pending}
-            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] sm:h-11 sm:w-auto"
+            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] sm:h-11 sm:w-auto"
           >
             {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Simpan Perubahan
@@ -220,10 +220,10 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] sm:p-5">
+      <section className="hafta-card p-4 sm:p-5">
         <div className="mb-4 flex items-center gap-2">
-          <Lock className="h-4 w-4 text-stone-500" />
-          <h2 className="text-sm font-bold text-[#181700]">Keamanan Akun</h2>
+          <Lock className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-sm font-bold text-foreground">Keamanan Akun</h2>
         </div>
         <ChangePasswordForm />
         <SessionManager />

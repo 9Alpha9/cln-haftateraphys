@@ -85,16 +85,16 @@ const statusBadgeMap: Record<
   ARCHIVED: {
     label: 'Diarsipkan',
     dot: 'bg-stone-400',
-    text: 'text-stone-600',
-    bg: 'bg-stone-100',
-    border: 'border-stone-200',
+    text: 'text-muted-foreground',
+    bg: 'bg-muted',
+    border: 'border-border',
   },
   DRAFT: {
     label: 'Draf',
     dot: 'bg-stone-400',
-    text: 'text-stone-600',
-    bg: 'bg-stone-100',
-    border: 'border-stone-200',
+    text: 'text-muted-foreground',
+    bg: 'bg-muted',
+    border: 'border-border',
   },
 };
 
@@ -251,7 +251,7 @@ export function IntakeDetailDrawer({
                 type="button"
                 disabled={isActionPending}
                 onClick={() => handleAction('start-review')}
-                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
+                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
               >
                 {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                 <span>Mulai Tinjau Form</span>
@@ -264,7 +264,7 @@ export function IntakeDetailDrawer({
                   type="button"
                   disabled={isActionPending}
                   onClick={() => setShowRevisionInput((prev) => !prev)}
-                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90 font-bold text-xs sm:text-[13px] inline-flex items-center justify-center cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
+                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-card hover:bg-accent text-foreground border border-border font-bold text-xs sm:text-[13px] inline-flex items-center justify-center cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
                 >
                   <span>Minta Perbaikan</span>
                 </button>
@@ -272,7 +272,7 @@ export function IntakeDetailDrawer({
                   type="button"
                   disabled={isActionPending}
                   onClick={() => handleAction('accept')}
-                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
+                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
                 >
                   {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   <span>Terima / ACC Form</span>
@@ -282,30 +282,30 @@ export function IntakeDetailDrawer({
           </div>
         ) : null
       }
-      footerClassName="bg-white border-t border-stone-200/80 px-3.5 py-3.5 sm:px-6 sm:py-4 flex flex-col gap-2.5 w-full"
+      footerClassName="bg-card border-t border-border px-3.5 py-3.5 sm:px-6 sm:py-4 flex flex-col gap-2.5 w-full"
     >
       {/* ── BODY KONTEN DRAWER ── */}
       {fetching ? (
         <div className="space-y-4" aria-busy="true" aria-label="Memuat rincian form awal">
           <SkeletonPanel className="rounded-2xl p-4">
             <div className="flex items-center gap-3">
-              <SkeletonBlock className="h-11 w-11 rounded-full bg-stone-100" />
+              <SkeletonBlock className="h-11 w-11 rounded-full bg-muted" />
               <div className="space-y-2">
-                <SkeletonBlock className="h-5 w-40 rounded-md bg-stone-200" />
-                <SkeletonLine className="w-28 bg-stone-100" />
+                <SkeletonBlock className="h-5 w-40 rounded-md bg-muted" />
+                <SkeletonLine className="w-28 bg-muted" />
               </div>
             </div>
           </SkeletonPanel>
           {[0, 1, 2].map((section) => (
             <SkeletonPanel key={section} className="overflow-hidden rounded-2xl">
-              <div className="border-b border-stone-100 bg-stone-50/80 px-4 py-3">
-                <SkeletonBlock className="h-3 w-32 rounded-md bg-stone-200/80" />
+              <div className="border-b border-border bg-[var(--hafta-50)]/80 px-4 py-3">
+                <SkeletonBlock className="h-3 w-32 rounded-md bg-muted/80" />
               </div>
               <div className="space-y-3 p-4">
                 {[0, 1, 2].map((row) => (
                   <div key={row} className="grid gap-2 sm:grid-cols-12">
-                    <SkeletonLine className="w-28 bg-stone-100 sm:col-span-4" />
-                    <SkeletonBlock className="h-4 w-full rounded-md bg-stone-100 sm:col-span-8" />
+                    <SkeletonLine className="w-28 bg-muted sm:col-span-4" />
+                    <SkeletonBlock className="h-4 w-full rounded-md bg-muted sm:col-span-8" />
                   </div>
                 ))}
               </div>
@@ -336,7 +336,7 @@ export function IntakeDetailDrawer({
               </div>
             </div>
           ) : currentStatus === 'ACCEPTED' || currentStatus === 'ARCHIVED' ? (
-            <div className="mb-5 flex items-start gap-3 rounded-2xl border border-stone-200 bg-stone-50 p-4 text-stone-700">
+            <div className="mb-5 flex items-start gap-3 rounded-2xl border border-border bg-[var(--hafta-50)] p-4 text-muted-foreground">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
               <p className="text-xs leading-relaxed">
                 Form Awal ini sudah final. Pasien dapat memulai episode baru dari portal pasien bila diperlukan.
@@ -345,10 +345,10 @@ export function IntakeDetailDrawer({
           ) : null}
 
           {/* Header Info Banner: Standalone Full-bleed Edge-to-Edge (Tanpa padding top/left/right container) */}
-          <div className="-mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-4 border-b border-stone-200/80 bg-[var(--background)] px-3.5 py-3.5 sm:px-6 sm:py-4.5 text-xs text-stone-600">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200/60 pb-2">
-              <span className="font-bold text-[#181700]">Ringkasan Pengiriman</span>
-              <span className="flex items-center gap-1.5 font-medium text-stone-500">
+          <div className="-mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-4 border-b border-border bg-[var(--background)] px-3.5 py-3.5 sm:px-6 sm:py-4.5 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2">
+              <span className="font-bold text-foreground">Ringkasan Pengiriman</span>
+              <span className="flex items-center gap-1.5 font-medium text-muted-foreground">
                 <Clock className="h-3.5 w-3.5" />
                 {data.submittedAt
                   ? `Dikirim pada ${new Date(data.submittedAt).toLocaleDateString('id-ID', {
@@ -360,11 +360,11 @@ export function IntakeDetailDrawer({
                     })}`
                   : 'Belum dikirim final'}
               </span>
-              <span className="font-mono text-[11px] font-semibold text-stone-600">
+              <span className="font-mono text-[11px] font-semibold text-muted-foreground">
                 RM: {data.medicalRecordNumber ?? '-'}
               </span>
             </div>
-            <p className="mt-2 text-xs leading-relaxed text-stone-600">
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
               Form ini memuat data anamnesis mandiri pasien yang diisi melalui Patient Portal sebelum evaluasi fisik
               langsung di klinik.
             </p>
@@ -383,13 +383,13 @@ export function IntakeDetailDrawer({
                   onChange={(e) => setReviewMessage(e.target.value)}
                   placeholder="Tuliskan bagian mana yang perlu dilengkapi atau diperjelas oleh pasien..."
                   rows={3}
-                  className="w-full rounded-xl border border-amber-300 bg-white p-3 text-xs text-[#181700] outline-none focus:ring-2 focus:ring-[var(--hafta-org-400)]/40 resize-none"
+                  className="w-full rounded-xl border border-amber-300 bg-card p-3 text-xs text-foreground outline-none focus:ring-2 focus:ring-[var(--hafta-org-400)]/40 resize-none"
                 />
                 <div className="flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => setShowRevisionInput(false)}
-                    className="rounded-lg px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900"
+                    className="rounded-lg px-3 py-1.5 text-xs text-muted-foreground hover:text-stone-900"
                   >
                     Batal
                   </button>
@@ -407,9 +407,9 @@ export function IntakeDetailDrawer({
 
             {/* Catatan Peninjauan Jika Ada */}
             {data.reviewMessage && (
-              <div className="rounded-2xl border border-stone-200 bg-stone-50 p-4 text-xs">
-                <span className="font-bold text-[#181700]">Pesan Tindak Lanjut Pasien:</span>
-                <p className="mt-1 text-stone-700 italic">&ldquo;{data.reviewMessage}&rdquo;</p>
+              <div className="rounded-2xl border border-border bg-[var(--hafta-50)] p-4 text-xs">
+                <span className="font-bold text-foreground">Pesan Tindak Lanjut Pasien:</span>
+                <p className="mt-1 text-muted-foreground italic">&ldquo;{data.reviewMessage}&rdquo;</p>
               </div>
             )}
 
@@ -418,25 +418,25 @@ export function IntakeDetailDrawer({
               {clinicalSections.map((sec) => (
                 <div
                   key={sec.group}
-                  className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white"
+                  className="overflow-hidden rounded-2xl border border-border bg-card"
                 >
-                  <div className="bg-stone-50/90 px-4 py-2.5 border-b border-stone-200/80">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#181700]">
+                  <div className="bg-[var(--hafta-50)]/90 px-4 py-2.5 border-b border-border">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
                       {sec.group}
                     </h3>
                   </div>
 
-                  <div className="divide-y divide-stone-100">
+                  <div className="divide-y divide-border">
                     {sec.rows.map((row) => (
                       <div
                         key={row.label}
                         className="grid grid-cols-1 gap-1 px-4 py-2.5 text-xs sm:grid-cols-12 sm:gap-4 sm:py-3"
                       >
-                        <span className="font-semibold text-stone-500 sm:col-span-4">
+                        <span className="font-semibold text-muted-foreground sm:col-span-4">
                           {row.label}
                         </span>
                         <span className="text-stone-900 sm:col-span-8 font-medium whitespace-pre-wrap leading-relaxed">
-                          {row.value || <span className="text-stone-300 italic">Tidak ada catatan</span>}
+                          {row.value || <span className="text-muted-foreground/50 italic">Tidak ada catatan</span>}
                         </span>
                       </div>
                     ))}
@@ -445,9 +445,9 @@ export function IntakeDetailDrawer({
               ))}
 
               {parseIntakePhotos(data?.photos).length > 0 ? (
-                <div className="overflow-hidden rounded-2xl border border-stone-200/90 bg-white">
-                  <div className="border-b border-stone-200/80 bg-stone-50/90 px-4 py-2.5">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#181700]">
+                <div className="overflow-hidden rounded-2xl border border-border bg-card">
+                  <div className="border-b border-border bg-[var(--hafta-50)]/90 px-4 py-2.5">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
                       Foto dari pasien
                     </h3>
                   </div>
@@ -457,7 +457,7 @@ export function IntakeDetailDrawer({
                         key={`${photo.name}-${index}`}
                         type="button"
                         onClick={() => setSelectedPhoto(photo)}
-                        className="relative overflow-hidden rounded-xl border border-stone-200 group"
+                        className="relative overflow-hidden rounded-xl border border-border group"
                         aria-label={`Lihat foto ${photo.name}`}
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -488,12 +488,12 @@ export function IntakeDetailDrawer({
               <img
                 src={selectedPhoto.data}
                 alt={selectedPhoto.name}
-                className="max-h-[60vh] rounded-2xl border border-stone-200 object-contain shadow-lg"
+                className="max-h-[60vh] rounded-2xl border border-border object-contain shadow-lg"
               />
             </div>
             <button
               type="button"
-              className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-50"
+              className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full border border-border bg-card px-4 text-xs font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
               onClick={() => setSelectedPhoto(null)}
             >
               <X className="h-3.5 w-3.5" /> Tutup

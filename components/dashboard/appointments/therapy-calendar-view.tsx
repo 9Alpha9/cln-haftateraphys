@@ -85,7 +85,7 @@ function formatShortDate(date: Date) {
 function statusClass(status: string) {
   if (status === 'COMPLETED') return 'bg-[var(--hafta-grn-50)] border-[var(--hafta-grn-500)] text-[var(--hafta-grn-700)]';
   if (status === 'CANCELLED' || status === 'NO_SHOW') return 'bg-[var(--hafta-red-50)] border-[var(--hafta-red-500)] text-[var(--hafta-red-700)]';
-  return 'bg-[var(--hafta-org-50)]/90 border-[var(--hafta-org-200)] text-[#181700]';
+  return 'bg-[var(--hafta-org-50)]/90 border-[var(--hafta-org-200)] text-foreground';
 }
 
 function statusBadgeClass(status: string) {
@@ -203,16 +203,16 @@ export function TherapyCalendarView({
 
   return (
     <>
-      <div className="flex h-[calc(100dvh-230px)] min-h-[460px] max-h-[860px] flex-col overflow-hidden rounded-3xl border border-stone-200/70 bg-white shadow-[0_8px_30px_rgba(24,23,0,0.05)] lg:h-[calc(100vh-190px)] lg:min-h-[620px]">
-        <div className="shrink-0 border-b border-stone-200/80 px-3 py-2.5 sm:px-4 sm:py-3">
+      <div className="flex h-[calc(100dvh-230px)] min-h-[460px] max-h-[860px] flex-col overflow-hidden rounded-3xl border border-border/70 bg-card shadow-[0_8px_30px_rgba(24,23,0,0.05)] lg:h-[calc(100vh-190px)] lg:min-h-[620px]">
+        <div className="shrink-0 border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
           <div className="flex items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-[#181700]">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-foreground">
                 <CalendarDays className="h-4 w-4" />
               </div>
               <div className="min-w-0">
-                <h2 className="truncate text-sm font-bold text-[#181700] sm:text-base">Jadwal Terapi</h2>
-                <p className="truncate text-[11px] font-medium text-stone-500 sm:text-xs">{title}</p>
+                <h2 className="truncate text-sm font-bold text-foreground sm:text-base">Jadwal Terapi</h2>
+                <p className="truncate text-[11px] font-medium text-muted-foreground sm:text-xs">{title}</p>
               </div>
             </div>
 
@@ -220,7 +220,7 @@ export function TherapyCalendarView({
               <button
                 type="button"
                 onClick={goToday}
-                className="h-8 cursor-pointer rounded-full border border-stone-200 bg-white px-3 text-[11px] font-semibold text-[#181700] transition-colors hover:bg-stone-50"
+                className="h-8 cursor-pointer rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
               >
                 Hari Ini
               </button>
@@ -228,7 +228,7 @@ export function TherapyCalendarView({
                 type="button"
                 onClick={() => step(-1)}
                 aria-label="Sebelumnya"
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-[#181700] transition-colors hover:bg-stone-50"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-[var(--hafta-50)]"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
@@ -236,7 +236,7 @@ export function TherapyCalendarView({
                 type="button"
                 onClick={() => step(1)}
                 aria-label="Berikutnya"
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-[#181700] transition-colors hover:bg-stone-50"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-[var(--hafta-50)]"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
@@ -244,7 +244,7 @@ export function TherapyCalendarView({
           </div>
 
           <div className="no-scrollbar mt-2 flex items-center gap-2 overflow-x-auto pb-0.5">
-            <div className="flex shrink-0 items-center rounded-full bg-stone-100 p-1">
+            <div className="flex shrink-0 items-center rounded-full bg-muted p-1">
               {(['day', 'week', 'month', 'agenda'] as const).map((mode) => (
                 <button
                   key={mode}
@@ -252,7 +252,7 @@ export function TherapyCalendarView({
                   onClick={() => setViewMode(mode)}
                   className={cn(
                     'h-7 shrink-0 cursor-pointer rounded-full px-2.5 text-[11px] font-semibold transition-colors',
-                    viewMode === mode ? 'bg-[#181700] text-white' : 'text-stone-500 hover:text-[#181700]',
+                    viewMode === mode ? 'bg-[var(--hafta-900)] text-white' : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
                   {mode === 'day' ? 'Hari' : mode === 'week' ? 'Minggu' : mode === 'month' ? 'Bulan' : 'Agenda'}
@@ -282,7 +282,7 @@ export function TherapyCalendarView({
               <button
                 type="button"
                 onClick={() => openCreate(dateKey(currentDate), '08:00')}
-                className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-org-100)] px-3 text-[11px] font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
+                className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-org-100)] px-3 text-[11px] font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)]"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Buat Jadwal
@@ -296,9 +296,9 @@ export function TherapyCalendarView({
             <AgendaView monthEvents={monthEvents} onSelect={setSelectedAppointment} />
           ) : (
             <div className="flex flex-1 flex-col overflow-hidden">
-              <div className="grid shrink-0 grid-cols-7 border-b border-stone-200/80">
+              <div className="grid shrink-0 grid-cols-7 border-b border-border">
                 {WEEKDAYS.map((day) => (
-                  <div key={day} className="py-2 text-center text-[11px] font-semibold text-stone-500">
+                  <div key={day} className="py-2 text-center text-[11px] font-semibold text-muted-foreground">
                     {day}
                   </div>
                 ))}
@@ -313,21 +313,21 @@ export function TherapyCalendarView({
                       key={key}
                       onClick={() => openCreate(key, '08:00')}
                       className={cn(
-                        'min-h-0 cursor-pointer border-b border-r border-stone-100 p-1.5 transition-colors hover:bg-stone-50/70',
-                        !isCurrentMonth && 'bg-stone-50/40',
+                        'min-h-0 cursor-pointer border-b border-r border-border p-1.5 transition-colors hover:bg-[var(--hafta-50)]/70',
+                        !isCurrentMonth && 'bg-[var(--hafta-50)]/40',
                       )}
                     >
                       <div className="mb-1 flex items-center justify-between">
                         <span
                           className={cn(
                             'flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold',
-                            key === todayKey ? 'bg-[#181700] text-white' : isCurrentMonth ? 'text-[#181700]' : 'text-stone-400',
+                            key === todayKey ? 'bg-[var(--hafta-900)] text-white' : isCurrentMonth ? 'text-foreground' : 'text-muted-foreground',
                           )}
                         >
                           {day.getDate()}
                         </span>
                         {dayEvents.length > 0 && (
-                          <span className="text-[9px] font-semibold text-stone-400">{dayEvents.length}</span>
+                          <span className="text-[9px] font-semibold text-muted-foreground">{dayEvents.length}</span>
                         )}
                       </div>
                       <div className="space-y-0.5">
@@ -348,7 +348,7 @@ export function TherapyCalendarView({
                           </button>
                         ))}
                         {dayEvents.length > 3 && (
-                          <p className="pl-1 text-[9px] font-medium text-stone-500">+{dayEvents.length - 3} lainnya</p>
+                          <p className="pl-1 text-[9px] font-medium text-muted-foreground">+{dayEvents.length - 3} lainnya</p>
                         )}
                       </div>
                     </div>
@@ -362,7 +362,7 @@ export function TherapyCalendarView({
         ) : (
           <div className="flex min-h-0 flex-1 flex-col">
             {isMobile && (
-              <div className="flex shrink-0 items-center justify-between gap-1 border-b border-stone-200/80 px-2 py-2">
+              <div className="flex shrink-0 items-center justify-between gap-1 border-b border-border px-2 py-2">
                 {weekDays.map((day) => {
                   const key = dateKey(day);
                   const dayEvents = groupByDate.get(key) ?? [];
@@ -374,7 +374,7 @@ export function TherapyCalendarView({
                       onClick={() => setCurrentDate(day)}
                       className={cn(
                         'flex h-9 w-9 shrink-0 cursor-pointer flex-col items-center justify-center rounded-full text-[10px] font-semibold transition-colors',
-                        isActive ? 'bg-[#181700] text-white' : 'text-stone-600 hover:bg-stone-100',
+                        isActive ? 'bg-[var(--hafta-900)] text-white' : 'text-muted-foreground hover:bg-accent',
                       )}
                     >
                       <span>{day.getDate()}</span>
@@ -385,7 +385,7 @@ export function TherapyCalendarView({
               </div>
             )}
 
-            <div className="flex shrink-0 border-b border-stone-200/80">
+            <div className="flex shrink-0 border-b border-border">
               <div className="w-14 shrink-0" />
               <div className="flex flex-1">
                 {timelineDays.map((day, index) => {
@@ -397,14 +397,14 @@ export function TherapyCalendarView({
                       ? WEEKDAYS[(day.getDay() + 6) % 7]
                       : '';
                   return (
-                    <div key={key} className="flex min-w-0 flex-1 flex-col items-center justify-center border-r border-stone-100 py-2 last:border-r-0">
-                      <span className={cn('text-[10px] font-medium', day.getDay() === 0 ? 'text-[var(--hafta-red-500)]' : 'text-stone-500')}>
+                    <div key={key} className="flex min-w-0 flex-1 flex-col items-center justify-center border-r border-border py-2 last:border-r-0">
+                      <span className={cn('text-[10px] font-medium', day.getDay() === 0 ? 'text-[var(--hafta-red-500)]' : 'text-muted-foreground')}>
                         {weekdayLabel}
                       </span>
                       <span
                         className={cn(
                           'mt-0.5 flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold',
-                          isToday ? 'bg-[#181700] text-white' : 'text-[#181700]',
+                          isToday ? 'bg-[var(--hafta-900)] text-white' : 'text-foreground',
                         )}
                       >
                         {day.getDate()}
@@ -417,10 +417,10 @@ export function TherapyCalendarView({
 
             <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
               <div className="relative flex pt-2">
-                <div className="w-14 shrink-0 border-r border-stone-100">
+                <div className="w-14 shrink-0 border-r border-border">
                   {HOURS.map((hour) => (
                     <div key={hour} className="relative" style={{ height: SLOT_HEIGHT }}>
-                      <span className="absolute right-2 top-0 -translate-y-1/2 font-mono text-[9px] font-medium text-stone-400">
+                      <span className="absolute right-2 top-0 -translate-y-1/2 font-mono text-[9px] font-medium text-muted-foreground">
                         {String(hour).padStart(2, '0')}:00
                       </span>
                     </div>
@@ -432,14 +432,14 @@ export function TherapyCalendarView({
                     const key = dateKey(day);
                     const dayEvents = groupByDate.get(key) ?? [];
                     return (
-                      <div key={key} className="relative flex-1 border-r border-stone-100 last:border-r-0" style={{ height: HOURS.length * SLOT_HEIGHT }}>
+                      <div key={key} className="relative flex-1 border-r border-border last:border-r-0" style={{ height: HOURS.length * SLOT_HEIGHT }}>
                         {HOURS.map((hour) => (
                           <button
                             key={hour}
                             type="button"
                             onClick={() => openCreate(key, `${String(hour).padStart(2, '0')}:00`)}
                             aria-label={`Buat jadwal ${key} ${hour}:00`}
-                            className="absolute inset-x-0 cursor-pointer border-b border-stone-100/80 transition-colors hover:bg-[var(--hafta-org-50)]/40"
+                            className="absolute inset-x-0 cursor-pointer border-b border-border/80 transition-colors hover:bg-[var(--hafta-org-50)]/40"
                             style={{ top: hour * SLOT_HEIGHT, height: SLOT_HEIGHT }}
                           />
                         ))}
@@ -533,12 +533,12 @@ export function TherapyCalendarView({
                 selectedAppointment.status === 'CONFIRMED') ? (
                 <CompleteSessionButton
                   appointmentId={selectedAppointment.id}
-                  className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] sm:h-11 sm:px-5 sm:text-[13px]"
+                  className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] sm:h-11 sm:px-5 sm:text-[13px]"
                 />
               ) : null}
               <Link
                 href={`/dashboard/appointments/${selectedAppointment.id}`}
-                className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full border border-stone-200/90 bg-white px-4 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100 sm:h-11 sm:px-5 sm:text-[13px]"
+                className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-card px-4 text-xs font-semibold text-foreground transition-colors hover:bg-accent sm:h-11 sm:px-5 sm:text-[13px]"
               >
                 Buka Manajemen Sesi
               </Link>
@@ -548,16 +548,16 @@ export function TherapyCalendarView({
       >
         {selectedAppointment && (
           <div className="space-y-3">
-            <div className="rounded-2xl border border-stone-200/70 bg-[#FBFBFA] p-4">
+            <div className="rounded-2xl border border-border/70 bg-[var(--hafta-50)] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                     Pasien
                   </p>
-                  <p className="mt-1 truncate text-sm font-bold text-[#181700]">
+                  <p className="mt-1 truncate text-sm font-bold text-foreground">
                     {selectedAppointment.patientName}
                   </p>
-                  <p className="mt-0.5 truncate text-xs text-stone-500">
+                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
                     Terapis: {selectedAppointment.therapistName ?? '-'}
                   </p>
                 </div>
@@ -572,17 +572,17 @@ export function TherapyCalendarView({
               </div>
             </div>
 
-            <div className="rounded-2xl border border-stone-200/70 bg-white p-4">
+            <div className="rounded-2xl border border-border/70 bg-card p-4">
               <dl className="space-y-3">
                 {[
                   ['Tanggal', formatLongDate(parseDateKey(dateKey(selectedAppointment.scheduledDate)))],
                   ['Waktu', `${selectedAppointment.startTime} • ${selectedAppointment.durationMinutes} menit WIB`],
                 ].map(([label, value]) => (
                   <div key={label} className="min-w-0">
-                    <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-stone-400">
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                       {label}
                     </dt>
-                    <dd className="mt-1 text-xs font-semibold leading-relaxed text-[#181700] sm:text-sm">
+                    <dd className="mt-1 text-xs font-semibold leading-relaxed text-foreground sm:text-sm">
                       {value}
                     </dd>
                   </div>
@@ -620,9 +620,9 @@ function AgendaView({ monthEvents, onSelect }: { monthEvents: CalendarAppointmen
   if (grouped.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center">
-        <CalendarDays className="h-9 w-9 text-stone-300" />
-        <p className="text-sm font-semibold text-[#181700]">Belum ada jadwal</p>
-        <p className="text-xs text-stone-500">Tidak ada sesi pada periode ini.</p>
+        <CalendarDays className="h-9 w-9 text-muted-foreground/50" />
+        <p className="text-sm font-semibold text-foreground">Belum ada jadwal</p>
+        <p className="text-xs text-muted-foreground">Tidak ada sesi pada periode ini.</p>
       </div>
     );
   }
@@ -632,7 +632,7 @@ function AgendaView({ monthEvents, onSelect }: { monthEvents: CalendarAppointmen
       <div className="space-y-4 sm:space-y-5">
         {grouped.map(([key, items]) => (
           <section key={key}>
-            <h3 className="mb-2 text-xs font-semibold text-stone-500">{formatLongDate(parseDateKey(key))}</h3>
+            <h3 className="mb-2 text-xs font-semibold text-muted-foreground">{formatLongDate(parseDateKey(key))}</h3>
             <div className="space-y-2">
               {items.map((appointment) => (
                 <button

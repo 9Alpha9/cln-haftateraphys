@@ -21,7 +21,7 @@ const STATUS_STYLE: Record<ConsentStatus, string> = {
   GRANTED: 'border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]',
   PENDING: 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-[var(--hafta-org-800)]',
   WITHDRAWN: 'border-red-200 bg-red-50 text-red-700',
-  EXPIRED: 'border-stone-200 bg-stone-100 text-stone-600',
+  EXPIRED: 'border-border bg-muted text-muted-foreground',
   SUPERSEDED: 'border-amber-200 bg-amber-50 text-amber-800',
 };
 
@@ -90,12 +90,12 @@ export function PatientConsentPanel({ consents }: { consents: ConsentView[] }) {
     return (
       <article
         key={consent.type}
-        className="rounded-2xl border border-stone-200 bg-white p-4 sm:p-5"
+        className="rounded-2xl border border-border bg-card p-4 sm:p-5"
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-sm font-bold text-[#181700]">{consent.label}</h3>
+              <h3 className="text-sm font-bold text-foreground">{consent.label}</h3>
               <span
                 className={cn(
                   'inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-bold',
@@ -106,17 +106,17 @@ export function PatientConsentPanel({ consents }: { consents: ConsentView[] }) {
                 {CONSENT_STATUS_LABEL[consent.status]}
               </span>
               {consent.required ? (
-                <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-stone-500">
+                <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                   Wajib untuk layanan
                 </span>
               ) : (
-                <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-stone-500">
+                <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                   Opsional
                 </span>
               )}
             </div>
-            <p className="mt-2 text-xs leading-relaxed text-stone-600">{consent.description}</p>
-            <p className="mt-2 text-[11px] text-stone-400">
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{consent.description}</p>
+            <p className="mt-2 text-[11px] text-muted-foreground">
               Versi kebijakan: {consent.policyVersion}
               {date ? ` · Disetujui ${date}` : ''}
             </p>
@@ -161,8 +161,8 @@ export function PatientConsentPanel({ consents }: { consents: ConsentView[] }) {
     <div className="space-y-4 sm:space-y-5">
       <section className="space-y-3">
         <div>
-          <h2 className="text-sm font-bold text-[#181700]">Persetujuan Layanan</h2>
-          <p className="mt-1 text-xs leading-relaxed text-stone-500">
+          <h2 className="text-sm font-bold text-foreground">Persetujuan Layanan</h2>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
             Persetujuan ini diperlukan agar tim Hafta dapat memberikan layanan fisioterapi dan
             memproses data Anda.
           </p>
@@ -172,22 +172,22 @@ export function PatientConsentPanel({ consents }: { consents: ConsentView[] }) {
 
       <section className="space-y-3">
         <div>
-          <h2 className="text-sm font-bold text-[#181700]">Persetujuan Opsional</h2>
-          <p className="mt-1 text-xs leading-relaxed text-stone-500">
+          <h2 className="text-sm font-bold text-foreground">Persetujuan Opsional</h2>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
             Persetujuan publikasi bersifat opsional dan terpisah. Menolak atau menariknya tidak
             memengaruhi layanan klinis Anda.
           </p>
         </div>
         <div className="space-y-3">{optional.map(renderCard)}</div>
         {publication.length === 0 ? (
-          <p className="rounded-2xl bg-[#FAFAF8] px-4 py-3 text-xs text-stone-500">
+          <p className="rounded-2xl bg-[#FAFAF8] px-4 py-3 text-xs text-muted-foreground">
             Belum ada persetujuan opsional untuk ditampilkan.
           </p>
         ) : null}
       </section>
 
-      <div className="flex items-start gap-2.5 rounded-2xl border border-stone-200 bg-[#FAFAF8] p-3.5 text-[11px] leading-relaxed text-stone-500">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-[#181700]" />
+      <div className="flex items-start gap-2.5 rounded-2xl border border-border bg-[#FAFAF8] p-3.5 text-[11px] leading-relaxed text-muted-foreground">
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-foreground" />
         <p>
           Riwayat persetujuan tidak dihapus. Setiap perubahan dicatat pada log audit dan dapat
           ditinjau oleh tim Hafta sesuai kewenangannya.

@@ -72,7 +72,7 @@ type ScheduleView = {
   request: PatientAppointmentRequestView | null;
 };
 
-const CARD = 'rounded-2xl bg-card shadow-[0_1px_2px_rgba(28,25,23,0.04)]';
+const CARD = 'hafta-card';
 
 export function PatientDashboardOverview({
   userName,
@@ -214,7 +214,7 @@ export function PatientDashboardOverview({
                   value: `${formatTime(schedule.startTime)} WIB · ${schedule.durationMinutes} menit`,
                 },
               ].map((item) => (
-                <div key={item.label} className="rounded-xl bg-[var(--hafta-50)] px-3 py-2.5">
+                <div key={item.label} className="hafta-tint px-3 py-2.5">
                   <dt className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
                     <item.icon className="h-3 w-3" />
                     {item.label}
@@ -318,7 +318,7 @@ export function PatientDashboardOverview({
                 { label: 'Kekuatan', value: latestRecord.strengthScore },
                 { label: 'Fungsi', value: latestRecord.functionScore },
               ].map((metric) => (
-                <div key={metric.label} className="rounded-xl bg-[var(--hafta-50)] px-2.5 py-2">
+                <div key={metric.label} className="hafta-tint px-2.5 py-2">
                   <dt className="text-[9.5px] font-medium uppercase tracking-wide text-muted-foreground">
                     {metric.label}
                   </dt>

@@ -85,11 +85,11 @@ const TABS: {
 ];
 
 const ACTION_BUTTON =
-  'h-10 sm:h-11 px-4 sm:px-5 rounded-full text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0';
+  'h-11 px-4 sm:px-5 rounded-full text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0';
 const ACTION_PRIMARY =
-  'font-bold bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700]';
+  'font-bold bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground';
 const ACTION_SECONDARY =
-  'font-semibold bg-white hover:bg-stone-100 text-[#181700] border border-stone-200/90';
+  'font-semibold bg-card hover:bg-accent text-foreground border border-border';
 
 function formatDate(value: Date | string | null, options?: Intl.DateTimeFormatOptions) {
   if (!value) return '-';
@@ -136,8 +136,8 @@ function sessionStatusClass(value: string) {
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">{label}</p>
-      <p className="mt-0.5 break-words text-xs font-semibold leading-relaxed text-[#181700] sm:text-sm">
+      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">{label}</p>
+      <p className="mt-0.5 break-words text-xs font-semibold leading-relaxed text-foreground sm:text-sm">
         {value || '-'}
       </p>
     </div>
@@ -147,17 +147,17 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 function MetricBars({ records, field, label }: { records: TherapyProgressView[]; field: 'painScore' | 'rangeOfMotionScore' | 'strengthScore' | 'functionScore'; label: string }) {
   const latest = records[records.length - 1];
   return (
-    <div className="rounded-2xl border border-stone-200/90 bg-white p-4">
+    <div className="rounded-2xl border border-border bg-card p-4">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs font-medium text-stone-500">{label}</p>
-        <span className="font-mono text-sm font-bold text-[#181700]">{latest ? `${latest[field]}/10` : '-'}</span>
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <span className="font-mono text-sm font-bold text-foreground">{latest ? `${latest[field]}/10` : '-'}</span>
       </div>
-      <p className="mt-1 text-[10px] font-medium text-stone-400">
+      <p className="mt-1 text-[10px] font-medium text-muted-foreground">
         {latest ? `Data per ${formatDate(latest.recordedAt)}` : 'Belum ada data evaluasi'}
       </p>
       <div className="mt-3 flex h-12 items-end gap-1">
         {records.length === 0 ? (
-          <div className="h-1 w-full rounded-full bg-stone-100" />
+          <div className="h-1 w-full rounded-full bg-muted" />
         ) : (
           records.slice(-10).map((record) => (
             <div
@@ -172,7 +172,7 @@ function MetricBars({ records, field, label }: { records: TherapyProgressView[];
           ))
         )}
       </div>
-      <p className="mt-2 text-[10px] text-stone-400">Menampilkan hingga 10 evaluasi terakhir.</p>
+      <p className="mt-2 text-[10px] text-muted-foreground">Menampilkan hingga 10 evaluasi terakhir.</p>
     </div>
   );
 }
@@ -272,15 +272,15 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                   className={cn(
                     'flex min-w-[148px] max-w-[190px] shrink-0 snap-start cursor-pointer flex-col items-start gap-1 rounded-2xl border px-3 py-2 text-left transition-colors',
                     active
-                      ? 'border-[#181700] bg-[#181700] text-white'
-                      : 'border-stone-200/80 bg-white text-stone-600 hover:bg-stone-50',
+                      ? 'border-[var(--hafta-900)] bg-[var(--hafta-900)] text-white'
+                      : 'border-border bg-card text-muted-foreground hover:bg-[var(--hafta-50)]',
                   )}
                 >
                   <span className="flex items-center gap-1.5 text-[11px] font-bold leading-tight">
                     <Icon
                       className={cn(
                         'h-3.5 w-3.5 shrink-0',
-                        active ? 'text-[var(--hafta-org-100)]' : 'text-stone-500',
+                        active ? 'text-[var(--hafta-org-100)]' : 'text-muted-foreground',
                       )}
                     />
                     {tab.label}
@@ -288,7 +288,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                   <span
                     className={cn(
                       'text-[10px] leading-snug',
-                      active ? 'text-white/70' : 'text-stone-500',
+                      active ? 'text-white/70' : 'text-muted-foreground',
                     )}
                   >
                     {tab.description}
@@ -317,7 +317,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                   type="button"
                   aria-label="Menu opsi program"
                   onClick={() => setShowProgramMenu((prev) => !prev)}
-                  className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white text-[#181700] transition-colors hover:bg-stone-100"
+                  className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent"
                 >
                   <MoreVertical className="h-4 w-4" />
                 </button>
@@ -330,14 +330,14 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                       className="fixed inset-0 z-10 cursor-default"
                       onClick={() => setShowProgramMenu(false)}
                     />
-                    <div className="absolute bottom-full right-0 z-20 mb-2 w-56 origin-bottom-right rounded-2xl border border-stone-200/90 bg-white p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]">
+                    <div className="absolute bottom-full right-0 z-20 mb-2 w-56 origin-bottom-right rounded-2xl border border-border bg-card p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]">
                       {data.capabilities.canCreateAppointment ? (
                         <span onClick={(e) => e.stopPropagation()}>
                           <NewAppointmentButton
                             defaultPatientId={patient.id}
-                            className="flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-0 bg-transparent px-3 py-2.5 text-left text-xs font-semibold text-stone-700 shadow-none transition-colors hover:bg-stone-100 hover:text-[#181700] [&>span]:w-full [&>span]:justify-start"
+                            className="flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-0 bg-transparent px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground shadow-none transition-colors hover:bg-muted hover:text-foreground [&>span]:w-full [&>span]:justify-start"
                           >
-                            <CalendarPlus className="h-3.5 w-3.5 shrink-0 text-stone-500" />
+                            <CalendarPlus className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                             <span>Jadwalkan Sesi Baru</span>
                           </NewAppointmentButton>
                         </span>
@@ -349,7 +349,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                             patientId={patient.id}
                             patientName={patient.fullName}
                             onCompleted={() => setReloadToken((token) => token + 1)}
-                            className="flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-0 bg-transparent px-3 py-2.5 text-left text-xs font-semibold text-stone-700 shadow-none transition-colors hover:bg-stone-100 hover:text-[#181700] [&>span]:w-full [&>span]:justify-start"
+                            className="flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-0 bg-transparent px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground shadow-none transition-colors hover:bg-muted hover:text-foreground [&>span]:w-full [&>span]:justify-start"
                           />
                         </span>
                       ) : null}
@@ -364,28 +364,28 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
         {!data && !currentError ? (
           <div className="space-y-3 sm:space-y-5" aria-busy="true" aria-label="Memuat detail pasien">
             <SkeletonPanel className="rounded-2xl p-3.5 sm:p-4">
-              <SkeletonLine className="w-28 bg-stone-100" />
-              <SkeletonBlock className="mt-2 h-5 w-44 rounded-md bg-stone-200" />
-              <SkeletonLine className="mt-2 w-64 max-w-full bg-stone-100" />
-              <SkeletonBlock className="mt-3 h-10 w-full rounded-xl bg-stone-100 sm:w-64" />
+              <SkeletonLine className="w-28 bg-muted" />
+              <SkeletonBlock className="mt-2 h-5 w-44 rounded-md bg-muted" />
+              <SkeletonLine className="mt-2 w-64 max-w-full bg-muted" />
+              <SkeletonBlock className="mt-3 h-10 w-full rounded-xl bg-muted sm:w-64" />
             </SkeletonPanel>
             <SkeletonPanel className="rounded-2xl p-4 sm:p-5">
               <div className="grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2">
                 {[0, 1, 2, 3, 4, 5].map((item) => (
                   <div key={item} className="space-y-2">
-                    <SkeletonLine className="w-24 bg-stone-100" />
-                    <SkeletonBlock className="h-4 w-40 max-w-full rounded-md bg-stone-100" />
+                    <SkeletonLine className="w-24 bg-muted" />
+                    <SkeletonBlock className="h-4 w-40 max-w-full rounded-md bg-muted" />
                   </div>
                 ))}
               </div>
             </SkeletonPanel>
             <SkeletonPanel className="rounded-2xl p-3.5 sm:p-5">
-              <SkeletonBlock className="h-5 w-36 rounded-md bg-stone-200" />
+              <SkeletonBlock className="h-5 w-36 rounded-md bg-muted" />
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {[0, 1, 2, 3].map((item) => (
                   <div key={item} className="space-y-2">
-                    <SkeletonLine className="w-24 bg-stone-100" />
-                    <SkeletonBlock className="h-10 w-full rounded-xl bg-stone-100" />
+                    <SkeletonLine className="w-24 bg-muted" />
+                    <SkeletonBlock className="h-10 w-full rounded-xl bg-muted" />
                   </div>
                 ))}
               </div>
@@ -393,20 +393,20 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
           </div>
         ) : currentError || !data || !patient ? (
           <div className="flex min-h-[420px] flex-col items-center justify-center gap-2 text-center">
-            <UserRound className="h-9 w-9 text-stone-300" />
-            <p className="text-sm font-semibold text-[#181700]">Data pasien tidak dapat dimuat</p>
-            <p className="max-w-sm text-xs text-stone-500">{currentError ?? 'Silakan coba lagi.'}</p>
+            <UserRound className="h-9 w-9 text-muted-foreground/50" />
+            <p className="text-sm font-semibold text-foreground">Data pasien tidak dapat dimuat</p>
+            <p className="max-w-sm text-xs text-muted-foreground">{currentError ?? 'Silakan coba lagi.'}</p>
           </div>
         ) : activeTab === 'profile' ? (
           <div className="space-y-3 sm:space-y-5">
             <div className="rounded-2xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)]/35 p-3.5 sm:p-4">
-              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-500">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                 Terapis Pendamping
               </p>
-              <p className="mt-1 text-sm font-bold text-[#181700] sm:text-base">
+              <p className="mt-1 text-sm font-bold text-foreground sm:text-base">
                 {data.therapistName ?? 'Belum ada terapis'}
               </p>
-              <p className="mt-0.5 text-[11px] leading-relaxed text-stone-500">
+              <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
                 Terapis utama yang mendampingi program terapi pasien ini.
               </p>
               {data.capabilities.canAssignTherapist ? (
@@ -418,7 +418,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
               ) : null}
             </div>
 
-            <div className="rounded-2xl border border-stone-200/70 bg-white p-4 sm:p-5">
+            <div className="rounded-2xl border border-border/70 bg-card p-4 sm:p-5">
               <div className="grid grid-cols-1 gap-x-10 gap-y-4 sm:grid-cols-2">
               <InfoRow label="Nomor Rekam Medis" value={patient.medicalRecordNumber ?? '-'} />
               <InfoRow label="Status Kasus" value={patient.caseStatus} />
@@ -443,10 +443,10 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
               </div>
             </div>
 
-            <div className="rounded-2xl border border-stone-200/70 bg-white p-3.5 sm:p-5">
+            <div className="rounded-2xl border border-border/70 bg-card p-3.5 sm:p-5">
               <div className="mb-3 flex items-center gap-2 sm:mb-4">
-                <ClipboardList className="h-4 w-4 text-stone-500" />
-                <h3 className="text-sm font-bold text-[#181700]">Program Terapi</h3>
+                <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                <h3 className="text-sm font-bold text-foreground">Program Terapi</h3>
               </div>
               {data.capabilities.canEditSchedule ? (
                 <TherapyScheduleForm
@@ -459,7 +459,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                   }}
                 />
               ) : (
-                <div className="space-y-3 text-sm text-stone-600">
+                <div className="space-y-3 text-sm text-muted-foreground">
                   <p>Tujuan: {patient.therapyGoal || '-'}</p>
                   <p>Frekuensi: {patient.therapyFrequencyText || '-'}</p>
                   <p>Kunjungan berikutnya: {formatDate(patient.nextTherapyAt)}</p>
@@ -471,12 +471,12 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
               <div className="rounded-2xl border border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)]/60 p-4 sm:p-5">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-[var(--hafta-grn-700)]" />
-                  <h3 className="text-sm font-bold text-[#181700]">Program Terapi Selesai</h3>
+                  <h3 className="text-sm font-bold text-foreground">Program Terapi Selesai</h3>
                 </div>
-                <p className="mt-2 text-xs leading-relaxed text-stone-600">
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                   {patient.caseCompletionSummary || 'Program terapi telah ditutup.'}
                 </p>
-                <p className="mt-2 text-[11px] text-stone-500">
+                <p className="mt-2 text-[11px] text-muted-foreground">
                   Diselesaikan {formatDate(patient.caseCompletedAt)}
                 </p>
               </div>
@@ -501,26 +501,26 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
         ) : activeTab === 'intake' ? (
           data.intake ? (
             <div className="space-y-3">
-              <div className="w-full rounded-2xl border border-stone-200/70 bg-[#FBFBFA] p-3.5 sm:p-4">
+              <div className="w-full rounded-2xl border border-border/70 bg-[var(--hafta-50)] p-3.5 sm:p-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                       Status Intake
                     </p>
-                    <span className="mt-1.5 inline-flex rounded-full border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] px-2.5 py-1 text-[11px] font-bold text-[#181700]">
+                    <span className="mt-1.5 inline-flex rounded-full border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] px-2.5 py-1 text-[11px] font-bold text-foreground">
                       {intakeStatusLabel(data.intake.status)}
                     </span>
                   </div>
-                  <p className="text-xs text-stone-500">
+                  <p className="text-xs text-muted-foreground">
                     Dikirim {formatDate(data.intake.submittedAt)}
                   </p>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-stone-200/70 bg-white p-3.5 sm:p-4">
+              <div className="rounded-2xl border border-border/70 bg-card p-3.5 sm:p-4">
                 <div className="mb-3 flex items-center gap-2">
-                  <ClipboardList className="h-4 w-4 text-stone-500" />
-                  <h3 className="text-sm font-bold text-[#181700]">Ringkasan Intake</h3>
+                  <ClipboardList className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="text-sm font-bold text-foreground">Ringkasan Intake</h3>
                 </div>
                 <dl className="space-y-3.5">
                   {[
@@ -540,10 +540,10 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                     ['Catatan review', data.intake.reviewMessage],
                   ].map(([label, value]) => (
                     <div key={label} className="min-w-0">
-                      <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-stone-400">
+                      <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
                         {label}
                       </dt>
-                      <dd className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-[#181700] sm:text-sm">
+                      <dd className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-foreground sm:text-sm">
                         {value || '-'}
                       </dd>
                     </div>
@@ -553,22 +553,22 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
             </div>
           ) : (
             <div className="flex min-h-[360px] flex-col items-center justify-center gap-2 text-center">
-              <ClipboardList className="h-9 w-9 text-stone-300" />
-              <p className="text-sm font-semibold text-[#181700]">Belum ada intake awal</p>
-              <p className="max-w-sm text-xs text-stone-500">Form intake akan tampil di sini setelah pasien mengirimkannya.</p>
+              <ClipboardList className="h-9 w-9 text-muted-foreground/50" />
+              <p className="text-sm font-semibold text-foreground">Belum ada intake awal</p>
+              <p className="max-w-sm text-xs text-muted-foreground">Form intake akan tampil di sini setelah pasien mengirimkannya.</p>
             </div>
           )
         ) : activeTab === 'consent' ? (
           <div className="space-y-3">
-            <div className="rounded-2xl border border-stone-200/70 bg-[#FBFBFA] p-3.5 text-[11px] leading-relaxed text-stone-500 sm:p-4">
+            <div className="rounded-2xl border border-border/70 bg-[var(--hafta-50)] p-3.5 text-[11px] leading-relaxed text-muted-foreground sm:p-4">
               Status persetujuan bersifat baca-saja untuk staf. Staf tidak dapat mengubah keputusan
               pasien; perubahan hanya dapat dilakukan oleh pasien melalui portal.
             </div>
             {data.consents.length === 0 ? (
               <div className="flex min-h-[280px] flex-col items-center justify-center gap-2 text-center">
-                <ShieldCheck className="h-9 w-9 text-stone-300" />
-                <p className="text-sm font-semibold text-[#181700]">Belum ada data consent</p>
-                <p className="max-w-sm text-xs text-stone-500">
+                <ShieldCheck className="h-9 w-9 text-muted-foreground/50" />
+                <p className="text-sm font-semibold text-foreground">Belum ada data consent</p>
+                <p className="max-w-sm text-xs text-muted-foreground">
                   Persetujuan pasien akan tampil di sini setelah tersedia.
                 </p>
               </div>
@@ -576,11 +576,11 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
               data.consents.map((consent) => (
                 <article
                   key={consent.type}
-                  className="rounded-2xl border border-stone-200/80 bg-white p-3.5 sm:p-4"
+                  className="rounded-2xl border border-border bg-card p-3.5 sm:p-4"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-sm font-bold text-[#181700]">{consent.label}</p>
+                      <p className="text-sm font-bold text-foreground">{consent.label}</p>
                       <span
                         className={cn(
                           'rounded-full border px-2.5 py-0.5 text-[10px] font-bold',
@@ -588,20 +588,20 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                             ? 'border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]'
                             : consent.status === 'WITHDRAWN'
                               ? 'border-red-200 bg-red-50 text-red-700'
-                              : 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-[#181700]',
+                              : 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-foreground',
                         )}
                       >
                         {CONSENT_STATUS_LABEL[consent.status]}
                       </span>
                       {consent.required ? (
-                        <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-stone-500">
+                        <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                           Wajib
                         </span>
                       ) : null}
                     </div>
-                    <p className="text-[10px] text-stone-400">Versi {consent.policyVersion}</p>
+                    <p className="text-[10px] text-muted-foreground">Versi {consent.policyVersion}</p>
                   </div>
-                  <p className="mt-2 text-[11px] leading-relaxed text-stone-500">
+                  <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
                     {consent.grantedAt ? `Disetujui ${formatDate(consent.grantedAt)}` : 'Belum disetujui'}
                     {consent.withdrawnAt ? ` · Ditarik ${formatDate(consent.withdrawnAt)}` : ''}
                   </p>
@@ -612,9 +612,9 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
         ) : activeTab === 'assessment' ? (
           <div className="space-y-4 sm:space-y-5">
             <div className="flex flex-wrap items-center justify-between gap-1.5">
-              <p className="text-xs text-stone-500">{progress.length} catatan assessment</p>
+              <p className="text-xs text-muted-foreground">{progress.length} catatan assessment</p>
               {progress[0] ? (
-                <p className="text-[10px] text-stone-400">
+                <p className="text-[10px] text-muted-foreground">
                   Evaluasi terbaru {formatDate(progress[0].recordedAt)}
                 </p>
               ) : null}
@@ -629,19 +629,19 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
 
             {progress.length === 0 ? (
               <div className="flex min-h-48 flex-col items-center justify-center gap-2 text-center">
-                <Activity className="h-8 w-8 text-stone-300" />
-                <p className="text-sm font-semibold text-[#181700]">Belum ada assessment</p>
-                <p className="text-xs text-stone-500">Catat assessment pertama untuk memulai pemantauan.</p>
+                <Activity className="h-8 w-8 text-muted-foreground/50" />
+                <p className="text-sm font-semibold text-foreground">Belum ada assessment</p>
+                <p className="text-xs text-muted-foreground">Catat assessment pertama untuk memulai pemantauan.</p>
               </div>
             ) : (
               <>
                 <div className="space-y-3">
                   {visibleAssessments.map((record) => (
-                  <article key={record.id} className="rounded-2xl border border-stone-200/70 bg-white p-3.5 sm:p-4">
+                  <article key={record.id} className="rounded-2xl border border-border/70 bg-card p-3.5 sm:p-4">
                     <div className="flex flex-wrap items-start justify-between gap-2">
                       <div>
-                        <p className="text-sm font-bold text-[#181700]">{formatDate(record.recordedAt)}</p>
-                        <p className="text-xs text-stone-500">Oleh {record.therapistName ?? '-'}</p>
+                        <p className="text-sm font-bold text-foreground">{formatDate(record.recordedAt)}</p>
+                        <p className="text-xs text-muted-foreground">Oleh {record.therapistName ?? '-'}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <span
@@ -654,15 +654,15 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                         >
                           {record.status === 'FINALIZED' ? 'Final' : 'Draft'}
                         </span>
-                        <span className="inline-flex items-center gap-1 rounded-full border border-stone-200 bg-stone-50 px-2 py-0.5 text-[10px] font-semibold text-stone-600">
+                        <span className="inline-flex items-center gap-1 rounded-full border border-border bg-[var(--hafta-50)] px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                           <Eye className="h-3 w-3" />
                           {record.patientVisible ? 'Pasien' : 'Internal'}
                         </span>
                       </div>
                     </div>
-                    <p className="mt-2 line-clamp-2 text-xs text-stone-600">{record.diagnosis || 'Belum ada diagnosis'}</p>
+                    <p className="mt-2 line-clamp-2 text-xs text-muted-foreground">{record.diagnosis || 'Belum ada diagnosis'}</p>
                     <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                      <div className="flex gap-3 font-mono text-[11px] text-stone-500">
+                      <div className="flex gap-3 font-mono text-[11px] text-muted-foreground">
                         <span>Nyeri {record.painScore}</span>
                         <span>ROM {record.rangeOfMotionScore}</span>
                         <span>Kuat {record.strengthScore}</span>
@@ -693,26 +693,26 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
         ) : (
           <div className="space-y-4 sm:space-y-5">
             <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4">
-                <p className="text-[11px] font-medium text-stone-500 sm:text-xs">Total sesi</p>
-                <p className="mt-1 font-mono text-xl font-bold text-[#181700] sm:text-2xl">{data.sessions.length}</p>
+              <div className="rounded-2xl border border-border bg-card p-3 sm:p-4">
+                <p className="text-[11px] font-medium text-muted-foreground sm:text-xs">Total sesi</p>
+                <p className="mt-1 font-mono text-xl font-bold text-foreground sm:text-2xl">{data.sessions.length}</p>
               </div>
-              <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4">
-                <p className="text-[11px] font-medium text-stone-500 sm:text-xs">Sesi selesai</p>
+              <div className="rounded-2xl border border-border bg-card p-3 sm:p-4">
+                <p className="text-[11px] font-medium text-muted-foreground sm:text-xs">Sesi selesai</p>
                 <p className="mt-1 font-mono text-xl font-bold text-[var(--hafta-grn-700)] sm:text-2xl">{completedSessions}</p>
               </div>
               <div className="rounded-2xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)]/60 p-3 sm:p-4">
-                <p className="text-[11px] font-medium text-stone-500 sm:text-xs">Sisa sesi</p>
-                <p className="mt-1 font-mono text-xl font-bold text-[#181700] sm:text-2xl">{remainingSessions}</p>
+                <p className="text-[11px] font-medium text-muted-foreground sm:text-xs">Sisa sesi</p>
+                <p className="mt-1 font-mono text-xl font-bold text-foreground sm:text-2xl">{remainingSessions}</p>
               </div>
             </div>
 
 
             {data.sessions.length === 0 ? (
               <div className="flex min-h-48 flex-col items-center justify-center gap-2 text-center">
-                <CalendarPlus className="h-8 w-8 text-stone-300" />
-                <p className="text-sm font-semibold text-[#181700]">Belum ada sesi</p>
-                <p className="text-xs text-stone-500">Jadwalkan sesi terapi pertama untuk pasien ini.</p>
+                <CalendarPlus className="h-8 w-8 text-muted-foreground/50" />
+                <p className="text-sm font-semibold text-foreground">Belum ada sesi</p>
+                <p className="text-xs text-muted-foreground">Jadwalkan sesi terapi pertama untuk pasien ini.</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -723,10 +723,10 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                       new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime(),
                   )
                   .map((session, index) => (
-                    <article key={session.id} className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-stone-200/70 bg-white p-3.5 sm:p-4">
+                    <article key={session.id} className="flex flex-wrap items-start justify-between gap-3 rounded-2xl border border-border/70 bg-card p-3.5 sm:p-4">
                       <div>
-                        <p className="text-sm font-bold text-[#181700]">Kunjungan Ke-{index + 1}</p>
-                        <p className="mt-0.5 text-xs text-stone-500">
+                        <p className="text-sm font-bold text-foreground">Kunjungan Ke-{index + 1}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
                           {formatDate(session.scheduledDate)} • {session.startTime} WIB • {session.durationMinutes} menit • {session.therapistName ?? '-'}
                         </p>
                       </div>

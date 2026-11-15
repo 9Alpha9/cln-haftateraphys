@@ -5,12 +5,24 @@ import {
   Activity,
   CalendarDays,
   ChevronRight,
+  ClipboardList,
   Dumbbell,
   FileText,
   HeartPulse,
+  PenLine,
   Stethoscope,
   TrendingUp,
 } from 'lucide-react';
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import { GlobalModal } from '@/components/ui/global-modal';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import { MedicalRecordActions } from '@/components/dashboard/medical-record-actions';
 import { PaginationBar } from '@/components/ui/pagination-bar';
@@ -139,6 +151,145 @@ function deltaForMetric(key: string, current: number, previous: number | null) {
   return { ...change, isGood };
 }
 
+/* ── Grafik Pemulihan Klinis (recharts) ─────────────────────────── */
+
+type ChartPoint = { sesi: number; label: string; date: string; pain: number; rom: number };
+
+function ChartBadge({ cx, cy, payload }: { cx?: number; cy?: number; payload?: ChartPoint }) {
+  if (typeof cx !== 'number' || typeof cy !== 'number' || !payload) return null;
+  const isLast = payload.sesi === 9;
+  return (
+    <g>
+      {isLast ? <circle cx={cx} cy={cy} r={9} fill="var(--hafta-300)" opacity={0.25} /> : null}
+      <circle cx={cx} cy={cy} r={4.5} fill="#fff" stroke="var(--hafta-400)" strokeWidth={2} />
+      <g transform={`translate(${cx - 16}, ${cy - 30})`}>
+        <rect
+          width={32}
+          height={18}
+          rx={9}
+          fill={isLast ? 'var(--hafta-900)' : '#fff'}
+          stroke={isLast ? 'var(--hafta-900)' : 'var(--hafta-border)'}
+          strokeWidth={1}
+        />
+        <text
+          x={16}
+          y={12.5}
+          textAnchor="middle"
+          fontSize={10}
+          fontWeight={600}
+          fill={isLast ? 'var(--hafta-50)' : 'var(--hafta-800)'}
+        >
+          {payload.pain}/10
+        </text>
+      </g>
+    </g>
+  );
+}
+
+function RomDot({ cx, cy }: { cx?: number; cy?: number }) {
+  if (typeof cx !== 'number' || typeof cy !== 'number') return null;
+  return <circle cx={cx} cy={cy} r={3.5} fill="var(--hafta-900)" />;
+}
+
+function ChartTick({
+  x,
+  y,
+  payload,
+  length,
+  dates,
+}: {
+  x?: number;
+  y?: number;
+  payload?: { value: number };
+  length: number;
+  dates: Map<number, string>;
+}) {
+  if (typeof x !== 'number' || typeof y !== 'number' || !payload) return null;
+  const sesi = Number(payload.value);
+  const isLast = sesi === length;
+  return (
+    <text x={x} y={y + 10} textAnchor="middle">
+      <tspan x={x} dy={0} fontSize={10.5} fontWeight={isLast ? 700 : 500} fill="var(--hafta-800)">
+        Sesi {sesi}
+      </tspan>
+      <tspan x={x} dy={12} fontSize={9.5} fill="var(--hafta-600)">
+        {dates.get(sesi) ?? ''}
+      </tspan>
+    </text>
+  );
+}
+
+function RecoveryChart({ data }: { data: ChartPoint[] }) {
+  const tickDates = useMemo(
+    () => new Map(data.map((point) => [point.sesi, point.date])),
+    [data],
+  );
+  const tickInterval = data.length > 5 ? 2 : 0;
+  return (
+    <div className="h-[220px] w-full sm:h-[260px]">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 28, right: 8, bottom: 8, left: -18 }}>
+          <CartesianGrid vertical={false} stroke="var(--hafta-100)" strokeDasharray="4 6" />
+          <YAxis yAxisId="pain" domain={[0, 10]} tickLine={false} axisLine={false} tick={false} />
+          <YAxis yAxisId="rom" orientation="right" domain={[0, 100]} tickLine={false} axisLine={false} tick={false} />
+          <XAxis
+            dataKey="sesi"
+            type="number"
+            domain={[1, data.length]}
+            tickLine={false}
+            axisLine={false}
+            interval={tickInterval}
+            tick={(props: { x?: number; y?: number; payload?: { value: number } }) => (
+              <ChartTick {...props} length={data.length} dates={tickDates} />
+            )}
+          />
+          <Tooltip
+            cursor={{ stroke: 'var(--hafta-200)', strokeDasharray: '4 4' }}
+            content={({ active, payload }) => {
+              if (!active || !payload?.length) return null;
+              const point = payload[0].payload as ChartPoint;
+              return (
+                <div className="hafta-card px-2.5 py-1.5 text-[11px]">
+                  <p className="font-semibold text-foreground">
+                    {point.label} · {point.date}
+                  </p>
+                  <p className="mt-0.5 flex items-center gap-1.5 text-muted-foreground">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-400)]" />
+                    Nyeri <span className="font-semibold tabular-nums text-foreground">{point.pain}/10</span>
+                    <span className="h-px w-3 bg-foreground" />
+                    ROM <span className="font-semibold tabular-nums text-foreground">{point.rom}%</span>
+                  </p>
+                </div>
+              );
+            }}
+          />
+          <Line
+            yAxisId="rom"
+            type="monotone"
+            dataKey="rom"
+            stroke="var(--hafta-900)"
+            strokeWidth={1.75}
+            strokeDasharray="6 5"
+            dot={<RomDot />}
+            activeDot={<RomDot />}
+            isAnimationActive={false}
+          />
+          <Line
+            yAxisId="pain"
+            type="monotone"
+            dataKey="pain"
+            stroke="var(--hafta-400)"
+            strokeWidth={2.5}
+            dot={<ChartBadge />}
+            activeDot={<ChartBadge />}
+            isAnimationActive={false}
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
 export function PatientMedicalRecordView({
   patient,
   records,
@@ -153,6 +304,7 @@ export function PatientMedicalRecordView({
   const [activeTab, setActiveTab] = useState<TabKey>('ringkasan');
   const [selectedRecordId, setSelectedRecordId] = useState(records[0]?.id ?? '');
   const [detailRecord, setDetailRecord] = useState<TherapyProgressView | null>(null);
+  const [programOpen, setProgramOpen] = useState(false);
   const [visitPage, setVisitPage] = useState(1);
   const [visitsPerPage, setVisitsPerPage] = useState(5);
 
@@ -179,6 +331,17 @@ export function PatientMedicalRecordView({
 
   const latestRecord = records[0] ?? null;
   const firstRecord = chronological[0] ?? null;
+  const chartData = useMemo<ChartPoint[]>(
+    () =>
+      chronological.map((record, index) => ({
+        sesi: index + 1,
+        label: `Sesi ${index + 1}`,
+        date: shortDate(record.recordedAt),
+        pain: Number(record.painScore),
+        rom: Number(record.rangeOfMotionScore) * 10,
+      })),
+    [chronological],
+  );
   const visitPageCount = Math.max(1, Math.ceil(records.length / visitsPerPage));
   const safeVisitPage = Math.min(visitPage, visitPageCount);
   const visibleVisits = records.slice((safeVisitPage - 1) * visitsPerPage, safeVisitPage * visitsPerPage);
@@ -246,7 +409,7 @@ export function PatientMedicalRecordView({
             detail: patient?.therapyFrequencyText ?? 'belum dijadwalkan',
           },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-2xl bg-card p-2.5 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-3.5">
+          <div key={stat.label} className="hafta-card p-2.5 sm:p-3.5">
             <stat.icon className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
             <p className="mt-1.5 truncate text-[11px] font-semibold tabular-nums text-foreground sm:mt-2 sm:text-[15px]">
               {stat.value}
@@ -286,7 +449,7 @@ export function PatientMedicalRecordView({
 
       {/* ── 4. KONTEN ── */}
       {records.length === 0 ? (
-        <div className="flex flex-col items-center rounded-2xl bg-card py-12 text-center shadow-[0_1px_2px_rgba(28,25,23,0.04)]">
+        <div className="flex flex-col items-center hafta-card py-12 text-center">
           <Activity className="h-6 w-6 text-muted-foreground" />
           <p className="mt-3 text-sm font-semibold text-foreground">Belum ada rekam medis</p>
           <p className="mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
@@ -295,7 +458,37 @@ export function PatientMedicalRecordView({
         </div>
       ) : activeTab === 'ringkasan' && selectedRecord ? (
         <div className="space-y-4">
-          <section className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5">
+          {/* grafik pemulihan klinis */}
+          {chartData.length >= 2 ? (
+            <section className="hafta-card p-4 sm:p-5">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    <TrendingUp className="h-3 w-3" />
+                    Grafik Pemulihan Klinis
+                  </p>
+                  <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground sm:text-base">
+                    Penurunan Nyeri (VAS 0–10) &amp; Kenaikan Gerak (ROM %)
+                  </h2>
+                </div>
+                <div className="flex items-center gap-3 text-[10.5px] font-medium text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-400)]" />
+                    Nyeri VAS
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-0 w-4 border-t-2 border-dashed border-[var(--hafta-900)]" />
+                    ROM %
+                  </span>
+                </div>
+              </div>
+              <div className="mt-3">
+                <RecoveryChart data={chartData} />
+              </div>
+            </section>
+          ) : null}
+
+          <section className="hafta-card p-4 sm:p-5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
                 <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Perkembangan Terapi</h2>
@@ -327,7 +520,7 @@ export function PatientMedicalRecordView({
                 const tone = metricTone(key, value);
                 const history = chronological.slice(-6).map((record) => Number(record[field] ?? 0));
                 return (
-                  <div key={key} className="rounded-xl bg-[var(--hafta-50)] p-3">
+                  <div key={key} className="hafta-tint p-3">
                     <div className="flex items-center justify-between gap-1">
                       <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
                         <Icon className="h-3 w-3" />
@@ -396,7 +589,10 @@ export function PatientMedicalRecordView({
             {/* rencana terapi — hanya bila ada */}
             {treatmentPlan ? (
               <div className="mt-4 border-t border-border/70 pt-3">
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Rencana Terapi</h3>
+                <h3 className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  <ClipboardList className="h-3.5 w-3.5" />
+                  Rencana Terapi
+                </h3>
                 <dl className="mt-1 divide-y divide-border/70">
                   <div className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] sm:gap-4">
                     <dt className="text-[11px] font-medium text-muted-foreground sm:pt-px">Tujuan</dt>
@@ -420,45 +616,39 @@ export function PatientMedicalRecordView({
               </div>
             ) : null}
 
-            {/* program latihan — hanya bila ada */}
-            {homeProgram ? (
+            {/* program latihan — compact, detail di modal */}
+            {homeProgram && homeProgram.items.length > 0 ? (
               <div className="mt-4 border-t border-border/70 pt-3">
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Program Latihan Mandiri
-                </h3>
-                <ol className="mt-1 divide-y divide-border/70">
-                  {homeProgram.items.map((item, index) => (
-                    <li key={item.id} className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] sm:gap-4">
-                      <span className="text-[11px] font-medium text-muted-foreground sm:pt-px">
-                        {index + 1}. {item.name}
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block whitespace-pre-wrap text-[12.5px] leading-relaxed text-foreground">
-                          {item.instruction}
-                        </span>
-                        <span className="mt-0.5 block text-[10px] text-muted-foreground">
-                          {[
-                            item.sets ? `${item.sets} set` : null,
-                            item.repetitions ? `${item.repetitions} repetisi` : null,
-                            item.durationSeconds ? `${item.durationSeconds} detik` : null,
-                            item.frequencyText,
-                          ]
-                            .filter(Boolean)
-                            .join(' · ')}
-                        </span>
-                      </span>
-                    </li>
-                  ))}
-                </ol>
+                <button
+                  type="button"
+                  onClick={() => setProgramOpen(true)}
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-1 py-2 text-left transition-colors hover:bg-[var(--hafta-50)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl hafta-tint text-[var(--hafta-700)]">
+                    <Dumbbell className="h-4 w-4" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[12.5px] font-semibold text-foreground">
+                      Program Latihan Mandiri
+                    </span>
+                    <span className="block text-[10.5px] text-muted-foreground">
+                      {homeProgram.items.length} latihan ·{' '}
+                      {homeProgram.startsAt
+                        ? `${shortDate(homeProgram.startsAt)}${homeProgram.endsAt ? ` – ${shortDate(homeProgram.endsAt)}` : ''}`
+                        : 'tanpa batas waktu'}
+                    </span>
+                  </span>
+                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                </button>
               </div>
             ) : null}
           </section>
 
           {/* catatan fisioterapis — hanya bila ada */}
           {patient?.therapistNote ? (
-            <section className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5">
+            <section className="hafta-card p-4 sm:p-5">
               <h3 className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                <Dumbbell className="h-3.5 w-3.5" />
+                <PenLine className="h-3.5 w-3.5" />
                 Catatan Fisioterapis
               </h3>
               <p className="mt-2 text-[12.5px] leading-relaxed text-foreground">{patient.therapistNote}</p>
@@ -632,7 +822,7 @@ export function PatientMedicalRecordView({
                 const value = Number(detailRecord[field] ?? 0);
                 const tone = metricTone(key, value);
                 return (
-                  <div key={key} className="rounded-xl bg-[var(--hafta-50)] p-3">
+                  <div key={key} className="hafta-tint p-3">
                     <div className="flex items-center justify-between gap-1">
                       <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
                         <Icon className="h-3 w-3" />
@@ -671,6 +861,60 @@ export function PatientMedicalRecordView({
           </div>
         ) : null}
       </GlobalSlideOver>
+
+      {/* ── MODAL GLOBAL: program latihan mandiri ── */}
+      <GlobalModal
+        isOpen={programOpen}
+        onClose={() => setProgramOpen(false)}
+        size="md"
+        icon={<Dumbbell className="h-4 w-4" />}
+        title="Program Latihan Mandiri"
+        subtitle={
+          homeProgram?.startsAt
+            ? `${homeProgram.items.length} latihan · ${shortDate(homeProgram.startsAt)}${homeProgram.endsAt ? ` – ${shortDate(homeProgram.endsAt)}` : ''}`
+            : `${homeProgram?.items.length ?? 0} latihan`
+        }
+      >
+        {homeProgram ? (
+          <ol className="divide-y divide-border/70">
+            {homeProgram.items.map((item, index) => (
+              <li key={item.id} className="flex gap-3 py-3">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full hafta-tint text-[10px] font-semibold tabular-nums text-[var(--hafta-700)]">
+                  {index + 1}
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-[13px] font-semibold text-foreground">{item.name}</span>
+                  <span className="mt-0.5 block whitespace-pre-wrap text-[11.5px] leading-relaxed text-muted-foreground">
+                    {item.instruction}
+                  </span>
+                  <span className="mt-1 flex flex-wrap gap-1">
+                    {[
+                      item.sets ? `${item.sets} set` : null,
+                      item.repetitions ? `${item.repetitions} repetisi` : null,
+                      item.durationSeconds ? `${item.durationSeconds} detik` : null,
+                      item.frequencyText,
+                    ]
+                      .filter(Boolean)
+                      .map((chip) => (
+                        <span
+                          key={chip}
+                          className="rounded-full bg-secondary/60 px-2 py-0.5 text-[9.5px] font-medium text-foreground"
+                        >
+                          {chip}
+                        </span>
+                      ))}
+                  </span>
+                  {item.precaution ? (
+                    <span className="mt-1 block text-[10px] leading-relaxed text-[var(--hafta-red-700)]">
+                      Perhatian: {item.precaution}
+                    </span>
+                  ) : null}
+                </span>
+              </li>
+            ))}
+          </ol>
+        ) : null}
+      </GlobalModal>
     </div>
   );
 }

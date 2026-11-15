@@ -46,10 +46,10 @@ export function SettingsForm({
 
   return (
     <div className="grid gap-4 lg:grid-cols-3">
-      <form onSubmit={onSubmit} className="space-y-4 rounded-3xl border border-stone-200 bg-white p-4 sm:p-5 lg:col-span-2">
-        <div className="flex items-center gap-2 border-b border-stone-100 pb-3">
-          <SettingsIcon className="h-4 w-4 text-[#181700]" />
-          <h2 className="text-sm font-bold text-[#181700]">Pengaturan Umum</h2>
+      <form onSubmit={onSubmit} className="space-y-4 rounded-3xl border border-border bg-card p-4 sm:p-5 lg:col-span-2">
+        <div className="flex items-center gap-2 border-b border-border pb-3">
+          <SettingsIcon className="h-4 w-4 text-foreground" />
+          <h2 className="text-sm font-bold text-foreground">Pengaturan Umum</h2>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -71,16 +71,16 @@ export function SettingsForm({
           </div>
         </div>
 
-        <label className="flex cursor-pointer items-start gap-2.5 rounded-xl bg-[#FAFAF8] p-3 text-xs text-stone-600">
+        <label className="flex cursor-pointer items-start gap-2.5 rounded-xl bg-[#FAFAF8] p-3 text-xs text-muted-foreground">
           <input
             type="checkbox"
             name="appointment_reminders_enabled"
             defaultChecked={initial.appointment_reminders_enabled === 'true'}
             disabled={pending}
-            className="mt-0.5 h-4 w-4 rounded border-stone-300"
+            className="mt-0.5 h-4 w-4 rounded border-border"
           />
           <span>
-            <span className="font-semibold text-[#181700]">Pengingat appointment otomatis</span>
+            <span className="font-semibold text-foreground">Pengingat appointment otomatis</span>
             <span className="mt-0.5 block">
               Kirim notifikasi in-app sehari sebelum jadwal terapi (dijalankan oleh cron harian).
             </span>
@@ -91,7 +91,7 @@ export function SettingsForm({
           <button
             type="submit"
             disabled={pending}
-            className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-org-100)] px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
+            className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-org-100)] px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
           >
             {pending ? 'Menyimpan…' : 'Simpan Pengaturan'}
           </button>
@@ -99,48 +99,48 @@ export function SettingsForm({
       </form>
 
       <div className="space-y-3">
-        <div className="rounded-3xl border border-stone-200 bg-white p-4">
+        <div className="rounded-3xl border border-border bg-card p-4">
           <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-[#181700]" />
-            <p className="text-sm font-bold text-[#181700]">Email Provider</p>
+            <Mail className="h-4 w-4 text-foreground" />
+            <p className="text-sm font-bold text-foreground">Email Provider</p>
           </div>
-          <p className="mt-2 text-xs text-stone-500">
+          <p className="mt-2 text-xs text-muted-foreground">
             {emailConfigured ? 'Terkonfigurasi.' : 'Belum dikonfigurasi.'} Dipakai untuk reset password dan verifikasi email.
           </p>
         </div>
 
-        <div className="rounded-3xl border border-stone-200 bg-white p-4">
+        <div className="rounded-3xl border border-border bg-card p-4">
           <div className="flex items-center gap-2">
-            <HardDrive className="h-4 w-4 text-[#181700]" />
-            <p className="text-sm font-bold text-[#181700]">Penyimpanan Dokumen</p>
+            <HardDrive className="h-4 w-4 text-foreground" />
+            <p className="text-sm font-bold text-foreground">Penyimpanan Dokumen</p>
           </div>
-          <p className="mt-2 text-xs text-stone-500">
+          <p className="mt-2 text-xs text-muted-foreground">
             {r2Configured ? 'Cloudflare R2 terkonfigurasi.' : 'R2 belum dikonfigurasi.'}
           </p>
         </div>
 
-        <div className="rounded-3xl border border-stone-200 bg-white p-4">
+        <div className="rounded-3xl border border-border bg-card p-4">
           <div className="flex items-center gap-2">
-            <Database className="h-4 w-4 text-[#181700]" />
-            <p className="text-sm font-bold text-[#181700]">Database</p>
+            <Database className="h-4 w-4 text-foreground" />
+            <p className="text-sm font-bold text-foreground">Database</p>
           </div>
-          <p className="mt-2 text-xs text-stone-500">Neon PostgreSQL terhubung melalui Drizzle ORM.</p>
+          <p className="mt-2 text-xs text-muted-foreground">Neon PostgreSQL terhubung melalui Drizzle ORM.</p>
         </div>
 
-        <div className="rounded-3xl border border-stone-200 bg-white p-4">
+        <div className="rounded-3xl border border-border bg-card p-4">
           <div className="flex items-center gap-2">
-            <Shield className="h-4 w-4 text-[#181700]" />
-            <p className="text-sm font-bold text-[#181700]">Keamanan</p>
+            <Shield className="h-4 w-4 text-foreground" />
+            <p className="text-sm font-bold text-foreground">Keamanan</p>
           </div>
-          <p className="mt-2 text-xs text-stone-500">MFA staf belum diaktifkan. Reset password dan verifikasi email tersedia.</p>
+          <p className="mt-2 text-xs text-muted-foreground">MFA staf belum diaktifkan. Reset password dan verifikasi email tersedia.</p>
         </div>
 
-        <div className="rounded-3xl border border-stone-200 bg-white p-4">
+        <div className="rounded-3xl border border-border bg-card p-4">
           <div className="flex items-center gap-2">
-            <Bell className="h-4 w-4 text-[#181700]" />
-            <p className="text-sm font-bold text-[#181700]">Cron</p>
+            <Bell className="h-4 w-4 text-foreground" />
+            <p className="text-sm font-bold text-foreground">Cron</p>
           </div>
-          <p className="mt-2 text-xs text-stone-500">Endpoint pengingat: `/api/cron/appointment-reminders` (butuh `CRON_SECRET`).</p>
+          <p className="mt-2 text-xs text-muted-foreground">Endpoint pengingat: `/api/cron/appointment-reminders` (butuh `CRON_SECRET`).</p>
         </div>
       </div>
     </div>

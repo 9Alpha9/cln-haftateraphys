@@ -29,14 +29,14 @@ function ExerciseMeta({ item }: { item: HomeProgramItemView }) {
           {chips.map((chip) => (
             <span
               key={chip}
-              className="inline-flex items-center gap-1 rounded-full bg-[#F4F4F1] px-2.5 py-1 text-[10px] font-semibold text-stone-600"
+              className="inline-flex items-center gap-1 rounded-full bg-[#F4F4F1] px-2.5 py-1 text-[10px] font-semibold text-muted-foreground"
             >
               <Repeat2 className="h-3 w-3" />
               {chip}
             </span>
           ))}
           {item.frequencyText ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#F4F4F1] px-2.5 py-1 text-[10px] font-semibold text-stone-600">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#F4F4F1] px-2.5 py-1 text-[10px] font-semibold text-muted-foreground">
               <Timer className="h-3 w-3" />
               {item.frequencyText}
             </span>
@@ -44,7 +44,7 @@ function ExerciseMeta({ item }: { item: HomeProgramItemView }) {
         </div>
       ) : null}
 
-      <p className="text-xs leading-relaxed text-stone-600">{item.instruction}</p>
+      <p className="text-xs leading-relaxed text-muted-foreground">{item.instruction}</p>
 
       {item.precaution ? (
         <p className="flex items-start gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] leading-relaxed text-amber-800">
@@ -59,18 +59,18 @@ function ExerciseMeta({ item }: { item: HomeProgramItemView }) {
 export function PatientExerciseList({ program }: { program: HomeProgramView | null }) {
   if (!program) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-3xl border border-stone-200 bg-white px-5 py-12 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
+      <div className="flex flex-col items-center justify-center rounded-3xl border border-border bg-card px-5 py-12 text-center">
+        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-foreground">
           <Dumbbell className="h-7 w-7" />
         </span>
-        <h2 className="mt-4 text-base font-bold text-[#181700]">Belum ada program latihan aktif</h2>
-        <p className="mt-1.5 max-w-md text-xs leading-relaxed text-stone-500">
+        <h2 className="mt-4 text-base font-bold text-foreground">Belum ada program latihan aktif</h2>
+        <p className="mt-1.5 max-w-md text-xs leading-relaxed text-muted-foreground">
           Fisioterapis Anda belum membagikan program latihan mandiri. Program akan muncul di sini
           setelah dibuat dan diaktifkan.
         </p>
         <Link
           href="/dashboard/appointments"
-          className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-5 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
+          className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)]"
         >
           <CalendarDays className="h-4 w-4" />
           Lihat Jadwal Terapi
@@ -84,14 +84,14 @@ export function PatientExerciseList({ program }: { program: HomeProgramView | nu
 
   return (
     <div className="space-y-4 sm:space-y-5">
-      <section className="rounded-3xl border border-stone-200 bg-white p-4 sm:p-5">
+      <section className="rounded-3xl border border-border bg-card p-4 sm:p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-stone-500">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
               Program Aktif
             </p>
-            <h2 className="mt-1 text-base font-bold text-[#181700]">Program Latihan Mandiri</h2>
-            <p className="mt-1 text-xs text-stone-500">
+            <h2 className="mt-1 text-base font-bold text-foreground">Program Latihan Mandiri</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
               {program.items.length} latihan · dibagikan oleh fisioterapis Anda
             </p>
           </div>
@@ -101,14 +101,14 @@ export function PatientExerciseList({ program }: { program: HomeProgramView | nu
           </span>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 rounded-2xl bg-[#FAFAF8] px-3.5 py-3 text-[11px] text-stone-600">
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 rounded-2xl bg-[#FAFAF8] px-3.5 py-3 text-[11px] text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
-            <CalendarDays className="h-3.5 w-3.5 text-stone-400" />
+            <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
             {startsAt ? `Mulai ${startsAt}` : 'Tanggal mulai belum ditentukan'}
           </span>
           {endsAt ? (
             <span className="inline-flex items-center gap-1.5">
-              <Timer className="h-3.5 w-3.5 text-stone-400" />
+              <Timer className="h-3.5 w-3.5 text-muted-foreground" />
               Sampai {endsAt}
             </span>
           ) : null}
@@ -116,18 +116,18 @@ export function PatientExerciseList({ program }: { program: HomeProgramView | nu
       </section>
 
       <section className="space-y-3">
-        <h3 className="text-sm font-bold text-[#181700]">Daftar Latihan</h3>
+        <h3 className="text-sm font-bold text-foreground">Daftar Latihan</h3>
         {program.items.map((item, index) => (
           <article
             key={item.id}
-            className="rounded-2xl border border-stone-200 bg-white p-4 sm:p-5"
+            className="rounded-2xl border border-border bg-card p-4 sm:p-5"
           >
             <div className="flex items-start gap-3">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-xs font-extrabold text-[#181700]">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] text-xs font-extrabold text-foreground">
                 {index + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <h4 className="text-sm font-bold text-[#181700]">{item.name}</h4>
+                <h4 className="text-sm font-bold text-foreground">{item.name}</h4>
                 <ExerciseMeta item={item} />
               </div>
             </div>
@@ -135,7 +135,7 @@ export function PatientExerciseList({ program }: { program: HomeProgramView | nu
         ))}
       </section>
 
-      <p className="rounded-2xl border border-stone-200 bg-[#FAFAF8] px-4 py-3 text-[11px] leading-relaxed text-stone-500">
+      <p className="rounded-2xl border border-border bg-[#FAFAF8] px-4 py-3 text-[11px] leading-relaxed text-muted-foreground">
         Hentikan latihan jika muncul nyeri tajam, pusing, atau keluhan baru, lalu hubungi
         fisioterapis Anda. Program ini bersifat panduan dan bukan pengganti evaluasi klinis.
       </p>

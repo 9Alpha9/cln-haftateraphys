@@ -57,9 +57,9 @@ export function TherapistScheduleManager({
 
   if (!selected) {
     return (
-      <div className="rounded-3xl border border-stone-200 bg-white px-4 sm:px-6 py-10 sm:py-16 text-center">
-        <p className="text-sm font-semibold text-[#181700]">Belum ada akun fisioterapis</p>
-        <p className="mt-1 text-xs text-stone-500">Tambahkan pengguna dengan tipe akun THERAPIST terlebih dahulu.</p>
+      <div className="rounded-3xl border border-border bg-card px-4 sm:px-6 py-10 sm:py-16 text-center">
+        <p className="text-sm font-semibold text-foreground">Belum ada akun fisioterapis</p>
+        <p className="mt-1 text-xs text-muted-foreground">Tambahkan pengguna dengan tipe akun THERAPIST terlebih dahulu.</p>
       </div>
     );
   }
@@ -67,9 +67,9 @@ export function TherapistScheduleManager({
   return (
     <div className="space-y-4 sm:space-y-6">
       {therapists.length > 1 ? (
-        <section className="rounded-3xl border border-stone-200 bg-white p-4 sm:p-5">
+        <section className="rounded-3xl border border-border bg-card p-4 sm:p-5">
           <label className="block max-w-sm">
-            <span className="text-xs font-semibold text-stone-500">Pilih fisioterapis</span>
+            <span className="text-xs font-semibold text-muted-foreground">Pilih fisioterapis</span>
             <div className="mt-1.5 relative w-full">
               <AppSelect
                 value={selected.therapistId}
@@ -81,7 +81,7 @@ export function TherapistScheduleManager({
               />
             </div>
           </label>
-          <p className="mt-3 text-xs leading-relaxed text-stone-500">
+          <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
             Slot pasien hanya dihitung dari jam kerja yang tersimpan di sini, dikurangi appointment aktif,
             cuti, dan hari libur nasional.
           </p>
@@ -234,26 +234,26 @@ export function TherapistScheduleEditor({
           saveSchedule();
         }}
       >
-        <section className="rounded-3xl border border-stone-200 bg-white p-4 sm:p-5">
-        <div className="border-b border-stone-200 pb-4">
-          <h2 className="text-base font-bold text-[#181700]">Jam Kerja Mingguan</h2>
-          <p className="mt-1 text-xs leading-relaxed text-stone-500">
+        <section className="rounded-3xl border border-border bg-card p-4 sm:p-5">
+        <div className="border-b border-border pb-4">
+          <h2 className="text-base font-bold text-foreground">Jam Kerja Mingguan</h2>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
             Jam ini menjadi slot yang bisa dipilih pasien dan berlaku otomatis setiap minggu. Untuk
             tanggal tertentu yang tidak bisa melayani pasien, gunakan bagian Blokir Tanggal di bawah.
           </p>
         </div>
 
-        <div className="mt-2 divide-y divide-stone-100">
+        <div className="mt-2 divide-y divide-border">
           {DAYS.map((day) => {
             const dayEntries = grouped.get(day.value) ?? [];
             return (
               <div key={day.value} className="py-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-sm font-bold text-[#181700]">{day.label}</h3>
+                  <h3 className="text-sm font-bold text-foreground">{day.label}</h3>
                   <button
                     type="button"
                     onClick={() => addBlock(day.value)}
-                    className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border border-stone-200 px-3 text-[11px] font-semibold text-[#181700] hover:bg-[var(--hafta-org-50)]"
+                    className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border border-border px-3 text-[11px] font-semibold text-foreground hover:bg-[var(--hafta-org-50)]"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     Tambah Jam
@@ -261,7 +261,7 @@ export function TherapistScheduleEditor({
                 </div>
 
                 {dayEntries.length === 0 ? (
-                  <p className="mt-2 text-xs text-stone-400">Tidak ada jadwal.</p>
+                  <p className="mt-2 text-xs text-muted-foreground">Tidak ada jadwal.</p>
                 ) : (
                   <div className="mt-2.5 space-y-2">
                     {dayEntries.map((entry) => (
@@ -270,20 +270,20 @@ export function TherapistScheduleEditor({
                           type="time"
                           value={entry.startTime}
                           onChange={(event) => updateBlock(entry.key, { startTime: event.target.value })}
-                          className="h-10 rounded-xl border border-stone-200/90 px-3 text-xs font-semibold text-[#181700] outline-none focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
+                          className="h-10 rounded-xl border border-border px-3 text-xs font-semibold text-foreground outline-none focus:outline-none focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
                         />
-                        <span className="text-xs text-stone-400">s.d.</span>
+                        <span className="text-xs text-muted-foreground">s.d.</span>
                         <input
                           type="time"
                           value={entry.endTime}
                           onChange={(event) => updateBlock(entry.key, { endTime: event.target.value })}
-                          className="h-10 rounded-xl border border-stone-200/90 px-3 text-xs font-semibold text-[#181700] outline-none focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
+                          className="h-10 rounded-xl border border-border px-3 text-xs font-semibold text-foreground outline-none focus:outline-none focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
                         />
                         <button
                           type="button"
                           onClick={() => removeBlock(entry.key)}
                           aria-label={`Hapus jadwal ${day.label}`}
-                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-[var(--hafta-red-50)] hover:text-[var(--hafta-red-700)]"
+                          className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-[var(--hafta-red-50)] hover:text-[var(--hafta-red-700)]"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -298,13 +298,13 @@ export function TherapistScheduleEditor({
         </section>
       </form>
 
-      <section className="rounded-3xl border border-stone-200 bg-white p-4 sm:p-5 pt-2">
-        <div className="border-b border-stone-200 pb-4">
-          <h2 className="flex items-center gap-2 text-base font-bold text-[#181700]">
+      <section className="rounded-3xl border border-border bg-card p-4 sm:p-5 pt-2">
+        <div className="border-b border-border pb-4">
+          <h2 className="flex items-center gap-2 text-base font-bold text-foreground">
             <CalendarOff className="h-4 w-4" />
             Blokir Tanggal
           </h2>
-          <p className="mt-1 text-xs leading-relaxed text-stone-500">
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
             Bagian ini hanya menutup tanggal dari slot pasien dan tidak menambah jam kerja. Pilih
             tanggal mulai dan selesai cuti, lalu tekan Blokir Tanggal.
           </p>
@@ -312,7 +312,7 @@ export function TherapistScheduleEditor({
 
         <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_1fr_1fr_auto] sm:items-end">
           <label className="block">
-            <span className="text-[11px] font-semibold text-stone-500">Cuti mulai</span>
+            <span className="text-[11px] font-semibold text-muted-foreground">Cuti mulai</span>
               <DatePicker
                 value={timeOffStart}
                 onChange={(value) => {
@@ -321,33 +321,33 @@ export function TherapistScheduleEditor({
                 }}
                 placeholder="Pilih tanggal mulai"
                 disablePast
-                className="mt-1 h-10 w-full rounded-xl border border-stone-200 bg-white text-sm text-[#181700] focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
+                className="mt-1 h-10 w-full rounded-xl border border-border bg-card text-sm text-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
               />
           </label>
           <label className="block">
-            <span className="text-[11px] font-semibold text-stone-500">Cuti selesai</span>
+            <span className="text-[11px] font-semibold text-muted-foreground">Cuti selesai</span>
               <DatePicker
                 value={timeOffEnd}
                 onChange={(value) => setTimeOffEnd(timeOffStart && value < timeOffStart ? timeOffStart : value)}
                 placeholder="Pilih tanggal selesai"
-                className="mt-1 h-10 w-full rounded-xl border-stone-200 bg-white text-sm text-[#181700] focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
+                className="mt-1 h-10 w-full rounded-xl border-border bg-card text-sm text-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
               />
           </label>
           <label className="block">
-            <span className="text-[11px] font-semibold text-stone-500">Keterangan (opsional)</span>
+            <span className="text-[11px] font-semibold text-muted-foreground">Keterangan (opsional)</span>
               <input
                 type="text"
                 value={timeOffReason}
                 onChange={(event) => setTimeOffReason(event.target.value)}
                 placeholder="Contoh: cuti tahunan"
-                className="mt-1 h-10 w-full rounded-xl border border-stone-200 px-3 text-sm text-[#181700] outline-none focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
+                className="mt-1 h-10 w-full rounded-xl border border-border px-3 text-sm text-foreground outline-none focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35"
               />
           </label>
           <button
             type="button"
             disabled={pending}
             onClick={addTimeOff}
-            className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-stone-200 px-4 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-org-50)] disabled:opacity-60"
+            className="inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full border border-border px-4 text-xs font-bold text-foreground hover:bg-[var(--hafta-org-50)] disabled:opacity-60"
           >
             <Plus className="h-4 w-4" />
             Blokir Tanggal
@@ -359,17 +359,17 @@ export function TherapistScheduleEditor({
             {therapist.timeOff.map((item) => (
               <li
                 key={item.id}
-                className="flex items-start gap-3 rounded-2xl border border-stone-200 bg-[#FAFAF8] px-3.5 py-3"
+                className="flex items-start gap-3 rounded-2xl border border-border bg-[#FAFAF8] px-3.5 py-3"
               >
-                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#181700]">
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-card text-foreground">
                   <CalendarOff className="h-4 w-4" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold leading-snug text-[#181700]">
+                  <p className="text-sm font-bold leading-snug text-foreground">
                     {formatDate(item.startDate)}
                     {item.endDate !== item.startDate ? ` – ${formatDate(item.endDate)}` : ''}
                   </p>
-                  <p className="mt-0.5 text-[11px] leading-relaxed text-stone-500">
+                  <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
                     {item.reason?.trim() ? item.reason : 'Cuti / tidak tersedia'}
                   </p>
                 </div>
@@ -378,7 +378,7 @@ export function TherapistScheduleEditor({
                   disabled={pending}
                   onClick={() => removeTimeOff(item.id)}
                   aria-label="Hapus jadwal cuti"
-                  className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-[var(--hafta-red-50)] hover:text-[var(--hafta-red-700)] disabled:opacity-60"
+                  className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-[var(--hafta-red-50)] hover:text-[var(--hafta-red-700)] disabled:opacity-60"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -386,7 +386,7 @@ export function TherapistScheduleEditor({
             ))}
           </ul>
         ) : (
-          <p className="mt-4 text-xs text-stone-400">Belum ada tanggal yang diblokir.</p>
+          <p className="mt-4 text-xs text-muted-foreground">Belum ada tanggal yang diblokir.</p>
         )}
       </section>
     </div>

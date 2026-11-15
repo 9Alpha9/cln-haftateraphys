@@ -19,7 +19,7 @@ export function DashboardClock({ className }: { className?: string }) {
   }, []);
 
   if (!now) {
-    return <span className={cn('block h-4 w-24 animate-pulse rounded bg-stone-100', className)} />;
+    return <span className={cn('block h-4 w-24 animate-pulse rounded bg-muted', className)} />;
   }
 
   const date = now.toLocaleDateString('id-ID', {
@@ -43,12 +43,12 @@ export function DashboardClock({ className }: { className?: string }) {
 
   return (
     <div className={cn('flex flex-col items-start justify-center text-left leading-tight', className)}>
-      <span className="hidden text-[10px] font-semibold uppercase tracking-[0.08em] text-stone-500 sm:block">
+      <span className="hidden text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground sm:block">
         {date}
       </span>
-      <span className="flex items-baseline gap-1 font-mono text-[11px] font-bold tabular-nums text-[#181700] sm:text-xs">
+      <span className="flex items-baseline gap-1 font-mono text-[11px] font-bold tabular-nums text-foreground sm:text-xs">
         {time}
-        <span className="font-sans text-[9px] font-semibold tracking-wide text-stone-400">WIB</span>
+        <span className="font-sans text-[9px] font-semibold tracking-wide text-muted-foreground">WIB</span>
       </span>
     </div>
   );

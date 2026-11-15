@@ -77,12 +77,12 @@ export function FolderTabPanel({
   const clipId = `activity-hatch-clip-${uid}`;
 
   return (
-    <div className={cn('overflow-hidden rounded-3xl border border-stone-200 bg-white', className)}>
+    <div className={cn('overflow-hidden rounded-3xl border border-border bg-card', className)}>
       {/* ── TRUE FOLDER TABS ── */}
       <div
         role="tablist"
         aria-label="Kategori ringkasan"
-        className="flex items-end gap-1 overflow-x-auto bg-stone-200/60 px-1.5 pt-2 sm:gap-1.5 sm:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex items-end gap-1 overflow-x-auto bg-muted px-1.5 pt-2 sm:gap-1.5 sm:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {tabs.map((tab) => {
           const isActive = tab.id === activeTabId;
@@ -99,10 +99,10 @@ export function FolderTabPanel({
               aria-controls={panelId}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                'relative flex min-h-10 min-w-[88px] flex-1 basis-0 cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-t-[20px] px-2.5 py-2.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#181700] sm:min-h-11 sm:gap-2 sm:px-3 sm:text-[13px]',
+                'relative flex min-h-10 min-w-[88px] flex-1 basis-0 cursor-pointer select-none items-center justify-center gap-1.5 whitespace-nowrap rounded-t-[20px] px-2.5 py-2.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--hafta-950)] sm:min-h-11 sm:gap-2 sm:px-3 sm:text-[13px]',
                 isActive
-                  ? 'z-10 rounded-t-[24px] bg-white text-[#181700] -[0_-1px_0_rgba(24,23,0,0.04)]'
-                  : 'bg-stone-100/80 text-stone-600 hover:bg-stone-200/70'
+                  ? 'z-10 rounded-t-[24px] bg-card text-foreground -[0_-1px_0_rgba(24,23,0,0.04)]'
+                  : 'bg-[var(--hafta-50)]/80 text-muted-foreground hover:bg-muted/70'
               )}
             >
               {isActive && (
@@ -131,8 +131,8 @@ export function FolderTabPanel({
                   className={cn(
                     'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold',
                     isActive
-                      ? 'bg-[#181700] text-white'
-                      : 'border border-stone-300 bg-white font-medium text-[#181700]'
+                      ? 'bg-[var(--hafta-900)] text-white'
+                      : 'border border-border bg-card font-medium text-foreground'
                   )}
                 >
                   {tab.count}
@@ -148,29 +148,29 @@ export function FolderTabPanel({
         id={`folder-panel-${uid}-${activeTabId}`}
         role="tabpanel"
         aria-labelledby={`folder-tab-${uid}-${activeTabId}`}
-        className="bg-white p-3 sm:p-5"
+        className="bg-card p-3 sm:p-5"
       >
         {/* Header utama */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-<p className="text-base font-bold tracking-tight text-[#181700] sm:text-lg">
+<p className="text-base font-bold tracking-tight text-foreground sm:text-lg">
                 {/* {totalValue} */}
-              {/* <sup className="ml-1 align-super text-[10px] font-semibold tracking-[0.14em] text-stone-400">
+              {/* <sup className="ml-1 align-super text-[10px] font-semibold tracking-[0.14em] text-muted-foreground">
                 {totalLabel}
               </sup> */}
-              <sup className="align-super text-[10px] font-semibold tracking-[0.14em] text-stone-400">
+              <sup className="align-super text-[10px] font-semibold tracking-[0.14em] text-muted-foreground">
                 {totalLabel}
               </sup>
             </p>
             {context ? (
-              <p className="mt-1 text-xs leading-relaxed text-stone-400">{context}</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{context}</p>
             ) : null}
           </div>
 
           {listActionHref ? (
             <Link
               href={listActionHref}
-              className="shrink-0 rounded-full border border-stone-200/90 bg-white px-4 py-2 text-xs font-semibold text-[#181700] transition-all hover:bg-[var(--hafta-org-100)]"
+              className="shrink-0 rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold text-foreground transition-all hover:bg-[var(--hafta-org-100)]"
             >
               {listActionLabel}
             </Link>
@@ -181,14 +181,14 @@ export function FolderTabPanel({
         {summaryVisible && (
           <div className="mt-5 rounded-3xl bg-[#F7F7F5] p-3 sm:p-4">
             <div className="flex items-center justify-between gap-3">
-              <h3 className="text-base font-bold tracking-tight text-[#181700] sm:text-lg">
+              <h3 className="text-base font-bold tracking-tight text-foreground sm:text-lg">
                 {summaryTitle}
               </h3>
               {listActionHref ? (
                 <Link
                   href={listActionHref}
                   aria-label={listActionLabel}
-                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-[#181700]  transition-colors hover:bg-[var(--hafta-org-100)]"
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-card text-foreground  transition-colors hover:bg-[var(--hafta-org-100)]"
                 >
                   <ArrowUpRight className="h-4 w-4" />
                 </Link>
@@ -201,10 +201,10 @@ export function FolderTabPanel({
                 {summaryTags.slice(0, 4).map((tag) => (
                   <span
                     key={tag.label}
-                    className="flex w-full max-w-[175px] items-center justify-between gap-2 rounded-full bg-[#EFEFED] px-3 py-1.5 text-[11px] font-medium text-stone-700"
+                    className="flex w-full max-w-[175px] items-center justify-between gap-2 rounded-full bg-[var(--hafta-50)] px-3 py-1.5 text-[11px] font-medium text-muted-foreground"
                   >
                     <span className="min-w-0 truncate">{tag.label}</span>
-                    <span className="shrink-0 rounded-full bg-white/80 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-stone-600">
+                    <span className="shrink-0 rounded-full bg-card/80 px-1.5 py-0.5 font-mono text-[10px] font-semibold text-muted-foreground">
                       {tag.count}
                     </span>
                   </span>
@@ -213,7 +213,7 @@ export function FolderTabPanel({
 
               {/* Architectural circle dengan arsiran diagonal — strict right column */}
               <div className="col-span-5 flex min-w-0 items-center justify-center">
-                <div className="relative flex aspect-square w-full max-w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border border-stone-200/80 bg-white  sm:max-w-32">
+                <div className="relative flex aspect-square w-full max-w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-card  sm:max-w-32">
                 <svg className="h-full w-full" viewBox="0 0 100 100" aria-hidden="true">
                   <defs>
                     <pattern
@@ -239,10 +239,10 @@ export function FolderTabPanel({
                   />
                 </svg>
                 <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-                  <span className="text-xl font-bold leading-none text-[#181700] sm:text-2xl">
+                  <span className="text-xl font-bold leading-none text-foreground sm:text-2xl">
                     {totalValue}
                   </span>
-                  {/* <span className="ml-1 -translate-y-1 text-[9px] font-medium leading-none text-stone-500 sm:text-[11px]">
+                  {/* <span className="ml-1 -translate-y-1 text-[9px] font-medium leading-none text-muted-foreground sm:text-[11px]">
                     Aktivitas
                   </span> */}
                 </div>
@@ -257,18 +257,18 @@ export function FolderTabPanel({
                   const width = Math.min(100, Math.max(0, metric.percentage));
                   return (
                     <div key={metric.label} className="min-w-0">
-                      <p className="truncate text-base font-bold leading-none text-[#181700] sm:text-lg">
+                      <p className="truncate text-base font-bold leading-none text-foreground sm:text-lg">
                         {metric.value}
                       </p>
-                      <p className="mb-2.5 mt-1 text-[10px] leading-tight text-stone-500 sm:text-[11px]">
+                      <p className="mb-2.5 mt-1 text-[10px] leading-tight text-muted-foreground sm:text-[11px]">
                         {metric.label}
                       </p>
-                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-200/80">
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                         <div
                           className={cn(
                             'h-full rounded-full',
                             metric.barStyle === 'solid'
-                              ? 'bg-[#181700]'
+                              ? 'bg-[var(--hafta-900)]'
                               : metric.barStyle === 'accent'
                                 ? 'bg-[var(--hafta-org-100)]'
                                 : ''
@@ -295,12 +295,12 @@ export function FolderTabPanel({
         {/* Daftar tindakan */}
         <div className="mt-5 rounded-3xl bg-[#F7F7F5] p-3 sm:p-4">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h3 className="text-base font-semibold text-[#181700]">{listTitle}</h3>
+            <h3 className="text-base font-semibold text-foreground">{listTitle}</h3>
             {listActionHref ? (
               <Link
                 href={listActionHref}
                 aria-label={listActionLabel}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#181700]  transition-colors hover:bg-[var(--hafta-org-100)]"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-card text-foreground  transition-colors hover:bg-[var(--hafta-org-100)]"
               >
                 <ArrowUpRight className="h-4 w-4" />
               </Link>
@@ -308,26 +308,26 @@ export function FolderTabPanel({
           </div>
 
           {items.length === 0 ? (
-            <div className="py-4 sm:py-6 text-center text-xs text-stone-400">{emptyMessage}</div>
+            <div className="py-4 sm:py-6 text-center text-xs text-muted-foreground">{emptyMessage}</div>
           ) : (
             <div className="space-y-4">
               {items.map((item, index) => (
                 <div key={item.id} className="flex flex-col gap-1 w-full py-1 first:pt-0 last:pb-0">
                   <div className="flex items-center justify-between gap-2 w-full">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="flex h-6 w-6 aspect-square shrink-0 items-center justify-center rounded-full bg-stone-200/80 text-[11px] font-bold text-[#181700]">
+                      <span className="flex h-6 w-6 aspect-square shrink-0 items-center justify-center rounded-full bg-muted text-[11px] font-bold text-foreground">
                         {index + 1}
                       </span>
-                      <span className="text-xs sm:text-sm font-bold text-[#181700] truncate">
+                      <span className="text-xs sm:text-sm font-bold text-foreground truncate">
                         {item.title}
                       </span>
                     </div>
-                    <div className="shrink-0 flex items-center gap-1.5 text-[11px] text-stone-500 whitespace-nowrap">
-                      <span className="font-bold text-[#181700]">{item.time}</span>
+                    <div className="shrink-0 flex items-center gap-1.5 text-[11px] text-muted-foreground whitespace-nowrap">
+                      <span className="font-bold text-foreground">{item.time}</span>
                       <span className="capitalize">{item.kind}</span>
                     </div>
                   </div>
-                  <div className="pl-9 w-full text-xs leading-relaxed text-stone-600 break-words">
+                  <div className="pl-9 w-full text-xs leading-relaxed text-muted-foreground break-words">
                     {item.subtitle}
                   </div>
                 </div>

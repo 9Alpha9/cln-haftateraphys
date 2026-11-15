@@ -57,14 +57,6 @@ function DropdownMenu({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [open, setOpen]);
 
-  // Close on scroll so the fixed-position menu never detaches from its trigger.
-  React.useEffect(() => {
-    if (!open) return;
-    const closeOnScroll = () => setOpen(false);
-    window.addEventListener('scroll', closeOnScroll, true);
-    return () => window.removeEventListener('scroll', closeOnScroll, true);
-  }, [open, setOpen]);
-
   // Close when clicking/tapping outside the trigger and the content
   React.useEffect(() => {
     if (!open) return;
@@ -127,6 +119,28 @@ function DropdownMenuContent({ className, children, align = "end", side = "botto
   const { open, triggerRef, contentRef, withinWrapper } = useDropdownMenu();
   const [position, setPosition] = React.useState({ top: 0, bottom: 0, left: 0, right: 0 });
   const [resolvedSide, setResolvedSide] = React.useState<"bottom" | "right" | "top">(side);
+
+  // Reposition while the page scrolls / viewport resizes so the fixed
+  // menu never detaches from its trigger (rAF-throttled, not close-on-scroll).
+  const [repositionKey, setRepositionKey] = React.useState(0);
+  React.useEffect(() => {
+    if (!open) return;
+    let raf = 0;
+    const reposition = () => {
+      if (raf) return;
+      raf = window.requestAnimationFrame(() => {
+        raf = 0;
+        setRepositionKey((key) => key + 1);
+      });
+    };
+    window.addEventListener('scroll', reposition, true);
+    window.addEventListener('resize', reposition);
+    return () => {
+      window.removeEventListener('scroll', reposition, true);
+      window.removeEventListener('resize', reposition);
+      if (raf) window.cancelAnimationFrame(raf);
+    };
+  }, [open]);
 
   React.useEffect(() => {
     if (!open || !triggerRef.current) return;
@@ -234,7 +248,7 @@ function DropdownMenuContent({ className, children, align = "end", side = "botto
       });
       return () => window.cancelAnimationFrame(frame);
     }
-  }, [open, triggerRef, side, withinWrapper, align, contentRef]);
+  }, [open, triggerRef, side, withinWrapper, align, contentRef, repositionKey]);
 
   const getInitialPosition = () => {
     if (resolvedSide === "right") return { opacity: 0, scale: 0.95, y: 0, x: -10 };
@@ -278,8 +292,8 @@ function DropdownMenuContent({ className, children, align = "end", side = "botto
             }),
       }}
       className={cn(
-        'z-50 flex min-w-48 flex-col gap-1 overflow-hidden rounded-2xl border border-stone-200/90 bg-white p-2 text-popover-foreground -[0_12px_32px_rgba(24,23,0,0.14)]',
-        resolvedSide === "top" && 'min-w-0 rounded-2xl p-2 ',
+        'z-50 flex min-w-48 flex-col gap-1 overflow-hidden rounded-2xl border border-border bg-card p-1.5 text-popover-foreground shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]',
+        resolvedSide === "top" && 'min-w-0 rounded-2xl p-1.5 ',
         withinWrapper && '',
         className,
       )}
@@ -314,7 +328,7 @@ function DropdownMenuItem({ className, onClick, ...props }: React.ComponentProps
       type="button"
       role="menuitem"
       className={cn(
-        "flex w-full min-h-[42px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-[#181700] outline-none transition-colors hover:bg-stone-100 focus:bg-stone-100 disabled:pointer-events-none disabled:opacity-50 sm:text-sm",
+        "flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-foreground outline-none transition-colors hover:bg-[var(--hafta-50)] focus:bg-[var(--hafta-50)] disabled:pointer-events-none disabled:opacity-50 sm:text-sm",
         className,
       )}
       onClick={(event) => {
@@ -410,7 +424,7 @@ export function DropdownMenuChevron({ className, side = "down" }: { className?: 
   return (
     <ChevronRight
       className={cn(
-        "h-4 w-4 shrink-0 text-slate-400 transition-transform duration-300",
+        "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300",
         rotationClass,
         className,
       )}

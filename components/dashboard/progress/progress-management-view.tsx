@@ -96,7 +96,7 @@ function MedicalRecordCard({
     <article
       key={record.id}
       onClick={() => onSelect(record)}
-      className="group relative flex cursor-pointer flex-col justify-between rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_8px_30px_rgba(24,23,0,0.05)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_rgba(24,23,0,0.09)] sm:p-5"
+      className="group relative flex cursor-pointer flex-col justify-between hafta-card p-4 transition-all duration-200 hover:-translate-y-0.5 sm:p-5"
     >
       <div>
         <div className="flex items-start justify-between gap-3">
@@ -106,15 +106,15 @@ function MedicalRecordCard({
               <img
                 src={record.patientAvatarKey}
                 alt={record.patientName}
-                className="h-11 w-11 shrink-0 rounded-2xl object-cover ring-1 ring-stone-200"
+                className="h-11 w-11 shrink-0 rounded-2xl object-cover ring-1 ring-border"
               />
             ) : (
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-xs font-bold text-[#181700]">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-xs font-bold text-foreground">
                 {initials || 'RM'}
               </span>
             )}
             <div className="min-w-0">
-              <h3 className="truncate text-sm font-bold text-[#181700] group-hover:text-[var(--hafta-org-950)] sm:text-base">
+              <h3 className="truncate text-sm font-bold text-foreground group-hover:text-[var(--hafta-org-950)] sm:text-base">
                 {record.patientName}
               </h3>
               <div className="mt-1 flex flex-wrap items-center gap-1.5">
@@ -154,7 +154,7 @@ function MedicalRecordCard({
               type="button"
               aria-label="Menu opsi rekam medis"
               onClick={() => setShowRecordMenu((prev) => !prev)}
-              className="inline-flex h-9 w-9 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white text-[#181700] transition-colors hover:bg-stone-100"
+              className="inline-flex h-9 w-9 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-[var(--hafta-50)]"
             >
               <MoreVertical className="h-4 w-4 shrink-0" />
             </button>
@@ -167,16 +167,16 @@ function MedicalRecordCard({
                   className="fixed inset-0 z-10 cursor-default"
                   onClick={() => setShowRecordMenu(false)}
                 />
-                <div className="absolute right-0 top-full z-20 mt-2 w-48 origin-top-right rounded-2xl border border-stone-200/90 bg-white p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]">
+                <div className="absolute right-0 top-full z-20 mt-2 w-48 origin-top-right rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]">
                   <button
                     type="button"
                     onClick={() => {
                       setShowRecordMenu(false);
                       void openPrintPage();
                     }}
-                    className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-100 sm:text-sm"
+                    className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] sm:text-sm"
                   >
-                    <Printer className="h-3.5 w-3.5 shrink-0 text-stone-500" />
+                    <Printer className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span className="text-xs font-medium">Print Rekam Medis</span>
                   </button>
                   <button
@@ -185,9 +185,9 @@ function MedicalRecordCard({
                       setShowRecordMenu(false);
                       void downloadPdf();
                     }}
-                    className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-stone-700 transition-colors hover:bg-stone-100 sm:text-sm"
+                    className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] sm:text-sm"
                   >
-                    <FileDown className="h-3.5 w-3.5 shrink-0 text-stone-500" />
+                    <FileDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span className="text-xs font-medium">Unduh PDF</span>
                   </button>
                 </div>
@@ -196,28 +196,28 @@ function MedicalRecordCard({
           </div>
         </div>
 
-        <div className="mt-3 space-y-2.5 rounded-2xl bg-[#FBFBFA] p-3 text-xs text-stone-600">
+        <div className="mt-3 space-y-2.5 rounded-2xl bg-[var(--hafta-50)] p-3 text-xs text-muted-foreground">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
             <span className="inline-flex items-center gap-1.5 font-mono text-[11px]">
               No. RM {record.medicalRecordNumber ?? '-'}
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <CalendarDays className="h-3.5 w-3.5 shrink-0 text-stone-400" />
+              <CalendarDays className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               {dateStr}
             </span>
             <span className="inline-flex min-w-0 items-center gap-1.5">
-              <Stethoscope className="h-3.5 w-3.5 shrink-0 text-stone-400" />
+              <Stethoscope className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
               <span className="truncate">{record.therapistName || 'Terapis'}</span>
             </span>
             {record.visitNumber ? (
-              <span className="rounded-full bg-white px-2 py-0.5 text-[10px] font-semibold text-stone-600">
+              <span className="rounded-full bg-card px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
                 Kunjungan {record.visitNumber}
               </span>
             ) : null}
             <span
               className={cn(
                 'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold',
-                record.patientVisible ? 'bg-white text-stone-600' : 'bg-amber-50 text-amber-800',
+                record.patientVisible ? 'bg-card text-muted-foreground' : 'bg-amber-50 text-amber-800',
               )}
               title={
                 record.patientVisible
@@ -237,10 +237,10 @@ function MedicalRecordCard({
               { label: 'Kekuatan', key: 'strength' as const, value: record.strengthScore },
               { label: 'Fungsi', key: 'function' as const, value: record.functionScore },
             ].map((metric) => (
-              <div key={metric.key} className="rounded-xl bg-white/70 px-2 py-2 text-center">
-                <span className="block text-[10px] text-stone-500">{metric.label}</span>
-                <span className="text-xs font-bold text-[#181700]">{metric.value}</span>
-                <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-stone-200/70">
+              <div key={metric.key} className="rounded-xl bg-card/70 px-2 py-2 text-center">
+                <span className="block text-[10px] text-muted-foreground">{metric.label}</span>
+                <span className="text-xs font-bold text-foreground">{metric.value}</span>
+                <div className="mt-1 h-1 w-full overflow-hidden rounded-full bg-muted">
                   <div
                     className={cn('h-full', getScoreColor(metric.key, metric.value).split(' ')[0])}
                     style={{ width: `${Math.min(100, metric.value * 10)}%` }}
@@ -252,10 +252,10 @@ function MedicalRecordCard({
 
           {(record.diagnosis || record.treatment) && (
             <div className="space-y-1 pt-0.5">
-              <div className="line-clamp-1 font-medium text-[#181700]">
+              <div className="line-clamp-1 font-medium text-foreground">
                 Diagnosis: {record.diagnosis || '-'}
               </div>
-              <div className="line-clamp-1 text-stone-600">
+              <div className="line-clamp-1 text-muted-foreground">
                 Tindakan: {record.treatment || '-'}
               </div>
             </div>
@@ -270,7 +270,7 @@ function MedicalRecordCard({
         <button
           type="button"
           onClick={() => onSelect(record)}
-          className="inline-flex h-10 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
+          className="inline-flex h-10 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)]"
         >
           <Eye className="h-3.5 w-3.5 shrink-0" />
           Lihat Detail SOAP
@@ -280,7 +280,7 @@ function MedicalRecordCard({
           <button
             type="button"
             onClick={() => (isFinal ? onAmend(record) : onEdit(record))}
-            className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-stone-200/90 bg-white px-3.5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100"
+            className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-card px-3.5 text-xs font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
           >
             {isFinal ? <FilePenLine className="h-3.5 w-3.5" /> : <Pencil className="h-3.5 w-3.5" />}
             <span>{isFinal ? 'Amandemen' : 'Edit'}</span>
@@ -420,7 +420,7 @@ export function ProgressManagementView({
         {/* Baris 1: Search + Aksi Cari/Reset */}
         <div className="flex w-full items-center gap-2">
           <div className="relative min-w-0 flex-1">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
               value={search}
@@ -437,14 +437,14 @@ export function ProgressManagementView({
                 if (e.key === 'Enter') applySearch(search);
               }}
               placeholder="Cari No. RM, nama pasien, atau diagnosis..."
-              className="h-10 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-10 text-xs text-[#181700] outline-none transition-all placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
+              className="h-10 w-full rounded-full border border-border bg-card pl-10 pr-10 text-xs text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
             />
             {search ? (
               <button
                 type="button"
                 aria-label="Bersihkan kata kunci"
                 onClick={() => applySearch('')}
-                className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-stone-100 hover:text-[#181700]"
+                className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] hover:text-foreground"
               >
                 <X className="h-3.5 w-3.5" />
               </button>
@@ -455,7 +455,7 @@ export function ProgressManagementView({
             <SmartFilterMenu count={activeFilterCount} panelClassName="w-56">
               {(close) => (
                 <>
-                  <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+                  <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                     Status
                   </p>
                   {([
@@ -477,19 +477,19 @@ export function ProgressManagementView({
                         className={cn(
                           'flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors',
                           selected
-                            ? 'border-stone-200 bg-[#F4F4F1] font-bold text-[#181700]'
-                            : 'border-transparent font-medium text-stone-600 hover:bg-stone-100 hover:text-[#181700]',
+                            ? 'border-border bg-[var(--hafta-50)] font-bold text-foreground'
+                            : 'border-transparent font-medium text-muted-foreground hover:bg-[var(--hafta-50)] hover:text-foreground',
                         )}
                       >
-                        <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-[#181700]' : 'text-stone-400')} />
+                        <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-foreground' : 'text-muted-foreground')} />
                         <span className="flex-1">{option.label}</span>
-                        {selected ? <Check className="h-3.5 w-3.5 text-[#181700]" /> : null}
+                        {selected ? <Check className="h-3.5 w-3.5 text-foreground" /> : null}
                       </button>
                     );
                   })}
 
-                  <div className="my-1.5 h-px bg-stone-100" />
-                  <p className="px-2.5 pb-1 pt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+                  <div className="my-1.5 h-px bg-muted" />
+                  <p className="px-2.5 pb-1 pt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                     Visibilitas
                   </p>
                   {([
@@ -511,13 +511,13 @@ export function ProgressManagementView({
                         className={cn(
                           'flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors',
                           selected
-                            ? 'border-stone-200 bg-[#F4F4F1] font-bold text-[#181700]'
-                            : 'border-transparent font-medium text-stone-600 hover:bg-stone-100 hover:text-[#181700]',
+                            ? 'border-border bg-[var(--hafta-50)] font-bold text-foreground'
+                            : 'border-transparent font-medium text-muted-foreground hover:bg-[var(--hafta-50)] hover:text-foreground',
                         )}
                       >
-                        <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-[#181700]' : 'text-stone-400')} />
+                        <Icon className={cn('h-4 w-4 shrink-0', selected ? 'text-foreground' : 'text-muted-foreground')} />
                         <span className="flex-1">{option.label}</span>
-                        {selected ? <Check className="h-3.5 w-3.5 text-[#181700]" /> : null}
+                        {selected ? <Check className="h-3.5 w-3.5 text-foreground" /> : null}
                       </button>
                     );
                   })}
@@ -536,15 +536,15 @@ export function ProgressManagementView({
             <SkeletonPanel key={item} className="h-56 rounded-3xl p-4 sm:p-5">
               <div className="flex items-start justify-between">
                 <div className="space-y-2">
-                  <SkeletonBlock className="h-5 w-36 bg-stone-200" />
-                  <SkeletonLine className="w-24 bg-stone-100" />
+                  <SkeletonBlock className="h-5 w-36 bg-muted" />
+                  <SkeletonLine className="w-24 bg-muted" />
                 </div>
-                <SkeletonBlock className="h-6 w-20 rounded-full bg-stone-100" />
+                <SkeletonBlock className="h-6 w-20 rounded-full bg-muted" />
               </div>
               <div className="mt-5 space-y-3">
                 <SkeletonLine className="w-full" />
-                <SkeletonLine className="w-4/5 bg-stone-100" />
-                <SkeletonLine className="w-2/3 bg-stone-100" />
+                <SkeletonLine className="w-4/5 bg-muted" />
+                <SkeletonLine className="w-2/3 bg-muted" />
               </div>
             </SkeletonPanel>
           ))}
@@ -554,14 +554,14 @@ export function ProgressManagementView({
           {history.length > 0 ? (
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <p className="flex items-center gap-1.5 text-xs font-semibold text-stone-500">
+                <p className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                   <History className="h-3.5 w-3.5" />
                   Riwayat pencarian
                 </p>
                 <button
                   type="button"
                   onClick={clearHistory}
-                  className="inline-flex cursor-pointer items-center gap-1 text-[11px] font-semibold text-stone-400 transition-colors hover:text-[var(--hafta-red-600)]"
+                  className="inline-flex cursor-pointer items-center gap-1 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-[var(--hafta-red-600)]"
                 >
                   <Trash2 className="h-3 w-3" />
                   Hapus semua
@@ -572,13 +572,13 @@ export function ProgressManagementView({
                 {history.map((item) => (
                   <div
                     key={item}
-                    className="flex items-center gap-2 rounded-2xl border border-stone-200/70 bg-white p-2.5"
+                    className="flex items-center gap-2 rounded-2xl border border-border/70 bg-card p-2.5"
                   >
-                    <History className="h-4 w-4 shrink-0 text-stone-400" />
+                    <History className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <button
                       type="button"
                       onClick={() => applySearch(item)}
-                      className="min-w-0 flex-1 truncate text-left text-xs font-semibold text-[#181700] hover:underline"
+                      className="min-w-0 flex-1 truncate text-left text-xs font-semibold text-foreground hover:underline"
                     >
                       {item}
                     </button>
@@ -586,7 +586,7 @@ export function ProgressManagementView({
                       type="button"
                       aria-label={`Hapus riwayat ${item}`}
                       onClick={() => removeHistory(item)}
-                      className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-stone-100 hover:text-[#181700]"
+                      className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] hover:text-foreground"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
@@ -596,14 +596,14 @@ export function ProgressManagementView({
             </div>
           ) : null}
 
-          <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
+          <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card p-3.5 text-center sm:p-5">
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-foreground">
               <Search className="h-6 w-6" />
             </span>
-            <h3 className="mt-3 text-sm font-bold text-[#181700]">
+            <h3 className="mt-3 text-sm font-bold text-foreground">
               Cari Pasien untuk Menampilkan Rekam Medis
             </h3>
-            <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-stone-500">
+            <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
               Masukkan Nomor Rekam Medis (No. RM), Nama Pasien, atau Diagnosis pada kolom pencarian di atas
               untuk membuka riwayat evaluasi SOAP tanpa menumpuk ratusan data.
             </p>
@@ -611,25 +611,25 @@ export function ProgressManagementView({
         </div>
       ) : (
         <div className="space-y-4 sm:space-y-6">
-          <p className="text-xs text-stone-500">
-            <span className="font-bold text-[#181700]">{filtered.length}</span> rekam medis ditemukan
+          <p className="text-xs text-muted-foreground">
+            <span className="font-bold text-foreground">{filtered.length}</span> rekam medis ditemukan
           </p>
 
           {filtered.length === 0 ? (
-            <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-stone-200 bg-white p-3.5 text-center sm:p-5">
-              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
+            <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card p-3.5 text-center sm:p-5">
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-foreground">
                 <Search className="h-6 w-6" />
               </span>
-              <h3 className="mt-3 text-sm font-bold text-[#181700]">
+              <h3 className="mt-3 text-sm font-bold text-foreground">
                 Tidak ditemukan rekam medis untuk kata kunci tersebut
               </h3>
-              <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-stone-500">
+              <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
                 Periksa kembali No. RM, nama pasien, atau diagnosis yang Anda ketik.
               </p>
               <button
                 type="button"
                 onClick={() => applySearch('')}
-                className="mt-5 inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-stone-200/90 bg-white px-4 sm:px-5 text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100"
+                className="mt-5 inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-border bg-card px-4 sm:px-5 text-xs font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
               >
                 Bersihkan Pencarian
               </button>
@@ -718,8 +718,8 @@ export function ProgressManagementView({
               className={cn(
                 'rounded-full px-3.5 py-1 text-xs font-bold transition-all cursor-pointer',
                 activeTab === 'soap'
-                  ? 'bg-[var(--hafta-org-100)] text-[#181700]'
-                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                  ? 'bg-[var(--hafta-org-100)] text-foreground'
+                  : 'bg-[var(--hafta-50)] text-muted-foreground hover:bg-muted'
               )}
             >
               Catatan SOAP &amp; Terapi
@@ -730,8 +730,8 @@ export function ProgressManagementView({
               className={cn(
                 'rounded-full px-3.5 py-1 text-xs font-bold transition-all cursor-pointer',
                 activeTab === 'metrics'
-                  ? 'bg-[var(--hafta-org-100)] text-[#181700]'
-                  : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                  ? 'bg-[var(--hafta-org-100)] text-foreground'
+                  : 'bg-[var(--hafta-50)] text-muted-foreground hover:bg-muted'
               )}
             >
               Indikator Fungsional
@@ -753,7 +753,7 @@ export function ProgressManagementView({
                       setEditingRecord(record);
                     }
                   }}
-                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-[#181700] font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
+                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
                 >
                   {selectedRecord.status === 'FINALIZED' ? (
                     <FilePenLine className="h-3.5 w-3.5" />
@@ -771,15 +771,15 @@ export function ProgressManagementView({
         {selectedRecord && (
           <div>
             {/* Standalone Full-bleed Edge Banner */}
-            <div className="-mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-4 border-b border-stone-200/80 bg-[var(--background)] px-3.5 py-3.5 sm:px-6 sm:py-4.5 text-xs text-stone-600">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200/60 pb-2">
-                <span className="font-bold text-[#181700]">Diagnosis Klinis Fisioterapi</span>
-                <span className="flex items-center gap-1 font-semibold text-stone-500">
+            <div className="-mx-3.5 -mt-3.5 sm:-mx-6 sm:-mt-4 border-b border-border/80 bg-[var(--background)] px-3.5 py-3.5 sm:px-6 sm:py-4.5 text-xs text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-2">
+                <span className="font-bold text-foreground">Diagnosis Klinis Fisioterapi</span>
+                <span className="flex items-center gap-1 font-semibold text-muted-foreground">
                   <Stethoscope className="h-3.5 w-3.5" />
                   {selectedRecord.diagnosis || 'Belum didiagnosis'}
                 </span>
               </div>
-              <p className="mt-2 text-xs text-stone-600 leading-relaxed">
+              <p className="mt-2 text-xs text-muted-foreground leading-relaxed">
                 Catatan rekam medis terstruktur mengacu pada standar International Classification of Functioning (ICF)
                 dan praktik fisioterapi berbasis bukti ilmiah.
               </p>
@@ -789,23 +789,23 @@ export function ProgressManagementView({
               {activeTab === 'soap' ? (
                 <>
                   {/* Subjective (Anamnesis) */}
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 space-y-1.5">
-                    <span className="font-bold text-xs text-[#181700] block">
+                  <div className="rounded-2xl border border-border bg-card p-3 sm:p-4 space-y-1.5">
+                    <span className="font-bold text-xs text-foreground block">
                       S — Subjective (Anamnesis &amp; Keluhan Pasien)
                     </span>
-                    <p className="text-xs sm:text-sm text-stone-700 leading-relaxed whitespace-pre-wrap">
-                      {selectedRecord.anamnesis || <span className="text-stone-300 italic">Tidak ada catatan</span>}
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                      {selectedRecord.anamnesis || <span className="text-muted-foreground/50 italic">Tidak ada catatan</span>}
                     </p>
                   </div>
 
                   {/* Objective (Pemeriksaan Fisik) */}
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 space-y-1.5">
-                    <span className="font-bold text-xs text-[#181700] block">
+                  <div className="rounded-2xl border border-border bg-card p-3 sm:p-4 space-y-1.5">
+                    <span className="font-bold text-xs text-foreground block">
                       O — Objective (Pemeriksaan Fisik, Palpasi, &amp; Tes Spesifik)
                     </span>
-                    <p className="text-xs sm:text-sm text-stone-700 leading-relaxed whitespace-pre-wrap">
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                       {selectedRecord.physicalExamination || (
-                        <span className="text-stone-300 italic">Tidak ada catatan pemeriksaan fisik</span>
+                        <span className="text-muted-foreground/50 italic">Tidak ada catatan pemeriksaan fisik</span>
                       )}
                     </p>
                   </div>
@@ -815,52 +815,52 @@ export function ProgressManagementView({
                     <span className="font-bold text-xs text-[var(--hafta-org-950)] block">
                       A — Assessment &amp; Kesimpulan Klinis
                     </span>
-                    <p className="text-xs sm:text-sm text-stone-800 leading-relaxed whitespace-pre-wrap font-medium">
-                      {selectedRecord.diagnosis || <span className="text-stone-400 italic">Tidak ada catatan</span>}
+                    <p className="text-xs sm:text-sm text-foreground leading-relaxed whitespace-pre-wrap font-medium">
+                      {selectedRecord.diagnosis || <span className="text-muted-foreground italic">Tidak ada catatan</span>}
                     </p>
                   </div>
 
                   {/* Plan (Tindakan Terapi) */}
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 space-y-1.5">
-                    <span className="font-bold text-xs text-[#181700] block">
+                  <div className="rounded-2xl border border-border bg-card p-3 sm:p-4 space-y-1.5">
+                    <span className="font-bold text-xs text-foreground block">
                       P — Plan (Modalitas, Terapi Manual, &amp; Intervensi Latihan)
                     </span>
-                    <p className="text-xs sm:text-sm text-stone-700 leading-relaxed whitespace-pre-wrap">
-                      {selectedRecord.treatment || <span className="text-stone-300 italic">Tidak ada catatan</span>}
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                      {selectedRecord.treatment || <span className="text-muted-foreground/50 italic">Tidak ada catatan</span>}
                     </p>
                   </div>
 
                   {/* Home Exercise & Follow up */}
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3 sm:p-4 space-y-1.5">
-                    <span className="font-bold text-xs text-[#181700] block">
+                  <div className="rounded-2xl border border-border bg-card p-3 sm:p-4 space-y-1.5">
+                    <span className="font-bold text-xs text-foreground block">
                       Rencana Tindak Lanjut &amp; Edukasi Mandiri (HEP)
                     </span>
-                    <p className="text-xs sm:text-sm text-stone-700 leading-relaxed whitespace-pre-wrap">
-                      {selectedRecord.followUpPlan || <span className="text-stone-300 italic">Tidak ada catatan</span>}
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                      {selectedRecord.followUpPlan || <span className="text-muted-foreground/50 italic">Tidak ada catatan</span>}
                     </p>
                   </div>
                 </>
               ) : (
                 /* Tab Metrik & Indikator Fungsional */
                 <div className="space-y-4">
-                  <div className="rounded-2xl border border-stone-200/90 bg-white p-3.5 sm:p-5 space-y-4">
-                    <h4 className="font-bold text-xs text-[#181700]">
+                  <div className="rounded-2xl border border-border bg-card p-3.5 sm:p-5 space-y-4">
+                    <h4 className="font-bold text-xs text-foreground">
                       Perkembangan Skor Fungsional Sesi Ini
                     </h4>
 
                     {/* Progress Bar VAS */}
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-stone-600">Visual Analogue Scale (Skor Nyeri)</span>
-                        <span className="font-mono font-bold text-[#181700]">{selectedRecord.painScore} / 10</span>
+                        <span className="font-semibold text-muted-foreground">Visual Analogue Scale (Skor Nyeri)</span>
+                        <span className="font-mono font-bold text-foreground">{selectedRecord.painScore} / 10</span>
                       </div>
-                      <div className="h-2 w-full rounded-full bg-stone-100 overflow-hidden">
+                      <div className="h-2 w-full rounded-full bg-[var(--hafta-50)] overflow-hidden">
                         <div
                           className={cn('h-full', getScoreColor('pain', selectedRecord.painScore).split(' ')[0])}
                           style={{ width: `${selectedRecord.painScore * 10}%` }}
                         />
                       </div>
-                      <p className="text-[11px] text-stone-400">
+                      <p className="text-[11px] text-muted-foreground">
                         Skor 0 (tanpa nyeri) hingga 10 (nyeri sangat hebat).
                       </p>
                     </div>
@@ -868,12 +868,12 @@ export function ProgressManagementView({
                     {/* ROM */}
                     <div className="space-y-1.5 pt-2">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-stone-600">Range of Motion (Lingkup Gerak Sendi)</span>
-                        <span className="font-mono font-bold text-[#181700]">
+                        <span className="font-semibold text-muted-foreground">Range of Motion (Lingkup Gerak Sendi)</span>
+                        <span className="font-mono font-bold text-foreground">
                           {selectedRecord.rangeOfMotionScore} / 10
                         </span>
                       </div>
-                      <div className="h-2 w-full rounded-full bg-stone-100 overflow-hidden">
+                      <div className="h-2 w-full rounded-full bg-[var(--hafta-50)] overflow-hidden">
                         <div
                           className="h-full bg-hafta-grn-500"
                           style={{ width: `${selectedRecord.rangeOfMotionScore * 10}%` }}
@@ -884,12 +884,12 @@ export function ProgressManagementView({
                     {/* MMT */}
                     <div className="space-y-1.5 pt-2">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-stone-600">Manual Muscle Testing (Kekuatan Otot)</span>
-                        <span className="font-mono font-bold text-[#181700]">
+                        <span className="font-semibold text-muted-foreground">Manual Muscle Testing (Kekuatan Otot)</span>
+                        <span className="font-mono font-bold text-foreground">
                           {selectedRecord.strengthScore} / 10
                         </span>
                       </div>
-                      <div className="h-2 w-full rounded-full bg-stone-100 overflow-hidden">
+                      <div className="h-2 w-full rounded-full bg-[var(--hafta-50)] overflow-hidden">
                         <div
                           className="h-full bg-hafta-grn-500"
                           style={{ width: `${selectedRecord.strengthScore * 10}%` }}
@@ -900,12 +900,12 @@ export function ProgressManagementView({
                     {/* ADL Function */}
                     <div className="space-y-1.5 pt-2">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="font-semibold text-stone-600">Aktivitas Fungsional Harian (ADL)</span>
-                        <span className="font-mono font-bold text-[#181700]">
+                        <span className="font-semibold text-muted-foreground">Aktivitas Fungsional Harian (ADL)</span>
+                        <span className="font-mono font-bold text-foreground">
                           {selectedRecord.functionScore} / 10
                         </span>
                       </div>
-                      <div className="h-2 w-full rounded-full bg-stone-100 overflow-hidden">
+                      <div className="h-2 w-full rounded-full bg-[var(--hafta-50)] overflow-hidden">
                         <div
                           className="h-full bg-hafta-grn-500"
                           style={{ width: `${selectedRecord.functionScore * 10}%` }}

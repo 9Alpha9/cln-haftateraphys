@@ -46,8 +46,8 @@ export function UserSuspensionButton({
         className={cn(
           'inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50',
           suspended
-            ? 'border-[var(--hafta-grn-200)] bg-white text-[var(--hafta-grn-700)] hover:bg-[var(--hafta-grn-50)]'
-            : 'border-red-200 bg-white text-red-700 hover:bg-red-50',
+            ? 'border-[var(--hafta-grn-200)] bg-card text-[var(--hafta-grn-700)] hover:bg-[var(--hafta-grn-50)]'
+            : 'border-red-200 bg-card text-red-700 hover:bg-red-50',
         )}
       >
         {pending ? (

@@ -98,7 +98,7 @@ export function UserListFilters({
     <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center">
       <FilterPendingBar active={pending} />
       <div className="relative min-w-0 flex-1">
-        <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
+        <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           type="text"
           value={search}
@@ -112,7 +112,7 @@ export function UserListFilters({
           }}
           placeholder="Cari nama, email, atau username"
           aria-label="Cari pengguna"
-          className="h-10 w-full rounded-full border border-stone-200/90 bg-white pl-10 pr-10 text-xs text-[#181700] outline-none transition-all placeholder:text-stone-400 focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
+          className="h-10 w-full rounded-full border border-border bg-card pl-10 pr-10 text-xs text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
         />
         {search ? (
           <button
@@ -123,7 +123,7 @@ export function UserListFilters({
               if (timerRef.current) window.clearTimeout(timerRef.current);
               apply({ search: '' });
             }}
-            className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-stone-400 transition-colors hover:bg-stone-100 hover:text-[#181700]"
+            className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] hover:text-foreground"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -134,7 +134,7 @@ export function UserListFilters({
         <SmartFilterMenu count={activeFilterCount} pending={pending} className="w-full sm:w-auto">
           {(close) => (
             <>
-              <p className="px-3 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+              <p className="px-3 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                 Role
               </p>
               {ROLE_OPTIONS.map((option) => {
@@ -147,18 +147,18 @@ export function UserListFilters({
                     onClick={() => selectRole(option.value, close)}
                     aria-pressed={selected}
                     className={cn(
-                      'flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100',
-                      selected && 'bg-[#F4F4F1]',
+                      'flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]',
+                      selected && 'bg-[var(--hafta-50)]',
                     )}
                   >
-                    <Icon className="h-4 w-4 shrink-0 text-stone-500" />
+                    <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <span className="flex-1">{option.label}</span>
                     {selected ? <Check className="h-3.5 w-3.5 shrink-0" /> : null}
                   </button>
                 );
               })}
 
-              <p className="mt-1 px-3 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-stone-400">
+              <p className="mt-1 px-3 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                 Status
               </p>
               {STATUS_OPTIONS.map((option) => {
@@ -171,11 +171,11 @@ export function UserListFilters({
                     onClick={() => selectStatus(option.value, close)}
                     aria-pressed={selected}
                     className={cn(
-                      'flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-semibold text-[#181700] transition-colors hover:bg-stone-100',
-                      selected && 'bg-[#F4F4F1]',
+                      'flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]',
+                      selected && 'bg-[var(--hafta-50)]',
                     )}
                   >
-                    <Icon className="h-4 w-4 shrink-0 text-stone-500" />
+                    <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
                     <span className="flex-1">{option.label}</span>
                     {selected ? <Check className="h-3.5 w-3.5 shrink-0" /> : null}
                   </button>

@@ -77,7 +77,7 @@ export function AppointmentFormFields({
           {therapistOptions.length === 1 ? (
             <>
               <input type="hidden" name="therapistId" value={therapistOptions[0]!.id} />
-              <div className="flex h-10 w-full items-center rounded-xl border border-stone-200/90 bg-stone-50 px-3 text-sm text-[#181700]">
+              <div className="flex h-10 w-full items-center rounded-xl border border-border bg-[var(--hafta-50)] px-3 text-sm text-foreground">
                 {therapistOptions[0]!.label}
               </div>
             </>
@@ -144,7 +144,7 @@ export function AppointmentFormFields({
           defaultValue={defaultNote}
           className={
             noteClassName ??
-            'flex min-h-28 w-full resize-none rounded-xl border border-stone-200/90 bg-white px-3 py-2 text-sm leading-relaxed text-[#181700] focus:outline-none focus:border-[#181700] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35'
+            'flex min-h-28 w-full resize-none rounded-xl border border-border bg-card px-3 py-2 text-sm leading-relaxed text-foreground focus:outline-none focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35'
           }
         />
       </div>

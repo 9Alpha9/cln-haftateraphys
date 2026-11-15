@@ -69,7 +69,7 @@ function SubmenuTreeList({
               aria-hidden="true"
               className={cn(
                 'pointer-events-none absolute left-0 top-0 h-9 w-7 overflow-visible',
-                tone === 'dark' ? 'text-[#4A4935]' : 'text-stone-300',
+                tone === 'dark' ? 'text-[#4A4935]' : 'text-muted-foreground/50',
               )}
               viewBox="0 0 28 36"
               fill="none"
@@ -95,8 +95,8 @@ function SubmenuTreeList({
                     ? 'bg-[var(--hafta-800)] font-bold text-[var(--hafta-50)]'
                     : 'bg-[var(--hafta-org-50)] font-bold text-foreground'
                   : tone === 'dark'
-                    ? 'font-medium text-stone-400 hover:text-stone-200'
-                    : 'font-medium text-stone-600 hover:bg-stone-100',
+                    ? 'font-medium text-muted-foreground hover:text-stone-200'
+                    : 'font-medium text-muted-foreground hover:bg-accent',
               )}
             >
               <span className="truncate">{sub.label}</span>
@@ -261,7 +261,7 @@ export function PatientDashboardShell({
           aria-expanded={!collapsed}
           title={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
           onClick={() => setCollapsedOverride(!collapsed)}
-          className="hidden md:flex absolute -right-3 top-[26px] z-30 h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 transition-colors hover:border-[var(--hafta-org-200)] hover:bg-[var(--hafta-org-50)] hover:text-foreground"
+          className="hidden md:flex absolute -right-3 top-[26px] z-30 h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-[var(--hafta-org-200)] hover:bg-[var(--hafta-org-50)] hover:text-foreground"
         >
           {collapsed ? <PanelLeftOpen className="h-3.5 w-3.5" /> : <PanelLeftClose className="h-3.5 w-3.5" />}
         </button>
@@ -307,7 +307,7 @@ export function PatientDashboardShell({
             return (
               <div key={group.label} className="space-y-1">
                 {!collapsed && (
-                  <p className="mb-1.5 hidden px-3 font-mono text-[10px] font-bold uppercase tracking-widest text-stone-400 md:block">
+                  <p className="mb-1.5 hidden px-3 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground md:block">
                     {group.label}
                   </p>
                 )}
@@ -361,13 +361,13 @@ export function PatientDashboardShell({
                                     'mx-auto flex h-11 w-11 items-center justify-center rounded-xl p-0',
                                     hoveredGroupId === key || hasActiveChild
                                       ? 'bg-[var(--hafta-800)] text-[var(--hafta-50)]'
-                                      : 'bg-transparent text-stone-400 hover:text-stone-200',
+                                      : 'bg-transparent text-muted-foreground hover:text-stone-200',
                                   )
                                 : cn(
                                     'flex h-11 w-full items-center justify-between rounded-xl px-3.5 text-xs font-bold',
                                     open
                                       ? 'bg-[var(--hafta-800)] text-[var(--hafta-50)]'
-                                      : 'bg-transparent text-stone-400 hover:text-stone-200',
+                                      : 'bg-transparent text-muted-foreground hover:text-stone-200',
                                   ),
                             )}
                           >
@@ -397,9 +397,9 @@ export function PatientDashboardShell({
                                   </span>
                                 ) : null}
                                 {open ? (
-                                  <ChevronUp className="h-4 w-4 text-stone-300" />
+                                  <ChevronUp className="h-4 w-4 text-muted-foreground/50" />
                                 ) : (
-                                  <ChevronDown className="h-4 w-4 text-stone-300" />
+                                  <ChevronDown className="h-4 w-4 text-muted-foreground/50" />
                                 )}
                               </div>
                             )}
@@ -448,7 +448,7 @@ export function PatientDashboardShell({
                                 transition={{ duration: 0.16, ease: 'easeOut' }}
                                 className="absolute left-3 top-[calc(100%+6px)] z-[80] w-52 rounded-2xl border border-[#2E2D1D] bg-sidebar p-3 shadow-[0_16px_40px_rgba(0,0,0,0.45)]"
                               >
-                                <p className="px-1 pb-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-stone-500">
+                                <p className="px-1 pb-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                                   {item.label}
                                 </p>
                                 <SubmenuTreeList
@@ -485,14 +485,14 @@ export function PatientDashboardShell({
                               : cn('min-h-11 px-3 py-2.5 rounded-xl', badge > 0 && 'pr-10'),
                             active
                               ? 'bg-[var(--hafta-800)] text-[var(--hafta-50)] font-bold ring-1 ring-[var(--hafta-800)]'
-                              : 'text-stone-300 hover:bg-[var(--hafta-800)] hover:text-[var(--hafta-50)]'
+                              : 'text-muted-foreground/50 hover:bg-[var(--hafta-800)] hover:text-[var(--hafta-50)]'
                           )}
                         >
                           <div className={cn('flex min-w-0 items-center gap-3', collapsed ? 'w-full justify-center' : 'justify-center md:justify-start')}>
                             <item.icon
                               className={cn(
                                 'h-4.5 w-4.5 shrink-0 transition-colors',
-                                active ? 'text-[var(--hafta-300)]' : 'text-stone-400 group-hover:text-stone-200'
+                                active ? 'text-[var(--hafta-300)]' : 'text-muted-foreground group-hover:text-stone-200'
                               )}
                             />
                             {!collapsed && (
@@ -517,7 +517,7 @@ export function PatientDashboardShell({
                                 : 'right-3 top-1/2 -translate-y-1/2 px-2 py-0.5 text-[10px]',
                               collapsed || item.href === '/dashboard/intake'
                                 ? 'bg-[var(--hafta-org-100)] text-foreground'
-                                : 'bg-white/10 text-white',
+                                : 'bg-card/10 text-white',
                             )}
                           >
                             {badge > 99 ? '99+' : badge}
@@ -566,7 +566,7 @@ export function PatientDashboardShell({
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-bold text-white leading-tight">{userName || 'Pasien'}</p>
-                  <p className="truncate font-mono text-[10px] text-stone-400 mt-0.5">{getRoleLabel(role)}</p>
+                  <p className="truncate font-mono text-[10px] text-muted-foreground mt-0.5">{getRoleLabel(role)}</p>
                 </div>
               </Link>
 
@@ -574,7 +574,7 @@ export function PatientDashboardShell({
                 type="button"
                 onClick={handleLogout}
                 title="Keluar akun"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-stone-400 hover:bg-stone-800 hover:text-red-400 transition-colors cursor-pointer"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-stone-800 hover:text-red-400 transition-colors cursor-pointer"
               >
                 <LogOut className="h-4 w-4" />
               </button>
@@ -594,7 +594,7 @@ export function PatientDashboardShell({
           <div
             aria-hidden="true"
             className={cn(
-              'pointer-events-none absolute inset-x-0 top-0 h-[calc(100%+1.25rem)] border-b border-stone-200/70 bg-white/80 transition-opacity duration-300 ease-out',
+              'pointer-events-none absolute inset-x-0 top-0 h-[calc(100%+1.25rem)] border-b border-border/70 bg-card/80 transition-opacity duration-300 ease-out',
               scrolled ? 'opacity-100' : 'opacity-0',
             )}
             style={{
@@ -622,7 +622,7 @@ export function PatientDashboardShell({
                 <span className="block truncate text-sm font-bold leading-tight text-[#111827]">
                   {userName || 'Pasien'}
                 </span>
-                <span className="mt-0.5 block truncate text-[10px] font-medium leading-tight text-stone-500">
+                <span className="mt-0.5 block truncate text-[10px] font-medium leading-tight text-muted-foreground">
                   {getRoleLabel(role)}
                 </span>
               </span>
@@ -635,13 +635,13 @@ export function PatientDashboardShell({
                 initialNotifications={recentNotifications}
                 className={cn(
                   scrolled
-                    ? 'bg-transparent hover:bg-stone-100/70'
-                    : 'border border-white/60 bg-white/60 shadow-[0_4px_16px_rgba(24,23,0,0.08)] backdrop-blur-md hover:bg-white/80',
+                    ? 'bg-transparent hover:bg-accent/70'
+                    : 'border border-white/60 bg-card/60 shadow-[0_4px_16px_rgba(24,23,0,0.08)] backdrop-blur-md hover:bg-card/80',
                 )}
               />
 
               <DropdownMenu>
-                <DropdownMenuTrigger className="hidden items-center gap-2.5 rounded-xl p-1.5 transition-colors hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-200)] md:flex">
+                <DropdownMenuTrigger className="hidden items-center gap-2.5 rounded-xl p-1.5 transition-colors hover:bg-[var(--hafta-50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-200)] md:flex">
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--hafta-org-50)] text-sm font-bold text-[var(--hafta-org-900)]">
                     {liveAvatar ? (
                       // eslint-disable-next-line @next/next/no-img-element
@@ -652,14 +652,14 @@ export function PatientDashboardShell({
                   </span>
                   <div className="hidden min-w-0 flex-col text-left sm:flex">
                     <span className="truncate text-xs font-bold text-[#111827]">{userName || 'Pasien'}</span>
-                    <span className="truncate text-[11px] text-stone-500">{userEmail || 'pasien'}</span>
+                    <span className="truncate text-[11px] text-muted-foreground">{userEmail || 'pasien'}</span>
                   </div>
-                  <ChevronDown className="hidden h-4 w-4 shrink-0 text-stone-400 sm:block" />
+                  <ChevronDown className="hidden h-4 w-4 shrink-0 text-muted-foreground sm:block" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <div className="px-3 py-2">
                     <p className="text-sm font-semibold text-[#111827]">{userName || 'Pasien'}</p>
-                    <p className="text-xs text-stone-500">{userEmail || 'pasien'}</p>
+                    <p className="text-xs text-muted-foreground">{userEmail || 'pasien'}</p>
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => goTo('/dashboard/profile')}>
@@ -688,7 +688,7 @@ export function PatientDashboardShell({
                 type="button"
                 aria-label="Kembali"
                 onClick={() => router.back()}
-                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-stone-200 bg-white text-foreground transition-colors hover:bg-stone-50"
+                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-[var(--hafta-50)]"
               >
                 <ArrowLeft className="h-4 w-4" />
               </button>
@@ -839,7 +839,7 @@ export function PatientDashboardShell({
               setMoreOpen(false);
               handleLogout();
             }}
-            className="flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-red-200 bg-white text-xs font-bold text-red-700 transition-colors hover:bg-red-50"
+            className="flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-full border border-red-200 bg-card text-xs font-bold text-red-700 transition-colors hover:bg-red-50"
           >
             <LogOut className="h-4 w-4" />
             Keluar akun
@@ -851,7 +851,7 @@ export function PatientDashboardShell({
             .filter((group) => group.items.length > 0)
             .map((group) => (
             <div key={group.label}>
-              <p className="px-1 font-mono text-[10px] font-bold uppercase tracking-widest text-stone-400">
+              <p className="px-1 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                 {group.label}
               </p>
               <ul className="mt-1.5 space-y-1.5">
@@ -866,7 +866,7 @@ export function PatientDashboardShell({
                           type="button"
                           aria-expanded={open}
                           onClick={() => setMobileOpenId(open ? null : key)}
-                          className="flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-stone-200 bg-white px-3 py-2.5 text-left transition-colors hover:bg-stone-50"
+                          className="flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-border bg-card px-3 py-2.5 text-left transition-colors hover:bg-[var(--hafta-50)]"
                         >
                           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FAFAF8] text-foreground">
                             <item.icon className="h-4 w-4" />
@@ -875,9 +875,9 @@ export function PatientDashboardShell({
                             {item.label}
                           </span>
                           {open ? (
-                            <ChevronUp className="h-4 w-4 shrink-0 text-stone-400" />
+                            <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" />
                           ) : (
-                            <ChevronDown className="h-4 w-4 shrink-0 text-stone-400" />
+                            <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
                           )}
                         </button>
                         <AnimatePresence initial={false}>
@@ -915,7 +915,7 @@ export function PatientDashboardShell({
                       <Link
                         href={item.href ?? '#'}
                         onClick={() => setMoreOpen(false)}
-                        className="flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-stone-200 bg-white px-3 py-2.5 text-left transition-colors hover:bg-stone-50"
+                        className="flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-border bg-card px-3 py-2.5 text-left transition-colors hover:bg-[var(--hafta-50)]"
                       >
                         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FAFAF8] text-foreground">
                           <item.icon className="h-4 w-4" />
@@ -928,7 +928,7 @@ export function PatientDashboardShell({
                             {badge > 99 ? '99+' : badge}
                           </span>
                         ) : null}
-                        <ChevronRight className="h-4 w-4 shrink-0 text-stone-300" />
+                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50" />
                       </Link>
                     </li>
                   );
@@ -937,7 +937,7 @@ export function PatientDashboardShell({
             </div>
           ))}
           <div>
-            <p className="px-1 font-mono text-[10px] font-bold uppercase tracking-widest text-stone-400">
+            <p className="px-1 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               Lainnya
             </p>
             <ul className="mt-1.5 space-y-1.5">
@@ -945,7 +945,7 @@ export function PatientDashboardShell({
                 <Link
                   href="/dashboard/notifications"
                   onClick={() => setMoreOpen(false)}
-                  className="flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-stone-200 bg-white px-3 py-2.5 text-left transition-colors hover:bg-stone-50"
+                  className="flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-border bg-card px-3 py-2.5 text-left transition-colors hover:bg-[var(--hafta-50)]"
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FAFAF8] text-foreground">
                     <Bell className="h-4 w-4" />
@@ -958,7 +958,7 @@ export function PatientDashboardShell({
                       {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   ) : null}
-                  <ChevronRight className="h-4 w-4 shrink-0 text-stone-300" />
+                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50" />
                 </Link>
               </li>
             </ul>

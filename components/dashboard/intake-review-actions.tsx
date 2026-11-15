@@ -56,7 +56,7 @@ export function IntakeReviewActions({
     );
   if (status !== 'UNDER_REVIEW') return null;
   return (
-    <div className="space-y-4 rounded-xl border border-[#E9E2D8] bg-white p-3.5 sm:p-5">
+    <div className="space-y-4 rounded-xl border border-[#E9E2D8] bg-card p-3.5 sm:p-5">
       <div>
         <p className="font-semibold text-[#1F2937]">Keputusan Review</p>
         <p className="mt-1 text-sm text-[#6B7280]">

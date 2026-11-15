@@ -38,10 +38,10 @@ export function LiveGreeting({
 
   return (
     <>
-      <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-stone-400">
+      <p className="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
         {formatDate(now)}
       </p>
-      <h1 className="mt-2 text-2xl font-bold tracking-tight text-[#181700] sm:text-3xl">
+      <h1 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
         {getGreeting(now)}, {name}
       </h1>
     </>

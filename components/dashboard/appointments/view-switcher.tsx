@@ -11,14 +11,14 @@ export function ViewSwitcher() {
   const isCalendarView = pathname === '/dashboard/calendar';
 
   return (
-    <div className="h-11 p-0 rounded-full bg-white border border-stone-200/90 inline-grid grid-cols-2 items-center overflow-hidden shrink-0">
+    <div className="h-11 p-0 rounded-full bg-card border border-border inline-grid grid-cols-2 items-center overflow-hidden shrink-0">
       <Link
         href="/dashboard/appointments"
         className={cn(
           'h-full w-full px-4 rounded-full text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 whitespace-nowrap select-none',
           isListView
-            ? 'bg-[var(--hafta-org-100)] text-[#181700] font-bold'
-            : 'bg-transparent text-stone-600 hover:text-[#181700] font-semibold',
+            ? 'bg-[var(--hafta-org-100)] text-foreground font-bold'
+            : 'bg-transparent text-muted-foreground hover:text-foreground font-semibold',
         )}
       >
         <LayoutList className="h-4 w-4 shrink-0" /> List
@@ -28,8 +28,8 @@ export function ViewSwitcher() {
         className={cn(
           'h-full w-full px-4 rounded-full text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all duration-200 whitespace-nowrap select-none',
           isCalendarView
-            ? 'bg-[var(--hafta-org-100)] text-[#181700] font-bold'
-            : 'bg-transparent text-stone-600 hover:text-[#181700] font-semibold',
+            ? 'bg-[var(--hafta-org-100)] text-foreground font-bold'
+            : 'bg-transparent text-muted-foreground hover:text-foreground font-semibold',
         )}
       >
         <CalendarDays className="h-4 w-4 shrink-0" /> Kalender
