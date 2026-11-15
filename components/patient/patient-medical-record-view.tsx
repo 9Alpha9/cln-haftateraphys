@@ -10,8 +10,8 @@ import {
   HeartPulse,
   Stethoscope,
   TrendingUp,
-  UserRound,
 } from 'lucide-react';
+import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import { MedicalRecordActions } from '@/components/dashboard/medical-record-actions';
 import { PaginationBar } from '@/components/ui/pagination-bar';
 import { cn } from '@/lib/utils';
@@ -41,39 +41,39 @@ const CLINICAL_ROWS: { label: string; field: keyof TherapyProgressView }[] = [
 const METRICS: {
   key: 'pain' | 'rom' | 'strength' | 'function';
   label: string;
+  short: string;
   field: keyof TherapyProgressView;
   icon: typeof HeartPulse;
 }[] = [
-  { key: 'pain', label: 'Nyeri', field: 'painScore', icon: HeartPulse },
-  { key: 'rom', label: 'ROM', field: 'rangeOfMotionScore', icon: Activity },
-  { key: 'strength', label: 'Kekuatan', field: 'strengthScore', icon: TrendingUp },
-  { key: 'function', label: 'Fungsi', field: 'functionScore', icon: UserRound },
+  { key: 'pain', label: 'Nyeri', short: 'Nyeri', field: 'painScore', icon: HeartPulse },
+  { key: 'rom', label: 'Rentang Gerak', short: 'ROM', field: 'rangeOfMotionScore', icon: Activity },
+  { key: 'strength', label: 'Kekuatan', short: 'Kekuatan', field: 'strengthScore', icon: TrendingUp },
+  { key: 'function', label: 'Fungsi', short: 'Fungsi', field: 'functionScore', icon: Activity },
 ];
 
-type Tone = 'optimal' | 'good' | 'attention';
+type Tone = 'good' | 'watch' | 'alert';
 
 function metricTone(key: string, score: number): { tone: Tone; label: string } {
   const value = Math.max(0, Math.min(10, Number(score)));
   if (key === 'pain') {
-    if (value <= 3) return { tone: 'optimal', label: 'Ringan' };
-    if (value <= 6) return { tone: 'good', label: 'Sedang' };
-    return { tone: 'attention', label: 'Tinggi' };
+    if (value <= 3) return { tone: 'good', label: 'Ringan' };
+    if (value <= 6) return { tone: 'watch', label: 'Sedang' };
+    return { tone: 'alert', label: 'Tinggi' };
   }
-  if (value >= 8) return { tone: 'optimal', label: 'Optimal' };
-  if (value >= 6) return { tone: 'good', label: 'Baik' };
-  return { tone: 'attention', label: 'Rendah' };
+  if (value >= 8) return { tone: 'good', label: 'Optimal' };
+  if (value >= 6) return { tone: 'watch', label: 'Baik' };
+  return { tone: 'alert', label: 'Rendah' };
 }
 
 const TONE_PILL: Record<Tone, string> = {
-  optimal: 'bg-[var(--hafta-grn-500)]/10 text-[var(--hafta-grn-700)]',
-  good: 'bg-[var(--hafta-300)]/12 text-[var(--hafta-700)]',
-  attention: 'bg-[var(--hafta-red-500)]/10 text-[var(--hafta-red-700)]',
+  good: 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]',
+  watch: 'bg-[var(--hafta-50)] text-[var(--hafta-700)]',
+  alert: 'bg-[var(--hafta-red-50)] text-[var(--hafta-red-700)]',
 };
 
-const TONE_BAR: Record<Tone, string> = {
-  optimal: 'bg-[var(--hafta-grn-500)]',
-  good: 'bg-[var(--hafta-300)]',
-  attention: 'bg-[var(--hafta-red-400)]',
+const TONE_DELTA: Record<'up' | 'down', string> = {
+  up: 'text-[var(--hafta-grn-600)]',
+  down: 'text-[var(--hafta-red-600)]',
 };
 
 const GENDER_LABEL: Record<string, string> = {
@@ -127,67 +127,16 @@ function formatAge(dateOfBirth: Date | null) {
 function deltaLabel(current: number, previous: number | null) {
   if (previous === null) return null;
   const diff = Number(current) - Number(previous);
-  if (diff === 0) return { text: 'tetap', direction: 'same' as const };
-  return { text: `${Math.abs(diff)}`, direction: diff > 0 ? ('up' as const) : ('down' as const) };
+  if (diff === 0) return null;
+  return { text: `${diff > 0 ? '+' : ''}${diff}`, direction: diff > 0 ? ('up' as const) : ('down' as const) };
 }
 
-function SoftCard({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section
-      className={cn(
-        'rounded-2xl bg-white p-3.5 shadow-[0_1px_2px_rgba(28,25,23,0.04),0_12px_32px_-18px_rgba(28,25,23,0.18)] sm:rounded-3xl sm:p-4',
-        className,
-      )}
-    >
-      {children}
-    </section>
-  );
-}
-
-function SectionTitle({
-  children,
-  action,
-}: {
-  children: React.ReactNode;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-2">
-      <h2 className="text-[13px] font-semibold tracking-tight text-foreground sm:text-sm">
-        {children}
-      </h2>
-      {action}
-    </div>
-  );
-}
-
-function SoftRow({
-  className,
-  onClick,
-  children,
-}: {
-  className?: string;
-  onClick?: () => void;
-  children: React.ReactNode;
-}) {
-  const base = cn(
-    'flex w-full items-center gap-2.5 rounded-xl bg-[#F7F4F0] px-2.5 py-2 text-left sm:px-3 sm:py-2.5',
-    onClick && 'cursor-pointer transition-colors hover:bg-[#F1ECE6]',
-    className,
-  );
-  return onClick ? (
-    <button type="button" onClick={onClick} className={base}>
-      {children}
-    </button>
-  ) : (
-    <div className={base}>{children}</div>
-  );
+/** Delta dengan arah "baik/buruk": untuk Nyeri, turun = baik. */
+function deltaForMetric(key: string, current: number, previous: number | null) {
+  const change = deltaLabel(current, previous);
+  if (!change) return null;
+  const isGood = key === 'pain' ? change.direction === 'down' : change.direction === 'up';
+  return { ...change, isGood };
 }
 
 export function PatientMedicalRecordView({
@@ -203,6 +152,7 @@ export function PatientMedicalRecordView({
 }) {
   const [activeTab, setActiveTab] = useState<TabKey>('ringkasan');
   const [selectedRecordId, setSelectedRecordId] = useState(records[0]?.id ?? '');
+  const [detailRecord, setDetailRecord] = useState<TherapyProgressView | null>(null);
   const [visitPage, setVisitPage] = useState(1);
   const [visitsPerPage, setVisitsPerPage] = useState(5);
 
@@ -242,15 +192,6 @@ export function PatientMedicalRecordView({
           100,
       )
     : 0;
-  const trend = useMemo(() => chronological.slice(-8), [chronological]);
-  const conditions = useMemo(
-    () =>
-      records
-        .filter((record) => Boolean(record.diagnosis))
-        .slice(0, 4)
-        .map((record) => ({ id: record.id, label: record.diagnosis as string, date: record.recordedAt })),
-    [records],
-  );
 
   function openRecord(recordId: string) {
     setSelectedRecordId(recordId);
@@ -258,70 +199,68 @@ export function PatientMedicalRecordView({
   }
 
   return (
-    <div className="space-y-3 sm:space-y-4">
-      {/* ── HEADER PASIEN ── */}
-      <SoftCard className="p-3.5 sm:p-5">
-        <div className="flex items-start gap-3">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[#F1ECE6] text-sm font-bold text-foreground sm:h-16 sm:w-16 sm:text-base">
-            {patient?.avatarKey ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={patient.avatarKey} alt="Foto pasien" className="h-full w-full object-cover" />
-            ) : (
-              (patient?.preferredName ?? patient?.fullName)?.[0]?.toUpperCase() ?? 'P'
-            )}
+    <div className="space-y-4 sm:space-y-5">
+      {/* ── 1. HEADER PASIEN — flat di kanvas, tanpa kartu ── */}
+      <header className="border-b border-border pb-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
+            {patient?.preferredName ?? patient?.fullName ?? 'Pasien'}
+          </h1>
+          <span className="rounded-full bg-[var(--hafta-50)] px-2 py-0.5 text-[10px] font-semibold text-[var(--hafta-700)]">
+            {labelCaseStatus(patient?.caseStatus)}
           </span>
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1 className="truncate text-lg font-semibold tracking-tight sm:text-xl">
-                {patient?.preferredName ?? patient?.fullName ?? 'Pasien'}
-              </h1>
-              <span className="rounded-full bg-[var(--hafta-300)]/12 px-2 py-0.5 text-[10px] font-semibold text-[var(--hafta-700)]">
-                {labelCaseStatus(patient?.caseStatus)}
-              </span>
-            </div>
-            <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
-              <span>{formatAge(patient?.dateOfBirth ?? null)}</span>
-              <span>{labelGender(patient?.gender)}</span>
-              <span>RM {patient?.medicalRecordNumber ?? '-'}</span>
+        </div>
+        <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+          <span>{formatAge(patient?.dateOfBirth ?? null)}</span>
+          <span aria-hidden="true">·</span>
+          <span>{labelGender(patient?.gender)}</span>
+          <span aria-hidden="true">·</span>
+          <span className="tabular-nums">No. RM {patient?.medicalRecordNumber ?? '-'}</span>
+          <span aria-hidden="true">·</span>
+          <span className="inline-flex items-center gap-1">
+            <Stethoscope className="h-3 w-3" />
+            {patient?.therapistName ?? latestRecord?.therapistName ?? 'Fisioterapis Hafta'}
+          </span>
+        </p>
+      </header>
+
+      {/* ── 2. STAT PILLS — satu baris, tint token ── */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        {[
+          {
+            icon: Activity,
+            label: 'Total Sesi',
+            value: `${records.length}`,
+            detail: firstRecord ? `sejak ${shortDate(firstRecord.recordedAt)}` : 'belum ada sesi',
+          },
+          {
+            icon: TrendingUp,
+            label: 'Progres',
+            value: `${averageScore}%`,
+            detail: 'rata-rata ROM, kekuatan & fungsi',
+          },
+          {
+            icon: CalendarDays,
+            label: 'Berikutnya',
+            value: patient?.nextTherapyAt ? shortDate(patient.nextTherapyAt) : '—',
+            detail: patient?.therapyFrequencyText ?? 'belum dijadwalkan',
+          },
+        ].map((stat) => (
+          <div key={stat.label} className="rounded-2xl bg-card p-2.5 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-3.5">
+            <stat.icon className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
+            <p className="mt-1.5 truncate text-[11px] font-semibold tabular-nums text-foreground sm:mt-2 sm:text-[15px]">
+              {stat.value}
             </p>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              <span className="inline-flex items-center gap-1 rounded-full bg-[#F7F4F0] px-2.5 py-1 text-[10.5px] font-medium text-foreground">
-                <Stethoscope className="h-3 w-3 text-muted-foreground" />
-                {patient?.therapistName ?? latestRecord?.therapistName ?? 'Fisioterapis Hafta'}
-              </span>
-              {patient?.therapyFrequencyText ? (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#F7F4F0] px-2.5 py-1 text-[10.5px] font-medium text-foreground">
-                  <CalendarDays className="h-3 w-3 text-muted-foreground" />
-                  {patient.therapyFrequencyText}
-                </span>
-              ) : null}
-            </div>
+            <p className="mt-0.5 truncate text-[9px] font-medium uppercase tracking-wide text-muted-foreground sm:text-[10px]">
+              {stat.label}
+            </p>
+            <p className="mt-0.5 hidden truncate text-[10px] text-muted-foreground sm:block">{stat.detail}</p>
           </div>
-        </div>
+        ))}
+      </div>
 
-        <div className="mt-3 grid grid-cols-3 gap-2 sm:mt-4">
-          {[
-            { label: 'Total sesi', value: `${records.length}` },
-            { label: 'Progres', value: `${averageScore}%` },
-            {
-              label: 'Berikutnya',
-              value: patient?.nextTherapyAt ? shortDate(patient.nextTherapyAt) : 'Belum ada',
-            },
-          ].map((stat) => (
-            <div key={stat.label} className="rounded-xl bg-[#F7F4F0] px-2.5 py-2">
-              <p className="text-[9.5px] font-medium uppercase tracking-wide text-muted-foreground">
-                {stat.label}
-              </p>
-              <p className="mt-0.5 truncate text-[13px] font-semibold leading-tight text-foreground sm:text-sm">
-                {stat.value}
-              </p>
-            </div>
-          ))}
-        </div>
-      </SoftCard>
-
-      {/* ── TABS ── */}
-      <div className="flex items-center gap-4 overflow-x-auto px-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* ── 3. TABS ── */}
+      <nav aria-label="Tab rekam medis" className="flex items-center gap-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TABS.map((tab) => (
           <button
             key={tab.key}
@@ -329,63 +268,68 @@ export function PatientMedicalRecordView({
             onClick={() => setActiveTab(tab.key)}
             aria-pressed={activeTab === tab.key}
             className={cn(
-              'relative shrink-0 cursor-pointer whitespace-nowrap pb-2 text-[11.5px] font-medium transition-colors sm:text-xs',
-              activeTab === tab.key
-                ? 'text-foreground'
-                : 'text-muted-foreground hover:text-foreground',
+              'relative shrink-0 cursor-pointer whitespace-nowrap pb-2 text-xs font-medium transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
+              activeTab === tab.key ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
             )}
           >
             {tab.label}
             <span
               className={cn(
-                'absolute inset-x-0 bottom-0 h-[2px] rounded-full transition-colors',
-                activeTab === tab.key ? 'bg-[var(--hafta-400)]' : 'bg-transparent',
+                'absolute inset-x-0 bottom-0 h-0.5 rounded-full',
+                activeTab === tab.key ? 'bg-[var(--hafta-300)]' : 'bg-transparent',
               )}
               aria-hidden="true"
             />
           </button>
         ))}
-      </div>
+      </nav>
 
-      {/* ── KONTEN ── */}
+      {/* ── 4. KONTEN ── */}
       {records.length === 0 ? (
-        <SoftCard>
-          <div className="flex flex-col items-center py-10 text-center">
-            <Activity className="h-6 w-6 text-muted-foreground" />
-            <p className="mt-3 text-sm font-semibold">Belum ada rekam medis</p>
-            <p className="mt-1 max-w-sm text-[11px] leading-relaxed text-muted-foreground">
-              Catatan evaluasi akan tampil setelah fisioterapis menyelesaikan sesi dan membagikannya.
-            </p>
-          </div>
-        </SoftCard>
+        <div className="flex flex-col items-center rounded-2xl bg-card py-12 text-center shadow-[0_1px_2px_rgba(28,25,23,0.04)]">
+          <Activity className="h-6 w-6 text-muted-foreground" />
+          <p className="mt-3 text-sm font-semibold text-foreground">Belum ada rekam medis</p>
+          <p className="mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
+            Catatan evaluasi akan tampil setelah fisioterapis menyelesaikan sesi dan membagikannya.
+          </p>
+        </div>
       ) : activeTab === 'ringkasan' && selectedRecord ? (
-        <div className="grid gap-3 sm:gap-4 lg:grid-cols-3">
-          {/* perkembangan */}
-          <SoftCard className="lg:col-span-2">
-            <SectionTitle
-              action={
-                <span className="rounded-full bg-[#F7F4F0] px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                  Sesi {visitNumberById.get(selectedRecord.id) ?? 1}
+        <div className="space-y-4">
+          <section className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Perkembangan Terapi</h2>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {longDate(selectedRecord.recordedAt)} · Sesi {visitNumberById.get(selectedRecord.id) ?? 1}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    'rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                    selectedRecord.status === 'FINALIZED'
+                      ? TONE_PILL.good
+                      : 'bg-secondary/60 text-muted-foreground',
+                  )}
+                >
+                  {labelRecordStatus(selectedRecord.status)}
                 </span>
-              }
-            >
-              Perkembangan Terapi
-            </SectionTitle>
-            <p className="mt-0.5 text-[10.5px] text-muted-foreground">
-              {longDate(selectedRecord.recordedAt)}
-            </p>
+                <MedicalRecordActions record={selectedRecord} />
+              </div>
+            </div>
 
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              {METRICS.map(({ key, label, field, icon: Icon }) => {
+            {/* metrik — tint pills */}
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
+              {METRICS.map(({ key, label, short, field, icon: Icon }) => {
                 const value = Number(selectedRecord[field] ?? 0);
                 const previous = previousRecord ? Number(previousRecord[field] ?? 0) : null;
-                const change = deltaLabel(value, previous);
+                const change = deltaForMetric(key, value, previous);
                 const tone = metricTone(key, value);
                 const history = chronological.slice(-6).map((record) => Number(record[field] ?? 0));
                 return (
-                  <div key={key} className="rounded-xl bg-[#F7F4F0] p-2.5 sm:p-3">
+                  <div key={key} className="rounded-xl bg-[var(--hafta-50)] p-3">
                     <div className="flex items-center justify-between gap-1">
-                      <span className="flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
                         <Icon className="h-3 w-3" />
                         {label}
                       </span>
@@ -394,212 +338,180 @@ export function PatientMedicalRecordView({
                       </span>
                     </div>
                     <div className="mt-1.5 flex items-baseline gap-1">
-                      <span className="text-xl font-semibold leading-none text-foreground">{value}</span>
+                      <span className="text-xl font-semibold leading-none tabular-nums text-foreground sm:text-2xl">
+                        {value}
+                      </span>
                       <span className="text-[10px] text-muted-foreground">/10</span>
                       {change ? (
-                        <span className="ml-auto text-[9.5px] font-medium text-muted-foreground">
-                          {change.direction === 'up' ? '↑' : change.direction === 'down' ? '↓' : '·'} {change.text}
+                        <span
+                          className={cn(
+                            'ml-auto text-[10px] font-semibold tabular-nums',
+                            change.isGood ? TONE_DELTA.up : TONE_DELTA.down,
+                          )}
+                        >
+                          {change.text}
                         </span>
-                      ) : null}
+                      ) : (
+                        <span className="ml-auto text-[10px] text-muted-foreground">tetap</span>
+                      )}
                     </div>
-                    <div className="mt-2 flex h-6 items-end gap-1">
+                    <div className="mt-2 flex h-5 items-end gap-1">
                       {history.map((score, index) => {
-                        const height = Math.max(12, Math.min(100, key === 'pain' ? (10 - score) * 10 : score * 10));
+                        const height = Math.max(14, Math.min(100, key === 'pain' ? (10 - score) * 10 : score * 10));
                         return (
                           <span
                             key={`${key}-${index}`}
                             className={cn(
                               'flex-1 rounded-sm',
-                              index === history.length - 1 ? TONE_BAR[tone.tone] : 'bg-foreground/10',
+                              index === history.length - 1
+                                ? 'bg-[var(--hafta-300)]'
+                                : 'bg-[var(--hafta-200)]/40',
                             )}
                             style={{ height: `${height}%` }}
                           />
                         );
                       })}
                     </div>
+                    <p className="sr-only">{short} sesi ini {value} dari 10.</p>
                   </div>
                 );
               })}
             </div>
 
-            <div className="mt-3.5">
-              <SectionTitle>Catatan Klinis</SectionTitle>
-              <div className="mt-2 space-y-1.5">
-                {CLINICAL_ROWS.map((row) => {
-                  const value = selectedRecord[row.field];
-                  if (typeof value !== 'string' || !value) return null;
-                  return (
-                    <SoftRow key={row.field} className="items-start">
-                      <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--hafta-300)]" />
+            {/* catatan klinis — baris hairline */}
+            <dl className="mt-4 divide-y divide-border/70 border-t border-border/70">
+              {CLINICAL_ROWS.map((row) => {
+                const value = selectedRecord[row.field];
+                return (
+                  <div key={row.field} className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] sm:gap-4">
+                    <dt className="text-[11px] font-medium text-muted-foreground sm:pt-px">{row.label}</dt>
+                    <dd className="whitespace-pre-wrap text-[12.5px] leading-relaxed text-foreground">
+                      {typeof value === 'string' && value ? value : <span className="text-muted-foreground">Tidak dicatat</span>}
+                    </dd>
+                  </div>
+                );
+              })}
+            </dl>
+
+            {/* rencana terapi — hanya bila ada */}
+            {treatmentPlan ? (
+              <div className="mt-4 border-t border-border/70 pt-3">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Rencana Terapi</h3>
+                <dl className="mt-1 divide-y divide-border/70">
+                  <div className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] sm:gap-4">
+                    <dt className="text-[11px] font-medium text-muted-foreground sm:pt-px">Tujuan</dt>
+                    <dd className="whitespace-pre-wrap text-[12.5px] leading-relaxed text-foreground">{treatmentPlan.goals}</dd>
+                  </div>
+                  <div className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] sm:gap-4">
+                    <dt className="text-[11px] font-medium text-muted-foreground sm:pt-px">Intervensi</dt>
+                    <dd className="whitespace-pre-wrap text-[12.5px] leading-relaxed text-foreground">
+                      {treatmentPlan.interventions}
+                    </dd>
+                  </div>
+                  {treatmentPlan.precautions ? (
+                    <div className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] sm:gap-4">
+                      <dt className="text-[11px] font-medium text-muted-foreground sm:pt-px">Perhatian</dt>
+                      <dd className="whitespace-pre-wrap text-[12.5px] leading-relaxed text-foreground">
+                        {treatmentPlan.precautions}
+                      </dd>
+                    </div>
+                  ) : null}
+                </dl>
+              </div>
+            ) : null}
+
+            {/* program latihan — hanya bila ada */}
+            {homeProgram ? (
+              <div className="mt-4 border-t border-border/70 pt-3">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Program Latihan Mandiri
+                </h3>
+                <ol className="mt-1 divide-y divide-border/70">
+                  {homeProgram.items.map((item, index) => (
+                    <li key={item.id} className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] sm:gap-4">
+                      <span className="text-[11px] font-medium text-muted-foreground sm:pt-px">
+                        {index + 1}. {item.name}
+                      </span>
                       <span className="min-w-0">
-                        <span className="block text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                          {row.label}
+                        <span className="block whitespace-pre-wrap text-[12.5px] leading-relaxed text-foreground">
+                          {item.instruction}
                         </span>
-                        <span className="mt-0.5 block whitespace-pre-wrap text-[11.5px] leading-relaxed text-foreground">
-                          {value}
+                        <span className="mt-0.5 block text-[10px] text-muted-foreground">
+                          {[
+                            item.sets ? `${item.sets} set` : null,
+                            item.repetitions ? `${item.repetitions} repetisi` : null,
+                            item.durationSeconds ? `${item.durationSeconds} detik` : null,
+                            item.frequencyText,
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')}
                         </span>
                       </span>
-                    </SoftRow>
-                  );
-                })}
+                    </li>
+                  ))}
+                </ol>
               </div>
-            </div>
+            ) : null}
+          </section>
 
-            <div className="mt-3 flex justify-end">
-              <MedicalRecordActions record={selectedRecord} />
-            </div>
-          </SoftCard>
+          {/* catatan fisioterapis — hanya bila ada */}
+          {patient?.therapistNote ? (
+            <section className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5">
+              <h3 className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <Dumbbell className="h-3.5 w-3.5" />
+                Catatan Fisioterapis
+              </h3>
+              <p className="mt-2 text-[12.5px] leading-relaxed text-foreground">{patient.therapistNote}</p>
+              <p className="mt-1.5 text-[10px] text-muted-foreground">
+                {patient.therapistNoteAuthor ?? patient.therapistName ?? 'Fisioterapis Hafta'}
+                {patient.therapistNoteAt ? ` · ${shortDate(patient.therapistNoteAt)}` : ''}
+              </p>
+            </section>
+          ) : null}
+        </div>
+      ) : activeTab === 'kunjungan' ? (
+        <section className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Riwayat Kunjungan</h2>
+            <span className="text-[11px] tabular-nums text-muted-foreground">{records.length} sesi</span>
+          </div>
 
-          {/* diagnosis + riwayat */}
-          <div className="space-y-3 sm:space-y-4">
-            <SoftCard>
-              <SectionTitle
-                action={
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('diagnosis')}
-                    className="text-[10px] font-medium text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    Lihat semua
-                  </button>
-                }
-              >
-                Diagnosis
-              </SectionTitle>
-              <div className="mt-2 space-y-1.5">
-                {conditions.length === 0 ? (
-                  <p className="text-[11px] text-muted-foreground">Belum ada diagnosis.</p>
-                ) : (
-                  conditions.map((condition) => (
-                    <SoftRow key={condition.id} onClick={() => openRecord(condition.id)}>
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-300)]/12 text-[var(--hafta-700)]">
-                        <Stethoscope className="h-3 w-3" />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[11px] font-medium text-foreground">
-                          {condition.label}
-                        </span>
-                        <span className="block text-[9.5px] text-muted-foreground">
-                          {shortDate(condition.date)}
-                        </span>
-                      </span>
-                      <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />
-                    </SoftRow>
-                  ))
-                )}
-              </div>
-            </SoftCard>
-
-            <SoftCard>
-              <SectionTitle
-                action={
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('kunjungan')}
-                    className="text-[10px] font-medium text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    Riwayat
-                  </button>
-                }
-              >
-                Kunjungan Terakhir
-              </SectionTitle>
-              <div className="mt-2 space-y-1.5">
-                {records.slice(0, 3).map((record) => (
-                  <SoftRow key={record.id} onClick={() => openRecord(record.id)}>
-                    <span className="flex h-8 w-8 shrink-0 flex-col items-center justify-center rounded-lg bg-white">
-                      <span className="text-[11px] font-semibold leading-none text-foreground">
-                        {record.recordedAt.getDate()}
-                      </span>
-                      <span className="mt-0.5 text-[7.5px] uppercase text-muted-foreground">
-                        {record.recordedAt.toLocaleDateString('id-ID', { month: 'short' })}
-                      </span>
+          <ul className="mt-2 divide-y divide-border/70">
+            {visibleVisits.map((record) => (
+              <li key={record.id}>
+                <button
+                  type="button"
+                  onClick={() => setDetailRecord(record)}
+                  className="flex w-full cursor-pointer items-center gap-3 py-3 text-left transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                >
+                  <span className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-xl bg-[var(--hafta-50)]">
+                    <span className="text-[13px] font-semibold leading-none tabular-nums text-foreground">
+                      {record.recordedAt.getDate()}
                     </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[11px] font-medium text-foreground">
-                        Sesi {visitNumberById.get(record.id) ?? 0}
-                      </span>
-                      <span className="block truncate text-[9.5px] text-muted-foreground">
+                    <span className="mt-0.5 text-[8px] uppercase tracking-wide text-muted-foreground">
+                      {record.recordedAt.toLocaleDateString('id-ID', { month: 'short' })}
+                    </span>
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[12.5px] font-medium text-foreground">
+                      Sesi {visitNumberById.get(record.id) ?? 0}
+                      <span className="ml-1.5 text-[11px] font-normal text-muted-foreground">
                         {record.therapistName ?? 'Fisioterapis Hafta'}
                       </span>
                     </span>
-                    <span className="shrink-0 text-[9.5px] font-medium text-muted-foreground">
-                      {labelRecordStatus(record.status)}
-                    </span>
-                  </SoftRow>
-                ))}
-              </div>
-            </SoftCard>
-
-            {treatmentPlan ? (
-              <SoftCard>
-                <SectionTitle>Rencana Terapi</SectionTitle>
-                <div className="mt-2 space-y-1.5">
-                  <SoftRow className="items-start">
-                    <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--hafta-300)]" />
-                    <span className="min-w-0">
-                      <span className="block text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                        Tujuan
-                      </span>
-                      <span className="mt-0.5 block whitespace-pre-wrap text-[11px] leading-relaxed text-foreground">
-                        {treatmentPlan.goals}
-                      </span>
-                    </span>
-                  </SoftRow>
-                  <SoftRow className="items-start">
-                    <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--hafta-300)]" />
-                    <span className="min-w-0">
-                      <span className="block text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-                        Intervensi
-                      </span>
-                      <span className="mt-0.5 block whitespace-pre-wrap text-[11px] leading-relaxed text-foreground">
-                        {treatmentPlan.interventions}
-                      </span>
-                    </span>
-                  </SoftRow>
-                </div>
-              </SoftCard>
-            ) : null}
-          </div>
-        </div>
-      ) : activeTab === 'kunjungan' ? (
-        <SoftCard>
-          <SectionTitle
-            action={
-              <span className="text-[10px] font-medium text-muted-foreground">{records.length} sesi</span>
-            }
-          >
-            Riwayat Kunjungan
-          </SectionTitle>
-          <div className="mt-2 space-y-1.5">
-            {visibleVisits.map((record) => (
-              <SoftRow key={record.id} onClick={() => openRecord(record.id)}>
-                <span className="flex h-8 w-8 shrink-0 flex-col items-center justify-center rounded-lg bg-white">
-                  <span className="text-[11px] font-semibold leading-none text-foreground">
-                    {record.recordedAt.getDate()}
-                  </span>
-                  <span className="mt-0.5 text-[7.5px] uppercase text-muted-foreground">
-                    {record.recordedAt.toLocaleDateString('id-ID', { month: 'short' })}
-                  </span>
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[11.5px] font-medium text-foreground">
-                    Sesi {visitNumberById.get(record.id) ?? 0}
-                    <span className="ml-1.5 text-[10px] font-normal text-muted-foreground">
-                      {record.therapistName ?? 'Fisioterapis Hafta'}
+                    <span className="mt-0.5 flex flex-wrap gap-x-2.5 text-[10.5px] tabular-nums text-muted-foreground">
+                      <span>Nyeri {record.painScore}</span>
+                      <span>ROM {record.rangeOfMotionScore}</span>
+                      <span>Kekuatan {record.strengthScore}</span>
+                      <span>Fungsi {record.functionScore}</span>
                     </span>
                   </span>
-                  <span className="mt-0.5 flex flex-wrap gap-x-2 text-[9.5px] text-muted-foreground">
-                    <span>Nyeri {record.painScore}</span>
-                    <span>ROM {record.rangeOfMotionScore}</span>
-                    <span>Kekuatan {record.strengthScore}</span>
-                    <span>Fungsi {record.functionScore}</span>
-                  </span>
-                </span>
-                <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-              </SoftRow>
+                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                </button>
+              </li>
             ))}
-          </div>
+          </ul>
+
           <PaginationBar
             page={safeVisitPage}
             pageCount={visitPageCount}
@@ -611,144 +523,154 @@ export function PatientMedicalRecordView({
               setVisitPage(1);
             }}
           />
-        </SoftCard>
+        </section>
       ) : activeTab === 'diagnosis' ? (
-        <SoftCard>
-          <SectionTitle>Diagnosis</SectionTitle>
-          <p className="mt-0.5 text-[10.5px] text-muted-foreground">Diagnosis dan anamnesis tiap sesi.</p>
-          <div className="mt-2 space-y-1.5">
+        <section className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5">
+          <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Diagnosis</h2>
+          <ul className="mt-2 divide-y divide-border/70">
             {records.map((record) => (
-              <SoftRow key={record.id} className="items-start">
-                <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--hafta-300)]" />
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-baseline justify-between gap-2">
-                    <span className="truncate text-[11px] font-medium text-foreground">
-                      {record.diagnosis || 'Tidak dicatat'}
-                    </span>
-                    <span className="shrink-0 text-[9.5px] text-muted-foreground">
-                      {shortDate(record.recordedAt)}
-                    </span>
+              <li key={record.id} className="grid gap-0.5 py-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-4">
+                <span className="min-w-0">
+                  <span className="block truncate text-[12.5px] font-medium text-foreground">
+                    {record.diagnosis || 'Tidak dicatat'}
                   </span>
-                  <span className="mt-0.5 block whitespace-pre-wrap text-[10.5px] leading-relaxed text-muted-foreground">
-                    {record.anamnesis || 'Anamnesis tidak dicatat'}
+                  <span className="block text-[10.5px] tabular-nums text-muted-foreground">
+                    {shortDate(record.recordedAt)}
                   </span>
                 </span>
-              </SoftRow>
+                <span className="whitespace-pre-wrap text-[11.5px] leading-relaxed text-muted-foreground">
+                  {record.anamnesis || 'Anamnesis tidak dicatat'}
+                </span>
+              </li>
             ))}
-          </div>
-        </SoftCard>
+          </ul>
+        </section>
       ) : activeTab === 'tindakan' ? (
-        <SoftCard>
-          <SectionTitle>Tindakan</SectionTitle>
-          <p className="mt-0.5 text-[10.5px] text-muted-foreground">Pemeriksaan dan tindakan tiap sesi.</p>
-          <div className="mt-2 space-y-1.5">
+        <section className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5">
+          <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Tindakan</h2>
+          <ul className="mt-2 divide-y divide-border/70">
             {records.map((record) => (
-              <SoftRow key={record.id} className="items-start">
-                <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--hafta-300)]" />
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-baseline justify-between gap-2">
-                    <span className="truncate text-[11px] font-medium text-foreground">
-                      Sesi {visitNumberById.get(record.id) ?? 0}
-                    </span>
-                    <span className="shrink-0 text-[9.5px] text-muted-foreground">
-                      {shortDate(record.recordedAt)}
-                    </span>
+              <li key={record.id} className="grid gap-1 py-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-4">
+                <span className="min-w-0">
+                  <span className="block truncate text-[12.5px] font-medium text-foreground">
+                    Sesi {visitNumberById.get(record.id) ?? 0}
                   </span>
-                  <span className="mt-0.5 block whitespace-pre-wrap text-[10.5px] leading-relaxed text-muted-foreground">
+                  <span className="block text-[10.5px] tabular-nums text-muted-foreground">
+                    {shortDate(record.recordedAt)}
+                  </span>
+                </span>
+                <span className="min-w-0">
+                  <span className="block whitespace-pre-wrap text-[11.5px] leading-relaxed text-muted-foreground">
                     {record.physicalExamination || 'Pemeriksaan tidak dicatat'}
                   </span>
-                  <span className="mt-0.5 block whitespace-pre-wrap text-[10.5px] leading-relaxed text-foreground">
+                  <span className="mt-1 block whitespace-pre-wrap text-[11.5px] leading-relaxed text-foreground">
                     {record.treatment || 'Tindakan tidak dicatat'}
                   </span>
                 </span>
-              </SoftRow>
+              </li>
             ))}
-          </div>
-        </SoftCard>
+          </ul>
+        </section>
       ) : (
-        <SoftCard>
-          <SectionTitle>Dokumen</SectionTitle>
-          <p className="mt-0.5 text-[10.5px] text-muted-foreground">Cetak atau unduh rekam medis resmi.</p>
-          <div className="mt-2 space-y-1.5">
+        <section className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5">
+          <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Dokumen</h2>
+          <ul className="mt-2 divide-y divide-border/70">
             {records.map((record) => (
-              <SoftRow key={record.id}>
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-muted-foreground">
-                  <FileText className="h-3.5 w-3.5" />
+              <li key={record.id} className="flex items-center gap-3 py-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--hafta-50)] text-muted-foreground">
+                  <FileText className="h-4 w-4" />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[11px] font-medium text-foreground">
+                  <span className="block truncate text-[12.5px] font-medium text-foreground">
                     Rekam medis sesi {visitNumberById.get(record.id) ?? 0}
                   </span>
-                  <span className="block truncate text-[9.5px] text-muted-foreground">
+                  <span className="block text-[10.5px] tabular-nums text-muted-foreground">
                     {shortDate(record.recordedAt)} · {labelRecordStatus(record.status)}
                   </span>
                 </span>
                 <MedicalRecordActions record={record} />
-              </SoftRow>
+              </li>
             ))}
-          </div>
-        </SoftCard>
+          </ul>
+        </section>
       )}
 
-      {/* ── PROGRAM LATIHAN ── */}
-      {homeProgram && activeTab === 'ringkasan' ? (
-        <SoftCard>
-          <SectionTitle
-            action={
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
-                <Dumbbell className="h-3 w-3" />
-                {homeProgram.startsAt ? shortDate(homeProgram.startsAt) : 'Aktif'}
-              </span>
-            }
-          >
-            Program Latihan Mandiri
-          </SectionTitle>
-          <div className="mt-2 space-y-1.5">
-            {homeProgram.items.map((item, index) => (
-              <SoftRow key={item.id} className="items-start">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-300)]/12 text-[9px] font-semibold text-[var(--hafta-700)]">
-                  {index + 1}
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-[11px] font-medium text-foreground">{item.name}</span>
-                  <span className="mt-0.5 block whitespace-pre-wrap text-[10.5px] leading-relaxed text-muted-foreground">
-                    {item.instruction}
-                  </span>
-                  <span className="mt-0.5 block text-[9.5px] text-muted-foreground">
-                    {[
-                      item.sets ? `${item.sets} set` : null,
-                      item.repetitions ? `${item.repetitions} repetisi` : null,
-                      item.durationSeconds ? `${item.durationSeconds} detik` : null,
-                      item.frequencyText,
-                    ]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </span>
-                </span>
-              </SoftRow>
-            ))}
+      {/* ── SLIDE-OVER: detail evaluasi per kunjungan ── */}
+      <GlobalSlideOver
+        isOpen={detailRecord !== null}
+        onClose={() => setDetailRecord(null)}
+        icon={<Stethoscope className="h-4 w-4" />}
+        title={
+          detailRecord ? `Evaluasi Terapi · Sesi ${visitNumberById.get(detailRecord.id) ?? 1}` : 'Evaluasi Terapi'
+        }
+        subtitle={detailRecord ? longDate(detailRecord.recordedAt) : undefined}
+        badge={
+          detailRecord ? (
+            <span
+              className={cn(
+                'rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                detailRecord.status === 'FINALIZED' ? TONE_PILL.good : 'bg-secondary/60 text-muted-foreground',
+              )}
+            >
+              {labelRecordStatus(detailRecord.status)}
+            </span>
+          ) : undefined
+        }
+        size="md"
+        footer={
+          detailRecord ? (
+            <div className="flex justify-end">
+              <MedicalRecordActions record={detailRecord} />
+            </div>
+          ) : null
+        }
+      >
+        {detailRecord ? (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-2">
+              {METRICS.map(({ key, label, field, icon: Icon }) => {
+                const value = Number(detailRecord[field] ?? 0);
+                const tone = metricTone(key, value);
+                return (
+                  <div key={key} className="rounded-xl bg-[var(--hafta-50)] p-3">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+                        <Icon className="h-3 w-3" />
+                        {label}
+                      </span>
+                      <span className={cn('rounded-full px-1.5 py-0.5 text-[9px] font-semibold', TONE_PILL[tone.tone])}>
+                        {tone.label}
+                      </span>
+                    </div>
+                    <p className="mt-1.5 text-xl font-semibold leading-none tabular-nums text-foreground">
+                      {value}
+                      <span className="ml-0.5 text-[10px] font-normal text-muted-foreground">/10</span>
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+
+            <dl className="divide-y divide-border/70 border-y border-border/70">
+              {CLINICAL_ROWS.map((row) => {
+                const value = detailRecord[row.field];
+                return (
+                  <div key={row.field} className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] sm:gap-4">
+                    <dt className="text-[11px] font-medium text-muted-foreground sm:pt-px">{row.label}</dt>
+                    <dd className="whitespace-pre-wrap text-[12.5px] leading-relaxed text-foreground">
+                      {typeof value === 'string' && value ? value : <span className="text-muted-foreground">Tidak dicatat</span>}
+                    </dd>
+                  </div>
+                );
+              })}
+            </dl>
+
+            <p className="text-[10px] text-muted-foreground">
+              Fisioterapis: {detailRecord.therapistName ?? 'Fisioterapis Hafta'}
+            </p>
           </div>
-        </SoftCard>
-      ) : null}
-
-      {patient?.therapistNote && activeTab === 'ringkasan' ? (
-        <SoftCard>
-          <SectionTitle>Catatan Fisioterapis</SectionTitle>
-          <p className="mt-1.5 whitespace-pre-wrap text-[11px] leading-relaxed text-foreground">
-            {patient.therapistNote}
-          </p>
-          <p className="mt-1.5 text-[9.5px] text-muted-foreground">
-            {patient.therapistNoteAuthor ?? patient.therapistName ?? 'Fisioterapis Hafta'}
-            {patient.therapistNoteAt ? ` · ${shortDate(patient.therapistNoteAt)}` : ''}
-          </p>
-        </SoftCard>
-      ) : null}
-
-      {records.length > 0 ? (
-        <p className="px-1 pb-1 text-[10px] text-muted-foreground">
-          {records.length} rekam medis · mulai {firstRecord ? shortDate(firstRecord.recordedAt) : '-'}
-        </p>
-      ) : null}
+        ) : null}
+      </GlobalSlideOver>
     </div>
   );
 }
