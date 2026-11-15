@@ -201,9 +201,25 @@ function ChartBadge({
   );
 }
 
-function RomDot({ cx, cy }: { cx?: number; cy?: number }) {
+function RomDot({
+  cx,
+  cy,
+  payload,
+  onSelect,
+}: {
+  cx?: number;
+  cy?: number;
+  payload?: ChartPoint;
+  onSelect?: (sesi: number) => void;
+}) {
   if (typeof cx !== 'number' || typeof cy !== 'number') return null;
-  return <circle cx={cx} cy={cy} r={3.5} fill="var(--hafta-900)" />;
+  return (
+    <g onClick={() => onSelect?.(payload?.sesi ?? 0)} style={onSelect ? { cursor: 'pointer' } : undefined}>
+      {/* area sentuh lebih besar agar mudah diklik di layar sentuh */}
+      <circle cx={cx} cy={cy} r={14} fill="transparent" />
+      <circle cx={cx} cy={cy} r={3.5} fill="var(--hafta-900)" />
+    </g>
+  );
 }
 
 function ChartTick({
@@ -243,7 +259,18 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
   return (
     <div className="h-[220px] w-full sm:h-[260px]">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 28, right: 8, bottom: 8, left: -18 }}>
+        <LineChart
+          data={data}
+          margin={{ top: 28, right: 8, bottom: 8, left: -18 }}
+          onClick={(state: { activeTooltipIndex?: number } | undefined) => {
+            // fallback: klik di mana saja pada grafik memilih sesi terdekat
+            const index = state?.activeTooltipIndex;
+            if (typeof index === 'number' && index >= 0 && onSelectSession) {
+              onSelectSession(index + 1);
+            }
+          }}
+          style={{ cursor: onSelectSession ? 'pointer' : undefined }}
+        >
           <CartesianGrid vertical={false} stroke="var(--hafta-100)" strokeDasharray="4 6" />
           <YAxis yAxisId="pain" domain={[0, 10]} tickLine={false} axisLine={false} tick={false} />
           <YAxis yAxisId="rom" orientation="right" domain={[0, 100]} tickLine={false} axisLine={false} tick={false} />
@@ -285,8 +312,8 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
             stroke="var(--hafta-900)"
             strokeWidth={1.75}
             strokeDasharray="6 5"
-            dot={<RomDot />}
-            activeDot={<RomDot />}
+            dot={<RomDot onSelect={onSelectSession} />}
+            activeDot={<RomDot onSelect={onSelectSession} />}
             isAnimationActive={false}
           />
           <Line

@@ -148,7 +148,7 @@ export function MedicalRecordActions({
         className={
           tone === 'dark'
             ? 'h-9 px-2.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-white/80 border border-white/10 text-xs font-semibold inline-flex items-center justify-center gap-2 cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
-            : 'h-11 px-3 rounded-full bg-card hover:bg-accent text-foreground border border-border text-xs sm:text-[13px] font-semibold inline-flex items-center justify-center gap-2 cursor-pointer transition-all focus-visible:outline-none focus-visible:border-[var(--hafta-950)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
+            : 'h-11 px-3 rounded-full text-muted-foreground hover:bg-accent hover:text-foreground text-xs sm:text-[13px] font-semibold inline-flex items-center justify-center gap-2 cursor-pointer transition-all focus-visible:outline-none focus-visible:border-[var(--hafta-950)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
         }
       >
         <MoreVertical className="w-4 h-4 shrink-0" />
