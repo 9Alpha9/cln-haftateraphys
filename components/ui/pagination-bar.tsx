@@ -8,7 +8,7 @@ import { AppSelect } from '@/components/ui/app-select';
 import { cn } from '@/lib/utils';
 
 const controlClass =
-  'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-stone-200/90 bg-white text-[#181700]  transition-colors hover:bg-stone-100 disabled:cursor-not-allowed disabled:opacity-30 sm:h-9 sm:w-9';
+  'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-30 sm:h-9 sm:w-9';
 
 const pageClass =
   'flex h-8 min-w-8 items-center justify-center rounded-lg border px-1.5 text-[11px] font-semibold transition-colors sm:h-9 sm:min-w-9 sm:text-xs';
@@ -173,14 +173,14 @@ export function PaginationBar({ page, pageCount, className, ...props }: Paginati
     <nav
       aria-label="Pagination"
       className={cn(
-        'mt-4 border-t border-stone-200/80 px-1 pb-1 pt-3',
+        'mt-4 border-t border-border px-1 pb-1 pt-3',
         className,
       )}
     >
       <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-col gap-2 text-[11px] text-stone-500 sm:flex-row sm:items-center sm:gap-3 sm:text-xs">
+        <div className="flex flex-col gap-2 text-[11px] text-muted-foreground sm:flex-row sm:items-center sm:gap-3 sm:text-xs">
           <span>
-            Halaman <span className="font-bold text-[#181700]">{page}</span> dari {pageCount}
+            Halaman <span className="font-bold text-foreground">{page}</span> dari {pageCount}
           </span>
           {showPageSize ? (
             <div className="flex items-center justify-between gap-2 sm:justify-start">
@@ -199,7 +199,7 @@ export function PaginationBar({ page, pageCount, className, ...props }: Paginati
                 />
                 {isChangingSize ? (
                   <Loader2
-                    className="h-3.5 w-3.5 shrink-0 animate-spin text-stone-400"
+                    className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground"
                     aria-label="Memuat jumlah baris"
                   />
                 ) : null}
@@ -222,8 +222,8 @@ export function PaginationBar({ page, pageCount, className, ...props }: Paginati
                   className={cn(
                     pageClass,
                     item === page
-                      ? 'border-stone-200 bg-[#F4F4F1] font-bold text-[#181700]'
-                      : 'border-transparent text-stone-500 hover:bg-stone-100 hover:text-[#181700]',
+                      ? 'border-border bg-[var(--hafta-50)] font-bold text-foreground'
+                      : 'border-transparent text-muted-foreground hover:bg-accent hover:text-foreground',
                   )}
                 >
                   {item}
@@ -238,8 +238,8 @@ export function PaginationBar({ page, pageCount, className, ...props }: Paginati
                     pageClass,
                     'cursor-pointer',
                     item === page
-                      ? 'border-stone-200 bg-[#F4F4F1] font-bold text-[#181700]'
-                      : 'border-transparent text-stone-500 hover:bg-stone-100 hover:text-[#181700]',
+                      ? 'border-border bg-[var(--hafta-50)] font-bold text-foreground'
+                      : 'border-transparent text-muted-foreground hover:bg-accent hover:text-foreground',
                   )}
                 >
                   {item}
@@ -249,7 +249,7 @@ export function PaginationBar({ page, pageCount, className, ...props }: Paginati
               <span
                 key={item}
                 aria-hidden="true"
-                className="flex h-8 w-5 items-center justify-center text-stone-400 sm:h-9 sm:w-6"
+                className="flex h-8 w-5 items-center justify-center text-muted-foreground sm:h-9 sm:w-6"
               >
                 <MoreHorizontal className="h-4 w-4" />
               </span>

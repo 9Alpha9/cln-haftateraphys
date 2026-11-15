@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { MoreVertical, FileDown, Loader2, Printer } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/toast';
 import { pdf } from '@react-pdf/renderer';
 import { MedicalRecordDocument, type MedicalRecordPdfData } from '@/components/pdf/medical-record-document';
@@ -69,14 +70,20 @@ export function useMedicalRecordPdf(record: MedicalRecordPdfData) {
   return { openPrintPage, downloadPdf, loading, printing };
 }
 
+const SPLIT_BASE =
+  'inline-flex h-11 flex-1 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full px-4 text-xs font-semibold transition-all focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60 sm:flex-none sm:px-5 sm:text-[13px]';
+
 export function MedicalRecordActions({
   record,
   className,
   tone = 'light',
+  layout = 'menu',
 }: {
   record: MedicalRecordPdfData;
   className?: string;
   tone?: 'light' | 'dark';
+  /** 'menu': kebab dropdown; 'split': 2 tombol eksplisit (untuk footer drawer). */
+  layout?: 'menu' | 'split';
 }) {
   const { openPrintPage, downloadPdf, loading, printing } = useMedicalRecordPdf(record);
   const [isOpen, setIsOpen] = useState(false);
@@ -97,9 +104,42 @@ export function MedicalRecordActions({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [handleClickOutside]);
 
+  if (layout === 'split') {
+    return (
+      <div className={cn('flex w-full items-center gap-2 sm:w-auto', className)}>
+        <button
+          type="button"
+          onClick={() => void openPrintPage()}
+          disabled={printing}
+          className={`${SPLIT_BASE} border border-border bg-card text-foreground hover:bg-accent`}
+        >
+          {printing ? (
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
+          ) : (
+            <Printer className="h-4 w-4 shrink-0 text-muted-foreground" />
+          )}
+          {printing ? 'Mencetak...' : 'Cetak'}
+        </button>
+        <button
+          type="button"
+          onClick={() => void downloadPdf()}
+          disabled={loading}
+          className={`${SPLIT_BASE} bg-[var(--hafta-org-100)] font-bold text-foreground hover:bg-[var(--hafta-org-200)]`}
+        >
+          {loading ? (
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin text-foreground/60" />
+          ) : (
+            <FileDown className="h-4 w-4 shrink-0" />
+          )}
+          {loading ? 'Memproses...' : 'Unduh PDF'}
+        </button>
+      </div>
+    );
+  }
+
   return (
     // Rule #2: wrapper relative inline-flex dalam pohon DOM yang sama dengan tombol pemicu
-    <div ref={menuRef} className={`relative sm:inline-flex shrink-0 ${className ?? ''}`}>
+    <div ref={menuRef} className={`relative sm:inline-flex shrink-0 rounded-full ${className ?? ''}`}>
       {/* Rule #2: tombol pemicu (tidak ada Portal/fixed/getBoundingClientRect) */}
       <button
         type="button"

@@ -155,11 +155,26 @@ function deltaForMetric(key: string, current: number, previous: number | null) {
 
 type ChartPoint = { sesi: number; label: string; date: string; pain: number; rom: number };
 
-function ChartBadge({ cx, cy, payload }: { cx?: number; cy?: number; payload?: ChartPoint }) {
+function ChartBadge({
+  cx,
+  cy,
+  payload,
+  onSelect,
+}: {
+  cx?: number;
+  cy?: number;
+  payload?: ChartPoint;
+  onSelect?: (sesi: number) => void;
+}) {
   if (typeof cx !== 'number' || typeof cy !== 'number' || !payload) return null;
   const isLast = payload.sesi === 9;
   return (
-    <g>
+    <g
+      onClick={() => onSelect?.(payload.sesi)}
+      style={onSelect ? { cursor: 'pointer' } : undefined}
+    >
+      {/* area sentuh lebih besar agar mudah diklik di layar sentuh */}
+      <circle cx={cx} cy={cy} r={14} fill="transparent" />
       {isLast ? <circle cx={cx} cy={cy} r={9} fill="var(--hafta-300)" opacity={0.25} /> : null}
       <circle cx={cx} cy={cy} r={4.5} fill="#fff" stroke="var(--hafta-400)" strokeWidth={2} />
       <g transform={`translate(${cx - 16}, ${cy - 30})`}>
@@ -219,7 +234,7 @@ function ChartTick({
   );
 }
 
-function RecoveryChart({ data }: { data: ChartPoint[] }) {
+function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelectSession?: (sesi: number) => void }) {
   const tickDates = useMemo(
     () => new Map(data.map((point) => [point.sesi, point.date])),
     [data],
@@ -280,8 +295,8 @@ function RecoveryChart({ data }: { data: ChartPoint[] }) {
             dataKey="pain"
             stroke="var(--hafta-400)"
             strokeWidth={2.5}
-            dot={<ChartBadge />}
-            activeDot={<ChartBadge />}
+            dot={<ChartBadge onSelect={onSelectSession} />}
+            activeDot={<ChartBadge onSelect={onSelectSession} />}
             isAnimationActive={false}
           />
         </LineChart>
@@ -307,6 +322,8 @@ export function PatientMedicalRecordView({
   const [programOpen, setProgramOpen] = useState(false);
   const [visitPage, setVisitPage] = useState(1);
   const [visitsPerPage, setVisitsPerPage] = useState(5);
+  const [docsPage, setDocsPage] = useState(1);
+  const [docsPerPage, setDocsPerPage] = useState(6);
 
   const selectedRecord = useMemo(
     () => records.find((record) => record.id === selectedRecordId) ?? records[0] ?? null,
@@ -345,6 +362,9 @@ export function PatientMedicalRecordView({
   const visitPageCount = Math.max(1, Math.ceil(records.length / visitsPerPage));
   const safeVisitPage = Math.min(visitPage, visitPageCount);
   const visibleVisits = records.slice((safeVisitPage - 1) * visitsPerPage, safeVisitPage * visitsPerPage);
+  const docsPageCount = Math.max(1, Math.ceil(records.length / docsPerPage));
+  const safeDocsPage = Math.min(docsPage, docsPageCount);
+  const visibleDocs = records.slice((safeDocsPage - 1) * docsPerPage, safeDocsPage * docsPerPage);
   const averageScore = records.length
     ? Math.round(
         (records.reduce(
@@ -477,13 +497,22 @@ export function PatientMedicalRecordView({
                     Nyeri VAS
                   </span>
                   <span className="inline-flex items-center gap-1.5">
-                    <span className="h-0 w-4 border-t-2 border-dashed border-[var(--hafta-900)]" />
+                    <span
+                      aria-hidden="true"
+                      style={{ width: 16, height: 0, borderTop: '2px dashed var(--hafta-900)' }}
+                    />
                     ROM %
                   </span>
                 </div>
               </div>
               <div className="mt-3">
-                <RecoveryChart data={chartData} />
+                <RecoveryChart
+                  data={chartData}
+                  onSelectSession={(sesi) => {
+                    const record = chronological[sesi - 1];
+                    if (record) setDetailRecord(record);
+                  }}
+                />
               </div>
             </section>
           ) : null}
@@ -660,7 +689,7 @@ export function PatientMedicalRecordView({
           ) : null}
         </div>
       ) : activeTab === 'kunjungan' ? (
-        <section className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5">
+        <section className="hafta-card p-4 sm:p-5">
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Riwayat Kunjungan</h2>
             <span className="text-[11px] tabular-nums text-muted-foreground">{records.length} sesi</span>
@@ -715,7 +744,7 @@ export function PatientMedicalRecordView({
           />
         </section>
       ) : activeTab === 'diagnosis' ? (
-        <section className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5">
+        <section className="hafta-card p-4 sm:p-5">
           <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Diagnosis</h2>
           <ul className="mt-2 divide-y divide-border/70">
             {records.map((record) => (
@@ -736,7 +765,7 @@ export function PatientMedicalRecordView({
           </ul>
         </section>
       ) : activeTab === 'tindakan' ? (
-        <section className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5">
+        <section className="hafta-card p-4 sm:p-5">
           <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Tindakan</h2>
           <ul className="mt-2 divide-y divide-border/70">
             {records.map((record) => (
@@ -762,10 +791,13 @@ export function PatientMedicalRecordView({
           </ul>
         </section>
       ) : (
-        <section className="rounded-2xl bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5">
-          <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Dokumen</h2>
+        <section className="hafta-card p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-2">
+            <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Dokumen</h2>
+            <span className="text-[11px] tabular-nums text-muted-foreground">{records.length} berkas</span>
+          </div>
           <ul className="mt-2 divide-y divide-border/70">
-            {records.map((record) => (
+            {visibleDocs.map((record) => (
               <li key={record.id} className="flex items-center gap-3 py-3">
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--hafta-50)] text-muted-foreground">
                   <FileText className="h-4 w-4" />
@@ -782,6 +814,18 @@ export function PatientMedicalRecordView({
               </li>
             ))}
           </ul>
+
+          <PaginationBar
+            page={safeDocsPage}
+            pageCount={docsPageCount}
+            pageSize={docsPerPage}
+            pageSizeOptions={[6, 12, 24]}
+            onPageChange={setDocsPage}
+            onPageSizeChange={(size) => {
+              setDocsPerPage(size);
+              setDocsPage(1);
+            }}
+          />
         </section>
       )}
 
@@ -809,9 +853,7 @@ export function PatientMedicalRecordView({
         size="md"
         footer={
           detailRecord ? (
-            <div className="flex justify-end">
-              <MedicalRecordActions record={detailRecord} />
-            </div>
+            <MedicalRecordActions record={detailRecord} layout="split" />
           ) : null
         }
       >

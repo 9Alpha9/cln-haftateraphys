@@ -95,7 +95,7 @@ function SubmenuTreeList({
                     ? 'bg-[var(--hafta-800)] font-bold text-[var(--hafta-50)]'
                     : 'bg-[var(--hafta-org-50)] font-bold text-foreground'
                   : tone === 'dark'
-                    ? 'font-medium text-muted-foreground hover:text-stone-200'
+                    ? 'font-medium text-white/60 hover:text-white/85'
                     : 'font-medium text-muted-foreground hover:bg-accent',
               )}
             >
@@ -361,13 +361,13 @@ export function PatientDashboardShell({
                                     'mx-auto flex h-11 w-11 items-center justify-center rounded-xl p-0',
                                     hoveredGroupId === key || hasActiveChild
                                       ? 'bg-[var(--hafta-800)] text-[var(--hafta-50)]'
-                                      : 'bg-transparent text-muted-foreground hover:text-stone-200',
+                                      : 'bg-transparent text-white/60 hover:text-white/85',
                                   )
                                 : cn(
                                     'flex h-11 w-full items-center justify-between rounded-xl px-3.5 text-xs font-bold',
                                     open
                                       ? 'bg-[var(--hafta-800)] text-[var(--hafta-50)]'
-                                      : 'bg-transparent text-muted-foreground hover:text-stone-200',
+                                      : 'bg-transparent text-white/60 hover:text-white/85',
                                   ),
                             )}
                           >
@@ -485,14 +485,14 @@ export function PatientDashboardShell({
                               : cn('min-h-11 px-3 py-2.5 rounded-xl', badge > 0 && 'pr-10'),
                             active
                               ? 'bg-[var(--hafta-800)] text-[var(--hafta-50)] font-bold ring-1 ring-[var(--hafta-800)]'
-                              : 'text-muted-foreground/50 hover:bg-[var(--hafta-800)] hover:text-[var(--hafta-50)]'
+                              : 'text-white/60 hover:bg-[var(--hafta-800)] hover:text-[var(--hafta-50)]'
                           )}
                         >
                           <div className={cn('flex min-w-0 items-center gap-3', collapsed ? 'w-full justify-center' : 'justify-center md:justify-start')}>
                             <item.icon
                               className={cn(
                                 'h-4.5 w-4.5 shrink-0 transition-colors',
-                                active ? 'text-[var(--hafta-300)]' : 'text-muted-foreground group-hover:text-stone-200'
+                                active ? 'text-[var(--hafta-300)]' : 'text-white/55 group-hover:text-white/85'
                               )}
                             />
                             {!collapsed && (
