@@ -26,6 +26,7 @@ import { GlobalModal } from '@/components/ui/global-modal';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import { MedicalRecordActions } from '@/components/dashboard/medical-record-actions';
 import { PaginationBar } from '@/components/ui/pagination-bar';
+import { TherapyCalendar } from '@/components/patient/therapy-calendar';
 import { cn } from '@/lib/utils';
 import type { PatientMedicalRecordSummary, TherapyProgressView } from '@/server/queries/therapy-progress';
 import type { HomeProgramView } from '@/server/queries/home-programs';
@@ -386,6 +387,7 @@ export function PatientMedicalRecordView({
       })),
     [chronological],
   );
+  const latestChartPoint = chartData.length > 0 ? chartData[chartData.length - 1] : null;
   const visitPageCount = Math.max(1, Math.ceil(records.length / visitsPerPage));
   const safeVisitPage = Math.min(visitPage, visitPageCount);
   const visibleVisits = records.slice((safeVisitPage - 1) * visitsPerPage, safeVisitPage * visitsPerPage);
@@ -505,52 +507,18 @@ export function PatientMedicalRecordView({
         </div>
       ) : activeTab === 'ringkasan' && selectedRecord ? (
         <div className="space-y-4">
-          {/* grafik pemulihan klinis */}
-          {chartData.length >= 2 ? (
-            <section className="hafta-card p-4 sm:p-5">
-              <div className="flex flex-wrap items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                    <TrendingUp className="h-3 w-3" />
-                    Grafik Pemulihan Klinis
-                  </p>
-                  <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground sm:text-base">
-                    Penurunan Nyeri (VAS 0–10) &amp; Kenaikan Gerak (ROM %)
-                  </h2>
-                </div>
-                <div className="flex items-center gap-3 text-[10.5px] font-medium text-muted-foreground">
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-400)]" />
-                    Nyeri VAS
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <span
-                      aria-hidden="true"
-                      style={{ width: 16, height: 0, borderTop: '2px dashed var(--hafta-900)' }}
-                    />
-                    ROM %
-                  </span>
-                </div>
-              </div>
-              <div className="mt-3">
-                <RecoveryChart
-                  data={chartData}
-                  onSelectSession={(sesi) => {
-                    const record = chronological[sesi - 1];
-                    if (record) setDetailRecord(record);
-                  }}
-                />
-              </div>
-            </section>
-          ) : null}
-
+          {/* 1. metrik ringkas — paling atas agar langsung terbaca semua umur */}
           <section className="hafta-card p-4 sm:p-5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <div className="min-w-0">
-                <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Perkembangan Terapi</h2>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {longDate(selectedRecord.recordedAt)} · Sesi {visitNumberById.get(selectedRecord.id) ?? 1}
+                <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  <Activity className="h-3 w-3" />
+                  Kondisi Terkini
                 </p>
+                <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground sm:text-base">
+                  Evaluasi Sesi {visitNumberById.get(selectedRecord.id) ?? 1}
+                </h2>
+                <p className="mt-0.5 text-xs text-muted-foreground">{longDate(selectedRecord.recordedAt)}</p>
               </div>
               <div className="flex items-center gap-2">
                 <span
@@ -567,7 +535,6 @@ export function PatientMedicalRecordView({
               </div>
             </div>
 
-            {/* metrik — tint pills */}
             <div className="mt-4 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
               {METRICS.map(({ key, label, short, field, icon: Icon }) => {
                 const value = Number(selectedRecord[field] ?? 0);
@@ -625,6 +592,102 @@ export function PatientMedicalRecordView({
                   </div>
                 );
               })}
+            </div>
+          </section>
+
+          {/* 2. grafik pemulihan klinis */}
+          {chartData.length >= 2 ? (
+            <section className="hafta-card p-4 sm:p-5">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                    <TrendingUp className="h-3 w-3" />
+                    Grafik Pemulihan Klinis
+                  </p>
+                  <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground sm:text-base">
+                    Penurunan Nyeri (VAS 0–10) &amp; Kenaikan Gerak (ROM %)
+                  </h2>
+                </div>
+                <div className="flex items-center gap-3 text-[10.5px] font-medium text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-400)]" />
+                    Nyeri VAS
+                    {latestChartPoint ? (
+                      <span className="font-semibold tabular-nums text-foreground">
+                        {latestChartPoint.pain}/10
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span
+                      aria-hidden="true"
+                      style={{ width: 16, height: 0, borderTop: '2px dashed var(--hafta-900)' }}
+                    />
+                    ROM
+                    {latestChartPoint ? (
+                      <span className="font-semibold tabular-nums text-foreground">
+                        {latestChartPoint.rom}%
+                      </span>
+                    ) : null}
+                  </span>
+                </div>
+              </div>
+              <div className="mt-3">
+                <RecoveryChart
+                  data={chartData}
+                  onSelectSession={(sesi) => {
+                    const record = chronological[sesi - 1];
+                    if (record) setDetailRecord(record);
+                  }}
+                />
+              </div>
+            </section>
+          ) : null}
+
+          {/* 3. kalender terapi */}
+          {records.length > 0 ? (
+            <section className="hafta-card p-4 sm:p-5">
+              <TherapyCalendar
+                entries={chronological.map((record) => ({
+                  id: record.id,
+                  recordedAt: new Date(record.recordedAt),
+                  painScore: record.painScore ?? null,
+                  rangeOfMotionScore: record.rangeOfMotionScore ?? null,
+                  status: record.status,
+                }))}
+                onSelectRecord={(recordId) => {
+                  const record = records.find((item) => item.id === recordId);
+                  if (record) {
+                    setSelectedRecordId(record.id);
+                    setDetailRecord(record);
+                  }
+                }}
+              />
+            </section>
+          ) : null}
+
+          {/* 4. catatan klinis sesi terpilih */}
+          <section className="hafta-card p-4 sm:p-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Perkembangan Terapi</h2>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {longDate(selectedRecord.recordedAt)} · Sesi {visitNumberById.get(selectedRecord.id) ?? 1}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span
+                  className={cn(
+                    'rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                    selectedRecord.status === 'FINALIZED'
+                      ? TONE_PILL.good
+                      : 'bg-secondary/60 text-muted-foreground',
+                  )}
+                >
+                  {labelRecordStatus(selectedRecord.status)}
+                </span>
+                <MedicalRecordActions record={selectedRecord} />
+              </div>
             </div>
 
             {/* catatan klinis — baris hairline */}
