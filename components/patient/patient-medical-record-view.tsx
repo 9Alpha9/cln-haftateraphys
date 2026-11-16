@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import Link from 'next/link';
 import {
   Activity,
   CalendarDays,
@@ -128,6 +129,12 @@ const longDate = (value: Date) =>
     year: 'numeric',
   });
 
+const shortWeekday = (value: Date) => value.toLocaleDateString('id-ID', { weekday: 'short' });
+const dayNumber = (value: Date) => value.toLocaleDateString('id-ID', { day: 'numeric' });
+const monthYear = (value: Date) => value.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+const clockTime = (value: Date) =>
+  value.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+
 function formatAge(dateOfBirth: Date | null) {
   if (!dateOfBirth) return '-';
   const today = new Date();
@@ -171,6 +178,7 @@ function ChartBadge({
   const isLast = payload.sesi === 9;
   return (
     <g
+      data-chart-dot={payload.sesi}
       onClick={() => onSelect?.(payload.sesi)}
       style={onSelect ? { cursor: 'pointer' } : undefined}
     >
@@ -215,7 +223,11 @@ function RomDot({
 }) {
   if (typeof cx !== 'number' || typeof cy !== 'number') return null;
   return (
-    <g onClick={() => onSelect?.(payload?.sesi ?? 0)} style={onSelect ? { cursor: 'pointer' } : undefined}>
+    <g
+      data-chart-dot={payload?.sesi ?? 0}
+      onClick={() => onSelect?.(payload?.sesi ?? 0)}
+      style={onSelect ? { cursor: 'pointer' } : undefined}
+    >
       {/* area sentuh lebih besar agar mudah diklik di layar sentuh */}
       <circle cx={cx} cy={cy} r={14} fill="transparent" />
       <circle cx={cx} cy={cy} r={3.5} fill="var(--hafta-900)" />
@@ -229,25 +241,44 @@ function ChartTick({
   payload,
   length,
   dates,
+  onSelect,
 }: {
   x?: number;
   y?: number;
   payload?: { value: number };
   length: number;
   dates: Map<number, string>;
+  onSelect?: (sesi: number) => void;
 }) {
   if (typeof x !== 'number' || typeof y !== 'number' || !payload) return null;
   const sesi = Number(payload.value);
   const isLast = sesi === length;
   return (
-    <text x={x} y={y + 10} textAnchor="middle">
-      <tspan x={x} dy={0} fontSize={10.5} fontWeight={isLast ? 700 : 500} fill="var(--hafta-800)">
-        Sesi {sesi}
-      </tspan>
-      <tspan x={x} dy={12} fontSize={9.5} fill="var(--hafta-600)">
-        {dates.get(sesi) ?? ''}
-      </tspan>
-    </text>
+    <g
+      data-chart-dot={sesi}
+      role="button"
+      tabIndex={0}
+      aria-label={`Lihat detail Sesi ${sesi}, ${dates.get(sesi) ?? ''}`}
+      onClick={() => onSelect?.(sesi)}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onSelect?.(sesi);
+        }
+      }}
+      style={{ cursor: 'pointer' }}
+    >
+      <title>{`Lihat detail Sesi ${sesi} — ${dates.get(sesi) ?? ''}`}</title>
+      <rect x={x - 44} y={y} width={88} height={30} fill="transparent" />
+      <text x={x} y={y + 10} textAnchor="middle" pointerEvents="none">
+        <tspan x={x} dy={0} fontSize={10.5} fontWeight={isLast ? 700 : 500} fill="var(--hafta-800)">
+          Sesi {sesi}
+        </tspan>
+        <tspan x={x} dy={12} fontSize={9.5} fill="var(--hafta-600)">
+          {dates.get(sesi) ?? ''}
+        </tspan>
+      </text>
+    </g>
   );
 }
 
@@ -257,21 +288,45 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
     [data],
   );
   const tickInterval = data.length > 5 ? 2 : 0;
+
+  /**
+   * Klik di mana pun pada grafik memilih sesi terdekat.
+   * Posisi sesi dibaca dari titik-titik yang sudah dirender, sehingga
+   * pemetaan selalu akurat (fallback activeTooltipIndex milik recharts
+   * bisa basi dan meleset ke sesi lain).
+   */
+  const handleSurfaceClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!onSelectSession) return;
+    if ((event.target as Element).closest('[data-chart-dot]')) return; // dot/tick punya handler sendiri
+    const svg = event.currentTarget.querySelector('svg');
+    if (!svg) return;
+    const centers = Array.from(svg.querySelectorAll('circle[fill="transparent"]'))
+      .map((circle) => circle.getBoundingClientRect())
+      .filter((rect) => rect.width > 0)
+      .map((rect) => rect.x + rect.width / 2);
+    const uniqueX = Array.from(new Set(centers.map((value) => Math.round(value)))).sort((a, b) => a - b);
+    if (uniqueX.length === 0) return;
+    const clickedX = event.clientX;
+    let nearestIndex = 0;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    uniqueX.forEach((x, index) => {
+      const distance = Math.abs(x - clickedX);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestIndex = index;
+      }
+    });
+    onSelectSession(Math.min(nearestIndex + 1, data.length));
+  };
+
   return (
-    <div className="h-[220px] w-full sm:h-[260px]">
+    <div
+      className="h-[220px] w-full sm:h-[260px]"
+      onClick={handleSurfaceClick}
+      style={onSelectSession ? { cursor: 'pointer' } : undefined}
+    >
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={data}
-          margin={{ top: 28, right: 8, bottom: 8, left: -18 }}
-          onClick={(state: { activeTooltipIndex?: number } | undefined) => {
-            // fallback: klik di mana saja pada grafik memilih sesi terdekat
-            const index = state?.activeTooltipIndex;
-            if (typeof index === 'number' && index >= 0 && onSelectSession) {
-              onSelectSession(index + 1);
-            }
-          }}
-          style={{ cursor: onSelectSession ? 'pointer' : undefined }}
-        >
+        <LineChart data={data} margin={{ top: 28, right: 8, bottom: 8, left: -18 }}>
           <CartesianGrid vertical={false} stroke="var(--hafta-100)" strokeDasharray="4 6" />
           <YAxis yAxisId="pain" domain={[0, 10]} tickLine={false} axisLine={false} tick={false} />
           <YAxis yAxisId="rom" orientation="right" domain={[0, 100]} tickLine={false} axisLine={false} tick={false} />
@@ -283,11 +338,12 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
             axisLine={false}
             interval={tickInterval}
             tick={(props: { x?: number; y?: number; payload?: { value: number } }) => (
-              <ChartTick {...props} length={data.length} dates={tickDates} />
+              <ChartTick {...props} length={data.length} dates={tickDates} onSelect={onSelectSession} />
             )}
           />
           <Tooltip
             cursor={{ stroke: 'var(--hafta-200)', strokeDasharray: '4 4' }}
+            wrapperStyle={{ pointerEvents: 'none' }}
             content={({ active, payload }) => {
               if (!active || !payload?.length) return null;
               const point = payload[0].payload as ChartPoint;
@@ -374,6 +430,12 @@ export function PatientMedicalRecordView({
     [chronological],
   );
 
+  /** Satu sumber aksi untuk grafik, kalender, dan daftar kunjungan. */
+  const openSession = useCallback((record: TherapyProgressView) => {
+    setSelectedRecordId(record.id);
+    setDetailRecord(record);
+  }, []);
+
   const latestRecord = records[0] ?? null;
   const firstRecord = chronological[0] ?? null;
   const chartData = useMemo<ChartPoint[]>(
@@ -422,20 +484,32 @@ export function PatientMedicalRecordView({
             {labelCaseStatus(patient?.caseStatus)}
           </span>
         </div>
-        <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-          <span>{formatAge(patient?.dateOfBirth ?? null)}</span>
-          <span aria-hidden="true">·</span>
-          <span>{labelGender(patient?.gender)}</span>
-          <span aria-hidden="true">·</span>
-          <span className="tabular-nums">No. RM {patient?.medicalRecordNumber ?? '-'}</span>
-          <span aria-hidden="true">·</span>
-          <span className="inline-flex items-center gap-1">
-            <Stethoscope className="h-3 w-3" />
-            {patient?.therapistName ?? latestRecord?.therapistName ?? 'Fisioterapis Hafta'}
-          </span>
-        </p>
+        <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 sm:grid-cols-4">
+          {[
+            { label: 'Usia', value: formatAge(patient?.dateOfBirth ?? null) },
+            { label: 'Jenis Kelamin', value: labelGender(patient?.gender) },
+            { label: 'No. Rekam Medis', value: patient?.medicalRecordNumber ?? '-', tabular: true },
+            {
+              label: 'Fisioterapis',
+              value: patient?.therapistName ?? latestRecord?.therapistName ?? 'Fisioterapis Hafta',
+            },
+          ].map((item) => (
+            <div key={item.label} className="min-w-0">
+              <dt className="text-[9.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground sm:text-[10px]">
+                {item.label}
+              </dt>
+              <dd
+                className={cn(
+                  'mt-0.5 truncate text-[13px] font-medium text-foreground',
+                  item.tabular && 'tabular-nums',
+                )}
+              >
+                {item.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </header>
-
       {/* ── 2. STAT PILLS — satu baris, tint token ── */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {[
@@ -506,7 +580,8 @@ export function PatientMedicalRecordView({
           </p>
         </div>
       ) : activeTab === 'ringkasan' && selectedRecord ? (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+          <div className="min-w-0 space-y-4">
           {/* 1. metrik ringkas — paling atas agar langsung terbaca semua umur */}
           <section className="hafta-card p-4 sm:p-5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -637,7 +712,7 @@ export function PatientMedicalRecordView({
                   data={chartData}
                   onSelectSession={(sesi) => {
                     const record = chronological[sesi - 1];
-                    if (record) setDetailRecord(record);
+                    if (record) openSession(record);
                   }}
                 />
               </div>
@@ -657,10 +732,7 @@ export function PatientMedicalRecordView({
                 }))}
                 onSelectRecord={(recordId) => {
                   const record = records.find((item) => item.id === recordId);
-                  if (record) {
-                    setSelectedRecordId(record.id);
-                    setDetailRecord(record);
-                  }
+                  if (record) openSession(record);
                 }}
               />
             </section>
@@ -777,6 +849,90 @@ export function PatientMedicalRecordView({
               </p>
             </section>
           ) : null}
+          </div>
+
+          {/* ── rail kanan (desktop) — pola patient portal: terapi berikutnya + aksi ── */}
+          <aside className="hidden space-y-4 lg:sticky lg:top-4 lg:block">
+            <section className="hafta-card overflow-hidden">
+              <div className="flex items-center justify-between gap-2 border-b border-border/70 px-4 py-3">
+                <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  <CalendarDays className="h-3 w-3" />
+                  Terapi Berikutnya
+                </p>
+                {patient?.nextTherapyAt ? (
+                  <span className="rounded-full bg-[var(--hafta-50)] px-2 py-0.5 text-[10px] font-semibold text-[var(--hafta-700)]">
+                    Terjadwal
+                  </span>
+                ) : null}
+              </div>
+
+              <div className="px-4 py-4">
+                {patient?.nextTherapyAt ? (
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-[var(--hafta-900)] text-white">
+                      <span className="text-[9.5px] font-medium uppercase tracking-wide text-white/65">
+                        {shortWeekday(patient.nextTherapyAt)}
+                      </span>
+                      <span className="text-xl font-semibold leading-tight tabular-nums">
+                        {dayNumber(patient.nextTherapyAt)}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-semibold capitalize text-foreground">
+                        {monthYear(patient.nextTherapyAt)}
+                      </p>
+                      <p className="mt-0.5 text-[12.5px] font-medium tabular-nums text-muted-foreground">
+                        {clockTime(patient.nextTherapyAt)} WIB
+                      </p>
+                      <p className="mt-1.5 flex items-center gap-1.5 text-[11.5px] text-muted-foreground">
+                        <Stethoscope className="h-3 w-3 shrink-0" />
+                        <span className="truncate">
+                          {patient?.therapistName ?? latestRecord?.therapistName ?? 'Fisioterapis Hafta'}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-[12.5px] text-muted-foreground">Belum ada jadwal terapi berikutnya.</p>
+                )}
+
+                {patient?.therapyFrequencyText ? (
+                  <p className="mt-3 rounded-xl bg-[var(--hafta-50)] px-3 py-2 text-[11.5px] text-[var(--hafta-800)]">
+                    {patient.therapyFrequencyText}
+                  </p>
+                ) : null}
+
+                <Link
+                  href="/dashboard/schedule"
+                  className="mt-3 flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-950)] text-[12px] font-semibold text-white transition-colors hover:bg-[var(--hafta-900)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                >
+                  Lihat jadwal
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </section>
+
+            <section className="hafta-card p-4">
+              <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                <FileText className="h-3 w-3" />
+                Dokumen Sesi Ini
+              </p>
+              <p className="mt-1 text-[11.5px] leading-relaxed text-muted-foreground">
+                Cetak atau simpan ringkasan sesi {visitNumberById.get(selectedRecord.id) ?? 1} sebagai PDF.
+              </p>
+              <div className="mt-3">
+                <MedicalRecordActions record={selectedRecord} layout="split" className="sm:w-full" />
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab('dokumen')}
+                className="mt-2 flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl px-2 py-2 text-[11.5px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+              >
+                Semua dokumen ({records.length})
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </section>
+          </aside>
         </div>
       ) : activeTab === 'kunjungan' ? (
         <section className="hafta-card p-4 sm:p-5">
@@ -790,7 +946,7 @@ export function PatientMedicalRecordView({
               <li key={record.id}>
                 <button
                   type="button"
-                  onClick={() => setDetailRecord(record)}
+                  onClick={() => openSession(record)}
                   className="flex w-full cursor-pointer items-center gap-3 py-3 text-left transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
                 >
                   <span className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-xl bg-[var(--hafta-50)]">

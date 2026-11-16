@@ -145,10 +145,13 @@ export function MedicalRecordActions({
         type="button"
         onClick={() => setIsOpen((v) => !v)}
         disabled={loading || printing}
+        aria-label="Aksi rekam medis"
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
         className={
           tone === 'dark'
-            ? 'h-9 px-2.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-white/80 border border-white/10 text-xs font-semibold inline-flex items-center justify-center gap-2 cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
-            : 'h-11 px-3 rounded-full text-muted-foreground hover:bg-accent hover:text-foreground text-xs sm:text-[13px] font-semibold inline-flex items-center justify-center gap-2 cursor-pointer transition-all focus-visible:outline-none focus-visible:border-[var(--hafta-950)] focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
+            ? 'flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/[0.06] p-0 text-white/80 transition-[background-color,color,box-shadow,transform] duration-200 ease-out hover:bg-white/[0.12] hover:text-white hover:shadow-[0_2px_10px_rgba(0,0,0,0.45)] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
+            : 'flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full p-0 text-muted-foreground transition-[background-color,color,box-shadow,transform] duration-200 ease-out hover:bg-accent hover:text-foreground hover:shadow-[0_2px_10px_rgba(28,25,23,0.10)] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
         }
       >
         <MoreVertical className="w-4 h-4 shrink-0" />

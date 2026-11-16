@@ -146,8 +146,12 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
             <button
               key={cell.key}
               type="button"
-              disabled={!hasTherapy}
-              onClick={() => setSelectedDay(cell.key)}
+              onClick={() => {
+                if (!cell.inMonth) {
+                  setMonthCursor(new Date(cell.date.getFullYear(), cell.date.getMonth(), 1));
+                }
+                setSelectedDay(cell.key);
+              }}
               aria-label={
                 hasTherapy
                   ? `${cell.date.getDate()} — ${dayEntries.length} sesi terapi`
@@ -155,12 +159,13 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
               }
               aria-pressed={isSelected}
               className={cn(
-                'relative flex h-9 cursor-pointer flex-col items-center justify-center rounded-lg text-[12px] tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 sm:h-10',
+                'relative flex h-10 cursor-pointer flex-col items-center justify-center rounded-lg text-[12.5px] tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 sm:h-11',
                 !cell.inMonth && 'opacity-40',
                 hasTherapy
                   ? 'font-semibold text-foreground hover:bg-[var(--hafta-100)]'
-                  : 'text-muted-foreground/55 cursor-default',
+                  : 'text-muted-foreground/55 hover:bg-accent hover:text-muted-foreground',
                 isSelected && hasTherapy && 'bg-[var(--hafta-900)] text-white hover:bg-[var(--hafta-800)]',
+                isSelected && !hasTherapy && 'bg-[var(--hafta-100)] text-foreground',
                 isToday && !isSelected && 'ring-1 ring-inset ring-[var(--hafta-300)]',
               )}
             >
@@ -214,13 +219,23 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
               ))}
             </div>
           ) : (
-            <p className="text-[12px] text-muted-foreground">
-              Tidak ada terapi pada tanggal ini.
-            </p>
+            <div className="space-y-1">
+              <p className="text-[11px] font-medium text-muted-foreground">
+                {selectedDate.toLocaleDateString('id-ID', {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </p>
+              <p className="text-[12px] text-muted-foreground">
+                Tidak ada terapi pada tanggal ini.
+              </p>
+            </div>
           )
         ) : (
           <p className="text-[12px] text-muted-foreground">
-            Ketuk tanggal bertanda untuk melihat progres hari itu.
+            Ketuk tanggal mana pun untuk melihat progres hari itu.
           </p>
         )}
       </div>
