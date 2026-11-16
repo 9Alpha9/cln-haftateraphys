@@ -8,6 +8,7 @@ import {
   CalendarDays,
   CalendarPlus,
   CheckCircle2,
+  ClipboardList,
   Clock3,
   LockKeyhole,
   Printer,
@@ -16,6 +17,7 @@ import {
 } from 'lucide-react';
 import { GlobalModal } from '@/components/ui/global-modal';
 import { Button } from '@/components/ui/button';
+import { MedicalRecordActions } from '@/components/dashboard/medical-record-actions';
 import { PatientBookingPanel } from '@/components/patient/patient-booking-panel';
 import { useToast } from '@/components/ui/toast';
 import { cancelPatientAppointmentRequest } from '@/server/actions/appointment-requests';
@@ -266,20 +268,24 @@ export function PatientDashboardOverview({
 
       {/* ── 3. REKAM MEDIS — preview ringkas terakhir ── */}
       <section aria-label="Rekam medis dan evaluasi terapi" className={cnCard('p-4 sm:p-5')}>
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              <ClipboardList className="h-3 w-3" />
               Rekam Medis
             </p>
-            <h2 className="mt-0.5 text-base font-bold text-foreground">Evaluasi Terapi Terakhir</h2>
+            <h2 className="mt-1 text-base font-bold text-foreground">Evaluasi Terapi Terakhir</h2>
           </div>
-          <Link
-            href="/dashboard/progress"
-            className="inline-flex w-fit items-center gap-1 rounded text-xs font-semibold text-foreground underline-offset-4 hover:underline focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-          >
-            Lihat Semua
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+          <div className="flex shrink-0 items-center gap-1">
+            <Link
+              href="/dashboard/progress"
+              className="inline-flex w-fit items-center gap-1 rounded text-xs font-semibold text-foreground underline-offset-4 hover:underline focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+            >
+              Lihat Semua
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+            {latestRecord ? <MedicalRecordActions record={latestRecord} menuPlacement="down" /> : null}
+          </div>
         </div>
 
         {records.length === 0 ? (
@@ -330,7 +336,7 @@ export function PatientDashboardOverview({
               ))}
             </dl>
 
-            <div className="mt-3 flex justify-end">
+            <div className="mt-3 hidden justify-end sm:flex">
               <Link
                 href={`/dashboard/progress/${latestRecord.id}/print`}
                 className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border bg-background px-4 text-xs font-semibold text-foreground transition-colors hover:bg-accent focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"

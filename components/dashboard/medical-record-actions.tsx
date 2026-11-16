@@ -78,12 +78,15 @@ export function MedicalRecordActions({
   className,
   tone = 'light',
   layout = 'menu',
+  menuPlacement = 'up',
 }: {
   record: MedicalRecordPdfData;
   className?: string;
   tone?: 'light' | 'dark';
   /** 'menu': kebab dropdown; 'split': 2 tombol eksplisit (untuk footer drawer). */
   layout?: 'menu' | 'split';
+  /** Arah panel dropdown: 'down' untuk pemicu di bagian atas kartu. */
+  menuPlacement?: 'up' | 'down';
 }) {
   const { openPrintPage, downloadPdf, loading, printing } = useMedicalRecordPdf(record);
   const [isOpen, setIsOpen] = useState(false);
@@ -163,8 +166,8 @@ export function MedicalRecordActions({
         <div
           className={
             tone === 'dark'
-              ? 'absolute bottom-full right-0 z-20 mb-2 flex w-48 origin-bottom-right flex-col gap-1 rounded-2xl border border-white/10 bg-[#191817] p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.55)]'
-              : 'absolute bottom-full right-0 z-20 mb-2 flex w-48 origin-bottom-right flex-col gap-1 rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]'
+              ? `absolute ${menuPlacement === 'down' ? 'top-full mt-2 origin-top-right' : 'bottom-full mb-2 origin-bottom-right'} right-0 z-20 flex w-48 flex-col gap-1 rounded-2xl border border-white/10 bg-[#191817] p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.55)]`
+              : `absolute ${menuPlacement === 'down' ? 'top-full mt-2 origin-top-right' : 'bottom-full mb-2 origin-bottom-right'} right-0 z-20 flex w-48 flex-col gap-1 rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]`
           }
         >
           <button

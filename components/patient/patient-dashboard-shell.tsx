@@ -680,17 +680,17 @@ export function PatientDashboardShell({
         {/* Content area */}
         <main
           data-role={role}
-          className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-3 pb-28 lg:pb-10 overflow-x-clip"
+          className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-10 overflow-x-clip"
         >
           {pathname !== '/dashboard' ? (
-            <div className="pt-4 md:hidden">
+            <div className="py-1.5 md:hidden">
               <button
                 type="button"
-                aria-label="Kembali"
                 onClick={() => router.back()}
-                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-[var(--hafta-50)]"
+                className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card pr-3.5 pl-2.5 text-[11.5px] font-medium text-foreground transition-colors hover:bg-[var(--hafta-50)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Kembali
               </button>
             </div>
           ) : null}

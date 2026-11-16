@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   Activity,
@@ -10,6 +10,7 @@ import {
   Dumbbell,
   FileText,
   HeartPulse,
+  NotebookPen,
   PenLine,
   Stethoscope,
   TrendingUp,
@@ -19,7 +20,6 @@ import {
   Line,
   LineChart,
   ResponsiveContainer,
-  Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
@@ -282,8 +282,7 @@ function ChartTick({
   );
 }
 
-function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelectSession?: (sesi: number) => void }) {
-  const tickDates = useMemo(
+function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelectSession?: (sesi: number) => void }) {  const tickDates = useMemo(
     () => new Map(data.map((point) => [point.sesi, point.date])),
     [data],
   );
@@ -300,11 +299,12 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
     if ((event.target as Element).closest('[data-chart-dot]')) return; // dot/tick punya handler sendiri
     const svg = event.currentTarget.querySelector('svg');
     if (!svg) return;
-    const centers = Array.from(svg.querySelectorAll('circle[fill="transparent"]'))
+    // Ambil satu titik acuan per sesi (titik nyeri), bukan gabungan dua garis.
+    const centers = Array.from(svg.querySelectorAll('[data-chart-dot] circle[r="14"]'))
       .map((circle) => circle.getBoundingClientRect())
       .filter((rect) => rect.width > 0)
-      .map((rect) => rect.x + rect.width / 2);
-    const uniqueX = Array.from(new Set(centers.map((value) => Math.round(value)))).sort((a, b) => a - b);
+      .map((rect) => Math.round(rect.x + rect.width / 2));
+    const uniqueX = Array.from(new Set(centers)).sort((a, b) => a - b);
     if (uniqueX.length === 0) return;
     const clickedX = event.clientX;
     let nearestIndex = 0;
@@ -323,7 +323,10 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
     <div
       className="h-[220px] w-full sm:h-[260px]"
       onClick={handleSurfaceClick}
-      style={onSelectSession ? { cursor: 'pointer' } : undefined}
+      style={{
+        cursor: onSelectSession ? 'pointer' : undefined,
+        touchAction: onSelectSession ? 'manipulation' : undefined,
+      }}
     >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 28, right: 8, bottom: 8, left: -18 }}>
@@ -340,27 +343,6 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
             tick={(props: { x?: number; y?: number; payload?: { value: number } }) => (
               <ChartTick {...props} length={data.length} dates={tickDates} onSelect={onSelectSession} />
             )}
-          />
-          <Tooltip
-            cursor={{ stroke: 'var(--hafta-200)', strokeDasharray: '4 4' }}
-            wrapperStyle={{ pointerEvents: 'none' }}
-            content={({ active, payload }) => {
-              if (!active || !payload?.length) return null;
-              const point = payload[0].payload as ChartPoint;
-              return (
-                <div className="hafta-card px-2.5 py-1.5 text-[11px]">
-                  <p className="font-semibold text-foreground">
-                    {point.label} · {point.date}
-                  </p>
-                  <p className="mt-0.5 flex items-center gap-1.5 text-muted-foreground">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-400)]" />
-                    Nyeri <span className="font-semibold tabular-nums text-foreground">{point.pain}/10</span>
-                    <span className="h-px w-3 bg-foreground" />
-                    ROM <span className="font-semibold tabular-nums text-foreground">{point.rom}%</span>
-                  </p>
-                </div>
-              );
-            }}
           />
           <Line
             yAxisId="rom"
@@ -389,6 +371,10 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
   );
 }
 
+/** Grafik di-memo agar panel detail bisa dibuka tanpa re-render grafik. */
+const MemoRecoveryChart = memo(RecoveryChart);
+const MemoTherapyCalendar = memo(TherapyCalendar);
+
 export function PatientMedicalRecordView({
   patient,
   records,
@@ -408,6 +394,8 @@ export function PatientMedicalRecordView({
   const [visitsPerPage, setVisitsPerPage] = useState(5);
   const [docsPage, setDocsPage] = useState(1);
   const [docsPerPage, setDocsPerPage] = useState(6);
+  const [diagnosisPage, setDiagnosisPage] = useState(1);
+  const [tindakanPage, setTindakanPage] = useState(1);
 
   const selectedRecord = useMemo(
     () => records.find((record) => record.id === selectedRecordId) ?? records[0] ?? null,
@@ -450,12 +438,46 @@ export function PatientMedicalRecordView({
     [chronological],
   );
   const latestChartPoint = chartData.length > 0 ? chartData[chartData.length - 1] : null;
+
+  const calendarEntries = useMemo(
+    () =>
+      chronological.map((record) => ({
+        id: record.id,
+        recordedAt: new Date(record.recordedAt),
+        painScore: record.painScore ?? null,
+        rangeOfMotionScore: record.rangeOfMotionScore ?? null,
+        status: record.status,
+      })),
+    [chronological],
+  );
+
+  const selectSessionByNumber = useCallback(
+    (sesi: number) => {
+      const record = chronological[sesi - 1];
+      if (record) openSession(record);
+    },
+    [chronological, openSession],
+  );
+
+  const selectCalendarRecord = useCallback(
+    (recordId: string) => {
+      const record = records.find((item) => item.id === recordId);
+      if (record) openSession(record);
+    },
+    [records, openSession],
+  );
   const visitPageCount = Math.max(1, Math.ceil(records.length / visitsPerPage));
   const safeVisitPage = Math.min(visitPage, visitPageCount);
   const visibleVisits = records.slice((safeVisitPage - 1) * visitsPerPage, safeVisitPage * visitsPerPage);
   const docsPageCount = Math.max(1, Math.ceil(records.length / docsPerPage));
   const safeDocsPage = Math.min(docsPage, docsPageCount);
   const visibleDocs = records.slice((safeDocsPage - 1) * docsPerPage, safeDocsPage * docsPerPage);
+  /** Diagnosis & tindakan: 6 baris per halaman agar tidak memanjang. */
+  const clinicalPageCount = Math.max(1, Math.ceil(records.length / 6));
+  const safeDiagnosisPage = Math.min(diagnosisPage, clinicalPageCount);
+  const safeTindakanPage = Math.min(tindakanPage, clinicalPageCount);
+  const visibleDiagnosis = records.slice((safeDiagnosisPage - 1) * 6, safeDiagnosisPage * 6);
+  const visibleTindakan = records.slice((safeTindakanPage - 1) * 6, safeTindakanPage * 6);
   const averageScore = records.length
     ? Math.round(
         (records.reduce(
@@ -584,8 +606,8 @@ export function PatientMedicalRecordView({
           <div className="min-w-0 space-y-4">
           {/* 1. metrik ringkas — paling atas agar langsung terbaca semua umur */}
           <section className="hafta-card p-4 sm:p-5">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
                 <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                   <Activity className="h-3 w-3" />
                   Kondisi Terkini
@@ -595,7 +617,7 @@ export function PatientMedicalRecordView({
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">{longDate(selectedRecord.recordedAt)}</p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <span
                   className={cn(
                     'rounded-full px-2 py-0.5 text-[10px] font-semibold',
@@ -708,13 +730,7 @@ export function PatientMedicalRecordView({
                 </div>
               </div>
               <div className="mt-3">
-                <RecoveryChart
-                  data={chartData}
-                  onSelectSession={(sesi) => {
-                    const record = chronological[sesi - 1];
-                    if (record) openSession(record);
-                  }}
-                />
+                <MemoRecoveryChart data={chartData} onSelectSession={selectSessionByNumber} />
               </div>
             </section>
           ) : null}
@@ -722,32 +738,23 @@ export function PatientMedicalRecordView({
           {/* 3. kalender terapi */}
           {records.length > 0 ? (
             <section className="hafta-card p-4 sm:p-5">
-              <TherapyCalendar
-                entries={chronological.map((record) => ({
-                  id: record.id,
-                  recordedAt: new Date(record.recordedAt),
-                  painScore: record.painScore ?? null,
-                  rangeOfMotionScore: record.rangeOfMotionScore ?? null,
-                  status: record.status,
-                }))}
-                onSelectRecord={(recordId) => {
-                  const record = records.find((item) => item.id === recordId);
-                  if (record) openSession(record);
-                }}
-              />
+              <MemoTherapyCalendar entries={calendarEntries} onSelectRecord={selectCalendarRecord} />
             </section>
           ) : null}
 
           {/* 4. catatan klinis sesi terpilih */}
           <section className="hafta-card p-4 sm:p-5">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Perkembangan Terapi</h2>
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0 flex-1">
+                <h2 className="inline-flex items-center gap-1.5 text-[15px] font-semibold tracking-tight text-foreground">
+                  <NotebookPen className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
+                  Perkembangan Terapi
+                </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {longDate(selectedRecord.recordedAt)} · Sesi {visitNumberById.get(selectedRecord.id) ?? 1}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex shrink-0 items-center gap-2">
                 <span
                   className={cn(
                     'rounded-full px-2 py-0.5 text-[10px] font-semibold',
@@ -936,9 +943,15 @@ export function PatientMedicalRecordView({
         </div>
       ) : activeTab === 'kunjungan' ? (
         <section className="hafta-card p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Riwayat Kunjungan</h2>
-            <span className="text-[11px] tabular-nums text-muted-foreground">{records.length} sesi</span>
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                <CalendarDays className="h-3 w-3" />
+                Kunjungan
+              </p>
+              <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground">Riwayat Kunjungan</h2>
+            </div>
+            <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">{records.length} sesi</span>
           </div>
 
           <ul className="mt-2 divide-y divide-border/70">
@@ -991,9 +1004,20 @@ export function PatientMedicalRecordView({
         </section>
       ) : activeTab === 'diagnosis' ? (
         <section className="hafta-card p-4 sm:p-5">
-          <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Diagnosis</h2>
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                <Stethoscope className="h-3 w-3" />
+                Diagnosis
+              </p>
+              <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground">Diagnosis &amp; Anamnesis</h2>
+            </div>
+            <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
+              {records.length} catatan
+            </span>
+          </div>
           <ul className="mt-2 divide-y divide-border/70">
-            {records.map((record) => (
+            {visibleDiagnosis.map((record) => (
               <li key={record.id} className="grid gap-0.5 py-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-4">
                 <span className="min-w-0">
                   <span className="block truncate text-[12.5px] font-medium text-foreground">
@@ -1009,12 +1033,30 @@ export function PatientMedicalRecordView({
               </li>
             ))}
           </ul>
+
+          <PaginationBar
+            page={safeDiagnosisPage}
+            pageCount={clinicalPageCount}
+            pageSize={6}
+            onPageChange={setDiagnosisPage}
+          />
         </section>
       ) : activeTab === 'tindakan' ? (
         <section className="hafta-card p-4 sm:p-5">
-          <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Tindakan</h2>
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                <HeartPulse className="h-3 w-3" />
+                Tindakan
+              </p>
+              <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground">Tindakan &amp; Pemeriksaan</h2>
+            </div>
+            <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
+              {records.length} sesi
+            </span>
+          </div>
           <ul className="mt-2 divide-y divide-border/70">
-            {records.map((record) => (
+            {visibleTindakan.map((record) => (
               <li key={record.id} className="grid gap-1 py-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] sm:gap-4">
                 <span className="min-w-0">
                   <span className="block truncate text-[12.5px] font-medium text-foreground">
@@ -1035,12 +1077,25 @@ export function PatientMedicalRecordView({
               </li>
             ))}
           </ul>
+
+          <PaginationBar
+            page={safeTindakanPage}
+            pageCount={clinicalPageCount}
+            pageSize={6}
+            onPageChange={setTindakanPage}
+          />
         </section>
       ) : (
         <section className="hafta-card p-4 sm:p-5">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Dokumen</h2>
-            <span className="text-[11px] tabular-nums text-muted-foreground">{records.length} berkas</span>
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                <FileText className="h-3 w-3" />
+                Dokumen
+              </p>
+              <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground">Berkas Rekam Medis</h2>
+            </div>
+            <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">{records.length} berkas</span>
           </div>
           <ul className="mt-2 divide-y divide-border/70">
             {visibleDocs.map((record) => (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type TherapyCalendarEntry = {
@@ -97,7 +97,8 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
     <div>
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            <CalendarDays className="h-3 w-3" />
             Kalender Terapi
           </p>
           <p className="mt-0.5 text-[12.5px] font-semibold capitalize text-foreground">
