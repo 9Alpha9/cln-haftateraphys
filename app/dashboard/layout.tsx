@@ -15,7 +15,13 @@ export const dynamic = 'force-dynamic';
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { role, session } = await requireSession({ redirectToLogin: true });
   const pathname = (await headers()).get('x-pathname');
-  if (!pathname || !canAccessDashboardPath(role, pathname)) notFound();
+  if (!pathname) notFound();
+  if (pathname.startsWith('/maintenance') || pathname === '/') {
+    // Maintenance route is outside navigation policy: only super admin can see it.
+    if (role !== 'SUPER_ADMIN') notFound();
+  } else if (!canAccessDashboardPath(role, pathname)) {
+    notFound();
+  }
 
   const [unreadCount, recentNotifications, avatarResult, navCounts] = await Promise.all([
     getUnreadNotificationsCount(),

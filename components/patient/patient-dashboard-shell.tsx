@@ -683,11 +683,12 @@ export function PatientDashboardShell({
           className="flex-1 w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 pt-2 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-10 overflow-x-clip"
         >
           {pathname !== '/dashboard' ? (
-            <div className="py-1.5 md:hidden">
+            <div className="pb-1.5 pt-1.5 md:hidden lg:hidden">
               <button
                 type="button"
+                aria-label="Kembali ke halaman sebelumnya"
                 onClick={() => router.back()}
-                className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card pr-3.5 pl-2.5 text-[11.5px] font-medium text-foreground transition-colors hover:bg-[var(--hafta-50)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                className="inline-flex h-11 min-w-11 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11.5px] font-medium text-foreground transition-colors hover:bg-[var(--hafta-50)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 Kembali

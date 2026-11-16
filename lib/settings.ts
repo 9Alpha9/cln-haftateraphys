@@ -4,6 +4,10 @@ export const SETTINGS_DEFAULTS = {
   clinic_email: '',
   clinic_address: 'Jl. Pd. Sidokare Indah No.AE-13, Sidokare, Sidoarjo 61214',
   appointment_reminders_enabled: 'true',
+  maintenance_mode: 'false',
+  maintenance_message:
+    'Kami sedang melakukan pemeliharaan sistem untuk meningkatkan layanan. Silakan kembali beberapa saat lagi.',
+  maintenance_until: '',
 } as const;
 
 export type AppSettingKey = keyof typeof SETTINGS_DEFAULTS;
