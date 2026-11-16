@@ -18,7 +18,12 @@ export default async function PrintMedicalRecordPage({
   const { session, role } = await requireSession({ redirectToLogin: true });
   if (role !== 'USER' && !hasPermission(role, PERMISSIONS.PATIENT_EXPORT)) notFound();
 
-  const record = await getTherapyProgressById(recordId);
+  let record;
+  try {
+    record = await getTherapyProgressById(recordId);
+  } catch {
+    notFound();
+  }
   if (!record) notFound();
 
   await createAuditLog({

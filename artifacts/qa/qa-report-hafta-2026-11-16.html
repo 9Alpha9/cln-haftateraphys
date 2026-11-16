@@ -1,0 +1,1534 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<title>QA &amp; Pentest Report — Hafta Fisioterapi — Audit Aplikasi Menyeluruh</title>
+<style>
+  @page { size: A4; margin: 17mm 14mm 16mm 14mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    margin: 0; color: #1c1917; background: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+    font-size: 10.2pt; line-height: 1.45;
+  }
+  .cover { height: 252mm; display: flex; flex-direction: column; page-break-after: always; }
+  .brand-band { height: 5mm; width: 100%; background: #FFD093; margin-bottom: 14mm; }
+  .brand { font-size: 11pt; font-weight: 800; letter-spacing: .02em; }
+  .doc-type { font-size: 7.5pt; letter-spacing: .18em; color: #78716c; margin-top: 1mm; }
+  h1.cover-title { font-size: 31pt; line-height: 1.1; margin: 24mm 0 4mm; letter-spacing: -.02em; }
+  .cover-subtitle { font-size: 13pt; color: #57534e; }
+  .cover-rule { width: 30mm; height: 1.2mm; background: #FFD093; margin: 8mm 0; }
+  .cover-meta { display: grid; grid-template-columns: 38mm 1fr; gap: 2mm 4mm; font-size: 9.5pt; margin-top: 6mm; }
+  .cover-meta dt { color: #78716c; }
+  .cover-meta dd { margin: 0; color: #292524; }
+  .cover-summary { margin-top: 12mm; padding: 6mm; background: #FAFAF8; border: 1px solid #e7e5e4; }
+  .cover-summary h2 { margin-top: 0; }
+  .cover-bottom { margin-top: auto; font-size: 8pt; color: #a8a29e; border-top: 1px solid #e7e5e4; padding-top: 3mm; }
+  h1.section { font-size: 17pt; margin: 0 0 4mm; letter-spacing: -.01em; }
+  h2 { font-size: 12pt; margin: 7mm 0 2.5mm; }
+  h3 { font-size: 11.2pt; margin: 0 0 1mm; line-height: 1.25; }
+  p { margin: 0 0 2mm; }
+  .page-break { page-break-before: always; }
+  .lead { color: #57534e; margin-bottom: 5mm; }
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.5mm; margin: 4mm 0 6mm; }
+  .summary-card { border: 1px solid #e7e5e4; padding: 3.5mm; background: #fff; }
+  .summary-card .k { color: #78716c; font-size: 7.5pt; }
+  .summary-card .v { font-size: 18pt; font-weight: 800; margin-top: 1mm; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 4mm; }
+  th, td { border: 1px solid #e7e5e4; padding: 2mm 2.2mm; text-align: left; vertical-align: top; font-size: 8.2pt; }
+  th { background: #f5f5f4; font-size: 7.8pt; }
+  tr { page-break-inside: avoid; }
+  .finding { border: 1px solid #e7e5e4; border-left: 3px solid #FFD093; padding: 4mm; margin-bottom: 4mm; page-break-inside: avoid; background: #fff; }
+  .finding-head { display: flex; justify-content: space-between; gap: 4mm; align-items: flex-start; }
+  .finding-kicker { color: #78716c; font-size: 7.5pt; font-weight: 700; letter-spacing: .02em; margin-bottom: 1mm; }
+  .route { color: #57534e; font-size: 8pt; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .chips { display: flex; flex-direction: column; gap: 1.2mm; align-items: flex-end; }
+  .chip { display: inline-block; padding: 1mm 2mm; font-size: 7pt; font-weight: 800; letter-spacing: .02em; border: 1px solid currentColor; }
+  .sev-blocker, .sev-critical { color: #7f1d1d; background: #fef2f2; }
+  .sev-high { color: #b91c1c; background: #fef2f2; }
+  .sev-medium { color: #b45309; background: #fffbeb; }
+  .sev-low, .sev-info { color: #0d766e; background: #ecfdf5; }
+  .status-fixed { color: #065f46; background: #d1fae5; }
+  .status-open { color: #9a3412; background: #ffedd5; }
+  .status-deferred, .status-accepted { color: #57534e; background: #f5f5f4; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-top: 2.5mm; }
+  .label { font-size: 7.2pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #78716c; margin-bottom: .8mm; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 8.5pt; }
+  ol { margin: 0; padding-left: 5mm; }
+  li { margin-bottom: .8mm; }
+  figure { margin: 3mm 0 0; }
+  figure img { width: 100%; max-height: 78mm; object-fit: contain; border: 1px solid #e7e5e4; }
+  figcaption { color: #a8a29e; font-size: 7pt; margin-top: 1mm; }
+  ul.clean { margin: 0 0 3mm; padding-left: 5mm; }
+  ul.clean li { margin-bottom: 1mm; }
+  .note { background: #FAFAF8; border-left: 3px solid #FFD093; padding: 3mm 4mm; margin: 4mm 0; }
+  .signatures { display: flex; justify-content: space-between; margin-top: 18mm; }
+  .signatures div { font-size: 9pt; }
+  .signatures .line { margin-top: 16mm; border-top: 1px solid #d6d3d1; padding-top: 1mm; min-width: 55mm; }
+  .footer { color: #a8a29e; font-size: 7.5pt; }
+</style>
+</head>
+<body>
+  <section class="cover">
+    <div class="brand-band"></div>
+    <div class="brand">HAFTA FISIOTERAPI</div>
+    <div class="doc-type">QUALITY ASSURANCE · SECURITY · UX AUDIT</div>
+    <h1 class="cover-title">QA &amp; Pentest Report</h1>
+    <div class="cover-subtitle">Hafta Fisioterapi — Audit Aplikasi Menyeluruh</div>
+    <div class="cover-rule"></div>
+    <dl class="cover-meta">
+      <dt>Versi laporan</dt><dd>1.0</dd>
+      <dt>Tanggal audit</dt><dd>16 November 2026</dd>
+      <dt>Lingkup</dt><dd>5 area utama: publik, autentikasi, pasien, staf/terapis, admin, PDF, error, maintenance</dd>
+      <dt>Metode</dt><dd>Static review, authorization matrix, browser walkthrough, Lighthouse, PDF byte/text inspection, build &amp; test gate</dd>
+      <dt>Data</dt><dd>Dummy / de-identified — tidak ada data pasien nyata</dd>
+    </dl>
+    <div class="cover-summary">
+      <h2>Ringkasan eksekutif</h2>
+      <p>Audit menemukan <strong>1 critical</strong> dan <strong>8 high</strong> pada otorisasi klinis, alur cetak/PDF, dan pengalaman error. Sebanyak <strong>22 temuan diperbaiki</strong> dan diverifikasi ulang. Aplikasi lulus typecheck, ESLint tanpa error, 34 test otomatis, dan build produksi. Landing page serta dashboard pasien mencapai Accessibility Lighthouse <strong>1.00</strong> setelah perbaikan kontras dan ARIA.</p>
+      <p>Staging dapat dilanjutkan setelah rate limiting, CSP, dan Mobile Gate ditutup. Produksi memerlukan review retensi rekam medis, backup/restore, dan monitoring insiden.</p>
+    </div>
+    <div class="cover-bottom">Dokumen ini tidak memuat data pasien nyata dan tidak boleh digunakan sebagai bukti klinis.</div>
+  </section>
+
+  <section class="page-break">
+    <h1 class="section">1. Lingkup, metode, dan matriks fitur</h1>
+    <h2>1.1 Lingkup audit</h2>
+    <ul class="clean"><li>Seluruh route publik, autentikasi, dashboard pasien, staf/terapis, admin, dan Super Admin.</li><li>Form, validasi, otorisasi server, session, unggah/unduh dokumen, dan audit log.</li><li>Tampilan responsif, aksesibilitas, konsistensi design system, loading/empty/error state.</li><li>Sinkronisasi rekam medis terapis → pasien → cetak/unduh PDF.</li><li>Mode pemeliharaan situs dan halaman error seluruh status.</li></ul>
+    <h2>1.2 Environment</h2>
+    <table><tbody><tr><th style="width:30%">Runtime</th><td>Next.js 16.3.0 (App Router, Turbopack), React 19</td></tr><tr><th style="width:30%">Database</th><td>Neon PostgreSQL + Drizzle ORM (development)</td></tr><tr><th style="width:30%">Auth</th><td>Better Auth, role-based + resource scope</td></tr><tr><th style="width:30%">Browser QA</th><td>Chromium in-app, viewport desktop 1280–1296 px</td></tr><tr><th style="width:30%">Data uji</th><td>Hanya akun dummy *.dummy.hafta.test dan rekam medis sintetis</td></tr><tr><th style="width:30%">Quality gate</th><td>typecheck, eslint, vitest, next build, Lighthouse</td></tr></tbody></table>
+    <h2>1.3 Matriks fitur per area</h2>
+    <table>
+      <thead><tr><th style="width:19%">Area</th><th style="width:27%">Route</th><th style="width:11%">Status</th><th>Catatan</th></tr></thead>
+      <tbody><tr><td>Landing &amp; halaman publik</td><td class="mono">/, /layanan, /tentang, /kontak, /faq, /privacy, /terms</td><td>Aktif</td><td>Lighthouse a11y/SEO 1.0.</td></tr><tr><td>Autentikasi</td><td class="mono">/login, /register, /forgot-password, /reset-password</td><td>Aktif</td><td>Reset password 1 jam; verifikasi email manual.</td></tr><tr><td>Dashboard pasien</td><td class="mono">/dashboard</td><td>Aktif</td><td>Jadwal, progres, catatan, notifikasi, consent, latihan.</td></tr><tr><td>Jadwal pasien</td><td class="mono">/dashboard/appointments</td><td>Aktif</td><td>Pengajuan, ubah jadwal, pembatalan; guard server.</td></tr><tr><td>Rekam medis pasien</td><td class="mono">/dashboard/progress</td><td>Aktif</td><td>Hanya FINALIZED + patient_visible; PDF disinkronkan.</td></tr><tr><td>Form awal &amp; riwayat</td><td class="mono">/dashboard/intake, /dashboard/history</td><td>Aktif</td><td>Draft, review, consent privasi.</td></tr><tr><td>Profil &amp; keamanan</td><td class="mono">/dashboard/profile, /dashboard/security</td><td>Aktif</td><td>MFA opt-in, sesi aktif, revoke sesi.</td></tr><tr><td>Dokumen pasien</td><td class="mono">/dashboard/documents</td><td>Sebagian</td><td>Route hanya untuk staf; pasien belum memiliki daftar dokumen sendiri.</td></tr><tr><td>Daftar &amp; detail pasien</td><td class="mono">/dashboard/patients</td><td>Aktif</td><td>Search server-side, filter, pagination, scope terapis.</td></tr><tr><td>Intake review</td><td class="mono">/dashboard/intake</td><td>Aktif</td><td>Scope therapist diperbaiki pada audit ini.</td></tr><tr><td>Rekam medis staf</td><td class="mono">/dashboard/progress</td><td>Aktif</td><td>SOAP, finalisasi, amandemen, PDF.</td></tr><tr><td>Jadwal staf</td><td class="mono">/dashboard/appointments, /dashboard/calendar</td><td>Aktif</td><td>Kalender, edit, complete session, jadwal kerja terapis.</td></tr><tr><td>Dokumen klinis</td><td class="mono">/dashboard/documents</td><td>Feature-gated</td><td>Aktif setelah konfigurasi Cloudflare R2.</td></tr><tr><td>Pengguna &amp; peran</td><td class="mono">/dashboard/users</td><td>Aktif</td><td>Search, suspend/reactivate, role; detail user belum ada.</td></tr><tr><td>Audit log</td><td class="mono">/dashboard/audit-logs</td><td>Aktif</td><td>Read-only + pagination.</td></tr><tr><td>Pengaturan &amp; maintenance</td><td class="mono">/dashboard/settings, /dashboard/maintenance</td><td>Aktif</td><td>Maintenance baru; toggle + pesan + jadwal selesai.</td></tr><tr><td>Halaman error &amp; status</td><td class="mono">/status, /forbidden, /unauthorized, /maintenance, 404/500</td><td>Aktif</td><td>Referensi insiden tanpa data sensitif.</td></tr><tr><td>Role/permission editor, staff directory, user detail</td><td class="mono">/dashboard/roles, /dashboard/staff, /dashboard/users/[id]</td><td>Belum dibuat</td><td>Sesuai status PRD: permission v1 code-defined.</td></tr></tbody>
+    </table>
+    <h2>1.4 Hasil positif</h2>
+    <ul class="clean"><li>✓ Lighthouse landing page: Accessibility 1.00, Best Practices 1.00, SEO 1.00.</li><li>✓ Lighthouse dashboard pasien setelah perbaikan: Accessibility 1.00, Best Practices 1.00.</li><li>✓ TypeCheck, ESLint, dan 34 test otomatis lulus; build produksi berhasil.</li><li>✓ Tidak ada console error pada alur pasien, maintenance, dan PDF yang diuji.</li><li>✓ Role SUPER_ADMIN bukan wildcard; permission klinis tetap eksplisit.</li><li>✓ Audit log tersedia untuk login, ekspor, maintenance, dan mutasi sensitif.</li><li>✓ Session guard, revoke session, MFA opt-in, dan consent lifecycle sudah berjalan.</li><li>✓ Rekam medis final tidak memiliki hard delete; amandemen menyimpan riwayat.</li></ul>
+  </section>
+
+  <section class="page-break">
+    <h1 class="section">2. Daftar temuan</h1>
+    <p class="lead">Severity mengikuti dampak terhadap keamanan data pasien, integritas rekam medis, dan kemampuan pengguna menyelesaikan tugas utama.</p>
+    <div class="summary-grid">
+      <div class="summary-card"><div class="k">Total temuan</div><div class="v">28</div></div><div class="summary-card"><div class="k">Critical</div><div class="v">1</div></div><div class="summary-card"><div class="k">High</div><div class="v">8</div></div><div class="summary-card"><div class="k">Medium</div><div class="v">11</div></div><div class="summary-card"><div class="k">Low</div><div class="v">6</div></div><div class="summary-card"><div class="k">Info / batasan</div><div class="v">1</div></div><div class="summary-card"><div class="k">Diperbaiki dalam audit ini</div><div class="v">22</div></div><div class="summary-card"><div class="k">Terbuka / deferred</div><div class="v">6</div></div>
+    </div>
+    <table>
+      <thead><tr><th style="width:10%">ID</th><th>Judul</th><th style="width:11%">Severity</th><th style="width:10%">Status</th><th style="width:13%">Kategori</th></tr></thead>
+      <tbody><tr><td class="mono">SEC-01</td><td>Terapis dapat mengakses dan menulis rekam medis pasien yang tidak di-assign</td><td><span class="chip sev-critical">Critical</span></td><td>Fixed</td><td>Security</td></tr><tr><td class="mono">SEC-02</td><td>Daftar intake dan PDF intake tidak dibatasi ke pasien yang di-assign</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Security</td></tr><tr><td class="mono">SEC-03</td><td>Kredensial masuk dapat masuk ke URL sebelum React ter-hidrasi</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Security</td></tr><tr><td class="mono">FUNC-04</td><td>Tautan “Lihat jadwal” pada rekam medis mengarah ke route yang tidak ada</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">PDF-05</td><td>Cetak jadwal menghasilkan template rekam medis dengan isi klinis kosong</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Print/PDF</td></tr><tr><td class="mono">PDF-06</td><td>Tombol Cetak rekam medis tidak membuka dialog cetak</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Print/PDF</td></tr><tr><td class="mono">PDF-07</td><td>Isi PDF tidak identik dengan tampilan pasien</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Print/PDF</td></tr><tr><td class="mono">PDF-08</td><td>Footer pengesahan berulang di setiap halaman / berpotensi terpisah dari isi</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Print/PDF</td></tr><tr><td class="mono">A11Y-09</td><td>Kontras tanggal kalender non-aktif gagal WCAG AA</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">A11Y-10</td><td>Label grup sidebar memiliki kontras 2.33:1</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">A11Y-11</td><td>aria-controls menunjuk ID yang tidak dirender</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">A11Y-12</td><td>Nama aksesibel tombol notifikasi tidak memuat angka yang terlihat</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">A11Y-13</td><td>Tombol tampilkan kata sandi tidak dapat dijangkau keyboard</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">UI-14</td><td>Dua tautan “Lupa kata sandi?” dengan tujuan berbeda</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>UI/UX</td></tr><tr><td class="mono">UI-15</td><td>Label opsi “ingat” ambigu dan tidak sesuai perilaku</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>UI/UX</td></tr><tr><td class="mono">UI-16</td><td>DashboardPageHeader tidak mengikuti kontrak visual terkunci</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>UI/UX</td></tr><tr><td class="mono">UX-17</td><td>Dropdown AppSelect tidak memindahkan fokus ke opsi</td><td><span class="chip sev-low">Low</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">SEO-18</td><td>robots.txt tidak tersedia</td><td><span class="chip sev-low">Low</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">SEC-19</td><td>Rate limiting login/reset belum terlihat pada aplikasi</td><td><span class="chip sev-medium">Medium</span></td><td>Open</td><td>Security</td></tr><tr><td class="mono">SEC-20</td><td>Content-Security-Policy belum diterapkan</td><td><span class="chip sev-medium">Medium</span></td><td>Open</td><td>Security</td></tr><tr><td class="mono">MAINT-21</td><td>Belum ada mode pemeliharaan global untuk mengunci akses pengguna</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">ERR-22</td><td>Halaman error belum mencakup 401/403/500/503 dan informasi insiden</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">DATA-23</td><td>Nama terapis pasien dapat berasal dari assignment lama</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>Data Integrity</td></tr><tr><td class="mono">FUNC-24</td><td>Pencarian pasien hanya memakai nama</td><td><span class="chip sev-low">Low</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">FUNC-25</td><td>Pasien belum memiliki halaman dokumen sendiri</td><td><span class="chip sev-low">Low</span></td><td>Open</td><td>Functional</td></tr><tr><td class="mono">UI-26</td><td>Dokumen desain dan implementasi mengalami drift</td><td><span class="chip sev-low">Low</span></td><td>Open</td><td>UI/UX</td></tr><tr><td class="mono">PERF-27</td><td>Beberapa primitive UI tidak terpakai dan menambah permukaan perawatan</td><td><span class="chip sev-low">Low</span></td><td>Open</td><td>Performance</td></tr><tr><td class="mono">RESP-28</td><td>Mobile Gate belum diuji menyeluruh pada 320/360/390/430 px</td><td><span class="chip sev-info">Info</span></td><td>Deferred</td><td>Responsive</td></tr></tbody>
+    </table>
+    <h2>2.1 Metodologi pengujian</h2>
+    <div class="note">
+      <strong>Quality gate yang dijalankan:</strong> <span class="mono">tsc --noEmit</span>, <span class="mono">eslint .</span>, <span class="mono">vitest run</span> (34 test), <span class="mono">next build</span>, Lighthouse, serta walkthrough browser pada akun dummy pasien, terapis, dan Super Admin. Setiap temuan keamanan diperiksa pada jalur server, bukan hanya UI.
+    </div>
+  </section>
+
+  <section class="page-break">
+    <h1 class="section">3. Detail temuan dan bukti</h1>
+    
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-SEC-01 · Security · server/actions/therapy-progress.ts, server/queries/therapy-progress.ts</div>
+        <h3>Terapis dapat mengakses dan menulis rekam medis pasien yang tidak di-assign</h3>
+        <p class="route">/dashboard/progress</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-critical">Critical</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>`assertScope()` hanya memeriksa keberadaan pasien. Pengecekan assignment pada `getTherapyProgressById` tidak memakai `activeUntil`, sehingga assignment lama tetap dianggap sah.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">CWE-639 / Broken Access Control</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Terapis hanya boleh membaca/menulis pasien dengan assignment aktif (activeUntil IS NULL).</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Terapis dapat membuat, mengubah, dan memfinalisasi rekam pasien mana pun yang UUID-nya diketahui.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Login sebagai THERAPIST yang tidak memiliki assignment ke pasien X.</li><li>Panggil saveTherapyProgress/updateTherapyProgress dengan patientId/recordId pasien X.</li><li>Rekam tersimpan tanpa error otorisasi.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Wajibkan assignment aktif pada semua operasi klinis; tambahkan test authorization untuk terapis unassigned.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-SEC-02 · Security · server/queries/intake-review.ts, server/queries/patient-intakes.ts</div>
+        <h3>Daftar intake dan PDF intake tidak dibatasi ke pasien yang di-assign</h3>
+        <p class="route">/dashboard/intake</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-high">High</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>`getReviewableIntakes()` mengembalikan seluruh intake; `getIntakeDetailForPdf()` hanya memeriksa role, bukan assignment.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">CWE-639 / IDOR</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Therapist hanya melihat intake pasien assigned; ADMIN/SUPER_ADMIN sesuai permission.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Therapist dapat melihat daftar intake seluruh klinik dan mengekspor PDF intake pasien lain.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Login sebagai terapis dengan satu pasien assigned.</li><li>Buka /dashboard/intake; daftar memuat intake pasien lain.</li><li>Panggil getIntakeForPdf(intakeId pasien lain); PDF dikembalikan.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Filter daftar dan detail dengan assignment aktif; audit setiap ekspor intake.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-SEC-03 · Security · components/auth/login-form.tsx, register-form.tsx, forgot/reset-password-form.tsx</div>
+        <h3>Kredensial masuk dapat masuk ke URL sebelum React ter-hidrasi</h3>
+        <p class="route">/login</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-high">High</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Form autentikasi tidak memiliki atribut method, sehingga submit native sebelum hidrasi menjadi GET dan menaruh email/password di query string.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">CWE-598 / Sensitive Information in Query String</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Password tidak pernah muncul di URL, history, referer, atau log.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Pada koneksi lambat, submit sebelum hidrasi menghasilkan /login?email=...&amp;password=...</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka /login dengan cache kosong atau throttle jaringan.</li><li>Tekan Enter sebelum JavaScript selesai dimuat.</li><li>URL berubah dan memuat kredensial.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Tambahkan method=&quot;post&quot; pada seluruh form autentikasi dan pertahankan validasi server-side.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-FUNC-04 · Functional · components/patient/patient-medical-record-view.tsx</div>
+        <h3>Tautan “Lihat jadwal” pada rekam medis mengarah ke route yang tidak ada</h3>
+        <p class="route">/dashboard/progress</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-high">High</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Tautan memakai href=&quot;/dashboard/schedule&quot;; route tersebut tidak ada di App Router.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">HTTP 404</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Tautan menuju /dashboard/appointments.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Pasien melihat halaman 404 dari dalam panel.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka rekam medis pasien.</li><li>Klik “Lihat jadwal” pada panel Terapi Berikutnya.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Gunakan route canonical /dashboard/appointments; tambahkan lint/route-check untuk href internal.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-PDF-05 · Print/PDF · components/dashboard/appointment-card.tsx</div>
+        <h3>Cetak jadwal menghasilkan template rekam medis dengan isi klinis kosong</h3>
+        <p class="route">/dashboard/appointments</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-high">High</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Hook cetak jadwal merender `MedicalRecordDocument` dengan pain/ROM/kekuatan/fungsi = 0 dan field SOAP kosong.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-PDF-05 / Data integrity</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Dokumen jadwal memakai template jadwal dan hanya memuat data jadwal.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>PDF berjudul REKAM MEDIS FISIOTERAPI dengan nilai klinis 0 dan catatan kosong.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka daftar jadwal staf.</li><li>Pilih Cetak Jadwal.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Gunakan halaman /dashboard/appointments/[id]/print; hapus renderer rekam medis dari appointment card.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-PDF-06 · Print/PDF · components/dashboard/medical-record-actions.tsx</div>
+        <h3>Tombol Cetak rekam medis tidak membuka dialog cetak</h3>
+        <p class="route">/dashboard/progress</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-high">High</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>`iframeRef` dideklarasikan tetapi tidak pernah dipasang ke elemen iframe; fallback menavigasi tab ke blob PDF.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-PDF-06 / UI wiring</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>PDF dicetak melalui iframe tersembunyi tanpa meninggalkan halaman.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Halaman berpindah ke blob PDF atau tidak terjadi apa-apa.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka rekam medis.</li><li>Klik Cetak.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Pasang ref pada iframe tersembunyi dan revoke object URL setelah cetak.</p>
+      </div>
+    </div>
+
+    <figure>
+            <img src="screenshots/print-preview-blank.png" alt="Bukti QA-PDF-06" />
+            <figcaption>print-preview-blank.png — anotasi merah menunjukkan area masalah, hijau menunjukkan hasil perbaikan.</figcaption>
+          </figure>
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-PDF-07 · Print/PDF · components/pdf/medical-record-document.tsx, patient-medical-record-view.tsx</div>
+        <h3>Isi PDF tidak identik dengan tampilan pasien</h3>
+        <p class="route">/dashboard/progress</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-high">High</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Tampilan pasien menampilkan informasi terapi, rencana terapi, dan program latihan; PDF lama hanya memuat identitas + SOAP.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-PDF-07 / Data parity</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Cetak dan unduh memuat field yang sama dengan tampilan pasien, termasuk informasi terapi.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Rencana terapi dan program latihan tidak ada di PDF; informasi sesi/terapis tidak lengkap.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka rekam medis pasien.</li><li>Bandingkan tab Ringkasan dengan PDF yang diunduh.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Satu renderer PDF + kirim extras (therapyInfo, treatmentPlan, homeProgram) dari tampilan pasien.</p>
+      </div>
+    </div>
+
+    <figure>
+            <img src="screenshots/pdf-page-1.png" alt="Bukti QA-PDF-07" />
+            <figcaption>pdf-page-1.png — anotasi merah menunjukkan area masalah, hijau menunjukkan hasil perbaikan.</figcaption>
+          </figure>
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-PDF-08 · Print/PDF · components/pdf/medical-record-document.tsx, components/ui/print-footer.tsx</div>
+        <h3>Footer pengesahan berulang di setiap halaman / berpotensi terpisah dari isi</h3>
+        <p class="route">/dashboard/progress/[recordId]/print</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-high">High</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Footer React-PDF memakai `fixed`, sehingga digambar pada setiap halaman. Footer HTML memakai mt-auto tanpa aturan page-break.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-PDF-08 / Pagination</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Satu halaman: footer di bawah. Lebih dari satu halaman: lembar pengesahan terakhir tersendiri, bukan halaman kosong.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Footer berulang dan dapat menumpuk isi atau terpotong.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka rekam medis dengan konten panjang.</li><li>Cetak/unduh dan periksa halaman 2–3.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Render dua tahap: hitung halaman, lalu pilih footer dalam halaman atau lembar pengesahan tersendiri.</p>
+      </div>
+    </div>
+
+    <figure>
+            <img src="screenshots/pdf-signature-page.png" alt="Bukti QA-PDF-08" />
+            <figcaption>pdf-signature-page.png — anotasi merah menunjukkan area masalah, hijau menunjukkan hasil perbaikan.</figcaption>
+          </figure>
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-A11Y-09 · A11y · components/patient/therapy-calendar.tsx</div>
+        <h3>Kontras tanggal kalender non-aktif gagal WCAG AA</h3>
+        <p class="route">/dashboard/progress</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-medium">Medium</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Lighthouse: foreground #e3d5c7 / #b99673 pada background putih, rasio 1.43:1 dan 2.73:1.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">Lighthouse color-contrast / WCAG 1.4.3</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Rasio minimal 4.5:1 untuk teks normal.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Tanggal di luar bulan dan tanggal tanpa terapi sulit dibaca.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka /dashboard/progress.</li><li>Jalankan Lighthouse accessibility.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Gunakan text-stone-600/500 tanpa opacity dan bedakan status dengan latar, bukan opacity.</p>
+      </div>
+    </div>
+
+    <figure>
+            <img src="screenshots/calendar-contrast.png" alt="Bukti QA-A11Y-09" />
+            <figcaption>calendar-contrast.png — anotasi merah menunjukkan area masalah, hijau menunjukkan hasil perbaikan.</figcaption>
+          </figure>
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-A11Y-10 · A11y · components/patient/patient-dashboard-shell.tsx</div>
+        <h3>Label grup sidebar memiliki kontras 2.33:1</h3>
+        <p class="route">/dashboard</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-medium">Medium</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Lighthouse: #7f4100 pada #230f00 (2.33:1) untuk label MENU/ADMINISTRASI dan role pengguna.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">Lighthouse color-contrast / WCAG 1.4.3</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Label sekunder pada permukaan gelap tetap ≥4.5:1.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Label grup dan role hampir tidak terbaca.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka dashboard.</li><li>Jalankan Lighthouse accessibility.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Gunakan text-white/60 atau token kontras tinggi pada permukaan charcoal.</p>
+      </div>
+    </div>
+
+    <figure>
+            <img src="screenshots/sidebar-contrast.png" alt="Bukti QA-A11Y-10" />
+            <figcaption>sidebar-contrast.png — anotasi merah menunjukkan area masalah, hijau menunjukkan hasil perbaikan.</figcaption>
+          </figure>
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-A11Y-11 · A11y · components/patient/patient-dashboard-shell.tsx</div>
+        <h3>aria-controls menunjuk ID yang tidak dirender</h3>
+        <p class="route">/dashboard</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-medium">Medium</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Lighthouse aria-valid-attr-value: aria-controls=&quot;nav-menu-Terapi&quot; tanpa elemen dengan id tersebut.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">Lighthouse aria-valid-attr-value</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>aria-controls hanya diisi saat target ada dan memiliki id yang sesuai.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Screen reader menerima relasi ARIA yang invalid.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka dashboard dengan submenu terbuka.</li><li>Jalankan Lighthouse accessibility.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Tambahkan id pada panel submenu dan hanya set aria-controls saat panel terbuka.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-A11Y-12 · A11y · components/dashboard/notification-bell.tsx</div>
+        <h3>Nama aksesibel tombol notifikasi tidak memuat angka yang terlihat</h3>
+        <p class="route">/dashboard</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-medium">Medium</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Lighthouse label-content-name-mismatch: tombol berlabel “Buka notifikasi” menampilkan angka 12.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">Lighthouse label-content-name-mismatch</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Nama aksesibel memuat teks yang terlihat, mis. “Buka notifikasi, 12 belum dibaca”.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Pengguna screen reader tidak mendengar jumlah notifikasi.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka dashboard dengan notifikasi belum dibaca.</li><li>Jalankan Lighthouse.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Sertakan jumlah belum dibaca dalam aria-label.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-A11Y-13 · A11y · components/auth/password-field.tsx</div>
+        <h3>Tombol tampilkan kata sandi tidak dapat dijangkau keyboard</h3>
+        <p class="route">/login</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-medium">Medium</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Tombol mata memakai tabIndex={-1} tanpa alternatif keyboard.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">WCAG 2.1.1 / Keyboard</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Toggle password dapat difokus dan diaktifkan dengan keyboard.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Pengguna keyboard tidak dapat memeriksa kata sandi yang diketik.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka /login.</li><li>Tekan Tab dari field password.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Hapus tabIndex negatif dan tambahkan aria-pressed.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-UI-14 · UI/UX · components/auth/login-form.tsx</div>
+        <h3>Dua tautan “Lupa kata sandi?” dengan tujuan berbeda</h3>
+        <p class="route">/login</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-medium">Medium</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Satu tautan menuju /forgot-password; satu tautan lagi menuju WhatsApp, dengan label identik.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-UI-01 / Duplicate affordance</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Satu aksi utama reset password; bantuan tambahan diberi label berbeda.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Pengguna bingung dan dapat masuk ke kanal yang salah.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka /login.</li><li>Amati area kata sandi dan checkbox.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Pertahankan satu tautan reset; ubah kanal bantuan menjadi “Butuh bantuan masuk?”.</p>
+      </div>
+    </div>
+
+    <figure>
+            <img src="screenshots/login-duplicate.png" alt="Bukti QA-UI-14" />
+            <figcaption>login-duplicate.png — anotasi merah menunjukkan area masalah, hijau menunjukkan hasil perbaikan.</figcaption>
+          </figure>
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-UI-15 · UI/UX · components/auth/login-form.tsx</div>
+        <h3>Label opsi “ingat” ambigu dan tidak sesuai perilaku</h3>
+        <p class="route">/login</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-medium">Medium</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>“Simpan data login” hanya menyimpan email; “Ingat perangkat ini selama 7 hari” tidak memperpanjang idle timeout 45 menit.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-UI-15 / Misleading copy</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Label menjelaskan efek nyata: mengingat email vs mempertahankan sesi saat browser ditutup.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Ekspektasi pengguna terhadap keamanan dan durasi sesi tidak sesuai.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka /login.</li><li>Centang masing-masing opsi lalu tutup/buka browser.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Ubah copy dan dokumentasikan perilaku session guard.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-UI-16 · UI/UX · components/dashboard/dashboard-page-header.tsx</div>
+        <h3>DashboardPageHeader tidak mengikuti kontrak visual terkunci</h3>
+        <p class="route">Semua /dashboard/*</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-medium">Medium</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>PRD §16A mewajibkan gradient amber→orange dan ikon h-7 w-7 text-white; implementasi memakai rounded-full charcoal dengan ikon h-5.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-UI-16 / Design contract</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Semua header dashboard seragam sesuai kontrak.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Header berbeda dari design contract dan antar halaman memberi ukuran ikon berbeda.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Bandingkan header /dashboard/settings, /dashboard/users, /dashboard/progress.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Standarkan wrapper header; hapus override ukuran/warna ikon per halaman.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-UX-17 · A11y · components/ui/app-select.tsx</div>
+        <h3>Dropdown AppSelect tidak memindahkan fokus ke opsi</h3>
+        <p class="route">Form staf</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-low">Low</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Menu dirender lewat portal; fokus tetap pada trigger, sehingga Tab menelusuri sisa halaman sebelum opsi.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">WCAG 2.1.1 / Focus order</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>ArrowDown/Up membuka dan memindahkan fokus; Escape mengembalikan fokus ke trigger.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Navigasi keyboard tidak dapat diprediksi.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka form dengan AppSelect.</li><li>Tekan ArrowDown setelah fokus pada trigger.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Fokuskan opsi terpilih/pertama saat dibuka dan tangani Arrow/Home/End.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-SEO-18 · Functional · app/robots.ts</div>
+        <h3>robots.txt tidak tersedia</h3>
+        <p class="route">/robots.txt</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-low">Low</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Lighthouse SEO 0.83 dengan audit robots-txt tidak valid/kosong.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">Lighthouse robots-txt</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>robots.txt valid dan men-disallow area privat.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Crawler tidak mendapat aturan crawl; area dashboard tidak secara eksplisit ditutup.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka /robots.txt.</li><li>Jalankan Lighthouse SEO.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Tambahkan MetadataRoute.Robots + sitemap.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-SEC-19 · Security · lib/auth, route autentikasi</div>
+        <h3>Rate limiting login/reset belum terlihat pada aplikasi</h3>
+        <p class="route">/login, /forgot-password</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-medium">Medium</span>
+        <span class="chip status-open">Open</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Tidak ditemukan limiter terpusat; percobaan login berulang hanya dibatasi oleh library auth.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">OWASP A07 / Rate limiting</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Rate limit per IP/akun pada login, register, reset, dan resend verification.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Brute force/credential stuffing bergantung pada konfigurasi eksternal.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Kirim percobaan login gagal berulang.</li><li>Amati tidak ada respons 429/backoff.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Implementasikan rate limit di runtime deployment (bukan in-memory) dan audit kegagalan login.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-SEC-20 · Security · next.config.ts</div>
+        <h3>Content-Security-Policy belum diterapkan</h3>
+        <p class="route">Global</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-medium">Medium</span>
+        <span class="chip status-open">Open</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Header keamanan berisi nosniff/frame/referrer, tetapi belum ada CSP.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">OWASP A05 / CSP</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>CSP teruji untuk Next.js, Better Auth, dan aset gambar eksternal.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Risiko XSS/third-party script lebih tinggi bila ada regresi.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Periksa response headers / dengan curl -I.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Terapkan CSP nonce/hash di staging, uji, lalu produksi; jangan gunakan unsafe-inline tanpa kajian.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-MAINT-21 · Functional · proxy.ts, app/dashboard/maintenance, app/maintenance</div>
+        <h3>Belum ada mode pemeliharaan global untuk mengunci akses pengguna</h3>
+        <p class="route">/maintenance</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-high">High</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Sebelum audit, tidak ada mekanisme menutup situs; semua role tetap dapat mengakses selama gangguan.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-MAINT-21 / Availability</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Super Admin dapat mengaktifkan maintenance; hanya Super Admin yang dapat mengelola.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Tidak tersedia; risiko data diakses saat sistem tidak stabil.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Cari pengaturan maintenance.</li><li>Tidak ada toggle maupun halaman publik.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Tambahkan setting, halaman maintenance, bypass khusus Super Admin, audit, dan test.</p>
+      </div>
+    </div>
+
+    <figure>
+            <img src="screenshots/maintenance-public.png" alt="Bukti QA-MAINT-21" />
+            <figcaption>maintenance-public.png — anotasi merah menunjukkan area masalah, hijau menunjukkan hasil perbaikan.</figcaption>
+          </figure>
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-ERR-22 · Functional · app/error.tsx, app/global-error.tsx, app/dashboard/error.tsx</div>
+        <h3>Halaman error belum mencakup 401/403/500/503 dan informasi insiden</h3>
+        <p class="route">/status, /forbidden, /unauthorized</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-high">High</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Hanya 404 dan error boundary generik tanpa referensi insiden, tanpa halaman 403/401.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-ERR-22 / Error UX</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Setiap status memiliki halaman jelas + referensi aman yang dapat dilaporkan.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Pengguna tidak tahu apakah masalah izin, sesi, atau server.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka route terlarang atau picu error server.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Buat katalog error + halaman status + referensi HF-&lt;kode&gt;-&lt;digest&gt;.</p>
+      </div>
+    </div>
+
+    <figure>
+            <img src="screenshots/incident-information.png" alt="Bukti QA-ERR-22" />
+            <figcaption>incident-information.png — anotasi merah menunjukkan area masalah, hijau menunjukkan hasil perbaikan.</figcaption>
+          </figure>
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-DATA-23 · Data Integrity · server/queries/therapy-progress.ts, server/queries/patients.ts</div>
+        <h3>Nama terapis pasien dapat berasal dari assignment lama</h3>
+        <p class="route">/dashboard/progress</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-medium">Medium</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Query assignment tidak memfilter activeUntil dan tidak mengurutkan assignment terbaru.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-DATA-23</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Tampilkan terapis dengan assignment aktif terbaru.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Pasien dapat melihat nama terapis yang sudah tidak menangani.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Assign pasien ke terapis A, lalu ganti ke B.</li><li>Buka rekam medis pasien.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Filter activeUntil IS NULL dan orderBy activeFrom desc.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-FUNC-24 · Functional · server/queries/patients.ts</div>
+        <h3>Pencarian pasien hanya memakai nama</h3>
+        <p class="route">/dashboard/patients</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-low">Low</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Filter search hanya ilike(fullName), padahal tabel menampilkan No. RM dan email.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-FUNC-24</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Cari berdasarkan nama, nomor rekam medis, atau email.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Petugas tidak menemukan pasien saat mencari No. RM.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Cari nomor RM pasien di /dashboard/patients.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Perluas filter server-side ke fullName/medicalRecordNumber/email.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-FUNC-25 · Functional · lib/permissions/dashboard-routes.ts, docs/pages/03-DASHBOARD-USER.md</div>
+        <h3>Pasien belum memiliki halaman dokumen sendiri</h3>
+        <p class="route">/dashboard/documents</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-low">Low</span>
+        <span class="chip status-open">Open</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Route hanya mengizinkan staf; tidak ada halaman dokumen patient-visible.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-FUNC-25 / Requirement gap</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Sesuai spec, pasien dapat melihat dokumen miliknya yang ditandai patient_visible.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Fitur ditunda; tidak ada kebocoran data, tetapi gap requirement.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Login pasien.</li><li>Buka /dashboard/documents.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Implementasikan daftar/unduh dokumen patient-visible dengan object authorization.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-UI-26 · UI/UX · docs/DESIGN-SYSTEM.md, app/globals.css</div>
+        <h3>Dokumen desain dan implementasi mengalami drift</h3>
+        <p class="route">Global</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-low">Low</span>
+        <span class="chip status-open">Open</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Dokumen menyebut emerald/Poppins; implementasi memakai palet Hafta oranye dan font Inter.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-UI-26 / Documentation drift</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Satu sumber kebenaran visual yang disetujui pemilik proyek.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Audit visual/regresi sulit dinilai konsisten.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Bandingkan token docs dengan app/globals.css dan next/font.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Putuskan palet/font resmi, perbarui DESIGN-SYSTEM dan DESIGN-REFERENCES, lalu kunci token.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-PERF-27 · Performance · components/ui/pagination.tsx, tabs.tsx, sheet.tsx, chart.tsx</div>
+        <h3>Beberapa primitive UI tidak terpakai dan menambah permukaan perawatan</h3>
+        <p class="route">n/a</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-low">Low</span>
+        <span class="chip status-open">Open</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Tidak ada import langsung dari aplikasi; PaginationBar adalah implementasi yang dipakai.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-PERF-27 / Dead code</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Komponen mati dihapus atau didokumentasikan sebagai rencana.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Menambah bundle potensial dan kebingungan kontributor.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Cari import komponen tersebut.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Hapus jika tidak direncanakan; pertahankan hanya jika ada roadmap jelas.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-RESP-28 · Responsive · Seluruh UI</div>
+        <h3>Mobile Gate belum diuji menyeluruh pada 320/360/390/430 px</h3>
+        <p class="route">Global</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-info">Info</span>
+        <span class="chip status-deferred">Deferred</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Tool browser sesi audit tidak menyediakan emulasi viewport mobile; verifikasi hanya desktop 1280–1296 px dan review kode Tailwind.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-RESP-28 / Test coverage</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Mobile Gate 320/360/390/430 + tablet 768/834 + desktop 1024/1280/1440.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Belum dapat dibuktikan penuh pada sesi ini; tidak ditemukan overflow pada desktop.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka DevTools responsive mode pada viewport yang diminta.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Jalankan matriks viewport di QA berikutnya dan simpan screenshot per breakpoint.</p>
+      </div>
+    </div>
+
+    
+  </section>
+  </section>
+
+  <section class="page-break">
+    <h1 class="section">4. Catatan akhir dan rekomendasi</h1>
+    <h2>4.1 Catatan pengujian</h2>
+    <ul class="clean"><li>Pengujian memakai database development dan akun dummy; tidak ada data pasien nyata yang dikirim ke AI/log.</li><li>PDF contoh dihasilkan dari rekam medis sintetis dan disimpan di artifacts/qa/medical-record-sample.pdf.</li><li>Beberapa temuan telah diperbaiki di kode; status “Fixed” berarti sudah diverifikasi ulang dengan build/typecheck/test atau browser.</li><li>Rate limiting, CSP, dan mobile Gate masih perlu ditutup sebelum produksi.</li></ul>
+    <h2>4.2 Rekomendasi rilis</h2>
+    <div class="note">Rilis staging dapat dilanjutkan setelah rate limiting, CSP, dan Mobile Gate ditutup. Untuk produksi, wajib review ulang otorisasi klinis, backup/restore, dan kebijakan retensi rekam medis.</div>
+    <h2>4.3 Saran pengembangan berikutnya</h2>
+    <ol>
+      <li>Tutup rate limiting login/reset dan terapkan CSP di staging sebelum produksi.</li>
+      <li>Jalankan Mobile Gate penuh 320/360/390/430 px dan simpan screenshot per breakpoint.</li>
+      <li>Tambahkan halaman dokumen pasien (patient-visible) dan detail pengguna Super Admin.</li>
+      <li>Satukan keputusan visual (palet oranye Hafta + Inter vs dokumen emerald + Poppins) agar design system tidak drift.</li>
+      <li>Tambahkan monitoring error produksi (Sentry/OpenTelemetry) dengan redaksi data klinis.</li>
+      <li>Tambahkan test authorization otomatis untuk therapist-unassigned dan intake IDOR setiap rilis.</li>
+    </ol>
+
+    <h2>Lampiran</h2>
+    <ul class="clean">
+      <li><span class="mono">artifacts/qa/medical-record-sample.pdf</span> — contoh PDF rekam medis 3 halaman (2 isi + lembar pengesahan).</li>
+      <li><span class="mono">artifacts/qa/screenshots/</span> — screenshot sumber dan hasil anotasi.</li>
+      <li><span class="mono">scripts/qa/qa-report-data.ts</span> — naskah temuan yang dapat diperbarui.</li>
+    </ul>
+
+    <div class="signatures">
+      <div>
+        <div>Disusun oleh,</div>
+        <div class="line"><strong>QA Engineering</strong><br /><span class="footer">Hafta Fisioterapi · 16 November 2026</span></div>
+      </div>
+      <div>
+        <div>Disetujui oleh,</div>
+        <div class="line"><strong>Project Owner</strong><br /><span class="footer">Nama &amp; tanggal: ____________________</span></div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

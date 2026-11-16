@@ -61,6 +61,13 @@ export async function getTherapyProgressById(id: string): Promise<TherapyProgres
       patientName: patients.fullName,
       patientAvatarKey: profiles.avatarKey,
       medicalRecordNumber: patients.medicalRecordNumber,
+      visitNumber: sql<number>`(
+        select count(*)::int + 1
+        from ${therapyProgressRecords} as prior
+        where prior.patient_id = ${therapyProgressRecords.patientId}
+          and prior.amended_from_id is null
+          and prior.recorded_at < ${therapyProgressRecords.recordedAt}
+      )`,
       gender: patients.gender,
       patientDob: patients.dateOfBirth,
       patientPhone: profiles.phone,
