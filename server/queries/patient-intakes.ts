@@ -1,6 +1,6 @@
-import { and, desc, eq, inArray } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { patientIntakes, patients, profiles } from '@/db/schema';
+import { patientAssignments, patientIntakes, patients, profiles } from '@/db/schema';
 import { ForbiddenError } from '@/lib/permissions';
 
 export async function getCurrentPatientIntake(userId: string) {
@@ -146,6 +146,28 @@ export async function getIntakeDetailForPdf(
 
   if (role === 'USER' && row.patientUserId !== userId) {
     throw new ForbiddenError();
+  }
+
+  const patientId = await db
+    .select({ id: patientIntakes.patientId })
+    .from(patientIntakes)
+    .where(eq(patientIntakes.id, intakeId))
+    .limit(1)
+    .then((rows) => rows[0]?.id);
+
+  if (role === 'THERAPIST' && patientId) {
+    const [assignment] = await db
+      .select({ id: patientAssignments.id })
+      .from(patientAssignments)
+      .where(
+        and(
+          eq(patientAssignments.patientId, patientId),
+          eq(patientAssignments.staffUserId, userId),
+          isNull(patientAssignments.activeUntil),
+        ),
+      )
+      .limit(1);
+    if (!assignment) throw new ForbiddenError();
   }
 
   const { patientUserId: _, patientAddressLine, patientAddressCity, ...data } = row;

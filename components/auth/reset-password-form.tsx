@@ -104,7 +104,7 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
         </div>
       ) : null}
 
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
+      <form onSubmit={onSubmit} method="post" className="space-y-4" noValidate>
         <PasswordField
           id="password"
           name="password"

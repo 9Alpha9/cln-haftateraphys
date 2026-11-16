@@ -426,6 +426,51 @@ export function PatientMedicalRecordView({
 
   const latestRecord = records[0] ?? null;
   const firstRecord = chronological[0] ?? null;
+
+  /**
+   * Data tambahan untuk PDF. Sumbernya sama dengan yang dirender di halaman
+   * pasien (informasi terapi, rencana terapi, program latihan) supaya isi PDF
+   * tidak berbeda dari tampilan.
+   */
+  const pdfExtrasFor = useCallback(
+    (record: TherapyProgressView) => ({
+      therapyInfo: {
+        visitNumber: visitNumberById.get(record.id) ?? null,
+        status: record.status,
+        patientVisible: record.patientVisible,
+        nextTherapyAt: patient?.nextTherapyAt ?? null,
+        frequencyText: patient?.therapyFrequencyText ?? null,
+        therapyGoal: patient?.therapyGoal ?? null,
+        diagnosisLabel: patient?.therapyDiagnosisLabel ?? null,
+      },
+      treatmentPlan: treatmentPlan
+        ? {
+            goals: treatmentPlan.goals,
+            interventions: treatmentPlan.interventions,
+            reviewIntervalText: treatmentPlan.reviewIntervalText,
+            precautions: treatmentPlan.precautions,
+            status: treatmentPlan.status,
+          }
+        : null,
+      homeProgram: homeProgram
+        ? {
+            status: homeProgram.status,
+            startsAt: homeProgram.startsAt,
+            endsAt: homeProgram.endsAt,
+            items: homeProgram.items.map((item) => ({
+              name: item.name,
+              instruction: item.instruction,
+              sets: item.sets,
+              repetitions: item.repetitions,
+              durationSeconds: item.durationSeconds,
+              frequencyText: item.frequencyText,
+              precaution: item.precaution,
+            })),
+          }
+        : null,
+    }),
+    [homeProgram, patient, treatmentPlan, visitNumberById],
+  );
   const chartData = useMemo<ChartPoint[]>(
     () =>
       chronological.map((record, index) => ({
@@ -628,7 +673,7 @@ export function PatientMedicalRecordView({
                 >
                   {labelRecordStatus(selectedRecord.status)}
                 </span>
-                <MedicalRecordActions record={selectedRecord} />
+                <MedicalRecordActions record={selectedRecord} extras={pdfExtrasFor(selectedRecord)} />
               </div>
             </div>
 
@@ -765,7 +810,7 @@ export function PatientMedicalRecordView({
                 >
                   {labelRecordStatus(selectedRecord.status)}
                 </span>
-                <MedicalRecordActions record={selectedRecord} />
+                <MedicalRecordActions record={selectedRecord} extras={pdfExtrasFor(selectedRecord)} />
               </div>
             </div>
 
@@ -910,7 +955,7 @@ export function PatientMedicalRecordView({
                 ) : null}
 
                 <Link
-                  href="/dashboard/schedule"
+                  href="/dashboard/appointments"
                   className="mt-3 flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-950)] text-[12px] font-semibold text-white transition-colors hover:bg-[var(--hafta-900)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
                 >
                   Lihat jadwal
@@ -928,7 +973,7 @@ export function PatientMedicalRecordView({
                 Cetak atau simpan ringkasan sesi {visitNumberById.get(selectedRecord.id) ?? 1} sebagai PDF.
               </p>
               <div className="mt-3">
-                <MedicalRecordActions record={selectedRecord} layout="split" className="sm:w-full" />
+                <MedicalRecordActions record={selectedRecord} extras={pdfExtrasFor(selectedRecord)} layout="split" className="sm:w-full" />
               </div>
               <button
                 type="button"
@@ -1111,7 +1156,7 @@ export function PatientMedicalRecordView({
                     {shortDate(record.recordedAt)} · {labelRecordStatus(record.status)}
                   </span>
                 </span>
-                <MedicalRecordActions record={record} />
+                <MedicalRecordActions record={record} extras={pdfExtrasFor(record)} />
               </li>
             ))}
           </ul>
@@ -1154,7 +1199,7 @@ export function PatientMedicalRecordView({
         size="md"
         footer={
           detailRecord ? (
-            <MedicalRecordActions record={detailRecord} layout="split" />
+            <MedicalRecordActions record={detailRecord} extras={pdfExtrasFor(detailRecord)} layout="split" />
           ) : null
         }
       >

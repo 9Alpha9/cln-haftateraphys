@@ -1,59 +1,20 @@
-import Link from 'next/link';
 import { PublicHeader } from '@/components/landing/navbar';
 import { Footer } from '@/components/landing/footer';
 import { Container } from '@/components/container';
-import { Home, ArrowRight, Search } from 'lucide-react';
+import { ErrorState } from '@/components/errors/error-state';
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--background)]">
+    <div className="flex min-h-screen flex-col bg-[#FCFCFB]">
       <PublicHeader />
-
-      <main className="flex flex-1 items-center justify-center">
+      <main className="flex flex-1 items-center justify-center py-10">
         <Container>
-          <div className="flex flex-col items-center py-16 text-center md:py-24">
-            {/* Icon */}
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--hafta-org-50)]">
-              <Search className="h-10 w-10 text-[var(--hafta-org-200)]" />
-            </div>
-
-            {/* 404 */}
-            <p className="mt-8 text-7xl font-bold tracking-tight text-[var(--foreground)] md:text-8xl">404</p>
-
-            {/* Title */}
-            <h1 className="mt-4 text-2xl font-bold tracking-tight text-[var(--foreground)] md:text-3xl">
-              Halaman Tidak Ditemukan
-            </h1>
-
-            {/* Description */}
-            <p className="mt-3 max-w-md text-[15px] text-[var(--muted-foreground)] leading-relaxed">
-              Sepertinya halaman yang Anda cari tidak tersedia atau telah dipindahkan. Silakan kembali ke beranda atau
-              hubungi kami.
-            </p>
-
-            {/* Actions */}
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-200)] px-6 text-[13px] font-semibold text-[var(--foreground)] transition-all hover:bg-[var(--hafta-org-300)]  active:scale-[0.98]"
-              >
-                <Home className="h-4 w-4" />
-                Kembali ke Beranda
-              </Link>
-              <Link
-                href="https://wa.me/6281232932872"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-6 text-[13px] font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--background)] hover:text-[var(--foreground)]"
-              >
-                Hubungi Kami
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-          </div>
+          <ErrorState
+            code={404}
+            description="Alamat yang Anda buka tidak tersedia atau sudah dipindahkan. Periksa kembali tautan, atau kembali ke beranda untuk melanjutkan."
+          />
         </Container>
       </main>
-
       <Footer />
     </div>
   );

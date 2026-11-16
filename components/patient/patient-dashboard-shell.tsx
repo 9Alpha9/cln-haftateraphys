@@ -307,7 +307,7 @@ export function PatientDashboardShell({
             return (
               <div key={group.label} className="space-y-1">
                 {!collapsed && (
-                  <p className="mb-1.5 hidden px-3 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground md:block">
+                  <p className="mb-1.5 hidden px-3 font-mono text-[10px] font-bold uppercase tracking-widest text-white/60 md:block">
                     {group.label}
                   </p>
                 )}
@@ -344,7 +344,7 @@ export function PatientDashboardShell({
                           <button
                             type="button"
                             aria-expanded={collapsed ? undefined : open}
-                            aria-controls={collapsed ? undefined : `nav-menu-${key}`}
+                            aria-controls={!collapsed && open ? `nav-menu-${key}` : undefined}
                             aria-label={item.label}
                             onClick={() => {
                               if (collapsed) {
@@ -409,6 +409,7 @@ export function PatientDashboardShell({
                             {!collapsed && open ? (
                               <motion.div
                                 key={`submenu-${key}`}
+                                id={`nav-menu-${key}`}
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: 'auto', opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
@@ -566,7 +567,7 @@ export function PatientDashboardShell({
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-bold text-white leading-tight">{userName || 'Pasien'}</p>
-                  <p className="truncate font-mono text-[10px] text-muted-foreground mt-0.5">{getRoleLabel(role)}</p>
+                  <p className="truncate font-mono text-[10px] text-white/60 mt-0.5">{getRoleLabel(role)}</p>
                 </div>
               </Link>
 
@@ -852,7 +853,7 @@ export function PatientDashboardShell({
             .filter((group) => group.items.length > 0)
             .map((group) => (
             <div key={group.label}>
-              <p className="px-1 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+              <p className="px-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white/60">
                 {group.label}
               </p>
               <ul className="mt-1.5 space-y-1.5">
@@ -938,7 +939,7 @@ export function PatientDashboardShell({
             </div>
           ))}
           <div>
-            <p className="px-1 font-mono text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+            <p className="px-1 font-mono text-[10px] font-bold uppercase tracking-widest text-white/60">
               Lainnya
             </p>
             <ul className="mt-1.5 space-y-1.5">

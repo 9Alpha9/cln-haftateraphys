@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { shouldHideDashboardOnHost } from '@/lib/security/host-routing';
-import { decideMaintenance, maintenanceFlagsFromEnv } from '@/lib/maintenance';
+import {
+  decideMaintenance,
+  getMaintenanceFlags,
+  isMaintenanceExemptPath,
+} from '@/lib/maintenance';
 
-export function proxy(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const host = request.headers.get('host') ?? '';
   const pathname = request.nextUrl.pathname;
   const publicHost = process.env.PUBLIC_APP_HOST ?? '';
@@ -11,18 +15,14 @@ export function proxy(request: NextRequest) {
     return new NextResponse('Not Found', { status: 404 });
   }
 
-  const maintenance = decideMaintenance({
-    pathname,
-    flags: maintenanceFlagsFromEnv(process.env),
-  });
+  const flags = await getMaintenanceFlags();
+  const decision = decideMaintenance({ flags });
 
-  if (maintenance.mode === 'rewrite') {
+  if (decision.mode === 'maintenance' && !isMaintenanceExemptPath(pathname)) {
     const url = request.nextUrl.clone();
     url.pathname = '/maintenance';
-    const response = NextResponse.rewrite(url);
-    // Informasi tambahan untuk halaman maintenance (tanpa data klinis).
-    response.headers.set('x-maintenance-title', encodeURIComponent(maintenance.flags.title));
-    return response;
+    url.search = '';
+    return NextResponse.rewrite(url);
   }
 
   const requestHeaders = new Headers(request.headers);

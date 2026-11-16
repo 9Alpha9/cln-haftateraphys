@@ -715,3 +715,28 @@ Bagian ini mencatat koreksi flow dan status implementasi. Requirement di atas te
 | Dokumen klinis/R2 | Sudah (feature-gated; unggah aktif setelah env R2 diisi) |
 | Export audit (PDF/print) | Sudah tercatat; pembatasan bulk export belum ada |
 | Test authorization untuk Super Admin non-wildcard | Sudah |
+
+## 24. Maintenance mode, error handling, dan ekspor rekam medis (2026-11-16)
+
+### 24.1 Maintenance mode
+
+- `SUPER_ADMIN` dengan `settings:manage` dapat mengaktifkan/mematikan maintenance dari `/dashboard/maintenance`.
+- Status disimpan pada `app_settings` (`maintenance_mode`, `maintenance_title`, `maintenance_message`, `maintenance_until`) dan dibaca proxy dengan cache 5 detik. `MAINTENANCE_MODE=force` tetap tersedia sebagai kill switch darurat.
+- Saat aktif, pengunjung publik, pasien, terapis, admin, dan staf diarahkan ke `/maintenance` (HTTP rewrite) dan tidak dapat melakukan akses data. Pengecualian hanya: halaman maintenance, login, API autentikasi, aset statis, dan dashboard yang tetap dijaga server-side untuk `SUPER_ADMIN`.
+- Sesi login tidak dicabut; setelah maintenance berakhir pengguna dapat melanjutkan tanpa login ulang.
+- Setiap perubahan mode dicatat sebagai `settings.maintenance.enable` / `settings.maintenance.disable`.
+
+### 24.2 Error handling
+
+- Error boundary tersedia di root (`app/error.tsx`), auth group, dashboard, dan `global-error` untuk kegagalan root layout.
+- Halaman status khusus: `/status` (informasi kendala + referensi insiden), `/forbidden` (403), `/unauthorized` (401), `/maintenance` (503), serta 404 publik dan dashboard.
+- Referensi insiden (`HF-<kode>-<digest>`) ditampilkan ke pengguna tanpa membocorkan stack, SQL, atau data pasien.
+- `requirePermission` mengarahkan ke `/forbidden`, bukan redirect diam-diam ke dashboard.
+
+### 24.3 Sinkronisasi rekam medis dan PDF
+
+- Tombol Cetak dan Unduh PDF menggunakan satu renderer (`MedicalRecordDocument`) sehingga isinya identik.
+- PDF memuat identitas, informasi terapi, indikator fungsional, seluruh field SOAP, rencana terapi, program latihan, dan penatalaksanaan.
+- Footer tanda tangan berada di bawah dokumen untuk rekam satu halaman; bila isi lebih dari satu halaman, lembar pengesahan dibuat sebagai halaman terakhir tersendiri yang berisi ringkasan dan tanda tangan, bukan halaman kosong.
+- Dokumen cetak jadwal tidak lagi memakai template rekam medis; ia memakai halaman cetak jadwal yang sesuai.
+- Ekspor tetap dicatat pada audit log.

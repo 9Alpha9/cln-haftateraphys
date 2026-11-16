@@ -17,7 +17,16 @@ export async function getPatientsList(
   const safePage = Math.max(1, page);
   const db = getDb();
   const filters = [isNull(patients.archivedAt)];
-  if (search.trim()) filters.push(ilike(patients.fullName, `%${search.trim()}%`));
+  if (search.trim()) {
+    const term = `%${search.trim()}%`;
+    filters.push(
+      or(
+        ilike(patients.fullName, term),
+        ilike(patients.medicalRecordNumber, term),
+        ilike(users.email, term),
+      )!,
+    );
+  }
   if (['INTAKE', 'ACTIVE', 'ON_HOLD', 'COMPLETED', 'REFERRED'].includes(status))
     filters.push(eq(patients.caseStatus, status as 'INTAKE' | 'ACTIVE' | 'ON_HOLD' | 'COMPLETED' | 'REFERRED'));
   if (role === 'THERAPIST') {
@@ -145,7 +154,13 @@ export async function getPatientTherapist(patientId: string) {
     .from(patientAssignments)
     .innerJoin(users, eq(patientAssignments.staffUserId, users.id))
     .leftJoin(profiles, eq(profiles.userId, users.id))
-    .where(eq(patientAssignments.patientId, patientId))
+    .where(
+      and(
+        eq(patientAssignments.patientId, patientId),
+        isNull(patientAssignments.activeUntil),
+      ),
+    )
+    .orderBy(desc(patientAssignments.activeFrom))
     .limit(1);
   return therapist?.displayName ?? therapist?.name ?? null;
 }
@@ -200,7 +215,16 @@ export async function getArchivedPatientsList(page = 1, pageSize = 10, search = 
   const safePage = Math.max(1, page);
   const db = getDb();
   const filters = [isNotNull(patients.archivedAt)];
-  if (search.trim()) filters.push(ilike(patients.fullName, `%${search.trim()}%`));
+  if (search.trim()) {
+    const term = `%${search.trim()}%`;
+    filters.push(
+      or(
+        ilike(patients.fullName, term),
+        ilike(patients.medicalRecordNumber, term),
+        ilike(users.email, term),
+      )!,
+    );
+  }
   if (role === 'THERAPIST') {
     filters.push(
       inArray(

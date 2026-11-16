@@ -113,7 +113,9 @@ export async function getTherapyProgressById(id: string): Promise<TherapyProgres
     return null;
   }
 
-  if (role === 'THERAPIST' && row.therapistId !== session.user.id) {
+  if (role === 'THERAPIST') {
+    // Scope terapis selalu mengikuti assignment aktif, termasuk saat membuka
+    // rekam yang pernah ia tulis sebelum assignment berakhir.
     const [assignment] = await db
       .select({ id: patientAssignments.id })
       .from(patientAssignments)
@@ -121,6 +123,7 @@ export async function getTherapyProgressById(id: string): Promise<TherapyProgres
         and(
           eq(patientAssignments.patientId, row.patientId),
           eq(patientAssignments.staffUserId, session.user.id),
+          isNull(patientAssignments.activeUntil),
         ),
       )
       .limit(1);
@@ -209,7 +212,13 @@ export async function getOwnMedicalRecordSummary(): Promise<PatientMedicalRecord
     .select({ therapistName: users.name })
     .from(patientAssignments)
     .innerJoin(users, eq(patientAssignments.staffUserId, users.id))
-    .where(eq(patientAssignments.patientId, patient.id))
+    .where(
+      and(
+        eq(patientAssignments.patientId, patient.id),
+        isNull(patientAssignments.activeUntil),
+      ),
+    )
+    .orderBy(desc(patientAssignments.activeFrom))
     .limit(1);
 
   return { ...patient, therapistName: assignment?.therapistName ?? null };
@@ -286,17 +295,22 @@ export async function getScopedTherapyProgress(
     .innerJoin(patients, eq(therapyProgressRecords.patientId, patients.id))
     .innerJoin(users, eq(therapyProgressRecords.therapistId, users.id))
     .leftJoin(profiles, eq(profiles.userId, patients.userId))
-    .leftJoin(patientAssignments, eq(patientAssignments.patientId, patients.id));
+    .leftJoin(
+      patientAssignments,
+      and(
+        eq(patientAssignments.patientId, patients.id),
+        isNull(patientAssignments.activeUntil),
+      ),
+    );
 
   let scopeFilter;
 
   if (isPatient) {
     scopeFilter = eq(patients.userId, session.user.id);
   } else if (role === 'THERAPIST') {
-    scopeFilter = or(
-      eq(therapyProgressRecords.therapistId, session.user.id),
-      eq(patientAssignments.staffUserId, session.user.id),
-    );
+    // Hanya pasien dengan assignment aktif. Rekam lama tetap tersedia bila
+    // pasien di-assign kembali, tetapi tidak terbuka setelah assignment berakhir.
+    scopeFilter = eq(patientAssignments.staffUserId, session.user.id);
   }
 
   const filters = [scopeFilter, isNull(therapyProgressRecords.supersededAt)];

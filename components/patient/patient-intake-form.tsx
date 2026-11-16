@@ -481,6 +481,10 @@ export function PatientIntakeForm({
     return () => {
       onFooterChange(null);
     };
+    // Footer hanya perlu diperbarui saat langkah/status berubah. Menambahkan
+    // `save`/`scrollFormToTop` akan membuat footer dirender ulang setiap render
+    // karena keduanya bukan referensi stabil.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onFooterChange, step, pending, locked, formId]);
 
   return (

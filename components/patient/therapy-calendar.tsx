@@ -161,10 +161,10 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
               aria-pressed={isSelected}
               className={cn(
                 'relative flex h-10 cursor-pointer flex-col items-center justify-center rounded-lg text-[12.5px] tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 sm:h-11',
-                !cell.inMonth && 'opacity-40',
+                !cell.inMonth && 'bg-stone-50 text-stone-500',
                 hasTherapy
                   ? 'font-semibold text-foreground hover:bg-[var(--hafta-100)]'
-                  : 'text-muted-foreground/55 hover:bg-accent hover:text-muted-foreground',
+                  : 'text-stone-600 hover:bg-accent hover:text-foreground',
                 isSelected && hasTherapy && 'bg-[var(--hafta-900)] text-white hover:bg-[var(--hafta-800)]',
                 isSelected && !hasTherapy && 'bg-[var(--hafta-100)] text-foreground',
                 isToday && !isSelected && 'ring-1 ring-inset ring-[var(--hafta-300)]',

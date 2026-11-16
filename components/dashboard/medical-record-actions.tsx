@@ -4,25 +4,26 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { MoreVertical, FileDown, Loader2, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/toast';
-import { pdf } from '@react-pdf/renderer';
-import { MedicalRecordDocument, type MedicalRecordPdfData } from '@/components/pdf/medical-record-document';
+import type { MedicalRecordPdfData } from '@/components/pdf/medical-record-document';
+import { medicalRecordFileName, renderMedicalRecordPdf } from '@/components/pdf/render-medical-record-pdf';
 import { recordClinicalRecordExport } from '@/server/actions/audit-export';
 
-function safeFilePart(value: string) {
-  return value.replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, ' ').trim();
+function mergeRecord(record: MedicalRecordPdfData, extras?: Partial<MedicalRecordPdfData>): MedicalRecordPdfData {
+  return extras ? { ...record, ...extras } : record;
 }
 
-export function useMedicalRecordPdf(record: MedicalRecordPdfData) {
+export function useMedicalRecordPdf(record: MedicalRecordPdfData, extras?: Partial<MedicalRecordPdfData>) {
   const [loading, setLoading] = useState(false);
   const [printing, setPrinting] = useState(false);
   const { showToast } = useToast();
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const data = mergeRecord(record, extras);
 
   const openPrintPage = async () => {
     setPrinting(true);
     try {
-      void recordClinicalRecordExport(record.id, 'print');
-      const blob = await pdf(<MedicalRecordDocument record={record} />).toBlob();
+      void recordClinicalRecordExport(data.id, 'print');
+      const blob = await renderMedicalRecordPdf(data);
       const url = URL.createObjectURL(blob);
 
       if (iframeRef.current) {
@@ -30,10 +31,12 @@ export function useMedicalRecordPdf(record: MedicalRecordPdfData) {
         iframeRef.current.onload = () => {
           iframeRef.current?.contentWindow?.print();
           setPrinting(false);
+          window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
         };
       } else {
-        window.location.href = url;
+        window.open(url, '_blank', 'noopener,noreferrer');
         setPrinting(false);
+        window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
       }
     } catch {
       showToast('error', 'Gagal memproses file PDF untuk dicetak.');
@@ -44,18 +47,13 @@ export function useMedicalRecordPdf(record: MedicalRecordPdfData) {
   const downloadPdf = async () => {
     setLoading(true);
     try {
-      void recordClinicalRecordExport(record.id, 'pdf');
-      const blob = await pdf(<MedicalRecordDocument record={record} />).toBlob();
+      void recordClinicalRecordExport(data.id, 'pdf');
+      const blob = await renderMedicalRecordPdf(data);
       const url = URL.createObjectURL(blob);
-
-      const date = new Date(record.recordedAt);
-      const datePart = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-      const rmPart = safeFilePart(record.medicalRecordNumber || record.id.slice(0, 8).toUpperCase());
-      const filename = `${safeFilePart(record.patientName)}-${rmPart}-${datePart}.pdf`;
 
       const link = document.createElement('a');
       link.href = url;
-      link.download = filename;
+      link.download = medicalRecordFileName(data);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -67,7 +65,7 @@ export function useMedicalRecordPdf(record: MedicalRecordPdfData) {
     }
   };
 
-  return { openPrintPage, downloadPdf, loading, printing };
+  return { openPrintPage, downloadPdf, loading, printing, iframeRef };
 }
 
 const SPLIT_BASE =
@@ -75,12 +73,15 @@ const SPLIT_BASE =
 
 export function MedicalRecordActions({
   record,
+  extras,
   className,
   tone = 'light',
   layout = 'menu',
   menuPlacement = 'up',
 }: {
   record: MedicalRecordPdfData;
+  /** Informasi terapi/rencana/program agar PDF identik dengan tampilan pasien. */
+  extras?: Partial<MedicalRecordPdfData>;
   className?: string;
   tone?: 'light' | 'dark';
   /** 'menu': kebab dropdown; 'split': 2 tombol eksplisit (untuk footer drawer). */
@@ -88,7 +89,7 @@ export function MedicalRecordActions({
   /** Arah panel dropdown: 'down' untuk pemicu di bagian atas kartu. */
   menuPlacement?: 'up' | 'down';
 }) {
-  const { openPrintPage, downloadPdf, loading, printing } = useMedicalRecordPdf(record);
+  const { openPrintPage, downloadPdf, loading, printing, iframeRef } = useMedicalRecordPdf(record, extras);
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -110,6 +111,13 @@ export function MedicalRecordActions({
   if (layout === 'split') {
     return (
       <div className={cn('flex w-full items-center gap-2 sm:w-auto', className)}>
+        <iframe
+          ref={iframeRef}
+          title="Dokumen cetak rekam medis"
+          aria-hidden="true"
+          tabIndex={-1}
+          className="hidden"
+        />
         <button
           type="button"
           onClick={() => void openPrintPage()}
@@ -143,6 +151,13 @@ export function MedicalRecordActions({
   return (
     // Rule #2: wrapper relative inline-flex dalam pohon DOM yang sama dengan tombol pemicu
     <div ref={menuRef} className={`relative sm:inline-flex shrink-0 rounded-full ${className ?? ''}`}>
+      <iframe
+        ref={iframeRef}
+        title="Dokumen cetak rekam medis"
+        aria-hidden="true"
+        tabIndex={-1}
+        className="hidden"
+      />
       {/* Rule #2: tombol pemicu (tidak ada Portal/fixed/getBoundingClientRect) */}
       <button
         type="button"

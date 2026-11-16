@@ -29,6 +29,7 @@ export function ContactReviewCard({ review }: { review: FeaturableReview }) {
 
       <div className="mt-6 flex items-center gap-3 border-t border-stone-200/60 pt-4">
         {showPhoto ? (
+          // eslint-disable-next-line @next/next/no-img-element -- URL foto berasal dari Google Reviews dan host-nya dinamis.
           <img
             src={review.profilePhotoUrl!}
             alt={`Foto profil ${review.authorName}`}

@@ -22,8 +22,6 @@ import type { AppointmentView } from '@/server/queries/appointments';
 import { AppointmentEditButton } from '@/components/dashboard/appointments/appointment-edit-button';
 import { AppointmentEditDrawer, useAppointmentEditDrawer } from '@/components/dashboard/appointments/appointment-edit-drawer';
 import { CompleteSessionButton } from '@/components/dashboard/appointments/complete-session-button';
-import { pdf } from '@react-pdf/renderer';
-import { MedicalRecordDocument, type MedicalRecordPdfData } from '@/components/pdf/medical-record-document';
 
 const statusConfig: Record<
   string,
@@ -65,58 +63,6 @@ const statusConfig: Record<
     border: 'border-amber-200',
   },
 };
-
-function useAppointmentDropdownPdf(appointment: AppointmentView) {
-  const [loading, setLoading] = useState(false);
-  const [printing, setPrinting] = useState(false);
-  const { showToast } = useToast();
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  const openPrintPage = async () => {
-    setPrinting(true);
-    try {
-      const blob = await pdf(
-        <MedicalRecordDocument
-          record={{
-            id: appointment.id,
-            recordedAt: new Date(appointment.scheduledDate),
-            patientName: appointment.patientName,
-            therapistName: appointment.therapistName || 'Fisioterapis Hafta',
-            painScore: 0,
-            rangeOfMotionScore: 0,
-            strengthScore: 0,
-            functionScore: 0,
-            anamnesis: '',
-            physicalExamination: '',
-            medicalHistory: '',
-            diagnosis: '',
-            treatment: '',
-            evaluation: '',
-            followUpPlan: '',
-            summary: '',
-          }}
-        />
-      ).toBlob();
-      const url = URL.createObjectURL(blob);
-
-      if (iframeRef.current) {
-        iframeRef.current.src = url;
-        iframeRef.current.onload = () => {
-          iframeRef.current?.contentWindow?.print();
-          setPrinting(false);
-        };
-      } else {
-        window.location.href = url;
-        setPrinting(false);
-      }
-    } catch {
-      showToast('error', 'Gagal memproses file PDF untuk dicetak.');
-      setPrinting(false);
-    }
-  };
-
-   return { openPrintPage, loading, printing, iframeRef };
-}
 
 function calculateEndTime(startTime: string, durationMinutes: number): string {
   const [hours, minutes] = startTime.split(':').map(Number);
@@ -274,7 +220,6 @@ export function AppointmentCard({
             <AppointmentDropdown
               appointment={appointment}
               onDelete={() => setShowDeleteDialog(true)}
-              {...useAppointmentDropdownPdf(appointment)}
             />
           </div>
         </div>
@@ -302,17 +247,9 @@ export function AppointmentCard({
 
 function AppointmentDropdown({
   appointment,
-  openPrintPage,
-  loading,
-  printing,
-  iframeRef,
   onDelete,
 }: {
   appointment: AppointmentView;
-  openPrintPage: () => void;
-  loading: boolean;
-  printing: boolean;
-  iframeRef: React.RefObject<HTMLIFrameElement | null>;
   onDelete: () => void;
 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -339,7 +276,9 @@ function AppointmentDropdown({
       <button
         type="button"
         onClick={() => setIsOpen((v) => !v)}
-        disabled={loading || printing}
+        aria-label="Aksi jadwal"
+        aria-expanded={isOpen}
+        aria-haspopup="menu"
         className="inline-flex h-11 w-11 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent"
       >
         <MoreVertical className="h-4 w-4 shrink-0" />

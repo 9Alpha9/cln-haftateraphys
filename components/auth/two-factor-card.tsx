@@ -163,7 +163,7 @@ export function TwoFactorCard({ enabled }: { enabled: boolean }) {
 
           <div className="p-5">
             {stage === 'password' ? (
-              <form onSubmit={beginEnable} className="space-y-4">
+              <form onSubmit={beginEnable} method="post" className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="mfa-password">Kata Sandi</Label>
                   <Input
@@ -187,7 +187,7 @@ export function TwoFactorCard({ enabled }: { enabled: boolean }) {
             ) : null}
 
             {stage === 'verify' ? (
-              <form onSubmit={confirmCode} className="space-y-4">
+              <form onSubmit={confirmCode} method="post" className="space-y-4">
                 {totpURI ? (
                   <div className="flex justify-center rounded-2xl border border-stone-200 bg-white p-4">
                     <QRCodeSVG value={totpURI} size={168} />
@@ -252,7 +252,7 @@ export function TwoFactorCard({ enabled }: { enabled: boolean }) {
             ) : null}
 
             {stage === 'disable' ? (
-              <form onSubmit={confirmDisable} className="space-y-4">
+              <form onSubmit={confirmDisable} method="post" className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="mfa-disable-password">Kata Sandi</Label>
                   <Input

@@ -9,6 +9,8 @@ import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { canAccessDashboardPath } from "@/lib/permissions/dashboard-routes";
+import { getMaintenanceFlags, decideMaintenance } from "@/lib/maintenance";
+import { redirect } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
@@ -16,12 +18,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const { role, session } = await requireSession({ redirectToLogin: true });
   const pathname = (await headers()).get('x-pathname');
   if (!pathname) notFound();
-  if (pathname.startsWith('/maintenance') || pathname === '/') {
-    // Maintenance route is outside navigation policy: only super admin can see it.
-    if (role !== 'SUPER_ADMIN') notFound();
-  } else if (!canAccessDashboardPath(role, pathname)) {
-    notFound();
+
+  const maintenance = decideMaintenance({ flags: await getMaintenanceFlags() });
+  if (maintenance.mode === 'maintenance' && role !== 'SUPER_ADMIN') {
+    redirect('/maintenance');
   }
+
+  if (!canAccessDashboardPath(role, pathname)) notFound();
 
   const [unreadCount, recentNotifications, avatarResult, navCounts] = await Promise.all([
     getUnreadNotificationsCount(),

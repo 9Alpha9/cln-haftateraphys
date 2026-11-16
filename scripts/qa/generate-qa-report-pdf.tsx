@@ -8,6 +8,7 @@ import { Document, Image, Page, Text, View, StyleSheet, renderToBuffer } from '@
 import { QA_REPORT, type QaFinding } from './qa-report-data';
 
 const SEVERITY_COLOR: Record<QaFinding['severity'], string> = {
+  Blocker: '#450a0a',
   Critical: '#7f1d1d',
   High: '#b91c1c',
   Medium: '#b45309',

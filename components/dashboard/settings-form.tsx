@@ -132,7 +132,10 @@ export function SettingsForm({
             <Shield className="h-4 w-4 text-foreground" />
             <p className="text-sm font-bold text-foreground">Keamanan</p>
           </div>
-          <p className="mt-2 text-xs text-muted-foreground">MFA staf belum diaktifkan. Reset password dan verifikasi email tersedia.</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            MFA staf tersedia (opt-in TOTP + kode cadangan) melalui halaman profil. Reset password dan
+            verifikasi email juga tersedia.
+          </p>
         </div>
 
         <div className="rounded-3xl border border-border bg-card p-4">

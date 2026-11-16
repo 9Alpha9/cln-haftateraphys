@@ -14,6 +14,7 @@ import {
   Settings,
   UserRound,
   Users,
+  Wrench,
 } from 'lucide-react';
 import { type Permission, PERMISSIONS } from './constants';
 import { type Role } from './roles';
@@ -123,6 +124,12 @@ const staffNavigation: DashboardNavGroup[] = [
         label: 'Pengaturan',
         href: '/dashboard/settings',
         icon: Settings,
+        requiredPermission: PERMISSIONS.SETTINGS_MANAGE,
+      },
+      {
+        label: 'Pemeliharaan',
+        href: '/dashboard/maintenance',
+        icon: Wrench,
         requiredPermission: PERMISSIONS.SETTINGS_MANAGE,
       },
     ],

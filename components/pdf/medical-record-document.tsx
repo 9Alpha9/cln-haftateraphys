@@ -2,42 +2,44 @@ import { Document, Image, Page, Text, View, StyleSheet } from '@react-pdf/render
 
 const styles = StyleSheet.create({
   page: {
-    padding: 36,
-    paddingBottom: 90,
+    padding: 34,
+    paddingBottom: 30,
     backgroundColor: '#ffffff',
     fontFamily: 'Helvetica',
-    fontSize: 10,
+    fontSize: 9.5,
     color: '#1c1917',
+    flexDirection: 'column',
   },
+  pageContent: { flexGrow: 1 },
   header: {
-    marginBottom: 18,
+    marginBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: '#e7e5e4',
-    paddingBottom: 12,
+    paddingBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  headerIdentity: { flexDirection: 'row', alignItems: 'flex-start' },
-  headerLogo: { width: 120, height: 56, objectFit: 'contain', marginRight: 12, alignSelf: 'flex-start' },
-  headerClinic: { width: 280 },
+  headerIdentity: { flexDirection: 'row', alignItems: 'flex-start', flex: 1 },
+  headerLogo: { width: 112, height: 52, objectFit: 'contain', marginRight: 10, alignSelf: 'flex-start' },
+  headerClinic: { flex: 1 },
   clinicName: { fontSize: 12, fontFamily: 'Helvetica-Bold', color: '#181700', marginBottom: 2 },
-  clinicInfo: { fontSize: 8, color: '#57534e', marginTop: 1 },
-  badgeBox: { alignItems: 'flex-end' },
+  clinicInfo: { fontSize: 7.5, color: '#57534e', marginTop: 1 },
+  badgeBox: { alignItems: 'flex-end', marginLeft: 6 },
   badge: {
-    fontSize: 8,
+    fontSize: 7.5,
     fontFamily: 'Helvetica-Bold',
     color: '#181700',
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#a8a29e',
-    paddingHorizontal: 8,
+    paddingHorizontal: 7,
     paddingVertical: 3,
   },
-  recordId: { fontSize: 8, color: '#a8a29e', marginTop: 4 },
-  section: { marginBottom: 14 },
+  recordId: { fontSize: 7.5, color: '#a8a29e', marginTop: 4 },
+  section: { marginBottom: 11 },
   sectionTitle: {
-    fontSize: 10,
+    fontSize: 9.5,
     fontFamily: 'Helvetica-Bold',
     color: '#181700',
     backgroundColor: '#f5f5f4',
@@ -45,22 +47,34 @@ const styles = StyleSheet.create({
     borderLeftColor: '#a8a29e',
     paddingHorizontal: 7,
     paddingVertical: 4,
-    marginBottom: 7,
+    marginBottom: 6,
   },
   identityTable: { borderWidth: 1, borderColor: '#e7e5e4' },
   identityRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#e7e5e4' },
   identityRowLast: { flexDirection: 'row' },
-  identityCell: { flex: 1, padding: 6, borderRightWidth: 1, borderRightColor: '#e7e5e4' },
-  identityCellLast: { flex: 1, padding: 6 },
-  identityLabel: { fontSize: 7.5, color: '#78716c', marginBottom: 2 },
-  identityValue: { fontSize: 9.5, fontFamily: 'Helvetica-Bold', color: '#181700' },
-  bodyText: { fontSize: 9.5, lineHeight: 1.55, color: '#292524' },
-  subLabel: { fontSize: 8, fontFamily: 'Helvetica-Bold', color: '#57534e', marginBottom: 2, marginTop: 4 },
+  identityCell: { flex: 1, padding: 5, borderRightWidth: 1, borderRightColor: '#e7e5e4' },
+  identityCellLast: { flex: 1, padding: 5 },
+  identityLabel: { fontSize: 7, color: '#78716c', marginBottom: 2 },
+  identityValue: { fontSize: 9, fontFamily: 'Helvetica-Bold', color: '#181700' },
+  bodyText: { fontSize: 9.2, lineHeight: 1.5, color: '#292524' },
+  subLabel: { fontSize: 7.5, fontFamily: 'Helvetica-Bold', color: '#57534e', marginBottom: 2, marginTop: 4 },
+  scoreRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 2 },
+  scoreBox: {
+    flex: 1,
+    minWidth: 100,
+    borderWidth: 1,
+    borderColor: '#e7e5e4',
+    borderRadius: 5,
+    padding: 6,
+    backgroundColor: '#fafaf9',
+  },
+  scoreLabel: { fontSize: 7.5, color: '#78716c' },
+  scoreValue: { fontSize: 12, fontFamily: 'Helvetica-Bold', color: '#181700', marginTop: 2 },
   table: { borderWidth: 1, borderColor: '#e7e5e4' },
   tableHeader: { flexDirection: 'row', backgroundColor: '#f5f5f4' },
   tableHeaderCell: {
-    padding: 5,
-    fontSize: 7.5,
+    padding: 4.5,
+    fontSize: 7,
     fontFamily: 'Helvetica-Bold',
     color: '#44403c',
     borderRightWidth: 1,
@@ -68,81 +82,87 @@ const styles = StyleSheet.create({
   },
   tableRow: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: '#e7e5e4' },
   tableCell: {
-    padding: 5,
-    fontSize: 8,
-    lineHeight: 1.45,
+    padding: 4.5,
+    fontSize: 7.6,
+    lineHeight: 1.4,
     color: '#292524',
     borderRightWidth: 1,
     borderRightColor: '#e7e5e4',
   },
-  tableCellLast: { padding: 5, fontSize: 8, lineHeight: 1.45, color: '#292524' },
+  tableCellLast: { padding: 4.5, fontSize: 7.6, lineHeight: 1.4, color: '#292524' },
   footer: {
-    position: 'absolute',
-    left: 36,
-    right: 36,
-    bottom: 24,
+    marginTop: 14,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
     borderTopWidth: 1,
     borderTopColor: '#e7e5e4',
     paddingTop: 8,
+    minHeight: 84,
   },
-  footerInfo: { fontSize: 7.5, color: '#a8a29e' },
+  footerInfo: { fontSize: 7, color: '#a8a29e', maxWidth: 280, lineHeight: 1.5 },
   signatureBox: { width: 150, alignItems: 'center' },
   signatureLabel: { fontSize: 8, color: '#57534e' },
-  signatureSpace: { height: 36, justifyContent: 'center' },
-  signaturePlaceholder: { fontSize: 8, color: '#d6d3d1', fontStyle: 'italic' },
+  signatureSpace: { height: 34, justifyContent: 'center' },
+  signaturePlaceholder: { fontSize: 7.5, color: '#d6d3d1', fontStyle: 'italic' },
   signatureLine: { width: 100, borderTopWidth: 1, borderTopColor: '#d6d3d1', marginBottom: 3 },
-  signatureName: { fontSize: 9, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center' },
-  patientPhotoSection: {
-    marginBottom: 12,
-    alignItems: 'center',
-    justify: 'center',
-    padding: 8,
+  signatureName: { fontSize: 8.5, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center' },
+  signaturePage: { flexGrow: 1, justifyContent: 'space-between' },
+  signaturePageBody: { flexGrow: 1, paddingTop: 12 },
+  signaturePageTitle: { fontSize: 15, fontFamily: 'Helvetica-Bold', color: '#181700', marginBottom: 6 },
+  signaturePageMeta: { fontSize: 8.5, color: '#57534e', marginBottom: 2 },
+  noteBox: {
+    marginTop: 10,
     borderWidth: 1,
     borderColor: '#e7e5e4',
-    borderRadius: 6,
+    borderRadius: 5,
+    padding: 8,
     backgroundColor: '#fafaf9',
   },
-  patientPhoto: {
-    maxHeight: 280,
-    width: '100%',
-    objectFit: 'contain',
-    borderRadius: 4,
-  },
-  patientPhotoCaption: {
-    marginTop: 6,
-    fontSize: 8,
-    color: '#78716c',
-    textAlign: 'center',
-    fontStyle: 'italic',
-  },
+  noteTitle: { fontSize: 7.5, fontFamily: 'Helvetica-Bold', color: '#57534e', marginBottom: 2 },
+  noteText: { fontSize: 7.5, color: '#78716c', lineHeight: 1.45 },
 });
-
-function calculateAge(dob: Date | string | null | undefined): string {
-  if (!dob) return '-';
-  const birthDate = new Date(dob);
-  if (isNaN(birthDate.getTime())) return '-';
-  const today = new Date();
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const m = today.getMonth() - birthDate.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
-  return `${age} tahun`;
-}
-
-function formatGender(gender: string | null | undefined): string {
-  if (gender === 'MALE') return 'Laki-laki';
-  if (gender === 'FEMALE') return 'Perempuan';
-  if (gender === 'OTHER') return 'Lainnya';
-  return gender || '-';
-}
 
 export type MedicalManagementRow = {
   date: string;
   therapy: string;
   evaluation: string;
   note: string;
+};
+
+export type MedicalRecordPdfTherapyInfo = {
+  visitNumber?: number | null;
+  status?: 'DRAFT' | 'FINALIZED' | null;
+  patientVisible?: boolean;
+  nextTherapyAt?: Date | string | null;
+  frequencyText?: string | null;
+  therapyGoal?: string | null;
+  diagnosisLabel?: string | null;
+};
+
+export type MedicalRecordPdfTreatmentPlan = {
+  goals: string;
+  interventions: string;
+  reviewIntervalText?: string | null;
+  precautions?: string | null;
+  status?: string | null;
+};
+
+export type MedicalRecordPdfHomeProgramItem = {
+  name: string;
+  instruction: string;
+  sets?: number | null;
+  repetitions?: number | null;
+  durationSeconds?: number | null;
+  frequencyText?: string | null;
+  precaution?: string | null;
+};
+
+export type MedicalRecordPdfHomeProgram = {
+  status?: string | null;
+  startsAt?: Date | string | null;
+  endsAt?: Date | string | null;
+  items: MedicalRecordPdfHomeProgramItem[];
 };
 
 export type MedicalRecordPdfData = {
@@ -170,19 +190,94 @@ export type MedicalRecordPdfData = {
   followUpPlan: string | null;
   summary: string | null;
   managementRows?: MedicalManagementRow[];
+  therapyInfo?: MedicalRecordPdfTherapyInfo | null;
+  treatmentPlan?: MedicalRecordPdfTreatmentPlan | null;
+  homeProgram?: MedicalRecordPdfHomeProgram | null;
 };
+
+function calculateAge(dob: Date | string | null | undefined): string {
+  if (!dob) return '-';
+  const birthDate = new Date(dob);
+  if (Number.isNaN(birthDate.getTime())) return '-';
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const month = today.getMonth() - birthDate.getMonth();
+  if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) age -= 1;
+  return `${age} tahun`;
+}
+
+function formatGender(gender: string | null | undefined): string {
+  if (gender === 'MALE') return 'Laki-laki';
+  if (gender === 'FEMALE') return 'Perempuan';
+  if (gender === 'OTHER') return 'Lainnya';
+  return gender || '-';
+}
+
+function formatDate(value: Date | string | null | undefined): string {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '-';
+  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function formatDateTime(value: Date | string | null | undefined): string {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '-';
+  return date.toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
+}
 
 const scoreSummary = (record: MedicalRecordPdfData) =>
   `Nyeri ${record.painScore}/10 · ROM ${record.rangeOfMotionScore}/10 · Kekuatan ${record.strengthScore}/10 · Fungsi ${record.functionScore}/10`;
 
-export const MedicalRecordDocument = ({ record }: { record: MedicalRecordPdfData }) => {
-  const formattedDate = new Date(record.recordedAt).toLocaleDateString('id-ID', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+function SectionTitle({ children }: { children: string }) {
+  return <Text style={styles.sectionTitle}>{children}</Text>;
+}
+
+function TextSection({ title, value }: { title: string; value: string | null | undefined }) {
+  return (
+    <View style={styles.section}>
+      <SectionTitle>{title}</SectionTitle>
+      <Text style={styles.bodyText}>{value?.trim() || '-'}</Text>
+    </View>
+  );
+}
+
+function signatureBlock(record: MedicalRecordPdfData, printedAt: string) {
+  return (
+    <View style={styles.footer} wrap={false}>
+      <View style={styles.footerInfo}>
+        <Text>Dokumen ini dicetak dari sistem Hafta Fisioterapi dan hanya untuk keperluan pasien.</Text>
+        <Text>Dicetak pada: {printedAt} WIB</Text>
+        <Text>ID Dokumen: {record.id.slice(0, 8).toUpperCase()}</Text>
+      </View>
+      <View style={styles.signatureBox}>
+        <Text style={styles.signatureLabel}>Terapis Penanggung Jawab,</Text>
+        <View style={styles.signatureSpace}>
+          <Text style={styles.signaturePlaceholder}>[Tanda Tangan & Paraf]</Text>
+        </View>
+        <View style={styles.signatureLine} />
+        <Text style={styles.signatureName}>{record.therapistName || 'Terapis Hafta'}</Text>
+      </View>
+    </View>
+  );
+}
+
+export const MedicalRecordDocument = ({
+  record,
+  signatureOnNewPage = false,
+}: {
+  record: MedicalRecordPdfData;
+  /** Dipakai saat isi rekam lebih dari satu halaman. */
+  signatureOnNewPage?: boolean;
+}) => {
+  const formattedDate = formatDate(record.recordedAt);
+  const printedAt = new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
   const logoUrl = `${origin}/images/logos/logos-text.png`;
+  const visitLabel = record.therapyInfo?.visitNumber
+    ? `Sesi ${record.therapyInfo.visitNumber}`
+    : 'Evaluasi Terapi';
   const rows: MedicalManagementRow[] =
     record.managementRows && record.managementRows.length > 0
       ? record.managementRows
@@ -190,8 +285,7 @@ export const MedicalRecordDocument = ({ record }: { record: MedicalRecordPdfData
           {
             date: formattedDate,
             therapy: record.treatment || '-',
-            evaluation:
-              [record.evaluation, scoreSummary(record)].filter(Boolean).join('\n') || '-',
+            evaluation: [record.evaluation, scoreSummary(record)].filter(Boolean).join('\n') || '-',
             note: record.followUpPlan || record.summary || '-',
           },
         ];
@@ -199,148 +293,272 @@ export const MedicalRecordDocument = ({ record }: { record: MedicalRecordPdfData
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <View style={styles.header}>
-          <View style={styles.headerIdentity}>
-            {/* eslint-disable-next-line jsx-a11y/alt-text */}
-            <Image src={logoUrl} style={styles.headerLogo} />
-            <View style={styles.headerClinic}>
-              <Text style={styles.clinicName}>HAFTA FISIOTERAPI</Text>
-              <Text style={styles.clinicInfo}>Klinik & Layanan Terapi Fisik Profesional</Text>
-              <Text style={styles.clinicInfo}>Jl. Pd. Sidokare Indah No.AE-13, Sidokare, Sidoarjo 61214</Text>
-              <Text style={styles.clinicInfo}>WhatsApp: 0812-3293-2872</Text>
+        <View style={styles.pageContent}>
+          <View style={styles.header}>
+            <View style={styles.headerIdentity}>
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <Image src={logoUrl} style={styles.headerLogo} />
+              <View style={styles.headerClinic}>
+                <Text style={styles.clinicName}>HAFTA FISIOTERAPI</Text>
+                <Text style={styles.clinicInfo}>Klinik &amp; Layanan Terapi Fisik Profesional</Text>
+                <Text style={styles.clinicInfo}>Jl. Pd. Sidokare Indah No.AE-13, Sidokare, Sidoarjo 61214</Text>
+                <Text style={styles.clinicInfo}>WhatsApp: 0812-3293-2872</Text>
+              </View>
+            </View>
+            <View style={styles.badgeBox}>
+              <Text style={styles.badge}>REKAM MEDIS FISIOTERAPI</Text>
+              <Text style={styles.recordId}>ID: {record.id.slice(0, 8).toUpperCase()}</Text>
             </View>
           </View>
-          <View style={styles.badgeBox}>
-            <Text style={styles.badge}>REKAM MEDIS FISIOTERAPI</Text>
-            <Text style={styles.recordId}>ID: {record.id.slice(0, 8).toUpperCase()}</Text>
-          </View>
-        </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>IDENTITAS PASIEN</Text>
-          <View style={styles.identityTable}>
-            <View style={styles.identityRow}>
-              <View style={styles.identityCell}>
-                <Text style={styles.identityLabel}>No. RM</Text>
-                <Text style={styles.identityValue}>{record.medicalRecordNumber || '-'}</Text>
+          <View style={styles.section}>
+            <SectionTitle>1. IDENTITAS PASIEN</SectionTitle>
+            <View style={styles.identityTable}>
+              <View style={styles.identityRow}>
+                <View style={styles.identityCell}>
+                  <Text style={styles.identityLabel}>No. RM</Text>
+                  <Text style={styles.identityValue}>{record.medicalRecordNumber || '-'}</Text>
+                </View>
+                <View style={styles.identityCellLast}>
+                  <Text style={styles.identityLabel}>Nama Pasien</Text>
+                  <Text style={styles.identityValue}>{record.patientName}</Text>
+                </View>
               </View>
-              <View style={styles.identityCellLast}>
-                <Text style={styles.identityLabel}>Nama Pasien</Text>
-                <Text style={styles.identityValue}>{record.patientName}</Text>
+              <View style={styles.identityRow}>
+                <View style={styles.identityCell}>
+                  <Text style={styles.identityLabel}>Umur</Text>
+                  <Text style={styles.identityValue}>{calculateAge(record.patientDob)}</Text>
+                </View>
+                <View style={styles.identityCellLast}>
+                  <Text style={styles.identityLabel}>Jenis Kelamin</Text>
+                  <Text style={styles.identityValue}>{formatGender(record.gender)}</Text>
+                </View>
               </View>
-            </View>
-            <View style={styles.identityRow}>
-              <View style={styles.identityCell}>
-                <Text style={styles.identityLabel}>Umur</Text>
-                <Text style={styles.identityValue}>{calculateAge(record.patientDob)}</Text>
+              <View style={styles.identityRow}>
+                <View style={styles.identityCellLast}>
+                  <Text style={styles.identityLabel}>Alamat</Text>
+                  <Text style={styles.identityValue}>{record.patientAddress || '-'}</Text>
+                </View>
               </View>
-              <View style={styles.identityCellLast}>
-                <Text style={styles.identityLabel}>Jenis Kelamin</Text>
-                <Text style={styles.identityValue}>{formatGender(record.gender)}</Text>
+              <View style={styles.identityRow}>
+                <View style={styles.identityCell}>
+                  <Text style={styles.identityLabel}>Nomor HP</Text>
+                  <Text style={styles.identityValue}>{record.patientPhone || '-'}</Text>
+                </View>
+                <View style={styles.identityCellLast}>
+                  <Text style={styles.identityLabel}>Pekerjaan</Text>
+                  <Text style={styles.identityValue}>{record.occupation || '-'}</Text>
+                </View>
               </View>
-            </View>
-            <View style={styles.identityRow}>
-              <View style={styles.identityCellLast}>
-                <Text style={styles.identityLabel}>Alamat</Text>
-                <Text style={styles.identityValue}>{record.patientAddress || '-'}</Text>
-              </View>
-            </View>
-            <View style={styles.identityRow}>
-              <View style={styles.identityCell}>
-                <Text style={styles.identityLabel}>Nomor HP</Text>
-                <Text style={styles.identityValue}>{record.patientPhone || '-'}</Text>
-              </View>
-              <View style={styles.identityCellLast}>
-                <Text style={styles.identityLabel}>Terapis</Text>
-                <Text style={styles.identityValue}>{record.therapistName || 'Terapis Hafta'}</Text>
-              </View>
-            </View>
-            <View style={styles.identityRow}>
-              <View style={styles.identityCellLast}>
-                <Text style={styles.identityLabel}>Pekerjaan</Text>
-                <Text style={styles.identityValue}>{record.occupation || '-'}</Text>
-              </View>
-            </View>
-            <View style={styles.identityRowLast}>
-              <View style={styles.identityCellLast}>
-                <Text style={styles.identityLabel}>Tanggal Pemeriksaan</Text>
-                <Text style={styles.identityValue}>{formattedDate}</Text>
+              <View style={styles.identityRowLast}>
+                <View style={styles.identityCellLast}>
+                  <Text style={styles.identityLabel}>Tanggal Pemeriksaan</Text>
+                  <Text style={styles.identityValue}>{formattedDate}</Text>
+                </View>
               </View>
             </View>
           </View>
-        </View>
 
-        {record.patientPhotoUrl ? (
-          <View style={styles.patientPhotoSection}>
-            {/* eslint-disable-next-line jsx-a11y/alt-text */}
-            <Image src={record.patientPhotoUrl} style={styles.patientPhoto} />
-            <Text style={styles.patientPhotoCaption}>
-              Foto kondisi pasien - area keluhan yang dikirimkan melalui formulir intake pasien.
+          <View style={styles.section}>
+            <SectionTitle>2. INFORMASI TERAPI</SectionTitle>
+            <View style={styles.identityTable}>
+              <View style={styles.identityRow}>
+                <View style={styles.identityCell}>
+                  <Text style={styles.identityLabel}>Sesi</Text>
+                  <Text style={styles.identityValue}>{visitLabel}</Text>
+                </View>
+                <View style={styles.identityCell}>
+                  <Text style={styles.identityLabel}>Status Rekam</Text>
+                  <Text style={styles.identityValue}>
+                    {record.therapyInfo?.status === 'FINALIZED' ? 'Final' : 'Draf'}
+                  </Text>
+                </View>
+                <View style={styles.identityCellLast}>
+                  <Text style={styles.identityLabel}>Terapis</Text>
+                  <Text style={styles.identityValue}>{record.therapistName || 'Terapis Hafta'}</Text>
+                </View>
+              </View>
+              <View style={styles.identityRow}>
+                <View style={styles.identityCell}>
+                  <Text style={styles.identityLabel}>Jadwal Berikutnya</Text>
+                  <Text style={styles.identityValue}>{formatDateTime(record.therapyInfo?.nextTherapyAt)}</Text>
+                </View>
+                <View style={styles.identityCellLast}>
+                  <Text style={styles.identityLabel}>Frekuensi Terapi</Text>
+                  <Text style={styles.identityValue}>{record.therapyInfo?.frequencyText || '-'}</Text>
+                </View>
+              </View>
+              <View style={styles.identityRowLast}>
+                <View style={styles.identityCell}>
+                  <Text style={styles.identityLabel}>Tujuan Terapi</Text>
+                  <Text style={styles.identityValue}>{record.therapyInfo?.therapyGoal || '-'}</Text>
+                </View>
+                <View style={styles.identityCellLast}>
+                  <Text style={styles.identityLabel}>Diagnosis Ringkas</Text>
+                  <Text style={styles.identityValue}>{record.therapyInfo?.diagnosisLabel || record.diagnosis || '-'}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.section}>
+            <SectionTitle>3. INDIKATOR FUNGSIONAL</SectionTitle>
+            <View style={styles.scoreRow}>
+              {[
+                { label: 'Nyeri (VAS)', value: record.painScore },
+                { label: 'ROM', value: record.rangeOfMotionScore },
+                { label: 'Kekuatan', value: record.strengthScore },
+                { label: 'Fungsi', value: record.functionScore },
+              ].map((item) => (
+                <View key={item.label} style={styles.scoreBox}>
+                  <Text style={styles.scoreLabel}>{item.label}</Text>
+                  <Text style={styles.scoreValue}>{item.value}/10</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <TextSection title="4. ANAMNESA FISIOTERAPI" value={record.anamnesis} />
+          <TextSection title="5. PEMERIKSAAN FISIK" value={record.physicalExamination} />
+          <TextSection title="6. DIAGNOSIS FISIOTERAPI" value={record.diagnosis} />
+          <TextSection title="7. RIWAYAT PENYAKIT" value={record.medicalHistory} />
+          <TextSection title="8. TINDAKAN TERAPI" value={record.treatment} />
+          <TextSection title="9. EVALUASI" value={record.evaluation} />
+          <TextSection title="10. RENCANA TINDAK LANJUT" value={record.followUpPlan} />
+          <TextSection title="11. RINGKASAN SESI" value={record.summary} />
+
+          {record.treatmentPlan ? (
+            <View style={styles.section}>
+              <SectionTitle>12. RENCANA TERAPI</SectionTitle>
+              <View style={styles.identityTable}>
+                <View style={styles.identityRow}>
+                  <View style={styles.identityCell}>
+                    <Text style={styles.identityLabel}>Status</Text>
+                    <Text style={styles.identityValue}>{record.treatmentPlan.status || '-'}</Text>
+                  </View>
+                  <View style={styles.identityCellLast}>
+                    <Text style={styles.identityLabel}>Interval Evaluasi</Text>
+                    <Text style={styles.identityValue}>{record.treatmentPlan.reviewIntervalText || '-'}</Text>
+                  </View>
+                </View>
+                <View style={styles.identityRow}>
+                  <View style={styles.identityCellLast}>
+                    <Text style={styles.identityLabel}>Tujuan</Text>
+                    <Text style={styles.identityValue}>{record.treatmentPlan.goals || '-'}</Text>
+                  </View>
+                </View>
+                <View style={styles.identityRow}>
+                  <View style={styles.identityCellLast}>
+                    <Text style={styles.identityLabel}>Intervensi</Text>
+                    <Text style={styles.identityValue}>{record.treatmentPlan.interventions || '-'}</Text>
+                  </View>
+                </View>
+                {record.treatmentPlan.precautions ? (
+                  <View style={styles.identityRowLast}>
+                    <View style={styles.identityCellLast}>
+                      <Text style={styles.identityLabel}>Perhatian / Precaution</Text>
+                      <Text style={styles.identityValue}>{record.treatmentPlan.precautions}</Text>
+                    </View>
+                  </View>
+                ) : null}
+              </View>
+            </View>
+          ) : null}
+
+          {record.homeProgram && record.homeProgram.items.length > 0 ? (
+            <View style={styles.section}>
+              <SectionTitle>13. PROGRAM LATIHAN MANDIRI</SectionTitle>
+              <View style={styles.table}>
+                <View style={styles.tableHeader}>
+                  <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Latihan</Text>
+                  <Text style={[styles.tableHeaderCell, { flex: 1.8 }]}>Instruksi</Text>
+                  <Text style={[styles.tableHeaderCell, { flex: 0.8 }]}>Dosis</Text>
+                  <Text style={[styles.tableHeaderCell, { flex: 1, borderRightWidth: 0 }]}>Frekuensi</Text>
+                </View>
+                {record.homeProgram.items.map((item, index) => {
+                  const dose = [
+                    item.sets ? `${item.sets} set` : null,
+                    item.repetitions ? `${item.repetitions} rep` : null,
+                    item.durationSeconds ? `${item.durationSeconds} detik` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(' · ');
+                  return (
+                    <View key={`${item.name}-${index}`} style={styles.tableRow} wrap={false}>
+                      <Text style={[styles.tableCell, { flex: 1.5 }]}>{item.name}</Text>
+                      <Text style={[styles.tableCell, { flex: 1.8 }]}>{item.instruction || '-'}</Text>
+                      <Text style={[styles.tableCell, { flex: 0.8 }]}>{dose || '-'}</Text>
+                      <Text style={[styles.tableCellLast, { flex: 1 }]}>{item.frequencyText || '-'}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </View>
+          ) : null}
+
+          <View style={styles.section}>
+            <SectionTitle>14. PENATALAKSANAAN</SectionTitle>
+            <View style={styles.table}>
+              <View style={styles.tableHeader}>
+                <Text style={[styles.tableHeaderCell, { flex: 0.9 }]}>Tanggal</Text>
+                <Text style={[styles.tableHeaderCell, { flex: 1.6 }]}>Terapi</Text>
+                <Text style={[styles.tableHeaderCell, { flex: 1.6 }]}>Evaluasi</Text>
+                <Text style={[styles.tableHeaderCell, { flex: 1.2, borderRightWidth: 0 }]}>Keterangan</Text>
+              </View>
+              {rows.map((row, index) => (
+                <View key={`${row.date}-${index}`} style={styles.tableRow} wrap={false}>
+                  <Text style={[styles.tableCell, { flex: 0.9 }]}>{row.date}</Text>
+                  <Text style={[styles.tableCell, { flex: 1.6 }]}>{row.therapy}</Text>
+                  <Text style={[styles.tableCell, { flex: 1.6 }]}>{row.evaluation}</Text>
+                  <Text style={[styles.tableCellLast, { flex: 1.2 }]}>{row.note}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          <View style={styles.noteBox}>
+            <Text style={styles.noteTitle}>Catatan</Text>
+            <Text style={styles.noteText}>
+              Rekam medis ini merupakan ringkasan evaluasi fisioterapi. Perubahan setelah finalisasi
+              dilakukan melalui amandemen dan tetap menyimpan riwayat. Hubungi klinik bila ada data
+              yang perlu dikoreksi.
             </Text>
           </View>
-        ) : null}
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>3. ANAMNESA FISIOTERAPI</Text>
-          <Text style={styles.bodyText}>{record.anamnesis || '-'}</Text>
-          {record.physicalExamination ? (
-            <>
-              <Text style={styles.subLabel}>Pemeriksaan Fisik</Text>
-              <Text style={styles.bodyText}>{record.physicalExamination}</Text>
-            </>
+          {record.patientPhotoUrl ? (
+            <View style={styles.section}>
+              <SectionTitle>FOTO KONDISI PASIEN</SectionTitle>
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <Image src={record.patientPhotoUrl} style={{ width: '100%', maxHeight: 260, objectFit: 'contain' }} />
+            </View>
           ) : null}
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>4. DIAGNOSA</Text>
-          <Text style={styles.bodyText}>{record.diagnosis || '-'}</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>5. RIWAYAT PENYAKIT</Text>
-          <Text style={styles.bodyText}>{record.medicalHistory || '-'}</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>6. CATATAN KLINIS</Text>
-          <Text style={styles.bodyText}>{record.summary || '-'}</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>7. PENATALAKSANAAN</Text>
-          <View style={styles.table}>
-            <View style={styles.tableHeader}>
-              <Text style={[styles.tableHeaderCell, { flex: 0.9 }]}>Tanggal</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1.6 }]}>Terapi</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1.6 }]}>Evaluasi</Text>
-              <Text style={[styles.tableHeaderCell, { flex: 1.2, borderRightWidth: 0 }]}>Keterangan</Text>
-            </View>
-            {rows.map((row, index) => (
-              <View key={`${row.date}-${index}`} style={styles.tableRow} wrap={false}>
-                <Text style={[styles.tableCell, { flex: 0.9 }]}>{row.date}</Text>
-                <Text style={[styles.tableCell, { flex: 1.6 }]}>{row.therapy}</Text>
-                <Text style={[styles.tableCell, { flex: 1.6 }]}>{row.evaluation}</Text>
-                <Text style={[styles.tableCellLast, { flex: 1.2 }]}>{row.note}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.footer} fixed>
-          <View>
-            <Text style={styles.footerInfo}>Dokumen ini disahkan secara digital oleh Klinik Hafta Fisioterapi.</Text>
-            <Text style={styles.footerInfo}>Dicetak pada: {new Date().toLocaleString('id-ID')}</Text>
-          </View>
-          <View style={styles.signatureBox}>
-            <Text style={styles.signatureLabel}>Terapis Penanggung Jawab,</Text>
-            <View style={styles.signatureSpace}>
-              <Text style={styles.signaturePlaceholder}>[Tanda Tangan & Paraf]</Text>
-            </View>
-            <View style={styles.signatureLine} />
-            <Text style={styles.signatureName}>{record.therapistName || 'Terapis Hafta'}</Text>
-          </View>
-        </View>
+        {!signatureOnNewPage ? signatureBlock(record, printedAt) : null}
       </Page>
+
+      {signatureOnNewPage ? (
+        <Page size="A4" style={styles.page}>
+          <View style={styles.signaturePage}>
+            <View style={styles.signaturePageBody}>
+              <Text style={styles.signaturePageTitle}>LEMBAR PENGESAHAN DOKUMEN</Text>
+              <Text style={styles.signaturePageMeta}>Rekam Medis Fisioterapi · {visitLabel}</Text>
+              <Text style={styles.signaturePageMeta}>Pasien: {record.patientName}</Text>
+              <Text style={styles.signaturePageMeta}>No. RM: {record.medicalRecordNumber || '-'}</Text>
+              <Text style={styles.signaturePageMeta}>Tanggal pemeriksaan: {formattedDate}</Text>
+              <View style={styles.noteBox}>
+                <Text style={styles.noteTitle}>Ringkasan Dokumen</Text>
+                <Text style={styles.noteText}>
+                  Dokumen ini memuat identitas pasien, informasi terapi, indikator fungsional, catatan
+                  SOAP, rencana terapi, program latihan, dan penatalaksanaan. Lembar ini adalah bagian
+                  tidak terpisahkan dari rekam medis dan memuat pengesahan terapis penanggung jawab.
+                </Text>
+              </View>
+            </View>
+            {signatureBlock(record, printedAt)}
+          </View>
+        </Page>
+      ) : null}
     </Document>
   );
 };

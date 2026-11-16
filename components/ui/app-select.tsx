@@ -65,6 +65,16 @@ export function AppSelect({
   useEffect(() => {
     if (!open) return;
 
+    // Pindahkan fokus ke opsi terpilih/pertama agar pengguna keyboard tidak
+    // harus menekan Tab melewati seluruh halaman (menu dirender lewat portal).
+    const frame = window.requestAnimationFrame(() => {
+      const menu = menuRef.current;
+      if (!menu) return;
+      const options = Array.from(menu.querySelectorAll<HTMLButtonElement>('[role="option"]:not(:disabled)'));
+      const selectedOption = options.find((option) => option.getAttribute('aria-selected') === 'true');
+      (selectedOption ?? options[0])?.focus();
+    });
+
     function updatePosition() {
       const trigger = triggerRef.current;
       if (!trigger) return;
@@ -96,7 +106,10 @@ export function AppSelect({
     updatePosition();
 
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setOpen(false);
+      if (event.key === 'Escape') {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
     }
 
     function onPointerDown(event: PointerEvent) {
@@ -112,6 +125,7 @@ export function AppSelect({
     document.addEventListener('pointerdown', onPointerDown);
 
     return () => {
+      window.cancelAnimationFrame(frame);
       window.removeEventListener('resize', updatePosition);
       window.removeEventListener('scroll', updatePosition, true);
       document.removeEventListener('keydown', onKeyDown);
@@ -123,6 +137,8 @@ export function AppSelect({
     if (value === undefined) setInternalValue(nextValue);
     onChange?.(nextValue);
     setOpen(false);
+    // Kembalikan fokus ke trigger setelah opsi dipilih.
+    triggerRef.current?.focus();
   }
 
   const menu = open
@@ -133,6 +149,27 @@ export function AppSelect({
           role="listbox"
           aria-required={required || undefined}
           aria-label={ariaLabel ?? placeholder}
+          onKeyDown={(event) => {
+            const options = Array.from(
+              event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="option"]:not(:disabled)'),
+            );
+            if (options.length === 0) return;
+            const currentIndex = options.indexOf(document.activeElement as HTMLButtonElement);
+            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+              event.preventDefault();
+              const direction = event.key === 'ArrowDown' ? 1 : -1;
+              const nextIndex =
+                currentIndex < 0
+                  ? direction === 1
+                    ? 0
+                    : options.length - 1
+                  : (currentIndex + direction + options.length) % options.length;
+              options[nextIndex]?.focus();
+            } else if (event.key === 'Home' || event.key === 'End') {
+              event.preventDefault();
+              (event.key === 'Home' ? options[0] : options[options.length - 1])?.focus();
+            }
+          }}
           style={{
             position: 'fixed',
             top: position.openUp ? 'auto' : position.top,
@@ -192,6 +229,12 @@ export function AppSelect({
         aria-controls={open ? listboxId : undefined}
         aria-label={ariaLabel}
         onClick={() => setOpen((current) => !current)}
+        onKeyDown={(event) => {
+          if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            setOpen(true);
+          }
+        }}
         className={cn(
           'flex w-full cursor-pointer items-center justify-between gap-2 border border-stone-200/90 bg-white text-left text-[#181700] transition-colors hover:border-stone-300 focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60',
           size === 'sm'

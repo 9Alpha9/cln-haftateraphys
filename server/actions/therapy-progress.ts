@@ -4,7 +4,7 @@ import { and, eq, isNull } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 import { getDb } from '@/db';
-import { appointments, notifications, patients, therapyProgressRecords } from '@/db/schema';
+import { appointments, notifications, patientAssignments, patients, therapyProgressRecords } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { createAuditLog } from '@/lib/audit';
@@ -35,11 +35,26 @@ export type FinalizeProgressResult = { ok: true } | { ok: false; error: string }
 async function assertScope(patientId: string, therapistId: string, role: string) {
   const db = getDb();
   const [patient] = await db
-    .select({ id: patients.id })
+    .select({ id: patients.id, archivedAt: patients.archivedAt })
     .from(patients)
     .where(eq(patients.id, patientId))
     .limit(1);
-  if (!patient) throw new ForbiddenError();
+  if (!patient || patient.archivedAt) throw new ForbiddenError();
+
+  if (role === 'THERAPIST') {
+    const [assignment] = await db
+      .select({ id: patientAssignments.id })
+      .from(patientAssignments)
+      .where(
+        and(
+          eq(patientAssignments.patientId, patientId),
+          eq(patientAssignments.staffUserId, therapistId),
+          isNull(patientAssignments.activeUntil),
+        ),
+      )
+      .limit(1);
+    if (!assignment) throw new ForbiddenError();
+  }
 }
 
 async function notifyProgress(db: any, patientId: string, therapistId: string, isFinalized: boolean, isVisibleToPatient: boolean) {
@@ -160,8 +175,11 @@ export async function finalizeTherapyProgress(progressId: string): Promise<Final
     if (!record) return { ok: false, error: 'Rekam tidak ditemukan.' };
     if (record.supersededAt) return { ok: false, error: 'Rekam ini sudah digantikan oleh amandemen.' };
     if (record.status === 'FINALIZED') return { ok: false, error: 'Rekam sudah difinalisasi.' };
-    if (role === 'THERAPIST' && record.therapistId !== session.user.id) {
-      return { ok: false, error: 'Anda tidak memiliki akses ke rekam ini.' };
+    if (role === 'THERAPIST') {
+      if (record.therapistId !== session.user.id) {
+        return { ok: false, error: 'Anda tidak memiliki akses ke rekam ini.' };
+      }
+      await assertScope(record.patientId, session.user.id, role);
     }
 
     const now = new Date();
@@ -230,8 +248,11 @@ export async function createProgressAmendment(input: unknown): Promise<CreateAme
     if (original.supersededAt) {
       return { ok: false, error: 'Rekam ini sudah digantikan oleh amandemen lain.' };
     }
-    if (role === 'THERAPIST' && original.therapistId !== session.user.id) {
-      return { ok: false, error: 'Anda tidak memiliki akses ke rekam ini.' };
+    if (role === 'THERAPIST') {
+      if (original.therapistId !== session.user.id) {
+        return { ok: false, error: 'Anda tidak memiliki akses ke rekam ini.' };
+      }
+      await assertScope(original.patientId, session.user.id, role);
     }
 
     const [existing] = await db
@@ -334,8 +355,11 @@ export async function updateTherapyProgress(input: unknown): Promise<UpdateProgr
     if (record.status === 'FINALIZED') {
       return { ok: false, error: 'Rekam final terkunci. Gunakan amandemen untuk melakukan koreksi.' };
     }
-    if (role === 'THERAPIST' && record.therapistId !== session.user.id) {
-      return { ok: false, error: 'Anda tidak memiliki akses ke rekam ini.' };
+    if (role === 'THERAPIST') {
+      if (record.therapistId !== session.user.id) {
+        return { ok: false, error: 'Anda tidak memiliki akses ke rekam ini.' };
+      }
+      await assertScope(record.patientId, session.user.id, role);
     }
 
     const now = new Date();

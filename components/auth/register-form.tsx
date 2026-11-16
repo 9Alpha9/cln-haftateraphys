@@ -228,7 +228,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
       )}
 
       {/* ── FORM INPUT ── */}
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit} method="post" className="space-y-4" noValidate>
         {/* Nama Lengkap */}
         <div className="space-y-1.5">
           <Label htmlFor="name" className="text-xs font-semibold text-stone-700">

@@ -79,7 +79,7 @@ export function ForgotPasswordForm() {
         </div>
       ) : null}
 
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
+      <form onSubmit={onSubmit} method="post" className="space-y-4" noValidate>
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-xs font-semibold text-stone-700">
             Alamat Email

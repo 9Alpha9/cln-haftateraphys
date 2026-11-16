@@ -141,7 +141,7 @@ export function NotificationBell({
           'group relative h-11 w-11 cursor-pointer rounded-full text-foreground transition-all duration-300',
           className,
         )}
-        aria-label="Buka notifikasi"
+        aria-label={count > 0 ? `Buka notifikasi, ${count} belum dibaca` : 'Buka notifikasi'}
       >
         <AnimatedBell
           size={18}

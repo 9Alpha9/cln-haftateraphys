@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import Link from 'next/link';
-import { AlertTriangle, RefreshCcw, Home, ArrowLeft } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { ErrorState } from '@/components/errors/error-state';
 
 export default function AppError({
   error,
@@ -11,66 +11,26 @@ export default function AppError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const pathname = usePathname();
+
   useEffect(() => {
-    console.error('App error:', error);
+    // Log hanya digest/stack; jangan pernah menambahkan data pasien ke log.
+    console.error('[app.error]', {
+      digest: error.digest ?? null,
+      name: error.name,
+      message: process.env.NODE_ENV === 'production' ? undefined : error.message,
+    });
   }, [error]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--background)] p-4">
-      <div className="w-full max-w-md">
-        <div className="rounded-2xl border border-[var(--border)] bg-white p-8  text-center">
-          {/* Icon */}
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#FEF2F2]">
-            <AlertTriangle className="h-8 w-8 text-[#dc2626]" />
-          </div>
-
-          {/* Title */}
-          <h1 className="mt-6 text-xl font-bold text-[var(--foreground)]">Oops! Ada Masalah</h1>
-
-          {/* Description */}
-          <p className="mt-2 text-[13px] text-[var(--muted-foreground)] leading-relaxed">
-            Halaman ini mengalami kesalahan saat memuat data. Silakan coba beberapa saat lagi.
-          </p>
-
-          {/* Error digest */}
-          {error.digest && (
-            <div className="mt-4 rounded-lg bg-[var(--background)] p-3">
-              <p className="text-[11px] font-mono text-[#9CA3AF]">Error ID: {error.digest}</p>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="mt-6 flex flex-col gap-3">
-            <button
-              onClick={reset}
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-200)] px-5 text-[13px] font-semibold text-[var(--foreground)] transition-all hover:bg-[var(--hafta-org-300)]  active:scale-[0.98]"
-            >
-              <RefreshCcw className="h-4 w-4" />
-              Muat Ulang
-            </button>
-            <Link
-              href="/"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-5 text-[13px] font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--background)] hover:text-[var(--foreground)]"
-            >
-              <Home className="h-4 w-4" />
-              Kembali ke Beranda
-            </Link>
-          </div>
-        </div>
-
-        {/* Support note */}
-        <p className="mt-4 text-center text-[11px] text-[#9CA3AF]">
-          Masalah berlanjut?{' '}
-          <a
-            href="https://wa.me/6281232932872"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[var(--hafta-org-200)] hover:text-[var(--hafta-org-400)] underline"
-          >
-            Hubungi Support
-          </a>
-        </p>
-      </div>
+    <div className="flex min-h-screen items-center justify-center bg-[#FCFCFB] px-4 py-10 sm:px-6">
+      <ErrorState
+        code={500}
+        digest={error.digest}
+        pathname={pathname}
+        onRetry={reset}
+        description="Halaman ini gagal dimuat karena kendala pada server. Data Anda tidak berubah. Gunakan referensi insiden di bawah saat melapor agar tim teknis dapat menelusuri penyebabnya."
+      />
     </div>
   );
 }

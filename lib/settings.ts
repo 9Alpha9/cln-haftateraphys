@@ -5,8 +5,9 @@ export const SETTINGS_DEFAULTS = {
   clinic_address: 'Jl. Pd. Sidokare Indah No.AE-13, Sidokare, Sidoarjo 61214',
   appointment_reminders_enabled: 'true',
   maintenance_mode: 'false',
+  maintenance_title: 'Hafta Fisioterapi sedang dalam pemeliharaan',
   maintenance_message:
-    'Kami sedang melakukan pemeliharaan sistem untuk meningkatkan layanan. Silakan kembali beberapa saat lagi.',
+    'Kami sedang melakukan pemeliharaan sistem agar layanan tetap aman dan stabil. Silakan kembali beberapa saat lagi. Terima kasih atas pengertian Anda.',
   maintenance_until: '',
 } as const;
 

@@ -21,7 +21,7 @@ export function DashboardPageHeader({
       <div className="mt-3 flex flex-col gap-4 sm:gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 items-start gap-3">
           {icon ? (
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-900)] text-[var(--hafta-org-100)] [&_svg]:h-5 [&_svg]:w-5 [&_svg]:text-[var(--hafta-org-100)]">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-400 text-white shadow-sm [&_svg]:h-7 [&_svg]:w-7 [&_svg]:text-white">
               {icon}
             </span>
           ) : null}

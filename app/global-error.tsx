@@ -1,8 +1,13 @@
 'use client';
 
-import { useEffect } from 'react';
-import Link from 'next/link';
+import { useEffect, useMemo } from 'react';
+import { createIncidentReference } from '@/lib/error-catalog';
 
+/**
+ * Global error menangani kegagalan pada root layout. Karena root layout tidak
+ * dirender, halaman ini sengaja memakai inline style dan tidak bergantung pada
+ * Tailwind/global CSS agar tetap terbaca saat aset gagal dimuat.
+ */
 export default function GlobalError({
   error,
   reset,
@@ -10,100 +15,104 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const reference = useMemo(() => createIncidentReference(500, error.digest), [error.digest]);
+
   useEffect(() => {
-    console.error('Global error:', error);
+    console.error('[global.error]', {
+      digest: error.digest ?? null,
+      name: error.name,
+      message: process.env.NODE_ENV === 'production' ? undefined : error.message,
+    });
   }, [error]);
 
   return (
     <html lang="id">
-      <body className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4">
-        <div className="w-full max-w-md">
-          <div className="rounded-2xl border border-[var(--border)] bg-white p-8  text-center">
-            {/* Icon */}
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[#FEF2F2]">
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-8 w-8 text-[#dc2626]"
-                aria-hidden="true"
-              >
-                <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
-                <line x1="12" y1="9" x2="12" y2="13" />
-                <line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-            </div>
-
-            {/* Title */}
-            <h1 className="mt-6 text-xl font-bold text-[var(--foreground)]">Terjadi Kesalahan</h1>
-
-            {/* Description */}
-            <p className="mt-2 text-[13px] text-[var(--muted-foreground)] leading-relaxed">
-              Sistem mengalami gangguan yang tidak terduga. Silakan coba kembali atau kembali ke beranda.
+      <body
+        style={{
+          margin: 0,
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 24,
+          background: '#FCFCFB',
+          color: '#181700',
+          fontFamily: 'Inter, system-ui, -apple-system, Segoe UI, sans-serif',
+        }}
+      >
+        <main style={{ width: '100%', maxWidth: 520 }}>
+          <div
+            style={{
+              border: '1px solid #e7e5e4',
+              borderRadius: 24,
+              background: '#fff',
+              padding: 28,
+              boxShadow: '0 18px 50px -32px rgba(24,23,0,0.35)',
+            }}
+          >
+            <p style={{ margin: 0, fontSize: 10, letterSpacing: '0.16em', fontWeight: 700, color: '#a8a29e' }}>
+              ERROR 500 · HAFTA FISIOTERAPI
+            </p>
+            <h1 style={{ margin: '8px 0 0', fontSize: 24, lineHeight: 1.25 }}>Terjadi kesalahan sistem</h1>
+            <p style={{ margin: '12px 0 0', fontSize: 14, lineHeight: 1.65, color: '#57534e' }}>
+              Aplikasi gagal memuat komponen utama. Data Anda tidak terkirim atau berubah. Muat ulang
+              halaman; bila masalah berulang, laporkan referensi insiden di bawah kepada admin.
             </p>
 
-            {/* Error digest (for debugging) */}
-            {error.digest && (
-              <div className="mt-4 rounded-lg bg-[var(--background)] p-3">
-                <p className="text-[11px] font-mono text-[#9CA3AF]">Error ID: {error.digest}</p>
-              </div>
-            )}
+            <div style={{ marginTop: 18, borderRadius: 16, background: '#FAFAF8', padding: 14 }}>
+              <p style={{ margin: 0, fontSize: 10, letterSpacing: '0.08em', fontWeight: 700, color: '#78716c' }}>
+                REFERENSI INSIDEN
+              </p>
+              <p style={{ margin: '4px 0 0', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: 12 }}>
+                {reference}
+              </p>
+              {error.digest ? (
+                <p style={{ margin: '4px 0 0', fontSize: 10, color: '#a8a29e' }}>Digest: {error.digest}</p>
+              ) : null}
+            </div>
 
-            {/* Actions */}
-            <div className="mt-6 flex flex-col gap-3">
+            <div style={{ marginTop: 20, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               <button
                 type="button"
                 onClick={reset}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-5 text-[13px] font-semibold text-[var(--hafta-950)] transition-all hover:bg-[var(--hafta-org-200)]  active:scale-[0.98] cursor-pointer"
+                style={{
+                  minHeight: 44,
+                  border: 0,
+                  borderRadius: 999,
+                  background: '#FFE8C7',
+                  color: '#181700',
+                  padding: '0 20px',
+                  fontSize: 12,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                >
-                  <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-                  <path d="M21 3v5h-5" />
-                  <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-                  <path d="M8 16H3v5" />
-                </svg>
-                <span>Coba Lagi</span>
+                Muat ulang
               </button>
-
-              <Link
-                href="/"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-5 text-[13px] font-medium text-[var(--muted-foreground)] transition-all hover:bg-[var(--background)] hover:text-[var(--foreground)]"
+              <a
+                href="/status?code=500"
+                style={{
+                  minHeight: 44,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  borderRadius: 999,
+                  border: '1px solid #e7e5e4',
+                  background: '#fff',
+                  color: '#44403c',
+                  padding: '0 20px',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  textDecoration: 'none',
+                }}
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                >
-                  <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                  <polyline points="9 22 9 12 15 12 15 22" />
-                </svg>
-                <span>Kembali ke Beranda</span>
-              </Link>
+                Informasi kendala
+              </a>
             </div>
           </div>
-
-          {/* Footer note */}
-          <p className="mt-4 text-center text-[11px] text-[#9CA3AF]">
-            Jika masalah berlanjut, hubungi tim support Hafta Fisioterapi.
+          <p style={{ margin: '12px 0 0', textAlign: 'center', fontSize: 11, color: '#a8a29e' }}>
+            Halaman ini tidak menampilkan data rekam medis.
           </p>
-        </div>
+        </main>
       </body>
     </html>
   );

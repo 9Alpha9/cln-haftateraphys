@@ -55,9 +55,9 @@ export function PasswordField({
         />
         <button
           type="button"
-          tabIndex={-1}
           onClick={() => setVisible((v) => !v)}
           aria-label={visible ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+          aria-pressed={visible}
           className="absolute right-2.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-stone-400 transition-colors hover:bg-stone-100 hover:text-stone-700 cursor-pointer"
         >
           {visible ? <EyeOff className="size-4" aria-hidden="true" /> : <Eye className="size-4" aria-hidden="true" />}

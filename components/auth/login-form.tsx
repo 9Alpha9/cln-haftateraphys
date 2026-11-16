@@ -193,7 +193,7 @@ export function LoginForm({ reason }: LoginFormProps) {
           </div>
         ) : null}
 
-        <form onSubmit={verifyTwoFactor} className="space-y-4">
+        <form onSubmit={verifyTwoFactor} method="post" className="space-y-4">
           <input
             value={twoFactorCode}
             onChange={(event) =>
@@ -276,7 +276,7 @@ export function LoginForm({ reason }: LoginFormProps) {
       )}
 
       {/* ── FORM INPUT ── */}
-      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <form onSubmit={handleSubmit} method="post" className="space-y-4" noValidate>
         {/* Email */}
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-xs font-semibold text-stone-700">
@@ -339,7 +339,7 @@ export function LoginForm({ reason }: LoginFormProps) {
               onChange={(e) => setRemember(e.target.checked)}
               className="h-4 w-4 shrink-0 rounded border-stone-300 accent-[var(--hafta-950)] cursor-pointer"
             />
-            <span>Simpan data login</span>
+            <span>Ingat email saya di perangkat ini</span>
           </label>
 
           <label htmlFor="rememberDevice" className="flex items-center gap-2 text-stone-600 cursor-pointer select-none">
@@ -350,16 +350,16 @@ export function LoginForm({ reason }: LoginFormProps) {
               onChange={(e) => setRememberDevice(e.target.checked)}
               className="h-4 w-4 shrink-0 rounded-md border-stone-300 text-[var(--hafta-950)] focus:ring-[var(--hafta-org-200)]/30 cursor-pointer"
             />
-            <span>Ingat perangkat ini selama 7 hari</span>
+            <span>Pertahankan sesi setelah browser ditutup</span>
           </label>
 
           <a
             href="https://wa.me/6281232932872?text=Halo%20Admin%20Hafta%20Fisioterapi,%20saya%20butuh%20bantuan%20reset%20kata%20sandi%20akun%20pasien."
             target="_blank"
             rel="noopener noreferrer"
-            className="font-semibold text-stone-600 hover:text-[var(--hafta-950)] transition-colors"
+            className="text-[11px] text-stone-500 underline-offset-2 transition-colors hover:text-[var(--hafta-950)] hover:underline"
           >
-            Lupa kata sandi?
+            Butuh bantuan masuk?
           </a>
         </div>
 

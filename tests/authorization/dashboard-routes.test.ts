@@ -70,6 +70,13 @@ describe('dashboard route access policy', () => {
     expect(canAccessDashboardPath('USER', '/dashboard/therapist-schedule')).toBe(false);
   });
 
+  it('limits the maintenance console to Super Admin', () => {
+    expect(canAccessDashboardPath('SUPER_ADMIN', '/dashboard/maintenance')).toBe(true);
+    for (const role of ['ADMIN', 'THERAPIST', 'STAFF', 'USER'] as const) {
+      expect(canAccessDashboardPath(role, '/dashboard/maintenance')).toBe(false);
+    }
+  });
+
   it('allows clinical documents for staff roles only', () => {
     for (const role of ['SUPER_ADMIN', 'ADMIN', 'THERAPIST', 'STAFF'] as const) {
       expect(canAccessDashboardPath(role, '/dashboard/documents')).toBe(true);

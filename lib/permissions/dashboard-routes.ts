@@ -22,6 +22,7 @@ const ROUTE_RULES: readonly DashboardRouteRule[] = [
   { pattern: /^\/dashboard\/users(?:\/|$)/, roles: USER_LIST_ROLES },
   { pattern: /^\/dashboard\/audit-logs(?:\/|$)/, roles: ADMIN_ROLES },
   { pattern: /^\/dashboard\/settings(?:\/|$)/, roles: ['SUPER_ADMIN'] },
+  { pattern: /^\/dashboard\/maintenance(?:\/|$)/, roles: ['SUPER_ADMIN'] },
   { pattern: /^\/dashboard\/progress(?:\/|$)/, roles: CLINICAL_ROLES },
   { pattern: /^\/dashboard\/appointments\/new(?:\/|$)/, roles: STAFF_ROLES },
   { pattern: /^\/dashboard\/therapist-schedule(?:\/|$)/, roles: ['SUPER_ADMIN', 'ADMIN', 'THERAPIST'] },

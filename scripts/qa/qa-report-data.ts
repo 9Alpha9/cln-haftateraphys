@@ -1,4 +1,4 @@
-export type QaSeverity = 'Blocker' | 'Critical' | 'High' | 'Medium' | 'Low';
+export type QaSeverity = 'Blocker' | 'Critical' | 'High' | 'Medium' | 'Low' | 'Info';
 export type QaCategory =
   | 'Functional'
   | 'UI/UX'
@@ -8,7 +8,7 @@ export type QaCategory =
   | 'Print/PDF'
   | 'A11y'
   | 'Performance';
-exn type QaStatus = 'Open' | 'Fixed' | 'Deferred' | 'Accepted';
+export type QaStatus = 'Open' | 'Fixed' | 'Deferred' | 'Accepted';
 
 export type QaFinding = {
   id: string;

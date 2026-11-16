@@ -1,6 +1,6 @@
-import { and, count, desc, eq, ilike, inArray } from 'drizzle-orm';
+import { and, count, desc, eq, ilike, inArray, isNull } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { patientIntakes, patients, profiles } from '@/db/schema';
+import { patientAssignments, patientIntakes, patients, profiles } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission } from '@/lib/permissions';
 import { PERMISSIONS } from '@/lib/permissions/constants';
@@ -20,16 +20,32 @@ export async function getPendingIntakeCount(): Promise<number> {
 }
 
 export async function getReviewableIntakes(page = 1, pageSize = 10, search = '', status = '') {
-  const { role } = await requireSession({ redirectToLogin: true });
+  const { session, role } = await requireSession({ redirectToLogin: true });
   if (!hasPermission(role, PERMISSIONS.INTAKE_READ) || role === 'USER') throw new ForbiddenError();
 
+  const db = getDb();
   const allowedStatuses = ['SUBMITTED', 'UNDER_REVIEW', 'NEEDS_REVISION', 'ACCEPTED', 'ARCHIVED'] as const;
   const filters = [inArray(patientIntakes.status, allowedStatuses)];
+  if (role === 'THERAPIST') {
+    filters.push(
+      inArray(
+        patientIntakes.patientId,
+        db
+          .select({ patientId: patientAssignments.patientId })
+          .from(patientAssignments)
+          .where(
+            and(
+              eq(patientAssignments.staffUserId, session.user.id),
+              isNull(patientAssignments.activeUntil),
+            ),
+          ),
+      ),
+    );
+  }
   if (search.trim()) filters.push(ilike(patients.fullName, `%${search.trim()}%`));
   if (allowedStatuses.includes(status as (typeof allowedStatuses)[number]))
     filters.push(eq(patientIntakes.status, status as (typeof allowedStatuses)[number]));
   const where = and(...filters);
-  const db = getDb();
   const [total] = await db
     .select({ value: count() })
     .from(patientIntakes)
@@ -60,12 +76,27 @@ export async function getReviewableIntakes(page = 1, pageSize = 10, search = '',
 }
 
 export async function getScopedIntakeForReview(patientId: string) {
-  const { role } = await requireSession({ redirectToLogin: true });
+  const { session, role } = await requireSession({ redirectToLogin: true });
   if (role === 'USER' || !hasPermission(role, PERMISSIONS.INTAKE_READ)) {
     throw new ForbiddenError();
   }
 
   const db = getDb();
+
+  if (role === 'THERAPIST') {
+    const [assignment] = await db
+      .select({ id: patientAssignments.id })
+      .from(patientAssignments)
+      .where(
+        and(
+          eq(patientAssignments.patientId, patientId),
+          eq(patientAssignments.staffUserId, session.user.id),
+          isNull(patientAssignments.activeUntil),
+        ),
+      )
+      .limit(1);
+    if (!assignment) throw new ForbiddenError();
+  }
   const [intake] = await db
     .select({
       id: patientIntakes.id,
