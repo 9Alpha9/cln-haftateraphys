@@ -107,8 +107,8 @@ const styles = StyleSheet.create({
   signaturePlaceholder: { fontSize: 7.5, color: '#d6d3d1', fontStyle: 'italic' },
   signatureLine: { width: 100, borderTopWidth: 1, borderTopColor: '#d6d3d1', marginBottom: 3 },
   signatureName: { fontSize: 8.5, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center' },
-  pengesahanHeader: { marginBottom: 12, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#e7e5e4' },
-  pengesahanTitle: { fontSize: 15, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center', marginBottom: 8 },
+  pengesahanHeader: { marginTop: 10, marginBottom: 12 },
+  pengesahanTitle: { fontSize: 13, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center', marginBottom: 6 },
   pengesahanIntro: { fontSize: 8.5, color: '#292524', lineHeight: 1.5, marginBottom: 5 },
   pengesahanMeta: { fontSize: 8.5, color: '#57534e', marginBottom: 2 },
   signaturePage: { flexGrow: 1, justifyContent: 'space-between' },
@@ -117,6 +117,7 @@ const styles = StyleSheet.create({
   signaturePageMeta: { fontSize: 8.5, color: '#57534e', marginBottom: 2 },
   signaturePageIntro: { fontSize: 8.5, color: '#292524', lineHeight: 1.5, marginBottom: 5 },
   attachmentSection: { marginTop: 4 },
+  attachmentSectionBreak: { marginTop: 4, breakBefore: 'page' },
   attachmentBlock: { marginBottom: 10 },
   attachmentImage: { width: '100%', maxHeight: 230, objectFit: 'contain', borderWidth: 1, borderColor: '#e7e5e4', borderRadius: 4, padding: 4, backgroundColor: '#fafaf9' },
   attachmentCaption: { fontSize: 7.5, color: '#57534e', marginTop: 3, lineHeight: 1.4 },
@@ -311,7 +312,24 @@ export const MedicalRecordDocument = ({
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.pageContent}>
-          <View style={styles.pengesahanHeader}>
+          <View style={styles.header}>
+            <View style={styles.headerIdentity}>
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
+              <Image src={logoUrl} style={styles.headerLogo} />
+              <View style={styles.headerClinic}>
+                <Text style={styles.clinicName}>HAFTA FISIOTERAPI</Text>
+                <Text style={styles.clinicInfo}>Klinik &amp; Layanan Terapi Fisik Profesional</Text>
+                <Text style={styles.clinicInfo}>Jl. Pd. Sidokare Indah No.AE-13, Sidokare, Sidoarjo 61214</Text>
+                <Text style={styles.clinicInfo}>WhatsApp: 0812-3293-2872</Text>
+              </View>
+            </View>
+            <View style={styles.badgeBox}>
+              <Text style={styles.badge}>REKAM MEDIS FISIOTERAPI</Text>
+              <Text style={styles.recordId}>ID: {record.id.slice(0, 8).toUpperCase()}</Text>
+            </View>
+          </View>
+
+          <View style={styles.pengesahanHeader} wrap={false}>
             <Text style={styles.pengesahanTitle}>LEMBAR PENGESAHAN DOKUMEN</Text>
             <Text style={styles.pengesahanIntro}>
               Laporan ini merangkum hasil evaluasi fisioterapi pasien, meliputi identitas, informasi
@@ -330,23 +348,6 @@ export const MedicalRecordDocument = ({
                 terapis penanggung jawab. Koreksi setelah finalisasi dilakukan melalui mekanisme
                 amandemen agar riwayat tetap tersimpan.
               </Text>
-            </View>
-          </View>
-
-          <View style={styles.header}>
-            <View style={styles.headerIdentity}>
-              {/* eslint-disable-next-line jsx-a11y/alt-text */}
-              <Image src={logoUrl} style={styles.headerLogo} />
-              <View style={styles.headerClinic}>
-                <Text style={styles.clinicName}>HAFTA FISIOTERAPI</Text>
-                <Text style={styles.clinicInfo}>Klinik &amp; Layanan Terapi Fisik Profesional</Text>
-                <Text style={styles.clinicInfo}>Jl. Pd. Sidokare Indah No.AE-13, Sidokare, Sidoarjo 61214</Text>
-                <Text style={styles.clinicInfo}>WhatsApp: 0812-3293-2872</Text>
-              </View>
-            </View>
-            <View style={styles.badgeBox}>
-              <Text style={styles.badge}>REKAM MEDIS FISIOTERAPI</Text>
-              <Text style={styles.recordId}>ID: {record.id.slice(0, 8).toUpperCase()}</Text>
             </View>
           </View>
 
@@ -556,7 +557,7 @@ export const MedicalRecordDocument = ({
           </View>
 
           {record.attachmentImages && record.attachmentImages.length > 0 ? (
-            <View break style={styles.attachmentSection}>
+            <View style={styles.attachmentSection}>
               <SectionTitle>15. LAMPIRAN FOTO ANALISA / HASIL PEMERIKSAAN</SectionTitle>
               {record.attachmentImages.map((attachment) => (
                 <View key={attachment.id} style={styles.attachmentBlock} wrap={false}>
