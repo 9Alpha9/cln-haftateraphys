@@ -327,7 +327,9 @@ export function DocumentsManager({
                 className="flex min-h-11 w-full cursor-pointer items-center rounded-xl border border-border bg-card px-3 py-2 text-xs text-muted-foreground file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-[var(--hafta-org-100)] file:px-3 file:py-1.5 file:text-[11px] file:font-bold file:text-foreground"
               />
               <p className="text-[10px] text-muted-foreground">
-                PDF/JPG/PNG/WEBP · maksimal 10 MB per file · pilih beberapa file sekaligus.
+                PDF/JPG/PNG/WEBP · maksimal 10 MB per file · pilih beberapa file sekaligus. Gambar
+                dengan jenis <strong>Hasil Pemeriksaan</strong> otomatis dilampirkan pada PDF rekam
+                medis pasien.
               </p>
             </div>
             <label className="flex cursor-pointer items-start gap-2 rounded-xl bg-[#FAFAF8] p-3 text-xs text-muted-foreground">

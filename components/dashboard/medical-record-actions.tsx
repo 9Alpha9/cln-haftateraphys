@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/toast';
 import type { MedicalRecordPdfData } from '@/components/pdf/medical-record-document';
 import { medicalRecordFileName, renderMedicalRecordPdf } from '@/components/pdf/render-medical-record-pdf';
 import { recordClinicalRecordExport } from '@/server/actions/audit-export';
+import { fetchRecordAttachmentImages } from '@/server/actions/record-attachments';
 
 function mergeRecord(record: MedicalRecordPdfData, extras?: Partial<MedicalRecordPdfData>): MedicalRecordPdfData {
   return extras ? { ...record, ...extras } : record;
@@ -19,11 +20,22 @@ export function useMedicalRecordPdf(record: MedicalRecordPdfData, extras?: Parti
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const data = mergeRecord(record, extras);
 
+  const withAttachments = async () => {
+    if (data.attachmentImages !== undefined) return data;
+    try {
+      const attachmentImages = await fetchRecordAttachmentImages(data.id);
+      return { ...data, attachmentImages };
+    } catch {
+      return { ...data, attachmentImages: [] };
+    }
+  };
+
   const openPrintPage = async () => {
     setPrinting(true);
     try {
-      void recordClinicalRecordExport(data.id, 'print');
-      const blob = await renderMedicalRecordPdf(data);
+      const printable = await withAttachments();
+      void recordClinicalRecordExport(printable.id, 'print');
+      const blob = await renderMedicalRecordPdf(printable);
       const url = URL.createObjectURL(blob);
 
       if (iframeRef.current) {
@@ -47,13 +59,14 @@ export function useMedicalRecordPdf(record: MedicalRecordPdfData, extras?: Parti
   const downloadPdf = async () => {
     setLoading(true);
     try {
-      void recordClinicalRecordExport(data.id, 'pdf');
-      const blob = await renderMedicalRecordPdf(data);
+      const printable = await withAttachments();
+      void recordClinicalRecordExport(printable.id, 'pdf');
+      const blob = await renderMedicalRecordPdf(printable);
       const url = URL.createObjectURL(blob);
 
       const link = document.createElement('a');
       link.href = url;
-      link.download = medicalRecordFileName(data);
+      link.download = medicalRecordFileName(printable);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

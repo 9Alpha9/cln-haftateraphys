@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, FileDown, Loader2, Printer, TriangleAlert } from 'lucide-react';
 import type { MedicalRecordPdfData } from './medical-record-document';
 import { medicalRecordFileName, renderMedicalRecordPdf } from './render-medical-record-pdf';
+import { fetchRecordAttachmentImages } from '@/server/actions/record-attachments';
 
 /**
  * Halaman cetak memakai renderer yang sama dengan tombol Unduh PDF. Dengan
@@ -27,7 +28,11 @@ export function MedicalRecordPrintClient({
 
     (async () => {
       try {
-        const blob = await renderMedicalRecordPdf(record);
+        const attachmentImages =
+          record.attachmentImages !== undefined
+            ? record.attachmentImages
+            : await fetchRecordAttachmentImages(record.id).catch(() => []);
+        const blob = await renderMedicalRecordPdf({ ...record, attachmentImages });
         if (cancelled) return;
         objectUrl = URL.createObjectURL(blob);
         setBlobUrl(objectUrl);

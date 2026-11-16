@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   headerIdentity: { flexDirection: 'row', alignItems: 'flex-start', flex: 1 },
-  headerLogo: { width: 112, height: 52, objectFit: 'contain', marginRight: 10, alignSelf: 'flex-start' },
+  headerLogo: { width: 100, height: 40, objectFit: 'contain', marginLeft: -16, marginRight: 8, marginTop: -4, alignSelf: 'flex-start' },
   headerClinic: { flex: 1 },
   clinicName: { fontSize: 12, fontFamily: 'Helvetica-Bold', color: '#181700', marginBottom: 2 },
   clinicInfo: { fontSize: 7.5, color: '#57534e', marginTop: 1 },
@@ -109,8 +109,13 @@ const styles = StyleSheet.create({
   signatureName: { fontSize: 8.5, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center' },
   signaturePage: { flexGrow: 1, justifyContent: 'space-between' },
   signaturePageBody: { flexGrow: 1, paddingTop: 12 },
-  signaturePageTitle: { fontSize: 15, fontFamily: 'Helvetica-Bold', color: '#181700', marginBottom: 6 },
+  signaturePageTitle: { fontSize: 15, fontFamily: 'Helvetica-Bold', color: '#181700', marginBottom: 10, textAlign: 'center' },
   signaturePageMeta: { fontSize: 8.5, color: '#57534e', marginBottom: 2 },
+  signaturePageIntro: { fontSize: 8.5, color: '#292524', lineHeight: 1.5, marginBottom: 5 },
+  attachmentSection: { marginTop: 4 },
+  attachmentBlock: { marginBottom: 10 },
+  attachmentImage: { width: '100%', maxHeight: 230, objectFit: 'contain', borderWidth: 1, borderColor: '#e7e5e4', borderRadius: 4, padding: 4, backgroundColor: '#fafaf9' },
+  attachmentCaption: { fontSize: 7.5, color: '#57534e', marginTop: 3, lineHeight: 1.4 },
   noteBox: {
     marginTop: 10,
     borderWidth: 1,
@@ -193,6 +198,14 @@ export type MedicalRecordPdfData = {
   therapyInfo?: MedicalRecordPdfTherapyInfo | null;
   treatmentPlan?: MedicalRecordPdfTreatmentPlan | null;
   homeProgram?: MedicalRecordPdfHomeProgram | null;
+  attachmentImages?: MedicalRecordPdfAttachmentImage[] | null;
+};
+
+export type MedicalRecordPdfAttachmentImage = {
+  id: string;
+  name: string;
+  caption: string;
+  dataUrl: string;
 };
 
 function calculateAge(dob: Date | string | null | undefined): string {
@@ -236,7 +249,7 @@ function SectionTitle({ children }: { children: string }) {
 
 function TextSection({ title, value }: { title: string; value: string | null | undefined }) {
   return (
-    <View style={styles.section}>
+    <View style={styles.section} wrap={false}>
       <SectionTitle>{title}</SectionTitle>
       <Text style={styles.bodyText}>{value?.trim() || '-'}</Text>
     </View>
@@ -516,6 +529,19 @@ export const MedicalRecordDocument = ({
             </View>
           </View>
 
+          {record.attachmentImages && record.attachmentImages.length > 0 ? (
+            <View break style={styles.attachmentSection}>
+              <SectionTitle>15. LAMPIRAN FOTO ANALISA / HASIL PEMERIKSAAN</SectionTitle>
+              {record.attachmentImages.map((attachment) => (
+                <View key={attachment.id} style={styles.attachmentBlock} wrap={false}>
+                  {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                  <Image src={attachment.dataUrl} style={styles.attachmentImage} />
+                  <Text style={styles.attachmentCaption}>{attachment.caption}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
+
           <View style={styles.noteBox}>
             <Text style={styles.noteTitle}>Catatan</Text>
             <Text style={styles.noteText}>
@@ -542,16 +568,56 @@ export const MedicalRecordDocument = ({
           <View style={styles.signaturePage}>
             <View style={styles.signaturePageBody}>
               <Text style={styles.signaturePageTitle}>LEMBAR PENGESAHAN DOKUMEN</Text>
-              <Text style={styles.signaturePageMeta}>Rekam Medis Fisioterapi · {visitLabel}</Text>
-              <Text style={styles.signaturePageMeta}>Pasien: {record.patientName}</Text>
-              <Text style={styles.signaturePageMeta}>No. RM: {record.medicalRecordNumber || '-'}</Text>
-              <Text style={styles.signaturePageMeta}>Tanggal pemeriksaan: {formattedDate}</Text>
+              <View style={{ alignItems: 'flex-start' }}>
+                <Text style={styles.signaturePageIntro}>
+                  Laporan ini merangkum hasil evaluasi fisioterapi pasien, meliputi identitas,
+                  informasi terapi, indikator fungsional, catatan SOAP, rencana terapi, program
+                  latihan, penatalaksanaan, dan lampiran hasil pemeriksaan bila tersedia.
+                </Text>
+                <Text style={styles.signaturePageMeta}>Jenis laporan: Rekam Medis Fisioterapi · {visitLabel}</Text>
+                <Text style={styles.signaturePageMeta}>Pasien: {record.patientName}</Text>
+                <Text style={styles.signaturePageMeta}>No. RM: {record.medicalRecordNumber || '-'}</Text>
+                <Text style={styles.signaturePageMeta}>Tanggal pemeriksaan: {formattedDate}</Text>
+                <Text style={styles.signaturePageMeta}>Terapis: {record.therapistName || 'Terapis Hafta'}</Text>
+              </View>
+              <View style={[styles.identityTable, { marginTop: 10 }]}>
+                <View style={styles.identityRow}>
+                  <View style={styles.identityCell}>
+                    <Text style={styles.identityLabel}>Status Rekam</Text>
+                    <Text style={styles.identityValue}>
+                      {record.therapyInfo?.status === 'FINALIZED' ? 'Final' : 'Draf'}
+                    </Text>
+                  </View>
+                  <View style={styles.identityCellLast}>
+                    <Text style={styles.identityLabel}>Jumlah Lampiran</Text>
+                    <Text style={styles.identityValue}>{record.attachmentImages?.length ?? 0} gambar</Text>
+                  </View>
+                </View>
+                <View style={styles.identityRow}>
+                  <View style={styles.identityCellLast}>
+                    <Text style={styles.identityLabel}>Diagnosis</Text>
+                    <Text style={styles.identityValue}>{record.diagnosis || '-'}</Text>
+                  </View>
+                </View>
+                <View style={styles.identityRow}>
+                  <View style={styles.identityCellLast}>
+                    <Text style={styles.identityLabel}>Tindakan Utama</Text>
+                    <Text style={styles.identityValue}>{record.treatment || '-'}</Text>
+                  </View>
+                </View>
+                <View style={styles.identityRowLast}>
+                  <View style={styles.identityCellLast}>
+                    <Text style={styles.identityLabel}>Indikator Fungsional</Text>
+                    <Text style={styles.identityValue}>{scoreSummary(record)}</Text>
+                  </View>
+                </View>
+              </View>
               <View style={styles.noteBox}>
-                <Text style={styles.noteTitle}>Ringkasan Dokumen</Text>
+                <Text style={styles.noteTitle}>Catatan Pengesahan</Text>
                 <Text style={styles.noteText}>
-                  Dokumen ini memuat identitas pasien, informasi terapi, indikator fungsional, catatan
-                  SOAP, rencana terapi, program latihan, dan penatalaksanaan. Lembar ini adalah bagian
-                  tidak terpisahkan dari rekam medis dan memuat pengesahan terapis penanggung jawab.
+                  Lembar ini adalah bagian tidak terpisahkan dari rekam medis dan memuat pengesahan
+                  terapis penanggung jawab. Koreksi setelah finalisasi dilakukan melalui mekanisme
+                  amandemen agar riwayat tetap tersimpan.
                 </Text>
               </View>
             </View>
