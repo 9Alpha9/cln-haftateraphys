@@ -20,21 +20,21 @@ async function countPdfPages(blob: Blob): Promise<number> {
 }
 
 /**
- * Satu pintu untuk semua ekspor rekam medis (cetak & unduh). Bila isi melebihi
- * satu halaman, dokumen dirender ulang dengan lembar pengesahan terpisah agar
- * footer tidak menumpuk isi dan tidak menghasilkan halaman kosong.
+ * Satu pintu untuk semua ekspor rekam medis (cetak & unduh). Lembar pengesahan
+ * terapis selalu dirender sebagai halaman terakhir tersendiri agar blok tanda
+ * tangan tidak berdiri sendiri sebagai halaman kosong di tengah dokumen ketika
+ * ada lampiran foto yang dimulai di halaman baru. Jumlah halaman dibaca ulang
+ * hanya sebagai pengaman bila layout belum stabil.
  */
 export async function renderMedicalRecordPdf(record: MedicalRecordPdfData): Promise<Blob> {
-  const firstPass = await pdf(
-    <MedicalRecordDocument record={record} signatureOnNewPage={false} />,
-  ).toBlob();
-
-  const pageCount = await countPdfPages(firstPass);
-  if (pageCount <= 1) return firstPass;
-
-  return pdf(
-    <MedicalRecordDocument record={record} signatureOnNewPage />,
-  ).toBlob();
+  const blob = await pdf(<MedicalRecordDocument record={record} signatureOnNewPage />).toBlob();
+  const pageCount = await countPdfPages(blob);
+  // Pengaman: bila isi ternyata hanya satu halaman, pengesahan digabung agar tidak
+  // meninggalkan halaman kosong berisi isi utama saja.
+  if (pageCount <= 2) {
+    return pdf(<MedicalRecordDocument record={record} signatureOnNewPage={false} />).toBlob();
+  }
+  return blob;
 }
 
 export function medicalRecordFileName(record: MedicalRecordPdfData): string {

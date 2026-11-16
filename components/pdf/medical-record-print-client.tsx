@@ -21,6 +21,13 @@ export function MedicalRecordPrintClient({
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  /** Bernilai true hanya bila URL memakai ?print=1 agar dialog cetak terbuka otomatis. */
+  const autoPrintRef = useRef(false);
+
+  useEffect(() => {
+    autoPrintRef.current =
+      new URLSearchParams(window.location.search).get('print') === '1';
+  }, [autoPrintRef]);
 
   useEffect(() => {
     let objectUrl: string | null = null;
@@ -50,14 +57,19 @@ export function MedicalRecordPrintClient({
   }, [record]);
 
   useEffect(() => {
-    if (status !== 'ready' || !blobUrl) return;
+    if (status !== 'ready' || !blobUrl || !autoPrintRef.current) return;
+    autoPrintRef.current = false;
     const iframe = iframeRef.current;
     if (!iframe) return;
-    iframe.src = blobUrl;
+    let timer: number | undefined;
     iframe.onload = () => {
-      window.setTimeout(() => iframe.contentWindow?.print(), 350);
+      timer = window.setTimeout(() => iframe.contentWindow?.print(), 350);
     };
-  }, [status, blobUrl]);
+    return () => {
+      if (timer) window.clearTimeout(timer);
+      iframe.onload = null;
+    };
+  }, [autoPrintRef, status, blobUrl]);
 
   function download() {
     if (!blobUrl) return;
@@ -133,8 +145,8 @@ export function MedicalRecordPrintClient({
         ) : (
           <div className="flex min-h-0 flex-1 flex-col">
             <p className="border-b border-stone-200/80 bg-white px-4 py-2.5 text-xs text-stone-500 sm:rounded-t-xl sm:border-x sm:px-5 print:hidden">
-              Pratinjau PDF. Dialog cetak terbuka otomatis; gunakan tombol Cetak atau Unduh PDF bila
-              perlu.
+              Pratinjau PDF. Gunakan tombol Cetak untuk membuka dialog cetak, atau Unduh PDF untuk
+              menyimpan berkas.
             </p>
             <iframe
               ref={iframeRef}

@@ -22,7 +22,8 @@ async function main() {
     .limit(1);
   if (!patient) throw new Error('Pasien dummy tidak ditemukan.');
 
-  const body = await readFile(filePath);
+  const file = await readFile(filePath);
+  const body = file.buffer.slice(file.byteOffset, file.byteOffset + file.byteLength) as ArrayBuffer;
   const storageKey = `patients/${patient.id}/qa-ct-scan-${Date.now()}.png`;
   await uploadObject({ key: storageKey, body, contentType: 'image/png' });
 

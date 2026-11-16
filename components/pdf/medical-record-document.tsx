@@ -1,136 +1,165 @@
 import { Document, Image, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
+/**
+ * Skala tipografi dokumen (pt): header 24 bold, judul 14 bold, isi 12 regular,
+ * paragraf line-height 1.5. Semua ukuran turunan dihitung dari skala ini agar
+ * satu perubahan menjaga konsistensi seluruh dokumen.
+ */
+const FONT = {
+  header: 24,
+  title: 14,
+  body: 12,
+  lineHeight: 1.5,
+} as const;
+const FONT_SUB = 10;
+const FONT_META = 9;
+const FONT_TABLE = 10;
+
 const styles = StyleSheet.create({
   page: {
-    padding: 34,
-    paddingBottom: 30,
+    paddingTop: 36,
+    paddingHorizontal: 40,
+    paddingBottom: 56,
     backgroundColor: '#ffffff',
     fontFamily: 'Helvetica',
-    fontSize: 9.5,
+    fontSize: FONT.body,
+    lineHeight: FONT.lineHeight,
     color: '#1c1917',
     flexDirection: 'column',
   },
   pageContent: { flexGrow: 1 },
   header: {
-    marginBottom: 14,
+    marginBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#e7e5e4',
-    paddingBottom: 10,
+    paddingBottom: 12,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
   headerIdentity: { flexDirection: 'row', alignItems: 'flex-start', flex: 1 },
-  headerLogo: { width: 100, height: 40, objectFit: 'contain', marginLeft: -16, marginRight: 8, marginTop: -4, alignSelf: 'flex-start' },
+  headerLogo: { width: 120, height: 48, objectFit: 'contain', marginLeft: -18, marginRight: 10, marginTop: -6, alignSelf: 'flex-start' },
   headerClinic: { flex: 1 },
-  clinicName: { fontSize: 12, fontFamily: 'Helvetica-Bold', color: '#181700', marginBottom: 2 },
-  clinicInfo: { fontSize: 7.5, color: '#57534e', marginTop: 1 },
-  badgeBox: { alignItems: 'flex-end', marginLeft: 6 },
+  clinicName: { fontSize: FONT.header, fontFamily: 'Helvetica-Bold', color: '#181700', lineHeight: 1.15, marginBottom: 3 },
+  clinicInfo: { fontSize: FONT_META, color: '#57534e', lineHeight: FONT.lineHeight },
+  badgeBox: { alignItems: 'flex-end', marginLeft: 10 },
   badge: {
-    fontSize: 7.5,
+    fontSize: FONT_META,
     fontFamily: 'Helvetica-Bold',
     color: '#181700',
     backgroundColor: '#ffffff',
     borderWidth: 1,
     borderColor: '#a8a29e',
-    paddingHorizontal: 7,
-    paddingVertical: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
-  recordId: { fontSize: 7.5, color: '#a8a29e', marginTop: 4 },
-  section: { marginBottom: 11 },
+  recordId: { fontSize: FONT_META, color: '#a8a29e', marginTop: 5 },
+  section: { marginBottom: 14 },
   sectionTitle: {
-    fontSize: 9.5,
+    fontSize: FONT.title,
     fontFamily: 'Helvetica-Bold',
+    lineHeight: FONT.lineHeight,
     color: '#181700',
     backgroundColor: '#f5f5f4',
     borderLeftWidth: 3,
     borderLeftColor: '#a8a29e',
-    paddingHorizontal: 7,
-    paddingVertical: 4,
-    marginBottom: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    marginBottom: 8,
   },
   identityTable: { borderWidth: 1, borderColor: '#e7e5e4' },
   identityRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#e7e5e4' },
   identityRowLast: { flexDirection: 'row' },
-  identityCell: { flex: 1, padding: 5, borderRightWidth: 1, borderRightColor: '#e7e5e4' },
-  identityCellLast: { flex: 1, padding: 5 },
-  identityLabel: { fontSize: 7, color: '#78716c', marginBottom: 2 },
-  identityValue: { fontSize: 9, fontFamily: 'Helvetica-Bold', color: '#181700' },
-  bodyText: { fontSize: 9.2, lineHeight: 1.5, color: '#292524' },
-  subLabel: { fontSize: 7.5, fontFamily: 'Helvetica-Bold', color: '#57534e', marginBottom: 2, marginTop: 4 },
-  scoreRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 2 },
+  identityCell: { flex: 1, padding: 6, borderRightWidth: 1, borderRightColor: '#e7e5e4' },
+  identityCellLast: { flex: 1, padding: 6 },
+  identityLabel: { fontSize: FONT_META, color: '#78716c', marginBottom: 2, lineHeight: 1.4 },
+  identityValue: { fontSize: FONT.body, fontFamily: 'Helvetica-Bold', lineHeight: FONT.lineHeight, color: '#181700' },
+  bodyText: { fontSize: FONT.body, lineHeight: FONT.lineHeight, color: '#292524' },
+  subLabel: { fontSize: FONT_SUB, fontFamily: 'Helvetica-Bold', color: '#57534e', marginBottom: 2, marginTop: 4 },
+  scoreRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 2 },
   scoreBox: {
     flex: 1,
     minWidth: 100,
     borderWidth: 1,
     borderColor: '#e7e5e4',
     borderRadius: 5,
-    padding: 6,
+    padding: 8,
     backgroundColor: '#fafaf9',
   },
-  scoreLabel: { fontSize: 7.5, color: '#78716c' },
-  scoreValue: { fontSize: 12, fontFamily: 'Helvetica-Bold', color: '#181700', marginTop: 2 },
+  scoreLabel: { fontSize: FONT_META, color: '#78716c' },
+  scoreValue: { fontSize: FONT.title, fontFamily: 'Helvetica-Bold', color: '#181700', marginTop: 2 },
   table: { borderWidth: 1, borderColor: '#e7e5e4' },
   tableHeader: { flexDirection: 'row', backgroundColor: '#f5f5f4' },
   tableHeaderCell: {
-    padding: 4.5,
-    fontSize: 7,
+    padding: 6,
+    fontSize: FONT_TABLE,
     fontFamily: 'Helvetica-Bold',
     color: '#44403c',
+    lineHeight: 1.4,
     borderRightWidth: 1,
     borderRightColor: '#e7e5e4',
   },
   tableRow: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: '#e7e5e4' },
   tableCell: {
-    padding: 4.5,
-    fontSize: 7.6,
-    lineHeight: 1.4,
+    padding: 6,
+    fontSize: FONT_TABLE,
+    lineHeight: FONT.lineHeight,
     color: '#292524',
     borderRightWidth: 1,
     borderRightColor: '#e7e5e4',
   },
-  tableCellLast: { padding: 4.5, fontSize: 7.6, lineHeight: 1.4, color: '#292524' },
+  tableCellLast: { padding: 6, fontSize: FONT_TABLE, lineHeight: FONT.lineHeight, color: '#292524' },
+  pageNumber: {
+    position: 'absolute',
+    bottom: 18,
+    left: 40,
+    right: 40,
+    textAlign: 'center',
+    fontSize: FONT_META,
+    color: '#a8a29e',
+    lineHeight: FONT.lineHeight,
+  },
   footer: {
-    marginTop: 14,
+    marginTop: 18,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
     borderTopWidth: 1,
     borderTopColor: '#e7e5e4',
-    paddingTop: 8,
-    minHeight: 84,
+    paddingTop: 10,
+    minHeight: 96,
   },
-  footerInfo: { fontSize: 7, color: '#a8a29e', maxWidth: 280, lineHeight: 1.5 },
-  signatureBox: { width: 150, alignItems: 'center' },
-  signatureLabel: { fontSize: 8, color: '#57534e' },
-  signatureSpace: { height: 34, justifyContent: 'center' },
-  signaturePlaceholder: { fontSize: 7.5, color: '#d6d3d1', fontStyle: 'italic' },
-  signatureLine: { width: 100, borderTopWidth: 1, borderTopColor: '#d6d3d1', marginBottom: 3 },
-  signatureName: { fontSize: 8.5, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center' },
-  pengesahanHeader: { marginTop: 10, marginBottom: 12 },
-  pengesahanTitle: { fontSize: 13, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center', marginBottom: 6 },
-  pengesahanIntro: { fontSize: 8.5, color: '#292524', lineHeight: 1.5, marginBottom: 5 },
-  pengesahanMeta: { fontSize: 8.5, color: '#57534e', marginBottom: 2 },
+  footerInfo: { fontSize: FONT_META, color: '#a8a29e', maxWidth: 300, lineHeight: FONT.lineHeight },
+  signatureBox: { width: 180, alignItems: 'center' },
+  signatureLabel: { fontSize: FONT_TABLE, color: '#57534e', lineHeight: FONT.lineHeight },
+  signatureSpace: { height: 42, justifyContent: 'center' },
+  signaturePlaceholder: { fontSize: FONT_META, color: '#d6d3d1', fontStyle: 'italic' },
+  signatureLine: { width: 120, borderTopWidth: 1, borderTopColor: '#d6d3d1', marginBottom: 4 },
+  signatureName: { fontSize: FONT_SUB, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center' },
+  pengesahanHeader: { marginTop: 12, marginBottom: 16 },
+  pengesahanTitle: { fontSize: FONT.title, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center', lineHeight: FONT.lineHeight, marginBottom: 8 },
+  pengesahanIntro: { fontSize: FONT.body, color: '#292524', lineHeight: FONT.lineHeight, marginBottom: 6 },
+  pengesahanMeta: { fontSize: FONT.body, color: '#57534e', lineHeight: FONT.lineHeight },
   signaturePage: { flexGrow: 1, justifyContent: 'space-between' },
   signaturePageBody: { flexGrow: 1, paddingTop: 12 },
-  signaturePageTitle: { fontSize: 15, fontFamily: 'Helvetica-Bold', color: '#181700', marginBottom: 10, textAlign: 'center' },
-  signaturePageMeta: { fontSize: 8.5, color: '#57534e', marginBottom: 2 },
-  signaturePageIntro: { fontSize: 8.5, color: '#292524', lineHeight: 1.5, marginBottom: 5 },
+  signaturePageTitle: { fontSize: FONT.title, fontFamily: 'Helvetica-Bold', color: '#181700', lineHeight: FONT.lineHeight, marginBottom: 10, textAlign: 'center' },
+  signaturePageMeta: { fontSize: FONT.body, color: '#57534e', lineHeight: FONT.lineHeight },
+  signaturePageIntro: { fontSize: FONT.body, color: '#292524', lineHeight: FONT.lineHeight, marginBottom: 8 },
   attachmentSection: { marginTop: 4 },
-  attachmentSectionBreak: { marginTop: 4, breakBefore: 'page' },
-  attachmentBlock: { marginBottom: 10 },
-  attachmentImage: { width: '100%', maxHeight: 230, objectFit: 'contain', borderWidth: 1, borderColor: '#e7e5e4', borderRadius: 4, padding: 4, backgroundColor: '#fafaf9' },
-  attachmentCaption: { fontSize: 7.5, color: '#57534e', marginTop: 3, lineHeight: 1.4 },
+  patientPhoto: { width: '100%', maxHeight: 260, objectFit: 'contain' },
+  attachmentBlock: { marginBottom: 14 },
+  attachmentImage: { width: '100%', maxHeight: 240, objectFit: 'contain', borderWidth: 1, borderColor: '#e7e5e4', borderRadius: 4, padding: 4, backgroundColor: '#fafaf9' },
+  attachmentCaption: { fontSize: FONT_SUB, color: '#57534e', marginTop: 4, lineHeight: FONT.lineHeight },
   noteBox: {
-    marginTop: 10,
+    marginTop: 12,
     borderWidth: 1,
     borderColor: '#e7e5e4',
     borderRadius: 5,
-    padding: 8,
+    padding: 10,
     backgroundColor: '#fafaf9',
   },
-  noteTitle: { fontSize: 7.5, fontFamily: 'Helvetica-Bold', color: '#57534e', marginBottom: 2 },
-  noteText: { fontSize: 7.5, color: '#78716c', lineHeight: 1.45 },
+  noteTitle: { fontSize: FONT_SUB, fontFamily: 'Helvetica-Bold', color: '#57534e', lineHeight: FONT.lineHeight, marginBottom: 3 },
+  noteText: { fontSize: FONT_SUB, color: '#78716c', lineHeight: FONT.lineHeight },
 });
 
 export type MedicalManagementRow = {
@@ -253,10 +282,21 @@ function SectionTitle({ children }: { children: string }) {
 }
 
 function TextSection({ title, value }: { title: string; value: string | null | undefined }) {
+  // Jarak antar paragraf 1,5 baris mengikuti skala tipografi dokumen.
+  const paragraphs = (value ?? '')
+    .split(/\n+/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
   return (
     <View style={styles.section} wrap={false}>
       <SectionTitle>{title}</SectionTitle>
-      <Text style={styles.bodyText}>{value?.trim() || '-'}</Text>
+      <View style={styles.bodyText}>
+        {paragraphs.length > 0 ? (
+          <Text>{paragraphs.join('\n\n')}</Text>
+        ) : (
+          <Text>-</Text>
+        )}
+      </View>
     </View>
   );
 }
@@ -292,6 +332,7 @@ export const MedicalRecordDocument = ({
   const formattedDate = formatDate(record.recordedAt);
   const printedAt = new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+  const hasAttachments = Boolean(record.attachmentImages && record.attachmentImages.length > 0);
   const logoUrl = `${origin}/images/logos/logos-text.png`;
   const visitLabel = record.therapyInfo?.visitNumber
     ? `Sesi ${record.therapyInfo.visitNumber}`
@@ -556,19 +597,6 @@ export const MedicalRecordDocument = ({
             </View>
           </View>
 
-          {record.attachmentImages && record.attachmentImages.length > 0 ? (
-            <View style={styles.attachmentSection}>
-              <SectionTitle>15. LAMPIRAN FOTO ANALISA / HASIL PEMERIKSAAN</SectionTitle>
-              {record.attachmentImages.map((attachment) => (
-                <View key={attachment.id} style={styles.attachmentBlock} wrap={false}>
-                  {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                  <Image src={attachment.dataUrl} style={styles.attachmentImage} />
-                  <Text style={styles.attachmentCaption}>{attachment.caption}</Text>
-                </View>
-              ))}
-            </View>
-          ) : null}
-
           <View style={styles.noteBox}>
             <Text style={styles.noteTitle}>Catatan</Text>
             <Text style={styles.noteText}>
@@ -582,13 +610,44 @@ export const MedicalRecordDocument = ({
             <View style={styles.section}>
               <SectionTitle>FOTO KONDISI PASIEN</SectionTitle>
               {/* eslint-disable-next-line jsx-a11y/alt-text */}
-              <Image src={record.patientPhotoUrl} style={{ width: '100%', maxHeight: 260, objectFit: 'contain' }} />
+              <Image src={record.patientPhotoUrl} style={styles.patientPhoto} />
             </View>
           ) : null}
         </View>
 
-        {!signatureOnNewPage ? signatureBlock(record, printedAt) : null}
+        {!signatureOnNewPage && !hasAttachments ? signatureBlock(record, printedAt) : null}
+
+        <Text
+          style={styles.pageNumber}
+          fixed
+          render={({ pageNumber, totalPages }) => `Halaman ${pageNumber} dari ${totalPages}`}
+        />
       </Page>
+
+      {hasAttachments ? (
+        <Page size="A4" style={styles.page}>
+          <View style={styles.pageContent}>
+            <View style={styles.attachmentSection}>
+              <SectionTitle>15. LAMPIRAN FOTO ANALISA / HASIL PEMERIKSAAN</SectionTitle>
+              {record.attachmentImages?.map((attachment) => (
+                <View key={attachment.id} style={styles.attachmentBlock} wrap={false}>
+                  {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                  <Image src={attachment.dataUrl} style={styles.attachmentImage} />
+                  <Text style={styles.attachmentCaption}>{attachment.caption}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+
+          {!signatureOnNewPage ? signatureBlock(record, printedAt) : null}
+
+          <Text
+          style={styles.pageNumber}
+          fixed
+            render={({ pageNumber, totalPages }) => `Halaman ${pageNumber} dari ${totalPages}`}
+          />
+        </Page>
+      ) : null}
 
       {signatureOnNewPage ? (
         <Page size="A4" style={styles.page}>
@@ -606,6 +665,12 @@ export const MedicalRecordDocument = ({
             </View>
             {signatureBlock(record, printedAt)}
           </View>
+
+          <Text
+            style={styles.pageNumber}
+            fixed
+            render={({ pageNumber, totalPages }) => `Halaman ${pageNumber} dari ${totalPages}`}
+          />
         </Page>
       ) : null}
     </Document>
