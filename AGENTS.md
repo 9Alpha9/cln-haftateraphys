@@ -28,6 +28,7 @@ Sebelum menulis atau mengubah kode, baca file berikut sesuai urutan:
 13. `docs/ROUTE-AND-NAVIGATION.md`
 14. task-specific page spec under `docs/pages/`
 15. `docs/CONTENT-REQUIREMENTS.md`
+16. `docs/REMAINING-WORK.md` — baca sebelum mengerjakan sisa audit/release blocker.
 
 Jika context window terbatas, baca minimal: `AGENTS.md`, bagian feature pada `MASTER-PRD.md`, task-specific page spec di `docs/pages/`, lalu dokumen security/permission/database yang terdampak.
 

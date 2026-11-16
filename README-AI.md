@@ -43,6 +43,7 @@ Saat agent baru mulai session:
 - `docs/pages/04-DASHBOARD-ADMIN-THERAPIST.md` — workflow ADMIN/Therapist.
 - `docs/pages/05-DASHBOARD-SUPER-ADMIN.md` — governance SUPER_ADMIN.
 - `docs/CONTENT-REQUIREMENTS.md` — data yang masih harus dikumpulkan dari Hafta.
+- `docs/REMAINING-WORK.md` — backlog sisa audit QA/pentest dan release blocker.
 - `manifest.json` — machine-readable document manifest.
 
 ## Important classification
