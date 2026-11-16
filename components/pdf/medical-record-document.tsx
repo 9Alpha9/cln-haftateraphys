@@ -107,6 +107,10 @@ const styles = StyleSheet.create({
   signaturePlaceholder: { fontSize: 7.5, color: '#d6d3d1', fontStyle: 'italic' },
   signatureLine: { width: 100, borderTopWidth: 1, borderTopColor: '#d6d3d1', marginBottom: 3 },
   signatureName: { fontSize: 8.5, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center' },
+  pengesahanHeader: { marginBottom: 12, paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: '#e7e5e4' },
+  pengesahanTitle: { fontSize: 15, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center', marginBottom: 8 },
+  pengesahanIntro: { fontSize: 8.5, color: '#292524', lineHeight: 1.5, marginBottom: 5 },
+  pengesahanMeta: { fontSize: 8.5, color: '#57534e', marginBottom: 2 },
   signaturePage: { flexGrow: 1, justifyContent: 'space-between' },
   signaturePageBody: { flexGrow: 1, paddingTop: 12 },
   signaturePageTitle: { fontSize: 15, fontFamily: 'Helvetica-Bold', color: '#181700', marginBottom: 10, textAlign: 'center' },
@@ -307,6 +311,28 @@ export const MedicalRecordDocument = ({
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.pageContent}>
+          <View style={styles.pengesahanHeader}>
+            <Text style={styles.pengesahanTitle}>LEMBAR PENGESAHAN DOKUMEN</Text>
+            <Text style={styles.pengesahanIntro}>
+              Laporan ini merangkum hasil evaluasi fisioterapi pasien, meliputi identitas, informasi
+              terapi, indikator fungsional, catatan SOAP, rencana terapi, program latihan,
+              penatalaksanaan, dan lampiran hasil pemeriksaan bila tersedia.
+            </Text>
+            <Text style={styles.pengesahanMeta}>Jenis laporan: Rekam Medis Fisioterapi · {visitLabel}</Text>
+            <Text style={styles.pengesahanMeta}>Pasien: {record.patientName}</Text>
+            <Text style={styles.pengesahanMeta}>No. RM: {record.medicalRecordNumber || '-'}</Text>
+            <Text style={styles.pengesahanMeta}>Tanggal pemeriksaan: {formattedDate}</Text>
+            <Text style={styles.pengesahanMeta}>Terapis: {record.therapistName || 'Terapis Hafta'}</Text>
+            <View style={styles.noteBox}>
+              <Text style={styles.noteTitle}>Catatan Pengesahan</Text>
+              <Text style={styles.noteText}>
+                Lembar ini adalah bagian tidak terpisahkan dari rekam medis dan memuat pengesahan
+                terapis penanggung jawab. Koreksi setelah finalisasi dilakukan melalui mekanisme
+                amandemen agar riwayat tetap tersimpan.
+              </Text>
+            </View>
+          </View>
+
           <View style={styles.header}>
             <View style={styles.headerIdentity}>
               {/* eslint-disable-next-line jsx-a11y/alt-text */}
@@ -567,59 +593,15 @@ export const MedicalRecordDocument = ({
         <Page size="A4" style={styles.page}>
           <View style={styles.signaturePage}>
             <View style={styles.signaturePageBody}>
-              <Text style={styles.signaturePageTitle}>LEMBAR PENGESAHAN DOKUMEN</Text>
-              <View style={{ alignItems: 'flex-start' }}>
-                <Text style={styles.signaturePageIntro}>
-                  Laporan ini merangkum hasil evaluasi fisioterapi pasien, meliputi identitas,
-                  informasi terapi, indikator fungsional, catatan SOAP, rencana terapi, program
-                  latihan, penatalaksanaan, dan lampiran hasil pemeriksaan bila tersedia.
-                </Text>
-                <Text style={styles.signaturePageMeta}>Jenis laporan: Rekam Medis Fisioterapi · {visitLabel}</Text>
-                <Text style={styles.signaturePageMeta}>Pasien: {record.patientName}</Text>
-                <Text style={styles.signaturePageMeta}>No. RM: {record.medicalRecordNumber || '-'}</Text>
-                <Text style={styles.signaturePageMeta}>Tanggal pemeriksaan: {formattedDate}</Text>
-                <Text style={styles.signaturePageMeta}>Terapis: {record.therapistName || 'Terapis Hafta'}</Text>
-              </View>
-              <View style={[styles.identityTable, { marginTop: 10 }]}>
-                <View style={styles.identityRow}>
-                  <View style={styles.identityCell}>
-                    <Text style={styles.identityLabel}>Status Rekam</Text>
-                    <Text style={styles.identityValue}>
-                      {record.therapyInfo?.status === 'FINALIZED' ? 'Final' : 'Draf'}
-                    </Text>
-                  </View>
-                  <View style={styles.identityCellLast}>
-                    <Text style={styles.identityLabel}>Jumlah Lampiran</Text>
-                    <Text style={styles.identityValue}>{record.attachmentImages?.length ?? 0} gambar</Text>
-                  </View>
-                </View>
-                <View style={styles.identityRow}>
-                  <View style={styles.identityCellLast}>
-                    <Text style={styles.identityLabel}>Diagnosis</Text>
-                    <Text style={styles.identityValue}>{record.diagnosis || '-'}</Text>
-                  </View>
-                </View>
-                <View style={styles.identityRow}>
-                  <View style={styles.identityCellLast}>
-                    <Text style={styles.identityLabel}>Tindakan Utama</Text>
-                    <Text style={styles.identityValue}>{record.treatment || '-'}</Text>
-                  </View>
-                </View>
-                <View style={styles.identityRowLast}>
-                  <View style={styles.identityCellLast}>
-                    <Text style={styles.identityLabel}>Indikator Fungsional</Text>
-                    <Text style={styles.identityValue}>{scoreSummary(record)}</Text>
-                  </View>
-                </View>
-              </View>
-              <View style={styles.noteBox}>
-                <Text style={styles.noteTitle}>Catatan Pengesahan</Text>
-                <Text style={styles.noteText}>
-                  Lembar ini adalah bagian tidak terpisahkan dari rekam medis dan memuat pengesahan
-                  terapis penanggung jawab. Koreksi setelah finalisasi dilakukan melalui mekanisme
-                  amandemen agar riwayat tetap tersimpan.
-                </Text>
-              </View>
+              <Text style={styles.signaturePageTitle}>PENGESAHAN TERAPIS</Text>
+              <Text style={styles.signaturePageIntro}>
+                Dengan ini dokumen rekam medis fisioterapi pasien telah diperiksa dan disahkan oleh
+                terapis penanggung jawab. Lembar ini merupakan bagian tidak terpisahkan dari dokumen
+                utama.
+              </Text>
+              <Text style={styles.signaturePageMeta}>Pasien: {record.patientName}</Text>
+              <Text style={styles.signaturePageMeta}>No. RM: {record.medicalRecordNumber || '-'}</Text>
+              <Text style={styles.signaturePageMeta}>Tanggal pemeriksaan: {formattedDate}</Text>
             </View>
             {signatureBlock(record, printedAt)}
           </View>

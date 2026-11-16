@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Activity, ClipboardList, Eye, EyeOff, FilePenLine, Loader2, Lock, Save, Stethoscope, UserRound } from 'lucide-react';
+import { Activity, ClipboardList, Eye, EyeOff, FilePenLine, ImagePlus, Loader2, Lock, Save, Stethoscope, UserRound } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import { AppSelect } from '@/components/ui/app-select';
 import { useToast } from '@/components/ui/toast';
@@ -12,6 +12,7 @@ import {
   updateTherapyProgress,
 } from '@/server/actions/therapy-progress';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
+import { uploadDocument } from '@/server/actions/documents';
 
 type PatientOption = { id: string; label: string };
 
@@ -159,11 +160,13 @@ function MedicalRecordForm({
   const [patientId, setPatientId] = useState(
     record?.patientId ?? defaultPatientId ?? (patientOptions.length === 1 ? patientOptions[0].id : ''),
   );
-  const fieldsDisabled = pending || !patientId;
+  const [uploading, setUploading] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const fieldsDisabled = pending || uploading || !patientId;
 
   useEffect(() => {
-    onPendingChange?.(pending);
-  }, [onPendingChange, pending]);
+    onPendingChange?.(pending || uploading);
+  }, [onPendingChange, pending, uploading]);
 
   useEffect(() => {
     onPatientReadyChange?.(Boolean(patientId));
@@ -361,6 +364,85 @@ function MedicalRecordForm({
                 Internal hanya terlihat oleh terapis dan admin. Pasien menampilkan laporan final di portal pasien.
               </p>
             </div>
+          </div>
+        </section>
+
+        <section className="space-y-3">
+          <SectionHeading
+            icon={<ImagePlus className="h-3.5 w-3.5" />}
+            title="Foto Analisa / Hasil Pemeriksaan"
+            description="Unggah CT Scan, X-Ray, USG, atau foto analisa lain. Gambar disimpan pada dokumen pasien dan otomatis dilampirkan pada PDF rekam medis. Pasien hanya melihatnya jika rekam ini dibagikan ke pasien."
+          />
+          <div className="rounded-2xl border border-dashed border-border bg-[var(--hafta-50)]/40 p-3.5">
+            <label
+              htmlFor="medical-record-attachments"
+              className={`flex min-h-24 flex-col items-center justify-center gap-1.5 rounded-xl text-center transition-colors ${
+                fieldsDisabled || !patientId
+                  ? 'cursor-not-allowed opacity-60'
+                  : 'cursor-pointer hover:bg-[var(--hafta-50)]'
+              }`}
+            >
+              {uploading ? (
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              ) : (
+                <ImagePlus className="h-6 w-6 text-muted-foreground" />
+              )}
+              <span className="text-xs font-semibold text-foreground">
+                {uploading ? 'Mengunggah foto…' : 'Pilih foto analisa'}
+              </span>
+              <span className="text-[10px] text-muted-foreground">JPG, PNG, WEBP · maks. 10 MB per file</span>
+            </label>
+            <input
+              id="medical-record-attachments"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              disabled={fieldsDisabled || !patientId}
+              onChange={async (event) => {
+                const files = Array.from(event.target.files ?? []);
+                event.target.value = '';
+                if (!patientId || files.length === 0) return;
+                setUploading(true);
+                let success = 0;
+                for (const file of files) {
+                  const payload = new FormData();
+                  payload.set('patientId', patientId);
+                  payload.set('documentType', 'EXAM_RESULT');
+                  if (patientVisible === '1') payload.set('patientVisible', 'on');
+                  payload.set('file', file);
+                  const result = await uploadDocument(payload);
+                  if (result.ok) {
+                    success += 1;
+                    setUploadedFiles((current) => [...current, file.name]);
+                  } else {
+                    showToast('error', result.error);
+                  }
+                }
+                setUploading(false);
+                if (success > 0) {
+                  showToast('success', `${success} foto berhasil diunggah dan akan masuk ke PDF rekam medis.`);
+                }
+              }}
+              className="sr-only"
+            />
+            {!patientId ? (
+              <p className="mt-2 text-center text-[10px] font-medium text-amber-700">
+                Pilih pasien terlebih dahulu sebelum mengunggah foto.
+              </p>
+            ) : null}
+            {uploadedFiles.length > 0 ? (
+              <ul className="mt-3 space-y-1 border-t border-border/60 pt-2">
+                {uploadedFiles.map((name, index) => (
+                  <li key={`${name}-${index}`} className="truncate text-[11px] text-muted-foreground">
+                    ✓ {name}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
+              Foto langsung tersimpan sebagai dokumen pasien. Untuk rekam final, lampiran tetap dapat
+              dilihat pada PDF dan tidak mengubah isi SOAP.
+            </p>
           </div>
         </section>
 

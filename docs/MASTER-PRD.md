@@ -738,6 +738,7 @@ Bagian ini mencatat koreksi flow dan status implementasi. Requirement di atas te
 - Tombol Cetak dan Unduh PDF menggunakan satu renderer (`MedicalRecordDocument`) sehingga isinya identik.
 - PDF memuat identitas, informasi terapi, indikator fungsional, seluruh field SOAP, rencana terapi, program latihan, dan penatalaksanaan.
 - Gambar berjenis **Hasil Pemeriksaan** yang diunggah terapis melalui menu Dokumen (mis. CT Scan/X-Ray) dilampirkan setelah tabel penatalaksanaan, dengan caption di bawah gambar. Pasien hanya menerima lampiran `patient_visible`.
-- Footer tanda tangan berada di bawah dokumen untuk rekam satu halaman; bila isi lebih dari satu halaman, lembar pengesahan dibuat sebagai halaman terakhir tersendiri yang berisi ringkasan dan tanda tangan, bukan halaman kosong.
+- Header pengesahan (judul, ringkasan laporan, identitas pasien, dan catatan pengesahan) ditempatkan di bagian paling atas halaman pertama.
+- Footer tanda tangan berada di bawah dokumen untuk rekam satu halaman; bila isi lebih dari satu halaman, pengesahan terapis diletakkan pada halaman terakhir tersendiri, bukan halaman kosong.
 - Dokumen cetak jadwal tidak lagi memakai template rekam medis; ia memakai halaman cetak jadwal yang sesuai.
 - Ekspor tetap dicatat pada audit log.
