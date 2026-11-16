@@ -859,7 +859,7 @@ export function PatientMedicalRecordView({
           </div>
 
           {/* ── rail kanan (desktop) — pola patient portal: terapi berikutnya + aksi ── */}
-          <aside className="hidden space-y-4 lg:sticky lg:top-4 lg:block">
+          <aside className="hidden space-y-4 lg:sticky lg:top-[88px] lg:block">
             <section className="hafta-card overflow-hidden">
               <div className="flex items-center justify-between gap-2 border-b border-border/70 px-4 py-3">
                 <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">

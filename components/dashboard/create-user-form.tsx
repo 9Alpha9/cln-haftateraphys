@@ -109,8 +109,15 @@ export function CreateUserForm({ canCreateStaffAccounts }: { canCreateStaffAccou
             id="phone"
             name="phone"
             type="tel"
+            inputMode="numeric"
+            maxLength={13}
             placeholder="08xxxxxxxxxx"
             disabled={pending}
+            onInput={(event) => {
+              const input = event.currentTarget;
+              const digits = input.value.replace(/\D/g, '').slice(0, 13);
+              if (input.value !== digits) input.value = digits;
+            }}
           />
         </div>
         <div className="space-y-2">

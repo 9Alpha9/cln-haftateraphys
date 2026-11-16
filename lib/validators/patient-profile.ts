@@ -2,10 +2,20 @@ import { z } from 'zod';
 
 const optionalText = z.string().trim().max(500).optional().or(z.literal(''));
 
+/** Nomor telepon Indonesia: hanya digit, 9–13 karakter (mis. 08123456789). */
+const optionalPhone = z
+  .string()
+  .trim()
+  .refine((value) => value === '' || /^\d{9,13}$/.test(value), {
+    message: 'Nomor telepon harus 9–13 digit angka.',
+  })
+  .optional()
+  .or(z.literal(''));
+
 export const patientProfileSchema = z.object({
   fullName: z.string().trim().min(2, 'Nama lengkap wajib diisi.').max(200),
   preferredName: optionalText,
-  phone: z.string().trim().max(30).optional().or(z.literal('')),
+  phone: optionalPhone,
   gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
   medicalRecordNumber: optionalText,
   dateOfBirth: z.string().date().optional().or(z.literal('')),
@@ -15,7 +25,7 @@ export const patientProfileSchema = z.object({
   addressCity: optionalText,
   emergencyContactName: optionalText,
   emergencyContactRelationship: optionalText,
-  emergencyContactPhone: z.string().trim().max(30).optional().or(z.literal('')),
+  emergencyContactPhone: optionalPhone,
   avatarKey: z.string().trim().optional().or(z.literal('')),
 });
 

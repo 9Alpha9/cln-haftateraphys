@@ -257,14 +257,15 @@ export function CreatePatientForm({
               <Input
                 id="create-phone"
                 type="tel"
+                inputMode="numeric"
                 value={newPhone}
                 onChange={(e) => {
                   const digits = e.target.value.replace(/\D/g, '');
-                  setNewPhone(digits.slice(0, 12));
+                  setNewPhone(digits.slice(0, 13));
                 }}
-                placeholder="08123456789"
+                placeholder="08xxxxxxxxxx"
                 className="text-xs sm:text-sm border rounded-xl p-2.5 border-border focus:border-[var(--hafta-400)]"
-                maxLength={12}
+                maxLength={13}
               />
             </div>
             <div className="space-y-1">

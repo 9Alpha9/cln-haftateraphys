@@ -11,6 +11,11 @@ const MONTH_NAMES = [
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
 ];
 
+const MONTH_SHORT = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+  'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+];
+
 const DAY_LABELS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
 
 const HOLIDAY_DOT_COLOR: Record<HolidayType, string> = {
@@ -64,15 +69,28 @@ type DatePickerProps = {
   minDate?: string;
   /** Prevent selecting dates before today. */
   disablePast?: boolean;
+  /** Batas atas opsional (YYYY-MM-DD). */
+  maxDate?: string;
 };
 
+/** Jarak aman dari tepi bawah viewport agar tidak menutupi bottom navigation mobile. */
+const BOTTOM_SAFE_GAP = 96;
+
 const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
-  ({ value, onChange, disabled, required, placeholder = 'Pilih tanggal', id, name, className, minDate, disablePast }, ref) => {
+  (
+    { value, onChange, disabled, required, placeholder = 'Pilih tanggal', id, name, className, minDate, disablePast, maxDate },
+    ref,
+  ) => {
     const [open, setOpen] = React.useState(false);
+    const [view, setView] = React.useState<'days' | 'months' | 'years'>('days');
     const selectedDate = parseDate(value);
     const [viewDate, setViewDate] = React.useState<Date>(selectedDate ?? new Date());
+    const [yearPageStart, setYearPageStart] = React.useState(
+      () => (selectedDate ?? new Date()).getFullYear() - 5,
+    );
     const effectiveMinDate = minDate ?? (disablePast ? toDateString(new Date()) : undefined);
     const minDateValue = effectiveMinDate ? new Date(`${effectiveMinDate}T00:00:00`) : null;
+    const maxDateValue = maxDate ? new Date(`${maxDate}T00:00:00`) : null;
     const viewYear = viewDate.getFullYear();
     const viewMonth = viewDate.getMonth();
     const canGoPrev =
@@ -86,16 +104,14 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
       const selected = new Date(viewYear, viewMonth, day);
       const selectedKey = toDateString(selected);
       if (effectiveMinDate && selectedKey < effectiveMinDate) return;
+      if (maxDate && selectedKey > maxDate) return;
       onChange?.(selectedKey);
       setOpen(false);
+      setView('days');
     }
 
-    function prevMonth() {
-      setViewDate(new Date(viewYear, viewMonth - 1, 1));
-    }
-
-    function nextMonth() {
-      setViewDate(new Date(viewYear, viewMonth + 1, 1));
+    function shiftMonth(delta: number) {
+      setViewDate(new Date(viewYear, viewMonth + delta, 1));
     }
 
     function goToToday() {
@@ -103,10 +119,38 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
       setViewDate(today);
       onChange?.(toDateString(today));
       setOpen(false);
+      setView('days');
     }
 
+    function pickMonth(month: number) {
+      setViewDate(new Date(viewYear, month, 1));
+      setView('days');
+    }
+
+    function pickYear(year: number) {
+      setYearPageStart(year - 5);
+      setViewDate(new Date(year, viewMonth, 1));
+      setView('months');
+    }
+
+    const years = React.useMemo(
+      () => Array.from({ length: 12 }, (_, i) => yearPageStart + i),
+      [yearPageStart],
+    );
+
     return (
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover
+        open={open}
+        onOpenChange={(next) => {
+          setOpen(next);
+          if (next) {
+            const nextView = selectedDate ?? new Date();
+            setViewDate(nextView);
+            setYearPageStart(nextView.getFullYear() - 5);
+            setView('days');
+          }
+        }}
+      >
         <PopoverTrigger asChild>
           <div className="relative">
             <input
@@ -134,133 +178,231 @@ const DatePicker = React.forwardRef<HTMLInputElement, DatePickerProps>(
             </button>
           </div>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent
+          className="w-[17.5rem] max-w-[calc(100vw-1.5rem)] p-0"
+          align="start"
+          sideOffset={8}
+          collisionPadding={{ top: 12, right: 12, bottom: BOTTOM_SAFE_GAP, left: 12 }}
+          sticky="always"
+        >
           <div className="p-3">
-            {/* Header */}
-            <div className="flex items-center justify-between">
+            {/* Header — navigasi bulan/tahun memakai kontrol internal, bukan select bawaan sistem */}
+            <div className="flex items-center justify-between gap-1">
               <button
                 type="button"
-                onClick={prevMonth}
-                disabled={!canGoPrev}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+                onClick={() => {
+                  if (view === 'years') setYearPageStart((current) => current - 12);
+                  else shiftMonth(-1);
+                }}
+                disabled={view === 'days' && !canGoPrev}
+                aria-label={view === 'years' ? '12 tahun sebelumnya' : 'Bulan sebelumnya'}
+                className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
-              <div className="flex items-center gap-2">
-                <select
-                  value={viewMonth}
-                  onChange={(e) => setViewDate(new Date(viewYear, Number(e.target.value), 1))}
-                  className="rounded-md border-0 bg-transparent text-sm font-semibold text-foreground outline-none cursor-pointer"
+              <div className="flex min-w-0 items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setView((current) => (current === 'months' ? 'days' : 'months'))}
+                  aria-label="Pilih bulan"
+                  aria-expanded={view === 'months'}
+                  className={cn(
+                    'cursor-pointer rounded-lg px-2 py-1 text-sm font-semibold transition-colors hover:bg-accent',
+                    view === 'months' ? 'bg-accent text-accent-foreground' : 'text-foreground',
+                  )}
                 >
-                  {MONTH_NAMES.map((name, i) => (
-                    <option key={i} value={i}>{name}</option>
-                  ))}
-                </select>
-                <select
-                  value={viewYear}
-                  onChange={(e) => setViewDate(new Date(Number(e.target.value), viewMonth, 1))}
-                  className="rounded-md border-0 bg-transparent text-sm font-semibold text-foreground outline-none cursor-pointer"
+                  {MONTH_NAMES[viewMonth]}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setYearPageStart(viewYear - 5);
+                    setView((current) => (current === 'years' ? 'days' : 'years'));
+                  }}
+                  aria-label="Pilih tahun"
+                  aria-expanded={view === 'years'}
+                  className={cn(
+                    'cursor-pointer rounded-lg px-2 py-1 text-sm font-semibold tabular-nums transition-colors hover:bg-accent',
+                    view === 'years' ? 'bg-accent text-accent-foreground' : 'text-foreground',
+                  )}
                 >
-                  {Array.from({ length: 21 }, (_, i) => viewYear - 10 + i).map((y) => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
+                  {viewYear}
+                </button>
               </div>
               <button
                 type="button"
-                onClick={nextMonth}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                onClick={() => {
+                  if (view === 'years') setYearPageStart((current) => current + 12);
+                  else shiftMonth(1);
+                }}
+                aria-label={view === 'years' ? '12 tahun berikutnya' : 'Bulan berikutnya'}
+                className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
             </div>
 
-            {/* Day labels */}
-            <div className="mt-2 grid grid-cols-7 gap-1">
-              {DAY_LABELS.map((d) => (
-                <div key={d} className="py-1 text-center text-[11px] font-medium text-muted-foreground">
-                  {d}
+            {view === 'days' ? (
+              <>
+                {/* Day labels */}
+                <div className="mt-2 grid grid-cols-7 gap-1">
+                  {DAY_LABELS.map((d) => (
+                    <div key={d} className="py-1 text-center text-[11px] font-medium text-muted-foreground">
+                      {d}
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
 
-            {/* Calendar grid */}
-            <div className="grid grid-cols-7 gap-1">
-              {Array.from({ length: firstDay }).map((_, i) => (
-                <div key={`empty-${i}`} />
-              ))}
-              {Array.from({ length: daysInMonth }).map((_, i) => {
-                const day = i + 1;
-                const dateStr = toDateString(new Date(viewYear, viewMonth, day));
-                const isSelected = value === dateStr;
-                const isToday = toDateString(new Date()) === dateStr;
-                const holiday = getHoliday(viewYear, viewMonth + 1, day);
-                const dayOfWeek = new Date(viewYear, viewMonth, day).getDay();
-                const isSunday = dayOfWeek === 0;
-                const isDisabled = Boolean(effectiveMinDate && dateStr < effectiveMinDate);
+                {/* Calendar grid */}
+                <div className="grid grid-cols-7 gap-1">
+                  {Array.from({ length: firstDay }).map((_, i) => (
+                    <div key={`empty-${i}`} />
+                  ))}
+                  {Array.from({ length: daysInMonth }).map((_, i) => {
+                    const day = i + 1;
+                    const dateStr = toDateString(new Date(viewYear, viewMonth, day));
+                    const isSelected = value === dateStr;
+                    const isToday = toDateString(new Date()) === dateStr;
+                    const holiday = getHoliday(viewYear, viewMonth + 1, day);
+                    const dayOfWeek = new Date(viewYear, viewMonth, day).getDay();
+                    const isSunday = dayOfWeek === 0;
+                    const isDisabled =
+                      Boolean(effectiveMinDate && dateStr < effectiveMinDate) ||
+                      Boolean(maxDate && dateStr > maxDate);
 
-                return (
-                  <div key={day} className="relative flex flex-col items-center">
+                    return (
+                      <div key={day} className="relative flex flex-col items-center">
+                        <button
+                          type="button"
+                          onClick={() => selectDay(day)}
+                          disabled={isDisabled}
+                          aria-disabled={isDisabled}
+                          aria-label={`${day} ${MONTH_NAMES[viewMonth]} ${viewYear}`}
+                          aria-current={isSelected ? 'date' : undefined}
+                          title={holiday ? `${holiday.name} (${HOLIDAY_LABEL[holiday.type]})` : undefined}
+                          className={cn(
+                            'flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-sm transition-colors',
+                            'hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
+                            isDisabled && 'cursor-not-allowed opacity-30 hover:bg-transparent',
+                            isSelected && 'bg-accent font-bold text-accent-foreground',
+                            !isSelected && isToday && 'border border-[#e27409] font-bold text-[#e27409]',
+                            holiday && !isSelected && 'font-semibold text-red-600',
+                            !holiday && isSunday && !isSelected && 'font-semibold text-red-500',
+                          )}
+                        >
+                          {day}
+                        </button>
+                        {holiday ? (
+                          <span
+                            className={cn('absolute bottom-0.5 h-1 w-1 rounded-full', HOLIDAY_DOT_COLOR[holiday.type])}
+                            title={holiday.name}
+                          />
+                        ) : null}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Legend */}
+                <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-border pt-2">
+                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <span className="h-1.5 w-1.5 rounded-full bg-red-500" /> Nasional
+                  </span>
+                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <span className="h-1.5 w-1.5 rounded-full bg-purple-500" /> Agama
+                  </span>
+                  <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
+                    <span className="h-1.5 w-1.5 rounded-full bg-hafta-ble-500" /> Cuti Bersama
+                  </span>
+                </div>
+              </>
+            ) : null}
+
+            {view === 'months' ? (
+              <div className="mt-3 grid grid-cols-3 gap-1.5">
+                {MONTH_SHORT.map((label, index) => {
+                  const isActive = index === viewMonth;
+                  const isBeforeMin =
+                    minDateValue !== null &&
+                    new Date(viewYear, index + 1, 0).getTime() <
+                      new Date(minDateValue.getFullYear(), minDateValue.getMonth(), minDateValue.getDate()).getTime();
+                  const isAfterMax =
+                    maxDateValue !== null &&
+                    new Date(viewYear, index, 1).getTime() > maxDateValue.getTime();
+                  const isDisabled = isBeforeMin || isAfterMax;
+                  return (
                     <button
+                      key={label}
                       type="button"
-                      onClick={() => selectDay(day)}
+                      onClick={() => pickMonth(index)}
                       disabled={isDisabled}
-                      aria-disabled={isDisabled}
-                      title={holiday ? `${holiday.name} (${HOLIDAY_LABEL[holiday.type]})` : undefined}
+                      aria-pressed={isActive}
                       className={cn(
-                        'flex h-9 w-9 items-center justify-center rounded-lg text-sm transition-colors',
-                        'hover:bg-accent hover:text-accent-foreground',
-                        isDisabled && 'cursor-not-allowed opacity-30 hover:bg-transparent disabled:hover:text-inherit',
-                        isSelected && 'bg-accent text-accent-foreground font-bold',
-                        !isSelected && isToday && 'font-bold text-[#e27409] border border-[#e27409] underline underline-offset-2 flex h-9 w-9 items-center justify-center rounded-lg text-sm transition-colors',
-                        holiday && !isSelected && 'text-red-600 font-semibold',
-                        !holiday && isSunday && !isSelected && 'text-red-500 font-semibold',
+                        'flex h-10 cursor-pointer items-center justify-center rounded-lg text-xs font-semibold transition-colors',
+                        isDisabled && 'cursor-not-allowed opacity-30',
+                        isActive
+                          ? 'bg-accent text-accent-foreground'
+                          : 'text-foreground hover:bg-accent hover:text-accent-foreground',
                       )}
                     >
-                      {day}
+                      {label}
                     </button>
-                    {holiday && (
-                      <span
-                        className={cn('absolute bottom-0.5 h-1 w-1 rounded-full', HOLIDAY_DOT_COLOR[holiday.type])}
-                        title={holiday.name}
-                      />
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            ) : null}
 
-            {/* Legend */}
-            <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-border pt-2">
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-red-500" /> Nasional
-              </span>
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-purple-500" /> Agama
-              </span>
-              <span className="flex items-center gap-1 text-[10px] text-muted-foreground">
-                <span className="h-1.5 w-1.5 rounded-full bg-hafta-ble-500" /> Cuti Bersama
-              </span>
-            </div>
+            {view === 'years' ? (
+              <div className="mt-3 grid grid-cols-4 gap-1.5">
+                {years.map((year) => {
+                  const isActive = year === viewYear;
+                  const isDisabled =
+                    (minDateValue !== null && year < minDateValue.getFullYear()) ||
+                    (maxDateValue !== null && year > maxDateValue.getFullYear());
+                  return (
+                    <button
+                      key={year}
+                      type="button"
+                      onClick={() => pickYear(year)}
+                      disabled={isDisabled}
+                      aria-pressed={isActive}
+                      className={cn(
+                        'flex h-10 cursor-pointer items-center justify-center rounded-lg text-xs font-semibold tabular-nums transition-colors',
+                        isDisabled && 'cursor-not-allowed opacity-30',
+                        isActive
+                          ? 'bg-accent text-accent-foreground'
+                          : 'text-foreground hover:bg-accent hover:text-accent-foreground',
+                      )}
+                    >
+                      {year}
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
 
             {/* Footer */}
             <div className="mt-2 flex items-center justify-between border-t border-border pt-2">
               <button
                 type="button"
                 onClick={goToToday}
-                className="rounded-md px-2 py-1 text-xs font-medium text-[#e27409] hover:bg-accent hover:text-accent-foreground"
+                className="cursor-pointer rounded-md px-2 py-1 text-xs font-medium text-[#e27409] hover:bg-accent hover:text-accent-foreground"
               >
                 Hari Ini
               </button>
-              {value && (
+              {value ? (
                 <button
                   type="button"
-                  onClick={() => { onChange?.(''); setOpen(false); }}
-                  className="rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                  onClick={() => {
+                    onChange?.('');
+                    setOpen(false);
+                    setView('days');
+                  }}
+                  className="cursor-pointer rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 >
                   Hapus
                 </button>
-              )}
+              ) : null}
             </div>
           </div>
         </PopoverContent>

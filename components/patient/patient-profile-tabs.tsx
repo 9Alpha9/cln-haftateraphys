@@ -23,9 +23,9 @@ import { ChangePasswordForm } from '@/components/dashboard/change-password-form'
 import { EmailVerificationCard } from '@/components/auth/email-verification-card';
 import { SessionManager } from '@/components/dashboard/session-manager';
 import { DatePicker } from '@/components/ui/date-picker';
+import { AppSelect } from '@/components/ui/app-select';
 import { ImageCropModal } from '@/components/ui/image-crop-modal';
 import { Input } from '@/components/ui/input';
-import { Select } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { useWilayahIndonesia } from '@/lib/use-wilayah-indonesia';
 import type { PatientProfileInput } from '@/lib/validators/patient-profile';
@@ -336,7 +336,7 @@ export function PatientProfileTabs({
                     <span
                       className={cn(
                         'mt-0.5 block truncate text-[10px]',
-                        isActive ? 'text-muted-foreground' : 'text-muted-foreground',
+                        isActive ? 'text-white/60' : 'text-muted-foreground',
                       )}
                     >
                       {description}
@@ -443,16 +443,24 @@ export function PatientProfileTabs({
                     />
                   </Field>
                   <Field label="Jenis kelamin">
-                    <Select
-                      disabled={pending}
-                      className="w-full"
-                      selectClassName={cn(fieldClass, 'pr-10')}
-                      {...register('gender')}
-                    >
-                      <option value="MALE">Laki-laki</option>
-                      <option value="FEMALE">Perempuan</option>
-                      <option value="OTHER">Lainnya</option>
-                    </Select>
+                    <Controller
+                      control={control}
+                      name="gender"
+                      render={({ field }) => (
+                        <AppSelect
+                          value={field.value ?? ''}
+                          onChange={field.onChange}
+                          disabled={pending}
+                          placeholder="Pilih jenis kelamin"
+                          aria-label="Jenis kelamin"
+                          options={[
+                            { value: 'MALE', label: 'Laki-laki' },
+                            { value: 'FEMALE', label: 'Perempuan' },
+                            { value: 'OTHER', label: 'Lainnya' },
+                          ]}
+                        />
+                      )}
+                    />
                   </Field>
                   <Field label="Tanggal lahir">
                     <Controller
@@ -483,6 +491,7 @@ export function PatientProfileTabs({
                         maxLength={13}
                         disabled={pending}
                         className={cn(fieldClass, 'pl-9')}
+                        placeholder="08xxxxxxxxxx"
                         {...register('phone')}
                         onChange={(event) => {
                           const digits = event.target.value.replace(/\D/g, '').slice(0, 13);
@@ -505,28 +514,22 @@ export function PatientProfileTabs({
                           provinces.find((province) => province.name === field.value)?.id ??
                           selectedProvinceId;
                         return (
-                          <Select
+                          <AppSelect
                             value={selectedProvince}
                             disabled={pending || loadingProvinces}
-                            className="w-full"
-                            selectClassName={cn(fieldClass, 'pr-10')}
-                            onChange={(event) => {
-                              const provinceId = event.target.value;
-                              const province = provinces.find((item) => item.id === provinceId);
-                              setSelectedProvinceId(provinceId);
+                            placeholder={loadingProvinces ? 'Memuat provinsi...' : 'Pilih provinsi'}
+                            aria-label="Provinsi"
+                            options={provinces.map((province) => ({
+                              value: province.id,
+                              label: province.name,
+                            }))}
+                            onChange={(nextValue) => {
+                              const province = provinces.find((item) => item.id === nextValue);
+                              setSelectedProvinceId(nextValue);
                               field.onChange(province?.name ?? '');
                               setValue('addressCity', '', { shouldDirty: true });
                             }}
-                          >
-                            <option value="">
-                              {loadingProvinces ? 'Memuat provinsi...' : 'Pilih provinsi'}
-                            </option>
-                            {provinces.map((province) => (
-                              <option key={province.id} value={province.id}>
-                                {province.name}
-                              </option>
-                            ))}
-                          </Select>
+                          />
                         );
                       }}
                     />
@@ -536,22 +539,23 @@ export function PatientProfileTabs({
                       control={control}
                       name="addressCity"
                       render={({ field }) => (
-                        <Select
+                        <AppSelect
                           value={field.value ?? ''}
                           disabled={pending || !regencies.length || loadingRegencies}
-                          className="w-full"
-                          selectClassName={cn(fieldClass, 'pr-10')}
-                          onChange={(event) => field.onChange(event.target.value)}
-                        >
-                          <option value="">
-                            {loadingRegencies ? 'Memuat kabupaten/kota...' : 'Pilih kabupaten / kota'}
-                          </option>
-                          {regencies.map((regency) => (
-                            <option key={regency.id} value={regency.name}>
-                              {regency.name}
-                            </option>
-                          ))}
-                        </Select>
+                          placeholder={
+                            loadingRegencies
+                              ? 'Memuat kabupaten/kota...'
+                              : !regencies.length
+                                ? 'Pilih provinsi terlebih dahulu'
+                                : 'Pilih kabupaten / kota'
+                          }
+                          aria-label="Kabupaten / Kota"
+                          options={regencies.map((regency) => ({
+                            value: regency.name,
+                            label: regency.name,
+                          }))}
+                          onChange={field.onChange}
+                        />
                       )}
                     />
                   </Field>
@@ -593,10 +597,16 @@ export function PatientProfileTabs({
                       <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         type="tel"
+                        inputMode="numeric"
+                        maxLength={13}
                         disabled={pending}
                         className={cn(fieldClass, 'pl-9')}
                         placeholder="08xxxxxxxxxx"
                         {...register('emergencyContactPhone')}
+                        onChange={(event) => {
+                          const digits = event.target.value.replace(/\D/g, '').slice(0, 13);
+                          setValue('emergencyContactPhone', digits, { shouldDirty: true });
+                        }}
                       />
                     </div>
                   </Field>
