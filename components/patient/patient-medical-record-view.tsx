@@ -609,7 +609,7 @@ export function PatientMedicalRecordView({
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0 flex-1">
                 <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                  <Activity className="h-3 w-3" />
+                  <Activity className="h-3 w-3 text-[var(--hafta-300)]" />
                   Kondisi Terkini
                 </p>
                 <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground sm:text-base">
@@ -643,7 +643,7 @@ export function PatientMedicalRecordView({
                   <div key={key} className="hafta-tint p-3">
                     <div className="flex items-center justify-between gap-1">
                       <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
-                        <Icon className="h-3 w-3" />
+                        <Icon className="h-3 w-3 text-[var(--hafta-300)]" />
                         {label}
                       </span>
                       <span className={cn('rounded-full px-1.5 py-0.5 text-[9px] font-semibold', TONE_PILL[tone.tone])}>
@@ -698,7 +698,7 @@ export function PatientMedicalRecordView({
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div className="min-w-0">
                   <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                    <TrendingUp className="h-3 w-3" />
+                    <TrendingUp className="h-3 w-3 text-[var(--hafta-300)]" />
                     Grafik Pemulihan Klinis
                   </p>
                   <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground sm:text-base">
@@ -788,7 +788,7 @@ export function PatientMedicalRecordView({
             {treatmentPlan ? (
               <div className="mt-4 border-t border-border/70 pt-3">
                 <h3 className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  <ClipboardList className="h-3.5 w-3.5" />
+                  <ClipboardList className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
                   Rencana Terapi
                 </h3>
                 <dl className="mt-1 divide-y divide-border/70">
@@ -846,7 +846,7 @@ export function PatientMedicalRecordView({
           {patient?.therapistNote ? (
             <section className="hafta-card p-4 sm:p-5">
               <h3 className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                <PenLine className="h-3.5 w-3.5" />
+                <PenLine className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
                 Catatan Fisioterapis
               </h3>
               <p className="mt-2 text-[12.5px] leading-relaxed text-foreground">{patient.therapistNote}</p>
@@ -863,7 +863,7 @@ export function PatientMedicalRecordView({
             <section className="hafta-card overflow-hidden">
               <div className="flex items-center justify-between gap-2 border-b border-border/70 px-4 py-3">
                 <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                  <CalendarDays className="h-3 w-3" />
+                  <CalendarDays className="h-3 w-3 text-[var(--hafta-300)]" />
                   Terapi Berikutnya
                 </p>
                 {patient?.nextTherapyAt ? (
@@ -921,7 +921,7 @@ export function PatientMedicalRecordView({
 
             <section className="hafta-card p-4">
               <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                <FileText className="h-3 w-3" />
+                <FileText className="h-3 w-3 text-[var(--hafta-300)]" />
                 Dokumen Sesi Ini
               </p>
               <p className="mt-1 text-[11.5px] leading-relaxed text-muted-foreground">
@@ -946,7 +946,7 @@ export function PatientMedicalRecordView({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                <CalendarDays className="h-3 w-3" />
+                <CalendarDays className="h-3 w-3 text-[var(--hafta-300)]" />
                 Kunjungan
               </p>
               <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground">Riwayat Kunjungan</h2>
@@ -1007,7 +1007,7 @@ export function PatientMedicalRecordView({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                <Stethoscope className="h-3 w-3" />
+                <Stethoscope className="h-3 w-3 text-[var(--hafta-300)]" />
                 Diagnosis
               </p>
               <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground">Diagnosis &amp; Anamnesis</h2>
@@ -1046,7 +1046,7 @@ export function PatientMedicalRecordView({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                <HeartPulse className="h-3 w-3" />
+                <HeartPulse className="h-3 w-3 text-[var(--hafta-300)]" />
                 Tindakan
               </p>
               <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground">Tindakan &amp; Pemeriksaan</h2>
@@ -1090,7 +1090,7 @@ export function PatientMedicalRecordView({
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                <FileText className="h-3 w-3" />
+                <FileText className="h-3 w-3 text-[var(--hafta-300)]" />
                 Dokumen
               </p>
               <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground">Berkas Rekam Medis</h2>
@@ -1168,7 +1168,7 @@ export function PatientMedicalRecordView({
                   <div key={key} className="hafta-tint p-3">
                     <div className="flex items-center justify-between gap-1">
                       <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
-                        <Icon className="h-3 w-3" />
+                        <Icon className="h-3 w-3 text-[var(--hafta-300)]" />
                         {label}
                       </span>
                       <span className={cn('rounded-full px-1.5 py-0.5 text-[9px] font-semibold', TONE_PILL[tone.tone])}>

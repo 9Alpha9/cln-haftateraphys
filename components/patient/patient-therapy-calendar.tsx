@@ -716,28 +716,73 @@ export function PatientTherapyCalendar({
                         Ganti jam
                       </button>
                     </div>
-                    <div className="mt-2 flex flex-wrap items-center gap-1.5 border-t border-border pt-2 text-xs text-muted-foreground">
-                      <span className="text-muted-foreground">Fisioterapis:</span>
+                    <div className="mt-2 border-t border-border pt-2">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+                        Fisioterapis
+                      </p>
                       {therapistsForTime.length > 1 ? (
-                        therapistsForTime.map((slot) => (
-                          <button
-                            key={slot.therapistId}
-                            type="button"
-                            onClick={() => setSelectedTherapistId(slot.therapistId)}
-                            className={cn(
-                              'cursor-pointer rounded-full border px-2.5 py-1 text-[11px] font-semibold transition-colors',
-                              effectiveTherapist.therapistId === slot.therapistId
-                                ? 'border-[var(--hafta-900)] bg-[var(--hafta-900)] text-white'
-                                : 'border-border bg-card text-foreground hover:bg-[var(--hafta-50)]',
-                            )}
-                          >
-                            {slot.therapistName}
-                          </button>
-                        ))
+                        <div
+                          role="radiogroup"
+                          aria-label="Pilih fisioterapis"
+                          className="-mx-1 mt-1.5 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                        >
+                          {therapistsForTime.map((slot) => {
+                            const isActive = effectiveTherapist.therapistId === slot.therapistId;
+                            return (
+                              <button
+                                key={slot.therapistId}
+                                type="button"
+                                role="radio"
+                                aria-checked={isActive}
+                                onClick={() => setSelectedTherapistId(slot.therapistId)}
+                                className={cn(
+                                  'flex w-[186px] shrink-0 snap-start cursor-pointer items-center gap-2.5 rounded-2xl border p-2.5 text-left transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
+                                  isActive
+                                    ? 'border-[var(--hafta-900)] bg-[#FAFAF8] ring-2 ring-[var(--hafta-org-200)]/35'
+                                    : 'border-border bg-card hover:bg-[var(--hafta-50)]',
+                                )}
+                              >
+                                <span
+                                  className={cn(
+                                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-extrabold',
+                                    isActive
+                                      ? 'bg-[var(--hafta-900)] text-white'
+                                      : 'bg-[var(--hafta-org-100)] text-foreground',
+                                  )}
+                                  aria-hidden="true"
+                                >
+                                  {slot.therapistName.slice(0, 1).toUpperCase()}
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                  <span className="block truncate text-[12px] font-bold text-foreground">
+                                    {slot.therapistName}
+                                  </span>
+                                  <span className="mt-0.5 flex items-center gap-1 text-[10px] text-muted-foreground">
+                                    <Clock3 className="h-2.5 w-2.5 shrink-0" />
+                                    {slot.startTime}–{slot.endTime}
+                                  </span>
+                                </span>
+                                {isActive ? (
+                                  <CheckCircle2 className="h-4 w-4 shrink-0 text-[var(--hafta-900)]" />
+                                ) : null}
+                              </button>
+                            );
+                          })}
+                        </div>
                       ) : (
-                        <span className="font-medium text-foreground">
-                          {effectiveTherapist.therapistName}
-                        </span>
+                        <div className="mt-1.5 flex items-center gap-2.5 rounded-2xl border border-border bg-card p-2.5">
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-xs font-extrabold text-foreground">
+                            {effectiveTherapist.therapistName.slice(0, 1).toUpperCase()}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-[12px] font-bold text-foreground">
+                              {effectiveTherapist.therapistName}
+                            </span>
+                            <span className="mt-0.5 block text-[10px] text-muted-foreground">
+                              Menangani sesi ini
+                            </span>
+                          </span>
+                        </div>
                       )}
                     </div>
                     {reschedulingAppointment &&

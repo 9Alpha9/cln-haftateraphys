@@ -279,7 +279,7 @@ export function PatientDashboardOverview({
           <div className="flex shrink-0 items-center gap-1">
             <Link
               href="/dashboard/progress"
-              className="inline-flex w-fit items-center gap-1 rounded text-xs font-semibold text-foreground underline-offset-4 hover:underline focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+              className="hidden w-fit items-center gap-1 rounded text-xs font-semibold text-foreground underline-offset-4 hover:underline focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 sm:inline-flex"
             >
               Lihat Semua
               <ArrowRight className="h-3.5 w-3.5" />
@@ -324,7 +324,7 @@ export function PatientDashboardOverview({
                 { label: 'Kekuatan', value: latestRecord.strengthScore },
                 { label: 'Fungsi', value: latestRecord.functionScore },
               ].map((metric) => (
-                <div key={metric.label} className="hafta-tint px-2.5 py-2">
+                <div key={metric.label} className="hafta-tint px-2.5 py-2 text-center">
                   <dt className="text-[9.5px] font-medium uppercase tracking-wide text-muted-foreground">
                     {metric.label}
                   </dt>
@@ -354,6 +354,14 @@ export function PatientDashboardOverview({
             {records.length} rekam medis tersimpan
           </p>
         ) : null}
+
+        <Link
+          href="/dashboard/progress"
+          className="mt-3 flex h-11 w-full items-center justify-center gap-1.5 rounded-full border border-border bg-card text-xs font-semibold text-foreground transition-colors hover:bg-accent focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 sm:hidden"
+        >
+          Lihat Semua Rekam Medis
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
       </section>
 
       {/* ── MODAL GLOBAL: detail jadwal ── */}
