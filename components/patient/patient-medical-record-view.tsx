@@ -129,7 +129,7 @@ const longDate = (value: Date) =>
     year: 'numeric',
   });
 
-const shortWeekday = (value: Date) => value.toLocaleDateString('id-ID', { weekday: 'short', timeZone: 'Asia/Jakarta' });
+const shortWeekday = (value: Date) => value.toLocaleDateString('id-ID', { weekday: 'short' });
 const dayNumber = (value: Date) => value.toLocaleDateString('id-ID', { day: 'numeric' });
 const monthYear = (value: Date) => value.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
 const clockTime = (value: Date) =>
@@ -740,14 +740,14 @@ export function PatientMedicalRecordView({
 
           {/* 4. catatan klinis sesi terpilih */}
           <section className="hafta-card p-4 sm:p-5">
-            <div className="flex items-start justify-between gap-2">
-              <div className="min-w-0 flex-1">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
                 <h2 className="text-[15px] font-semibold tracking-tight text-foreground">Perkembangan Terapi</h2>
-                <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   {longDate(selectedRecord.recordedAt)} · Sesi {visitNumberById.get(selectedRecord.id) ?? 1}
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <span
                   className={cn(
                     'rounded-full px-2 py-0.5 text-[10px] font-semibold',
