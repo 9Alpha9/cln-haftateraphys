@@ -70,7 +70,7 @@ export function PatientExerciseList({ program }: { program: HomeProgramView | nu
         </p>
         <Link
           href="/dashboard/appointments"
-          className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)]"
+          className="mt-5 inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)]"
         >
           <CalendarDays className="h-4 w-4" />
           Lihat Jadwal Terapi

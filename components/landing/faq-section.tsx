@@ -44,7 +44,6 @@ export function FaqSection() {
         <ScrollAnimation>
           <div className="mx-auto max-w-2xl text-center">
             <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
               Pertanyaan Umum
             </div>
             <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] md:text-3xl">

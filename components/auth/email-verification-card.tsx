@@ -64,7 +64,7 @@ export function EmailVerificationCard({
             type="button"
             onClick={resend}
             disabled={pending || sent}
-            className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-org-100)] px-4 text-[11px] font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-300)] px-4 text-[11px] font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-400)] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {pending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
             {sent ? 'Email terkirim' : 'Kirim verifikasi'}

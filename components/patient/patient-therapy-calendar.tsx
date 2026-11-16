@@ -510,7 +510,7 @@ export function PatientTherapyCalendar({
         icon={<CalendarDays className="h-5 w-5" />}
         iconClassName="h-11 w-11 bg-[var(--hafta-org-100)] text-foreground sm:h-11 sm:w-11"
         panelClassName="rounded-3xl border border-border shadow-2xl"
-        confirmClassName="rounded-full bg-[var(--hafta-org-100)] font-bold text-foreground hover:bg-[var(--hafta-org-200)] hover:opacity-100"
+        confirmClassName="rounded-full bg-[var(--hafta-300)] font-bold text-foreground hover:bg-[var(--hafta-400)] hover:opacity-100"
         cancelClassName="rounded-full border border-border bg-card font-semibold text-foreground hover:bg-accent hover:text-foreground"
         onConfirm={confirmReschedule}
         onCancel={() => setConfirmingAppointment(null)}
@@ -533,7 +533,7 @@ export function PatientTherapyCalendar({
                 type="button"
                 onClick={submitRequest}
                 disabled={pending || !effectiveTherapist}
-                className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
+                className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] px-4 sm:px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)] disabled:opacity-60"
               >
                 {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                 {submitLabel}
@@ -548,7 +548,7 @@ export function PatientTherapyCalendar({
                   type="button"
                   onClick={submitRequest}
                   disabled={pending || !effectiveTherapist}
-                  className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
+                  className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] px-4 sm:px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)] disabled:opacity-60"
                 >
                   {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                   {submitLabel}
@@ -565,7 +565,7 @@ export function PatientTherapyCalendar({
                   type="button"
                   onClick={() => setConfirmingAppointment(activeSelectedAppointments[0] ?? null)}
                   disabled={pending}
-                  className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
+                  className="flex h-10 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] px-4 sm:px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)] disabled:opacity-60"
                 >
                   {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                   Ubah Jadwal

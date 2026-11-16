@@ -270,7 +270,7 @@ function MedicalRecordCard({
         <button
           type="button"
           onClick={() => onSelect(record)}
-          className="inline-flex h-10 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)]"
+          className="inline-flex h-10 min-w-0 flex-1 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)]"
         >
           <Eye className="h-3.5 w-3.5 shrink-0" />
           Lihat Detail SOAP
@@ -753,7 +753,7 @@ export function ProgressManagementView({
                       setEditingRecord(record);
                     }
                   }}
-                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
+                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-300)] hover:bg-[var(--hafta-400)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
                 >
                   {selectedRecord.status === 'FINALIZED' ? (
                     <FilePenLine className="h-3.5 w-3.5" />

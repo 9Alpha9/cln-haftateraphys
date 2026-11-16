@@ -140,7 +140,7 @@ export function TwoFactorCard({ enabled }: { enabled: boolean }) {
           <button
             type="button"
             onClick={startEnable}
-            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-[var(--hafta-org-100)] px-4 text-[11px] font-bold text-[#181700] hover:bg-[var(--hafta-org-200)]"
+            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-[var(--hafta-300)] px-4 text-[11px] font-bold text-[#181700] hover:bg-[var(--hafta-400)]"
           >
             <KeyRound className="h-3.5 w-3.5" />
             Aktifkan 2FA
@@ -178,7 +178,7 @@ export function TwoFactorCard({ enabled }: { enabled: boolean }) {
                 <button
                   type="submit"
                   disabled={pending}
-                  className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] text-xs font-bold text-[#181700] hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
+                  className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] text-xs font-bold text-[#181700] hover:bg-[var(--hafta-400)] disabled:opacity-60"
                 >
                   {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   Lanjutkan
@@ -216,7 +216,7 @@ export function TwoFactorCard({ enabled }: { enabled: boolean }) {
                 <button
                   type="submit"
                   disabled={pending || code.length !== 6}
-                  className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] text-xs font-bold text-[#181700] hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
+                  className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] text-xs font-bold text-[#181700] hover:bg-[var(--hafta-400)] disabled:opacity-60"
                 >
                   {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
                   Verifikasi & Aktifkan
@@ -243,7 +243,7 @@ export function TwoFactorCard({ enabled }: { enabled: boolean }) {
                   <button
                     type="button"
                     onClick={finish}
-                    className="inline-flex h-9 flex-1 items-center justify-center rounded-full bg-[var(--hafta-org-100)] text-[11px] font-bold text-[#181700] hover:bg-[var(--hafta-org-200)]"
+                    className="inline-flex h-9 flex-1 items-center justify-center rounded-full bg-[var(--hafta-300)] text-[11px] font-bold text-[#181700] hover:bg-[var(--hafta-400)]"
                   >
                     Selesai
                   </button>

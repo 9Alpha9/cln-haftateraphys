@@ -10,7 +10,7 @@ export function NewMedicalRecordButton({ patientOptions }: { patientOptions: { i
 
   return (
     <>
-      <Button onClick={() => setIsOpen(true)} className="h-11 w-full gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground hover:bg-[var(--hafta-org-200)] sm:w-auto sm:px-5 sm:text-[13px]">
+      <Button onClick={() => setIsOpen(true)} className="h-11 w-full gap-2 rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-foreground hover:bg-[var(--hafta-400)] sm:w-auto sm:px-5 sm:text-[13px]">
         <Plus className="h-4 w-4 shrink-0" />
         <span>Tambah Rekam Medis</span>
       </Button>

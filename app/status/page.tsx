@@ -93,7 +93,7 @@ export default async function IncidentStatusPage({
             {from ? (
               <Link
                 href={from}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-400)]"
               >
                 Coba halaman sebelumnya
               </Link>

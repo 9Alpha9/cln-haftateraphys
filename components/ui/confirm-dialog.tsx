@@ -169,7 +169,7 @@ export function ConfirmDialog({
                 variant={variant}
                 onClick={onConfirm}
                 disabled={pending}
-                className={cn("h-10 w-full rounded-full px-4 text-xs font-bold text-white transition-all active:scale-[0.99] sm:h-11 sm:w-auto", variant === "destructive" ? "bg-[var(--hafta-red-600)] hover:bg-[var(--hafta-red-700)]" : "bg-[var(--hafta-org-100)] text-[#181700]  hover:bg-[var(--hafta-org-200)]", confirmClassName)}
+                className={cn("h-10 w-full rounded-full px-4 text-xs font-bold text-white transition-all active:scale-[0.99] sm:h-11 sm:w-auto", variant === "destructive" ? "bg-[var(--hafta-red-600)] hover:bg-[var(--hafta-red-700)]" : "bg-[var(--hafta-300)] text-[#181700]  hover:bg-[var(--hafta-400)]", confirmClassName)}
               >
                 {pending ? "Memproses..." : confirmLabel}
               </Button>

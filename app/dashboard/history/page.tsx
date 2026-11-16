@@ -72,7 +72,7 @@ export default async function HistoryPage() {
           </p>
           <Link
             href="/dashboard/intake"
-            className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-org-200)]"
+            className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] px-4 sm:px-5 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-400)]"
           >
             Isi Form Awal
             <ArrowUpRight className="h-4 w-4" />
@@ -132,7 +132,7 @@ export default async function HistoryPage() {
                     {isEditable ? (
                       <Link
                         href="/dashboard/intake"
-                        className="inline-flex h-10 items-center justify-center rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700]  hover:bg-[var(--hafta-org-200)]"
+                        className="inline-flex h-10 items-center justify-center rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-[#181700]  hover:bg-[var(--hafta-400)]"
                       >
                         Buka Form
                       </Link>

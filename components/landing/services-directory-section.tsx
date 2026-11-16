@@ -22,7 +22,6 @@ export function ServicesDirectorySection() {
         {/* Header Section Panduan */}
         <div className="max-w-2xl">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-            <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
             Direktori Klinis Interaktif
           </div>
           <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl lg:text-4xl">
@@ -64,13 +63,6 @@ export function ServicesDirectorySection() {
                   >
                     {number}
                   </span>
-                  <div
-                    className={cn(
-                      'h-2 w-2 rounded-full transition-transform',
-                      isActive ? 'bg-[var(--hafta-org-100)] scale-110' : 'bg-stone-300'
-                    )}
-                    aria-hidden="true"
-                  />
                 </div>
 
                 {/* Baris Bawah: Nama Layanan */}
@@ -98,7 +90,7 @@ export function ServicesDirectorySection() {
                   className={cn(
                     'group flex w-full items-center justify-between rounded-2xl p-4 text-left transition-all duration-200',
                     isActive
-                      ? 'border-l-4 border-l-[var(--hafta-org-100)] bg-[var(--hafta-org-950)] text-white shadow-md'
+                      ? 'border-l-4 border-l-[var(--hafta-300)] bg-[var(--hafta-org-950)] text-white shadow-md'
                       : 'border border-stone-200/70 bg-white text-stone-700 hover:border-stone-300 hover:bg-stone-50'
                   )}
                 >
@@ -249,7 +241,7 @@ export function ServicesDirectorySection() {
                   href={`https://wa.me/6281232932872?text=Halo%20Hafta%20Fisioterapi,%20saya%20ingin%20konsultasi%20mengenai%20layanan%20${encodeURIComponent(activeService.title)}.`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-950)] px-4 sm:px-5 py-3 text-xs font-bold text-white transition-colors hover:bg-[var(--hafta-org-100)] hover:text-[var(--hafta-org-950)] sm:w-auto sm:py-2.5"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-950)] px-4 sm:px-5 py-3 text-xs font-bold text-white transition-colors hover:bg-[var(--hafta-300)] hover:text-[var(--hafta-950)] sm:w-auto sm:py-2.5"
                 >
                   <MessageCircle className="h-4 w-4" />
                   Konsultasikan Keluhan Ini

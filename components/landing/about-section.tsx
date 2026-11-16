@@ -32,7 +32,6 @@ export function AboutSection() {
           <ScrollAnimation direction="left">
             <div>
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Tentang Hafta Fisioterapi
               </div>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl lg:text-4xl">
@@ -84,7 +83,7 @@ export function AboutSection() {
               </div>
 
               <div className="absolute -bottom-2 right-2 sm:bottom-0 sm:right-0 rounded-2xl border border-white/10 bg-[var(--hafta-org-950)] px-4 sm:px-5 py-3.5 text-white shadow-xl flex items-center gap-3">
-                <span className="text-3xl sm:text-4xl font-extrabold text-[var(--hafta-org-100)]">5+</span>
+                <span className="text-3xl sm:text-4xl font-extrabold text-[var(--hafta-300)]">5+</span>
                 <div className="text-xs leading-tight font-medium text-stone-200">
                   <p className="font-bold text-white text-sm">Tahun Pengalaman</p>
                   <p className="text-[11px] text-stone-300">Klinis &amp; Olahraga</p>

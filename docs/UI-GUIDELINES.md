@@ -63,6 +63,14 @@ Taste Skill must not override:
 - content accuracy;
 - clinical workflow.
 
+## 4A. Color discipline
+
+- Primary accent is **Hafta Orange 300 (`#FF951C`)**; use it for CTA, active navigation, and focal accents.
+- Keep a maximum of four dominant colors per screen: charcoal, Hafta Orange 300, stone/neutral, and white.
+- Green/red/amber are semantic status colors only, not decoration.
+- Preserve existing icon colors inside icon surfaces; do not recolor icons merely to match the CTA orange.
+- Do not use decorative dots, gradient blur orbs, or generic accent lines purely as filler.
+
 ## 5. Landing page structure
 
 Recommended order:

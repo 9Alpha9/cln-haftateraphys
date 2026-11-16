@@ -257,7 +257,7 @@ export function PatientBookingPanel({
             <button
               type="button"
               onClick={() => router.refresh()}
-              className="mt-3 inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 "
+              className="mt-3 inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 "
             >
               Muat ulang jadwal
             </button>
@@ -631,7 +631,7 @@ export function PatientBookingPanel({
             type="button"
             onClick={submitRequest}
             disabled={!canSubmit}
-            className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] px-6 text-sm font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {pending ? (
               <>

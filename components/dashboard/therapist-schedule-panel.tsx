@@ -73,7 +73,7 @@ export function TherapistSchedulePanel({
               type="submit"
               form={formId}
               disabled={isSaving}
-              className="h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
+              className="h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-300)] hover:bg-[var(--hafta-400)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap shrink-0"
             >
               {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
               Simpan Jam Kerja

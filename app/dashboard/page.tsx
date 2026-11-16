@@ -135,7 +135,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         </div>
         <div className="flex w-full flex-row items-center gap-2 sm:w-auto sm:shrink-0">
           {canCreateAppt ? (
-            <NewAppointmentButton className="inline-flex h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-org-100)] px-3 text-xs font-bold text-foreground  transition-colors hover:bg-[var(--hafta-org-200)] sm:flex-none sm:px-4">
+            <NewAppointmentButton className="inline-flex h-11 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-300)] px-3 text-xs font-bold text-foreground  transition-colors hover:bg-[var(--hafta-400)] sm:flex-none sm:px-4">
               <CalendarPlus className="h-4 w-4" /> Buat Appointment
             </NewAppointmentButton>
           ) : null}
@@ -156,7 +156,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         aria-label="Ringkasan cepat"
         className="-mx-3 flex touch-pan-x snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-3 pb-1 scroll-px-3 lg:mx-0 lg:grid lg:grid-cols-4 lg:overflow-visible lg:px-0 lg:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        <article className="flex min-w-[230px] snap-start flex-col justify-between rounded-3xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-100)] p-3.5 text-foreground lg:min-w-0">
+        <article className="flex min-w-[230px] snap-start flex-col justify-between rounded-3xl border border-[var(--hafta-400)] bg-[var(--hafta-300)] p-3.5 text-[var(--hafta-950)] lg:min-w-0">
           <div>
             <div className="flex items-start justify-between gap-2">
               <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-foreground/70">

@@ -124,7 +124,7 @@ export function ErrorState({
               <button
                 type="button"
                 onClick={onRetry}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-400)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
               >
                 <RefreshCcw className="h-4 w-4" aria-hidden="true" />
                 {retryLabel}
@@ -133,7 +133,7 @@ export function ErrorState({
             {primaryAction ? (
               <Link
                 href={primaryAction.href}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-400)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
               >
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 {primaryAction.label}

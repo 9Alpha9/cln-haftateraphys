@@ -81,9 +81,9 @@ assets/design-references/02-hafta-landing-direction.png
 
 ### Visual language to preserve
 
-- dominant deep emerald/forest green;
-- teal supporting color;
-- soft sage/mint supporting surfaces;
+- dominant deep charcoal `#040100` / `#181700`;
+- Hafta Orange 300 `#FF951C` as primary accent and CTA;
+- soft warm cream `#FFF5E5` supporting surfaces;
 - generous white/off-white space;
 - yellow used sparingly as action accent;
 - modern healthcare photography;
@@ -120,7 +120,7 @@ The Markdown design-system document wins whenever exact token values or responsi
 
 ## 6. Instagram-derived brand direction
 
-The visual direction intentionally follows the Hafta Fisioterapi public-brand impression already reviewed in this project: green/teal healthcare identity, clean clinical communication, movement/recovery context, and a warm professional tone.
+The visual direction intentionally follows the Hafta Fisioterapi public-brand impression already reviewed in this project: charcoal + Hafta Orange 300 identity, clean clinical communication, movement/recovery context, and a warm professional tone.
 
 Do not scrape Instagram during build to derive runtime design tokens. Brand tokens are now locked in `docs/DESIGN-SYSTEM.md` until the owner provides an official brand guideline or explicitly approves a change.
 

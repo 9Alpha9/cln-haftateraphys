@@ -76,7 +76,7 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
                   href="https://wa.me/6281232932872"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--hafta-950)]"
+                  className="mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-300)] px-6 text-sm font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-400)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-300)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--hafta-950)]"
                 >
                   Konsultasikan Kondisi Ini
                   <ArrowRight className="h-4 w-4" />
@@ -92,7 +92,6 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
             <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
               <div>
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                   Keluhan Pasien
                 </div>
                 <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
@@ -115,7 +114,6 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
 
               <div>
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                   Pendampingan
                 </div>
                 <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
@@ -144,7 +142,6 @@ export default async function ServiceDetailPage({ params }: ServiceDetailPagePro
           <Section className="border-t border-stone-200/60 bg-[var(--background)] py-16 md:py-20">
             <Container>
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Eksplorasi Layanan
               </div>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">

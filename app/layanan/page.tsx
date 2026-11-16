@@ -64,7 +64,6 @@ export default function ServicesPage() {
               {/* Sisi Kiri (7 Kolom): Judul & Deskripsi Humanize */}
               <ScrollReveal direction="left" className="lg:col-span-7">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                   Pendampingan Pemulihan Fisik
                 </div>
 
@@ -176,7 +175,6 @@ export default function ServicesPage() {
           <Container>
             <ScrollReveal className="mx-auto max-w-2xl text-center">
               <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Panduan Pasien Baru
               </div>
               <h2 className="mt-2 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
@@ -234,7 +232,7 @@ export default function ServicesPage() {
                   href="https://wa.me/6281232932872?text=Halo%20Hafta%20Fisioterapi,%20saya%20ingin%20konsultasi%20mengenai%20keluhan%20saya%20sebelum%20membuat%20janji."
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-5 py-2.5 text-xs font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-org-200)]"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-full bg-[var(--hafta-300)] px-5 py-2.5 text-xs font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-400)]"
                 >
                   <MessageCircle className="h-4 w-4" />
                   <span>Tanya Tim Kami via WhatsApp</span>

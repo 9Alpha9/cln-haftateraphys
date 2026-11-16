@@ -135,7 +135,7 @@ export function MedicalRecordActions({
           type="button"
           onClick={() => void downloadPdf()}
           disabled={loading}
-          className={`${SPLIT_BASE} bg-[var(--hafta-org-100)] font-bold text-foreground hover:bg-[var(--hafta-org-200)]`}
+          className={`${SPLIT_BASE} bg-[var(--hafta-300)] font-bold text-foreground hover:bg-[var(--hafta-400)]`}
         >
           {loading ? (
             <Loader2 className="h-4 w-4 shrink-0 animate-spin text-foreground/60" />

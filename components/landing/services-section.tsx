@@ -15,7 +15,6 @@ export function ServicesSection() {
         <ScrollReveal>
           <div className="mx-auto max-w-2xl text-center">
             <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
               Layanan Spesialis
             </div>
             <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] md:text-3xl">
@@ -55,7 +54,7 @@ export function ServicesSection() {
                 href="https://wa.me/6281232932872"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-semibold text-[var(--hafta-org-950)] underline decoration-[var(--hafta-org-200)] decoration-2 underline-offset-4 hover:decoration-[var(--hafta-org-100)]"
+                className="font-semibold text-[var(--hafta-org-950)] underline decoration-[var(--hafta-300)] decoration-2 underline-offset-4 hover:decoration-[var(--hafta-400)]"
               >
                 Konsultasikan langsung dengan kami via WhatsApp
               </a>

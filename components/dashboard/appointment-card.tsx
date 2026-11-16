@@ -197,12 +197,12 @@ export function AppointmentCard({
           {canComplete ? (
             <CompleteSessionButton
               appointmentId={appointment.id}
-              className="inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)]"
+              className="inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)]"
             />
           ) : canModify ? (
             <AppointmentEditButton
               appointmentId={appointment.id}
-              className="inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)]"
+              className="inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)]"
               label="Ubah Jadwal"
             />
           ) : (

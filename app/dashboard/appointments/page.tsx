@@ -108,7 +108,7 @@ export default async function AppointmentsPage({
               <NewAppointmentButton
                 patientOptions={formOptions.patientOptions}
                 therapistOptions={formOptions.therapistOptions}
-                className="inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-[#181700]  transition-all hover:bg-[var(--hafta-org-200)] sm:text-[13px]"
+                className="inline-flex h-11 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-300)] px-4 sm:px-5 text-xs font-bold text-[#181700]  transition-all hover:bg-[var(--hafta-400)] sm:text-[13px]"
               >
                 <Plus className="h-4 w-4" /> Buat Appointment
               </NewAppointmentButton>

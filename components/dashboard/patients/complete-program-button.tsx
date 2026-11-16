@@ -71,7 +71,7 @@ export function CompleteProgramButton({
               type="submit"
               form="complete-therapy-program-form"
               disabled={pending || summary.trim().length < 10}
-              className="inline-flex h-11 px-4 sm:px-5 items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground font-bold text-xs sm:text-[13px] cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex h-11 px-4 sm:px-5 items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] hover:bg-[var(--hafta-400)] text-foreground font-bold text-xs sm:text-[13px] cursor-pointer transition-all whitespace-nowrap shrink-0 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
               Selesaikan Program

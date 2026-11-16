@@ -212,7 +212,7 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
             type="button"
             onClick={save}
             disabled={pending}
-            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] sm:h-11 sm:w-auto"
+            className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)] sm:h-11 sm:w-auto"
           >
             {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Simpan Perubahan

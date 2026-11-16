@@ -115,7 +115,6 @@ export default function AboutPage() {
           <Container>
             <ScrollReveal direction="left" className="max-w-2xl py-16 md:py-24">
               <div className="flex items-center gap-3">
-                <span className="h-0.5 w-8 bg-[var(--hafta-org-100)] shrink-0" aria-hidden="true" />
                 <span className="text-sm font-medium tracking-wide text-white/90">
                   Tentang Hafta Fisioterapi
                 </span>
@@ -136,7 +135,7 @@ export default function AboutPage() {
                   href="https://wa.me/6281232932872"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--hafta-950)]"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-300)] px-6 text-sm font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-400)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-300)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--hafta-950)]"
                 >
                   Konsultasi via WhatsApp
                   <ArrowRight className="h-4 w-4" />
@@ -158,7 +157,6 @@ export default function AboutPage() {
             <div className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
               <ScrollReveal direction="left">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                   Kisah &amp; Dedikasi
                 </div>
 
@@ -213,7 +211,7 @@ export default function AboutPage() {
                 </div>
 
                 <div className="absolute -bottom-2 right-2 sm:bottom-0 sm:right-0 rounded-2xl border border-white/10 bg-[var(--hafta-org-950)] px-5 py-3.5 text-white  flex items-center gap-3">
-                  <span className="text-3xl sm:text-4xl font-extrabold text-[var(--hafta-org-100)]">5+</span>
+                  <span className="text-3xl sm:text-4xl font-extrabold text-[var(--hafta-300)]">5+</span>
                   <div className="text-xs leading-tight font-medium text-stone-200">
                     <p className="font-bold text-white text-sm">Tahun Pengalaman</p>
                     <p className="text-[11px] text-stone-300">Klinis &amp; Olahraga</p>
@@ -229,7 +227,6 @@ export default function AboutPage() {
           <Container>
             <ScrollReveal className="max-w-2xl">
               <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Cakupan Layanan
               </div>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl lg:text-4xl">
@@ -279,7 +276,6 @@ export default function AboutPage() {
           <Container>
             <ScrollReveal className="mx-auto max-w-2xl text-center">
               <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Informasi &amp; Kunjungan
               </div>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
@@ -358,7 +354,6 @@ export default function AboutPage() {
           <Container>
             <ScrollReveal className="mx-auto max-w-2xl text-center">
               <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Dokumentasi Nyata
               </div>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
@@ -391,7 +386,7 @@ export default function AboutPage() {
                   href="https://wa.me/6281232932872"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)]"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-300)] px-6 text-sm font-bold text-[var(--hafta-org-950)]  transition-colors hover:bg-[var(--hafta-400)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-300)]"
                 >
                   <MessageCircle className="h-4 w-4" />
                   Hubungi via WhatsApp

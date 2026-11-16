@@ -460,7 +460,7 @@ export function PatientIntakeForm({
               type="button"
               disabled={pending}
               onClick={next}
-              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-foreground transition-all hover:bg-[var(--hafta-org-200)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
+              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-300)] px-4 sm:px-5 text-xs font-bold text-foreground transition-all hover:bg-[var(--hafta-400)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
             >
               Lanjut
             </button>
@@ -469,7 +469,7 @@ export function PatientIntakeForm({
               type="submit"
               form={formId}
               disabled={pending}
-              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 sm:px-5 text-xs font-bold text-foreground transition-all hover:bg-[var(--hafta-org-200)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
+              className="inline-flex h-11 w-full cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-300)] px-4 sm:px-5 text-xs font-bold text-foreground transition-all hover:bg-[var(--hafta-400)] disabled:opacity-50 sm:w-auto sm:px-6 sm:text-[13px]"
             >
               {pending ? 'Mengirim...' : 'Kirim untuk Ditinjau'}
             </button>

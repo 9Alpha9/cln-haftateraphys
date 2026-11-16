@@ -93,14 +93,13 @@ export function TestimonialSection({ initialData }: { initialData: FeaturableRev
       : [...reviews, ...reviews];
 
   return (
-    <Section className="overflow-hidden bg-[var(--background)] border-y border-stone-200/50">
+    <Section className="overflow-hidden bg-[var(--background)]">
       <Container>
         <ScrollAnimation>
           <div className="mx-auto max-w-3xl text-center">
-            <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
+            <p className="text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
               Ulasan Google Review
-            </div>
+            </p>
             <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] md:text-3xl">
               Pengalaman Pasien di Hafta Fisioterapi
             </h2>
@@ -128,7 +127,7 @@ export function TestimonialSection({ initialData }: { initialData: FeaturableRev
                 href={initialData.writeAReviewUri || 'https://maps.google.com/?cid=12369378807636462729'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--hafta-org-950)] underline decoration-[var(--hafta-org-200)] decoration-2 underline-offset-4 hover:decoration-[var(--hafta-org-100)]"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--hafta-org-950)] underline decoration-[var(--hafta-300)] decoration-2 underline-offset-4 hover:decoration-[var(--hafta-400)]"
               >
                 Tulis / Lihat Ulasan di Google
               </a>

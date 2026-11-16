@@ -91,7 +91,7 @@ export function SettingsForm({
           <button
             type="submit"
             disabled={pending}
-            className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-org-100)] px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
+            className="inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-300)] px-5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)] disabled:opacity-60"
           >
             {pending ? 'Menyimpan…' : 'Simpan Pengaturan'}
           </button>

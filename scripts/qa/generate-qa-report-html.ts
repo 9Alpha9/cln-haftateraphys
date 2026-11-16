@@ -199,7 +199,7 @@ async function main() {
     </dl>
     <div class="cover-summary">
       <h2>Ringkasan eksekutif</h2>
-      <p>Audit menemukan <strong>1 critical</strong> dan <strong>8 high</strong> pada otorisasi klinis, alur cetak/PDF, dan pengalaman error. Sebanyak <strong>22 temuan diperbaiki</strong> dan diverifikasi ulang. Aplikasi lulus typecheck, ESLint tanpa error, 34 test otomatis, dan build produksi. Landing page serta dashboard pasien mencapai Accessibility Lighthouse <strong>1.00</strong> setelah perbaikan kontras dan ARIA.</p>
+      <p>Audit menemukan <strong>1 critical</strong> dan <strong>8 high</strong> pada otorisasi klinis, alur cetak/PDF, dan pengalaman error. Sebanyak <strong>23 temuan diperbaiki</strong> dan diverifikasi ulang. Aplikasi lulus typecheck, ESLint tanpa error, 34 test otomatis, dan build produksi. Landing page serta dashboard pasien mencapai Accessibility Lighthouse <strong>1.00</strong> setelah perbaikan kontras dan ARIA.</p>
       <p>Staging dapat dilanjutkan setelah rate limiting, CSP, dan Mobile Gate ditutup. Produksi memerlukan review retensi rekam medis, backup/restore, dan monitoring insiden.</p>
     </div>
     <div class="cover-bottom">Dokumen ini tidak memuat data pasien nyata dan tidak boleh digunakan sebagai bukti klinis.</div>

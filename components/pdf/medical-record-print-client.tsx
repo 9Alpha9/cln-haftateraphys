@@ -65,50 +65,52 @@ export function MedicalRecordPrintClient({
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 px-4 py-8 print:bg-white print:p-0">
-      <div className="mx-auto mb-5 flex max-w-3xl flex-wrap items-center justify-between gap-3 print:hidden">
-        <Link
-          href={backHref}
-          className="inline-flex h-11 items-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-xs font-semibold text-stone-700 hover:bg-stone-50"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Kembali
-        </Link>
-        <div className="flex flex-wrap items-center gap-2">
-          {blobUrl ? (
-            <>
-              <button
-                type="button"
-                onClick={() => iframeRef.current?.contentWindow?.print()}
-                className="inline-flex h-11 items-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-xs font-semibold text-stone-700 hover:bg-stone-50"
-              >
-                <Printer className="h-4 w-4" />
-                Cetak
-              </button>
-              <button
-                type="button"
-                onClick={download}
-                className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-org-200)]"
-              >
-                <FileDown className="h-4 w-4" />
-                Unduh PDF
-              </button>
-            </>
-          ) : null}
+    <div className="flex min-h-dvh flex-col bg-stone-100 print:block print:bg-white">
+      <div className="border-b border-stone-200 bg-white print:hidden">
+        <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <Link
+            href={backHref}
+            className="inline-flex h-11 w-fit items-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-xs font-semibold text-stone-700 hover:bg-stone-50"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Kembali
+          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            {blobUrl ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => iframeRef.current?.contentWindow?.print()}
+                  className="inline-flex h-11 items-center gap-2 rounded-full border border-stone-200 bg-white px-4 text-xs font-semibold text-stone-700 hover:bg-stone-50"
+                >
+                  <Printer className="h-4 w-4" />
+                  Cetak
+                </button>
+                <button
+                  type="button"
+                  onClick={download}
+                  className="inline-flex h-11 items-center gap-2 rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-[#181700] hover:bg-[var(--hafta-400)]"
+                >
+                  <FileDown className="h-4 w-4" />
+                  Unduh PDF
+                </button>
+              </>
+            ) : null}
+          </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-3xl rounded-3xl border border-stone-200/80 bg-white p-5 sm:p-6">
+      <div className="flex flex-1 flex-col px-0 py-0 sm:px-5 sm:py-5 print:block print:p-0">
         {status === 'loading' ? (
-          <div className="flex min-h-[46vh] flex-col items-center justify-center text-center">
+          <div className="flex min-h-[52vh] flex-1 flex-col items-center justify-center text-center">
             <Loader2 className="h-8 w-8 animate-spin text-stone-400" />
             <p className="mt-3 text-sm font-semibold text-[#181700]">Menyiapkan dokumen PDF…</p>
-            <p className="mt-1 text-xs text-stone-500">
+            <p className="mt-1 max-w-sm text-xs text-stone-500">
               Isi dokumen disusun dari data rekam medis yang sama dengan tampilan pasien.
             </p>
           </div>
         ) : status === 'error' ? (
-          <div className="flex min-h-[46vh] flex-col items-center justify-center text-center">
+          <div className="flex min-h-[52vh] flex-1 flex-col items-center justify-center text-center">
             <TriangleAlert className="h-8 w-8 text-red-500" />
             <p className="mt-3 text-sm font-semibold text-[#181700]">Dokumen gagal dibuat</p>
             <p className="mt-1 max-w-sm text-xs leading-relaxed text-stone-500">
@@ -118,20 +120,21 @@ export function MedicalRecordPrintClient({
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="mt-4 inline-flex h-11 items-center rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-[#181700]"
+              className="mt-4 inline-flex h-11 items-center rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-[#181700]"
             >
               Muat ulang
             </button>
           </div>
         ) : (
-          <div>
-            <p className="text-xs text-stone-500">
-              Pratinjau PDF ditampilkan di bawah. Dialog cetak akan terbuka otomatis.
+          <div className="flex min-h-0 flex-1 flex-col">
+            <p className="border-b border-stone-200/80 bg-white px-4 py-2.5 text-xs text-stone-500 sm:rounded-t-xl sm:border-x sm:px-5 print:hidden">
+              Pratinjau PDF. Dialog cetak terbuka otomatis; gunakan tombol Cetak atau Unduh PDF bila
+              perlu.
             </p>
             <iframe
               ref={iframeRef}
               title="Pratinjau rekam medis PDF"
-              className="mt-3 h-[70vh] w-full rounded-xl border border-stone-200"
+              className="h-[calc(100dvh-8.5rem)] min-h-[420px] w-full flex-1 border-0 bg-white sm:h-[calc(100dvh-10rem)] sm:rounded-b-xl sm:border sm:border-stone-200 print:h-auto print:min-h-0"
             />
           </div>
         )}

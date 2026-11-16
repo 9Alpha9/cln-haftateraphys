@@ -63,13 +63,13 @@ export const QA_REPORT: QaReport = {
     { label: 'Quality gate', value: 'typecheck, eslint, vitest, next build, Lighthouse' },
   ],
   summary: [
-    { label: 'Total temuan', value: '28' },
+    { label: 'Total temuan', value: '29' },
     { label: 'Critical', value: '1' },
     { label: 'High', value: '8' },
-    { label: 'Medium', value: '11' },
+    { label: 'Medium', value: '12' },
     { label: 'Low', value: '6' },
     { label: 'Info / batasan', value: '1' },
-    { label: 'Diperbaiki dalam audit ini', value: '22' },
+    { label: 'Diperbaiki dalam audit ini', value: '23' },
     { label: 'Terbuka / deferred', value: '6' },
   ],
   features: [
@@ -500,7 +500,7 @@ export const QA_REPORT: QaReport = {
       title: 'Dokumen desain dan implementasi mengalami drift',
       severity: 'Low',
       category: 'UI/UX',
-      status: 'Open',
+      status: 'Fixed',
       area: 'docs/DESIGN-SYSTEM.md, app/globals.css',
       route: 'Global',
       evidence: 'Dokumen menyebut emerald/Poppins; implementasi memakai palet Hafta oranye dan font Inter.',
@@ -524,6 +524,27 @@ export const QA_REPORT: QaReport = {
       reproduction: ['Cari import komponen tersebut.'],
       errorCode: 'QA-PERF-27 / Dead code',
       recommendation: 'Hapus jika tidak direncanakan; pertahankan hanya jika ada roadmap jelas.',
+    },
+    {
+      id: 'QA-DATA-29',
+      title: 'Jam operasional landing page berbeda dari Google Business Profile',
+      severity: 'Medium',
+      category: 'Data Integrity',
+      status: 'Fixed',
+      area: 'components/landing/contact-section.tsx, app/kontak/page.tsx, lib/clinic-hours.ts',
+      route: '/, /kontak',
+      evidenceImage: 'google-hours.png',
+      evidence:
+        'Sebelum perbaikan landing/kontak menampilkan Senin–Sabtu 08.00–20.00 dan Minggu 08.00–13.00. Google Business Profile menampilkan Senin–Jumat 09.00–19.00, Sabtu 09.00–17.00, Minggu tutup.',
+      expected: 'Jam operasional di seluruh halaman sama dan sesuai Google Business Profile.',
+      actual: 'Jam berbeda 1–2 jam dan hari Minggu ditampilkan buka padahal tutup.',
+      reproduction: [
+        'Buka Google Maps “Hafta Fisioterapi Sidoarjo” dan perluas jam buka.',
+        'Bandingkan dengan / dan /kontak.',
+      ],
+      errorCode: 'QA-DATA-29 / Content accuracy',
+      recommendation:
+        'Pusatkan jam pada `lib/clinic-hours.ts`; update landing dan halaman kontak dari sumber yang sama.',
     },
     {
       id: 'QA-RESP-28',

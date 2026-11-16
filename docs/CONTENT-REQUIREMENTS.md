@@ -37,6 +37,10 @@ Confirm:
 - apakah homecare tersedia;
 - coverage homecare bila tersedia.
 
+Status 2026-11-16: jam operasional disinkronkan dengan Google Business Profile
+"Hafta Fisioterapi Sidoarjo": Senin–Jumat 09.00–19.00, Sabtu 09.00–17.00,
+Minggu tutup. Sumber kode: `lib/clinic-hours.ts`.
+
 ## 3. Services
 
 Client/therapist must approve official service list.

@@ -86,7 +86,7 @@
     </dl>
     <div class="cover-summary">
       <h2>Ringkasan eksekutif</h2>
-      <p>Audit menemukan <strong>1 critical</strong> dan <strong>8 high</strong> pada otorisasi klinis, alur cetak/PDF, dan pengalaman error. Sebanyak <strong>22 temuan diperbaiki</strong> dan diverifikasi ulang. Aplikasi lulus typecheck, ESLint tanpa error, 34 test otomatis, dan build produksi. Landing page serta dashboard pasien mencapai Accessibility Lighthouse <strong>1.00</strong> setelah perbaikan kontras dan ARIA.</p>
+      <p>Audit menemukan <strong>1 critical</strong> dan <strong>8 high</strong> pada otorisasi klinis, alur cetak/PDF, dan pengalaman error. Sebanyak <strong>23 temuan diperbaiki</strong> dan diverifikasi ulang. Aplikasi lulus typecheck, ESLint tanpa error, 34 test otomatis, dan build produksi. Landing page serta dashboard pasien mencapai Accessibility Lighthouse <strong>1.00</strong> setelah perbaikan kontras dan ARIA.</p>
       <p>Staging dapat dilanjutkan setelah rate limiting, CSP, dan Mobile Gate ditutup. Produksi memerlukan review retensi rekam medis, backup/restore, dan monitoring insiden.</p>
     </div>
     <div class="cover-bottom">Dokumen ini tidak memuat data pasien nyata dan tidak boleh digunakan sebagai bukti klinis.</div>
@@ -111,11 +111,11 @@
     <h1 class="section">2. Daftar temuan</h1>
     <p class="lead">Severity mengikuti dampak terhadap keamanan data pasien, integritas rekam medis, dan kemampuan pengguna menyelesaikan tugas utama.</p>
     <div class="summary-grid">
-      <div class="summary-card"><div class="k">Total temuan</div><div class="v">28</div></div><div class="summary-card"><div class="k">Critical</div><div class="v">1</div></div><div class="summary-card"><div class="k">High</div><div class="v">8</div></div><div class="summary-card"><div class="k">Medium</div><div class="v">11</div></div><div class="summary-card"><div class="k">Low</div><div class="v">6</div></div><div class="summary-card"><div class="k">Info / batasan</div><div class="v">1</div></div><div class="summary-card"><div class="k">Diperbaiki dalam audit ini</div><div class="v">22</div></div><div class="summary-card"><div class="k">Terbuka / deferred</div><div class="v">6</div></div>
+      <div class="summary-card"><div class="k">Total temuan</div><div class="v">29</div></div><div class="summary-card"><div class="k">Critical</div><div class="v">1</div></div><div class="summary-card"><div class="k">High</div><div class="v">8</div></div><div class="summary-card"><div class="k">Medium</div><div class="v">12</div></div><div class="summary-card"><div class="k">Low</div><div class="v">6</div></div><div class="summary-card"><div class="k">Info / batasan</div><div class="v">1</div></div><div class="summary-card"><div class="k">Diperbaiki dalam audit ini</div><div class="v">23</div></div><div class="summary-card"><div class="k">Terbuka / deferred</div><div class="v">6</div></div>
     </div>
     <table>
       <thead><tr><th style="width:10%">ID</th><th>Judul</th><th style="width:11%">Severity</th><th style="width:10%">Status</th><th style="width:13%">Kategori</th></tr></thead>
-      <tbody><tr><td class="mono">SEC-01</td><td>Terapis dapat mengakses dan menulis rekam medis pasien yang tidak di-assign</td><td><span class="chip sev-critical">Critical</span></td><td>Fixed</td><td>Security</td></tr><tr><td class="mono">SEC-02</td><td>Daftar intake dan PDF intake tidak dibatasi ke pasien yang di-assign</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Security</td></tr><tr><td class="mono">SEC-03</td><td>Kredensial masuk dapat masuk ke URL sebelum React ter-hidrasi</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Security</td></tr><tr><td class="mono">FUNC-04</td><td>Tautan “Lihat jadwal” pada rekam medis mengarah ke route yang tidak ada</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">PDF-05</td><td>Cetak jadwal menghasilkan template rekam medis dengan isi klinis kosong</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Print/PDF</td></tr><tr><td class="mono">PDF-06</td><td>Tombol Cetak rekam medis tidak membuka dialog cetak</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Print/PDF</td></tr><tr><td class="mono">PDF-07</td><td>Isi PDF tidak identik dengan tampilan pasien</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Print/PDF</td></tr><tr><td class="mono">PDF-08</td><td>Footer pengesahan berulang di setiap halaman / berpotensi terpisah dari isi</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Print/PDF</td></tr><tr><td class="mono">A11Y-09</td><td>Kontras tanggal kalender non-aktif gagal WCAG AA</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">A11Y-10</td><td>Label grup sidebar memiliki kontras 2.33:1</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">A11Y-11</td><td>aria-controls menunjuk ID yang tidak dirender</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">A11Y-12</td><td>Nama aksesibel tombol notifikasi tidak memuat angka yang terlihat</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">A11Y-13</td><td>Tombol tampilkan kata sandi tidak dapat dijangkau keyboard</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">UI-14</td><td>Dua tautan “Lupa kata sandi?” dengan tujuan berbeda</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>UI/UX</td></tr><tr><td class="mono">UI-15</td><td>Label opsi “ingat” ambigu dan tidak sesuai perilaku</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>UI/UX</td></tr><tr><td class="mono">UI-16</td><td>DashboardPageHeader tidak mengikuti kontrak visual terkunci</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>UI/UX</td></tr><tr><td class="mono">UX-17</td><td>Dropdown AppSelect tidak memindahkan fokus ke opsi</td><td><span class="chip sev-low">Low</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">SEO-18</td><td>robots.txt tidak tersedia</td><td><span class="chip sev-low">Low</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">SEC-19</td><td>Rate limiting login/reset belum terlihat pada aplikasi</td><td><span class="chip sev-medium">Medium</span></td><td>Open</td><td>Security</td></tr><tr><td class="mono">SEC-20</td><td>Content-Security-Policy belum diterapkan</td><td><span class="chip sev-medium">Medium</span></td><td>Open</td><td>Security</td></tr><tr><td class="mono">MAINT-21</td><td>Belum ada mode pemeliharaan global untuk mengunci akses pengguna</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">ERR-22</td><td>Halaman error belum mencakup 401/403/500/503 dan informasi insiden</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">DATA-23</td><td>Nama terapis pasien dapat berasal dari assignment lama</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>Data Integrity</td></tr><tr><td class="mono">FUNC-24</td><td>Pencarian pasien hanya memakai nama</td><td><span class="chip sev-low">Low</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">FUNC-25</td><td>Pasien belum memiliki halaman dokumen sendiri</td><td><span class="chip sev-low">Low</span></td><td>Open</td><td>Functional</td></tr><tr><td class="mono">UI-26</td><td>Dokumen desain dan implementasi mengalami drift</td><td><span class="chip sev-low">Low</span></td><td>Open</td><td>UI/UX</td></tr><tr><td class="mono">PERF-27</td><td>Beberapa primitive UI tidak terpakai dan menambah permukaan perawatan</td><td><span class="chip sev-low">Low</span></td><td>Open</td><td>Performance</td></tr><tr><td class="mono">RESP-28</td><td>Mobile Gate belum diuji menyeluruh pada 320/360/390/430 px</td><td><span class="chip sev-info">Info</span></td><td>Deferred</td><td>Responsive</td></tr></tbody>
+      <tbody><tr><td class="mono">SEC-01</td><td>Terapis dapat mengakses dan menulis rekam medis pasien yang tidak di-assign</td><td><span class="chip sev-critical">Critical</span></td><td>Fixed</td><td>Security</td></tr><tr><td class="mono">SEC-02</td><td>Daftar intake dan PDF intake tidak dibatasi ke pasien yang di-assign</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Security</td></tr><tr><td class="mono">SEC-03</td><td>Kredensial masuk dapat masuk ke URL sebelum React ter-hidrasi</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Security</td></tr><tr><td class="mono">FUNC-04</td><td>Tautan “Lihat jadwal” pada rekam medis mengarah ke route yang tidak ada</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">PDF-05</td><td>Cetak jadwal menghasilkan template rekam medis dengan isi klinis kosong</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Print/PDF</td></tr><tr><td class="mono">PDF-06</td><td>Tombol Cetak rekam medis tidak membuka dialog cetak</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Print/PDF</td></tr><tr><td class="mono">PDF-07</td><td>Isi PDF tidak identik dengan tampilan pasien</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Print/PDF</td></tr><tr><td class="mono">PDF-08</td><td>Footer pengesahan berulang di setiap halaman / berpotensi terpisah dari isi</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Print/PDF</td></tr><tr><td class="mono">A11Y-09</td><td>Kontras tanggal kalender non-aktif gagal WCAG AA</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">A11Y-10</td><td>Label grup sidebar memiliki kontras 2.33:1</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">A11Y-11</td><td>aria-controls menunjuk ID yang tidak dirender</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">A11Y-12</td><td>Nama aksesibel tombol notifikasi tidak memuat angka yang terlihat</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">A11Y-13</td><td>Tombol tampilkan kata sandi tidak dapat dijangkau keyboard</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">UI-14</td><td>Dua tautan “Lupa kata sandi?” dengan tujuan berbeda</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>UI/UX</td></tr><tr><td class="mono">UI-15</td><td>Label opsi “ingat” ambigu dan tidak sesuai perilaku</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>UI/UX</td></tr><tr><td class="mono">UI-16</td><td>DashboardPageHeader tidak mengikuti kontrak visual terkunci</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>UI/UX</td></tr><tr><td class="mono">UX-17</td><td>Dropdown AppSelect tidak memindahkan fokus ke opsi</td><td><span class="chip sev-low">Low</span></td><td>Fixed</td><td>A11y</td></tr><tr><td class="mono">SEO-18</td><td>robots.txt tidak tersedia</td><td><span class="chip sev-low">Low</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">SEC-19</td><td>Rate limiting login/reset belum terlihat pada aplikasi</td><td><span class="chip sev-medium">Medium</span></td><td>Open</td><td>Security</td></tr><tr><td class="mono">SEC-20</td><td>Content-Security-Policy belum diterapkan</td><td><span class="chip sev-medium">Medium</span></td><td>Open</td><td>Security</td></tr><tr><td class="mono">MAINT-21</td><td>Belum ada mode pemeliharaan global untuk mengunci akses pengguna</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">ERR-22</td><td>Halaman error belum mencakup 401/403/500/503 dan informasi insiden</td><td><span class="chip sev-high">High</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">DATA-23</td><td>Nama terapis pasien dapat berasal dari assignment lama</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>Data Integrity</td></tr><tr><td class="mono">FUNC-24</td><td>Pencarian pasien hanya memakai nama</td><td><span class="chip sev-low">Low</span></td><td>Fixed</td><td>Functional</td></tr><tr><td class="mono">FUNC-25</td><td>Pasien belum memiliki halaman dokumen sendiri</td><td><span class="chip sev-low">Low</span></td><td>Open</td><td>Functional</td></tr><tr><td class="mono">UI-26</td><td>Dokumen desain dan implementasi mengalami drift</td><td><span class="chip sev-low">Low</span></td><td>Fixed</td><td>UI/UX</td></tr><tr><td class="mono">PERF-27</td><td>Beberapa primitive UI tidak terpakai dan menambah permukaan perawatan</td><td><span class="chip sev-low">Low</span></td><td>Open</td><td>Performance</td></tr><tr><td class="mono">DATA-29</td><td>Jam operasional landing page berbeda dari Google Business Profile</td><td><span class="chip sev-medium">Medium</span></td><td>Fixed</td><td>Data Integrity</td></tr><tr><td class="mono">RESP-28</td><td>Mobile Gate belum diuji menyeluruh pada 320/360/390/430 px</td><td><span class="chip sev-info">Info</span></td><td>Deferred</td><td>Responsive</td></tr></tbody>
     </table>
     <h2>2.1 Metodologi pengujian</h2>
     <div class="note">
@@ -1359,7 +1359,7 @@
       </div>
       <div class="chips">
         <span class="chip sev-low">Low</span>
-        <span class="chip status-open">Open</span>
+        <span class="chip status-fixed">Fixed</span>
       </div>
     </div>
 
@@ -1445,6 +1445,57 @@
     </div>
 
     
+  </section>
+  <section class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-kicker">QA-DATA-29 · Data Integrity · components/landing/contact-section.tsx, app/kontak/page.tsx, lib/clinic-hours.ts</div>
+        <h3>Jam operasional landing page berbeda dari Google Business Profile</h3>
+        <p class="route">/, /kontak</p>
+      </div>
+      <div class="chips">
+        <span class="chip sev-medium">Medium</span>
+        <span class="chip status-fixed">Fixed</span>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Bukti</div>
+        <p>Sebelum perbaikan landing/kontak menampilkan Senin–Sabtu 08.00–20.00 dan Minggu 08.00–13.00. Google Business Profile menampilkan Senin–Jumat 09.00–19.00, Sabtu 09.00–17.00, Minggu tutup.</p>
+      </div>
+      <div>
+        <div class="label">Kode / klasifikasi</div>
+        <p class="mono">QA-DATA-29 / Content accuracy</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Expected</div>
+        <p>Jam operasional di seluruh halaman sama dan sesuai Google Business Profile.</p>
+      </div>
+      <div>
+        <div class="label">Actual</div>
+        <p>Jam berbeda 1–2 jam dan hari Minggu ditampilkan buka padahal tutup.</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <div class="label">Langkah reproduksi</div>
+        <ol><li>Buka Google Maps “Hafta Fisioterapi Sidoarjo” dan perluas jam buka.</li><li>Bandingkan dengan / dan /kontak.</li></ol>
+      </div>
+      <div>
+        <div class="label">Rekomendasi</div>
+        <p>Pusatkan jam pada `lib/clinic-hours.ts`; update landing dan halaman kontak dari sumber yang sama.</p>
+      </div>
+    </div>
+
+    <figure>
+            <img src="screenshots/google-hours.png" alt="Bukti QA-DATA-29" />
+            <figcaption>google-hours.png — anotasi merah menunjukkan area masalah, hijau menunjukkan hasil perbaikan.</figcaption>
+          </figure>
   </section>
   <section class="finding">
     <div class="finding-head">

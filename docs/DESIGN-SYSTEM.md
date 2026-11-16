@@ -47,14 +47,18 @@ See `docs/DESIGN-REFERENCES.md` for reference precedence and usage rules.
 
 | Token         | Hex       | Usage                                         |
 | ------------- | --------- | --------------------------------------------- |
-| `emerald-900` | `#064E3B` | strongest brand surface, dark hero/footer     |
-| `emerald-700` | `#065F46` | primary buttons, interactive brand color      |
-| `teal-600`    | `#0D766E` | supporting accents, focus/secondary emphasis  |
-| `sage-200`    | `#DDEBE3` | soft healthcare surface, chips, subtle panels |
-| `yellow-400`  | `#FBBF24` | limited high-attention accent                 |
-| `yellow-500`  | `#F59E0B` | hover/strong accent where accessible          |
-| `surface`     | `#F6FAF8` | off-white branded page surface                |
+| `hafta-300`   | `#FF951C` | **primary brand orange**, CTA, active nav, accent |
+| `hafta-400`   | `#D47200` | hover/pressed state for orange CTA             |
+| `hafta-200`   | `#FFD093` | soft accent border/chip                        |
+| `hafta-100`   | `#FFE8C7` | icon surface / soft highlight                  |
+| `hafta-50`    | `#FFF5E5` | subtle branded surface                         |
+| `hafta-950`   | `#040100` | dark hero/footer/sidebar surface               |
+| `surface`     | `#FCFCFB` | off-white page surface                         |
 | `white`       | `#FFFFFF` | card/surface                                  |
+
+> Aturan implementasi: **Hafta Orange 300 adalah warna orange utama**. Jangan memakai
+> kuning/cream sebagai warna CTA utama. Warna ikon pada kotak ikon dipertahankan
+> sesuai komponen yang sudah ada; jangan mengubah ikon menjadi `hafta-300`.
 
 ### 3.2 Neutral/text tokens
 
@@ -74,17 +78,17 @@ See `docs/DESIGN-REFERENCES.md` for reference precedence and usage rules.
 Prefer semantic aliases instead of direct color names inside feature components.
 
 ```text
---color-primary: #065F46
---color-primary-strong: #064E3B
---color-secondary: #0D766E
---color-accent: #FBBF24
---color-surface: #F6FAF8
+--color-primary: #FF951C
+--color-primary-strong: #D47200
+--color-secondary: #FFD093
+--color-accent: #FFE8C7
+--color-surface: #FCFCFB
 --color-card: #FFFFFF
---color-text: #111827
---color-text-secondary: #374151
---color-text-muted: #6B7280
---color-border: #E5E7EB
---color-border-strong: #CBD5E1
+--color-text: #040100
+--color-text-secondary: #44403C
+--color-text-muted: #78716C
+--color-border: #E7E5E4
+--color-border-strong: #D6D3D1
 --color-success: #15803D
 --color-warning: #B45309
 --color-danger: #B91C1C
@@ -102,6 +106,7 @@ Semantic feedback colors may be tuned for WCAG contrast, but must remain central
 - Red is reserved for destructive/error/critical state.
 - Clinical severity must not be implied solely through decorative color.
 - Maintain WCAG AA contrast for normal text and interactive states.
+- **Maksimal empat warna dominan per layar**: charcoal, orange Hafta 300, stone/neutral, dan putih. Hijau/merah/amber hanya untuk status semantik, bukan dekorasi.
 
 ## 4. Typography
 
@@ -110,7 +115,7 @@ Semantic feedback colors may be tuned for WCAG contrast, but must remain central
 Primary implementation direction:
 
 ```text
-Poppins, system-ui, sans-serif
+Inter, system-ui, sans-serif
 ```
 
 Use a framework-managed font loading strategy. If an official client brand font is provided later, change only after explicit approval and update this document first.
@@ -266,7 +271,7 @@ Examples:
 
 Style direction:
 
-- emerald background;
+- Hafta Orange 300 (`#FF951C`) background;
 - high-contrast text;
 - clear focus ring;
 - minimum touch target 44×44px;

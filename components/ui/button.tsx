@@ -9,7 +9,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'cursor-pointer bg-[var(--hafta-org-100)] font-bold text-[#181700]  hover:bg-[var(--hafta-org-200)]',
+          'cursor-pointer bg-[var(--hafta-300)] font-bold text-[#181700]  hover:bg-[var(--hafta-400)]',
         outline:
           'cursor-pointer border-border bg-background hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
         secondary:

@@ -20,6 +20,7 @@ import { Section } from '@/components/section';
 import { ScrollReveal } from '@/components/ui/scroll-reveal';
 import { ContactReviewCard } from '@/components/landing/contact-review-card';
 import { getFeaturableReviews } from '@/lib/featurable';
+import { CLINIC_HOURS } from '@/lib/clinic-hours';
 
 export const metadata: Metadata = {
   title: 'Kontak Person & Lokasi — Hafta Fisioterapi Sidoarjo',
@@ -57,7 +58,6 @@ export default async function ContactPage() {
           <Container>
             <ScrollReveal direction="left" className="max-w-2xl py-14 md:py-20 lg:py-24">
               <div className="flex items-center gap-3">
-                <span className="h-0.5 w-8 bg-[var(--hafta-org-100)] shrink-0" aria-hidden="true" />
                 <span className="text-sm font-medium tracking-wide text-white/90">
                   Kontak Person &amp; Lokasi Klinik
                 </span>
@@ -114,7 +114,7 @@ export default async function ContactPage() {
                     href="https://wa.me/6281232932872?text=Halo%20Hafta%20Fisioterapi,%20saya%20ingin%20konsultasi%20mengenai%20keluhan%20gerak/terapi."
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-4 py-2.5 text-xs font-bold text-[var(--hafta-org-950)] -xs transition-colors hover:bg-[var(--hafta-org-200)]"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-300)] px-4 py-2.5 text-xs font-bold text-[var(--hafta-org-950)] -xs transition-colors hover:bg-[var(--hafta-400)]"
                   >
                     <MessageCircle className="h-4 w-4" />
                     Chat WhatsApp
@@ -161,10 +161,12 @@ export default async function ContactPage() {
                     Jam Operasional
                   </h3>
                   <div className="mt-2 space-y-1 text-xs sm:text-sm text-stone-700">
-                    <p className="font-semibold text-stone-900">Senin – Sabtu:</p>
-                    <p className="text-stone-600">08.00 – 20.00 WIB</p>
-                    <p className="pt-1 font-semibold text-stone-900">Minggu &amp; Libur:</p>
-                    <p className="text-stone-600">08.00 – 13.00 WIB</p>
+                    {CLINIC_HOURS.map((item) => (
+                      <p key={item.day}>
+                        <span className="font-semibold text-stone-900">{item.day}:</span>{' '}
+                        <span className="text-stone-600">{item.hours}</span>
+                      </p>
+                    ))}
                   </div>
                 </div>
                 <div className="mt-6 pt-4 border-t border-stone-200/60">
@@ -213,7 +215,6 @@ export default async function ContactPage() {
             <div className="grid gap-8 lg:grid-cols-3 lg:items-center lg:gap-12">
               <ScrollReveal direction="left" className="lg:col-span-1">
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                   Peta Navigasi
                 </div>
                 <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
@@ -244,7 +245,7 @@ export default async function ContactPage() {
                     href="https://maps.app.goo.gl/rtobQBMKrAMkcqxF7"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-5 text-sm font-bold text-[var(--hafta-org-950)] -xs transition-colors hover:bg-[var(--hafta-org-200)]"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-300)] px-5 text-sm font-bold text-[var(--hafta-org-950)] -xs transition-colors hover:bg-[var(--hafta-400)]"
                   >
                     <Navigation className="h-4 w-4" />
                     Buka Petunjuk Arah
@@ -295,7 +296,6 @@ export default async function ContactPage() {
           <Container>
             <ScrollReveal className="mx-auto max-w-2xl text-center">
               <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
                 Ulasan Google Review
               </div>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] sm:text-3xl">
@@ -383,7 +383,7 @@ export default async function ContactPage() {
                 href="https://wa.me/6281232932872?text=Halo%20Hafta%20Fisioterapi,%20saya%20ingin%20tanya-tanya%20mengenai%20layanan%20fisioterapi."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-6 text-sm font-bold text-[var(--hafta-org-950)] -xs transition-colors hover:bg-[var(--hafta-org-200)]"
+                className="mt-3 inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-300)] px-6 text-sm font-bold text-[var(--hafta-org-950)] -xs transition-colors hover:bg-[var(--hafta-400)]"
               >
                 <MessageCircle className="h-4 w-4" />
                 Tanyakan Langsung via WhatsApp

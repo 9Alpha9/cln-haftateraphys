@@ -201,7 +201,8 @@ export function MaintenanceConsole({
               className="h-11 w-full rounded-xl border border-stone-300 bg-white px-3 text-sm text-[#181700] focus:border-[#181700] focus:outline-none focus:ring-4 focus:ring-[var(--hafta-300)]/35 disabled:opacity-60"
             />
             <p className="text-[11px] text-stone-500">
-              Setelah waktu ini, situs otomatis terbuka kembali tanpa perlu mematikan manual.
+              Setelah waktu ini, situs otomatis terbuka kembali tanpa perlu mematikan manual. Hitung
+              mundur juga tampil di halaman pemeliharaan.
             </p>
           </div>
 

@@ -52,7 +52,7 @@ const steps = [
 
 function PortalBadge() {
   return (
-    <span className="mt-2 inline-flex rounded-full bg-[var(--hafta-org-950)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[var(--hafta-org-100)]">
+    <span className="mt-2 inline-flex rounded-full bg-[var(--hafta-org-950)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[var(--hafta-300)]">
       Patient Portal
     </span>
   );
@@ -65,7 +65,6 @@ export function TherapyProcessSection() {
         <ScrollAnimation>
           <div className="mx-auto max-w-2xl text-center">
             <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
               Tahapan Alur
             </div>
             <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] md:text-3xl">
@@ -121,7 +120,7 @@ export function TherapyProcessSection() {
 
                 {step.isPortal && (
                   <div className="mt-5 pt-3 border-t border-stone-100">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--hafta-org-950)] px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[var(--hafta-org-100)]">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--hafta-org-950)] px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[var(--hafta-300)]">
                       Patient Portal
                     </span>
                   </div>

@@ -117,7 +117,7 @@ export function ArchivedPatientList({ items }: { items: ArchivedPatient[] }) {
                 type="button"
                 onClick={() => setTargetId(patient.id)}
                 className={cn(
-                  'inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)]',
+                  'inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)]',
                 )}
               >
                 <RotateCcw className="h-3.5 w-3.5" />

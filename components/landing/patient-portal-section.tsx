@@ -32,15 +32,14 @@ const features = [
 
 export function PatientPortalSection() {
   return (
-    <Section className="bg-[var(--background)] border-y border-stone-200/50">
+    <Section className="bg-[var(--background)]">
       <Container>
         <div className="grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-14">
-          <ScrollAnimation direction="left">
+          <ScrollAnimation direction="left" className="lg:order-2">
             <div>
-              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
+              <p className="text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
                 Layanan Digital Pasien
-              </div>
+              </p>
               <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] md:text-3xl">
                 Pantau perkembangan terapi Anda melalui Patient Portal
               </h2>
@@ -70,7 +69,7 @@ export function PatientPortalSection() {
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
                   href="/login"
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-4 sm:px-6 text-sm font-semibold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)]"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[var(--hafta-300)] px-4 sm:px-6 text-sm font-semibold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-400)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-300)]"
                 >
                   Masuk Patient Portal
                   <ArrowRight className="h-4 w-4" />
@@ -85,7 +84,7 @@ export function PatientPortalSection() {
             </div>
           </ScrollAnimation>
 
-          <ScrollAnimation direction="right" delay={0.2}>
+          <ScrollAnimation direction="right" delay={0.2} className="lg:order-1">
             <div className="relative mx-auto w-full max-w-xl lg:mx-0">
               <div className="relative aspect-square overflow-hidden rounded-2xl border border-stone-200/70 bg-white p-3.5 sm:p-5 shadow-[0_12px_40px_rgba(24,23,0,0.06)]">
                 <Image

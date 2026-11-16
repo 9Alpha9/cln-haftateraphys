@@ -251,7 +251,7 @@ export function IntakeDetailDrawer({
                 type="button"
                 disabled={isActionPending}
                 onClick={() => handleAction('start-review')}
-                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
+                className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-300)] hover:bg-[var(--hafta-400)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
               >
                 {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                 <span>Mulai Tinjau Form</span>
@@ -272,7 +272,7 @@ export function IntakeDetailDrawer({
                   type="button"
                   disabled={isActionPending}
                   onClick={() => handleAction('accept')}
-                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-org-100)] hover:bg-[var(--hafta-org-200)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
+                  className="h-10 sm:h-11 px-4 sm:px-5 rounded-full bg-[var(--hafta-300)] hover:bg-[var(--hafta-400)] text-foreground font-bold text-xs sm:text-[13px] inline-flex items-center justify-center gap-2 cursor-pointer transition-all whitespace-nowrap disabled:opacity-60"
                 >
                   {isActionPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
                   <span>Terima / ACC Form</span>

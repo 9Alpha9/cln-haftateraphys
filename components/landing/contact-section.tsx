@@ -4,6 +4,7 @@ import { Container } from '@/components/container';
 import { Section } from '@/components/section';
 import { ScrollAnimation } from '@/components/ui/scroll-animation';
 import { MapPin, Phone, Clock, MessageCircle, Navigation } from 'lucide-react';
+import { CLINIC_HOURS } from '@/lib/clinic-hours';
 
 export function ContactSection() {
   return (
@@ -12,7 +13,6 @@ export function ContactSection() {
         <ScrollAnimation>
           <div className="mx-auto max-w-2xl text-center">
             <div className="flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-[var(--hafta-org-950)]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[var(--hafta-org-100)]" aria-hidden="true" />
               Lokasi &amp; Kontak
             </div>
             <h2 className="mt-3 text-2xl font-bold tracking-tight text-[var(--hafta-org-950)] md:text-3xl">
@@ -45,7 +45,7 @@ export function ContactSection() {
                   href="https://maps.app.goo.gl/rtobQBMKrAMkcqxF7"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-stone-200 bg-[var(--hafta-org-100)] px-3 text-xs font-bold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-org-200)]"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-stone-200 bg-[var(--hafta-300)] px-3 text-xs font-bold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-400)]"
                 >
                   <Navigation className="h-3 w-3" />
                   Buka di Maps
@@ -77,9 +77,12 @@ export function ContactSection() {
                   </div>
                   <div>
                     <h3 className="font-bold text-[var(--hafta-org-950)]">Jam Pelayanan</h3>
-                    <div className="mt-1 flex flex-col text-sm text-stone-600">
-                      <span>Senin - Sabtu: 08.00 - 20.00 WIB</span>
-                      <span>Minggu &amp; Libur: 08.00 - 13.00 WIB</span>
+                    <div className="mt-1 flex flex-col gap-0.5 text-sm text-stone-600">
+                      {CLINIC_HOURS.map((item) => (
+                        <span key={item.day}>
+                          <span className="font-medium text-stone-800">{item.day}:</span> {item.hours}
+                        </span>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -91,7 +94,7 @@ export function ContactSection() {
                 href="https://wa.me/6281232932872"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] px-4 sm:px-5 py-4 text-sm font-bold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-org-200)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-100)]"
+                className="flex items-center justify-center gap-2 rounded-xl bg-[var(--hafta-300)] px-4 sm:px-5 py-4 text-sm font-bold text-[var(--hafta-org-950)] transition-colors hover:bg-[var(--hafta-400)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-300)]"
               >
                 <MessageCircle className="h-5 w-5" />
                 Konsultasi via WhatsApp

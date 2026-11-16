@@ -212,7 +212,7 @@ export function LoginForm({ reason }: LoginFormProps) {
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[var(--hafta-950)] transition-all hover:bg-[var(--hafta-org-200)] disabled:opacity-60"
+            className="inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--hafta-300)] text-sm font-bold text-[var(--hafta-950)] transition-all hover:bg-[var(--hafta-400)] disabled:opacity-60"
           >
             {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Verifikasi
@@ -368,7 +368,7 @@ export function LoginForm({ reason }: LoginFormProps) {
           <button
             type="submit"
             disabled={isPending}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[var(--hafta-950)] transition-all duration-200 hover:bg-[var(--hafta-org-200)] active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 cursor-pointer"
+            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--hafta-300)] text-sm font-bold text-[var(--hafta-950)] transition-all duration-200 hover:bg-[var(--hafta-400)] active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60 cursor-pointer"
           >
             {isPending ? (
               <>

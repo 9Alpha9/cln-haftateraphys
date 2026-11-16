@@ -54,7 +54,7 @@ export function ForgotPasswordForm() {
         </p>
         <Link
           href="/login"
-          className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--hafta-org-100)] px-5 text-sm font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-org-200)]"
+          className="inline-flex h-11 items-center justify-center rounded-xl bg-[var(--hafta-300)] px-5 text-sm font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-400)]"
         >
           Kembali ke halaman masuk
         </Link>
@@ -99,7 +99,7 @@ export function ForgotPasswordForm() {
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--hafta-org-100)] text-sm font-bold text-[#181700] transition-all duration-200 hover:bg-[var(--hafta-org-200)] active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60"
+          className="inline-flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-[var(--hafta-300)] text-sm font-bold text-[#181700] transition-all duration-200 hover:bg-[var(--hafta-400)] active:scale-[0.99] disabled:pointer-events-none disabled:opacity-60"
         >
           {pending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           Kirim Tautan Reset

@@ -70,11 +70,11 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--hafta-org-100)]">Layanan</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--hafta-300)]">Layanan</h3>
               <ul className="mt-4 space-y-2.5">
                 {footerLinks.layanan.map((link) => (
                   <li key={link.name}>
-                    <Link href={link.href} className="text-sm text-stone-300 transition-colors hover:text-[var(--hafta-org-100)]">
+                    <Link href={link.href} className="text-sm text-stone-300 transition-colors hover:text-[var(--hafta-300)]">
                       {link.name}
                     </Link>
                   </li>
@@ -83,11 +83,11 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--hafta-org-100)]">Informasi</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--hafta-300)]">Informasi</h3>
               <ul className="mt-4 space-y-2.5">
                 {footerLinks.informasi.map((link) => (
                   <li key={link.name}>
-                    <Link href={link.href} className="text-sm text-stone-300 transition-colors hover:text-[var(--hafta-org-100)]">
+                    <Link href={link.href} className="text-sm text-stone-300 transition-colors hover:text-[var(--hafta-300)]">
                       {link.name}
                     </Link>
                   </li>
@@ -96,13 +96,13 @@ export function Footer() {
             </div>
 
             <div>
-              <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--hafta-org-100)]">Kontak &amp; Alamat</h3>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--hafta-300)]">Kontak &amp; Alamat</h3>
               <ul className="mt-4 space-y-2.5">
                 {footerLinks.kontak.map((link) => (
                   <li key={link.name}>
                     <Link
                       href={link.href}
-                      className="text-sm text-stone-300 transition-colors hover:text-[var(--hafta-org-100)]"
+                      className="text-sm text-stone-300 transition-colors hover:text-[var(--hafta-300)]"
                       target={link.href.startsWith('http') ? '_blank' : undefined}
                       rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                     >

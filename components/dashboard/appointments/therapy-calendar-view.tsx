@@ -282,7 +282,7 @@ export function TherapyCalendarView({
               <button
                 type="button"
                 onClick={() => openCreate(dateKey(currentDate), '08:00')}
-                className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-org-100)] px-3 text-[11px] font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)]"
+                className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-300)] px-3 text-[11px] font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)]"
               >
                 <Plus className="h-3.5 w-3.5" />
                 Buat Jadwal
@@ -533,7 +533,7 @@ export function TherapyCalendarView({
                 selectedAppointment.status === 'CONFIRMED') ? (
                 <CompleteSessionButton
                   appointmentId={selectedAppointment.id}
-                  className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-org-100)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-200)] sm:h-11 sm:px-5 sm:text-[13px]"
+                  className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)] sm:h-11 sm:px-5 sm:text-[13px]"
                 />
               ) : null}
               <Link
