@@ -157,29 +157,26 @@ function MedicalRecordCard({
             onClick={(event) => event.stopPropagation()}
           >
             <DropdownMenu open={showRecordMenu} onOpenChange={setShowRecordMenu}>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  aria-label="Menu opsi rekam medis"
-                  className="inline-flex h-9 w-9 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-[var(--hafta-50)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-                >
-                  <MoreVertical className="h-4 w-4 shrink-0" />
-                </button>
+              <DropdownMenuTrigger
+                aria-label="Menu opsi rekam medis"
+                className="inline-flex h-9 w-9 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-[var(--hafta-50)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+              >
+                <MoreVertical className="h-4 w-4 shrink-0" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" sideOffset={6} className="w-48">
                 <DropdownMenuItem
-                  onSelect={() => void openPrintPage()}
-                  className="gap-2 text-muted-foreground"
+                  onClick={() => void openPrintPage()}
+                  className="min-h-[40px] gap-2 text-xs text-muted-foreground"
                 >
                   <Printer className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <span className="text-xs font-medium">Print Rekam Medis</span>
+                  <span className="font-medium">Print Rekam Medis</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onSelect={() => void downloadPdf()}
-                  className="gap-2 text-muted-foreground"
+                  onClick={() => void downloadPdf()}
+                  className="min-h-[40px] gap-2 text-xs text-muted-foreground"
                 >
                   <FileDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <span className="text-xs font-medium">Unduh PDF</span>
+                  <span className="font-medium">Unduh PDF</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

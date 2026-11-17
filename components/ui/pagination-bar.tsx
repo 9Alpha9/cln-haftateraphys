@@ -192,34 +192,30 @@ export function PaginationBar({ page, pageCount, className, ...props }: Paginati
               <span className="whitespace-nowrap">Baris per halaman</span>
               <div className="flex items-center gap-1.5">
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild disabled={isChangingSize}>
-                    <button
-                      type="button"
-                      aria-label="Baris per halaman"
-                      className="flex h-8 w-24 cursor-pointer items-center justify-between gap-1.5 rounded-xl border border-border bg-card px-2.5 text-xs font-semibold text-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60 sm:h-9 sm:w-32"
-                    >
-                      <span>{props.pageSize}</span>
-                      <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                    </button>
+                  <DropdownMenuTrigger
+                    disabled={isChangingSize}
+                    aria-label="Baris per halaman"
+                    className="flex h-8 w-24 cursor-pointer items-center justify-between gap-1.5 rounded-xl border border-border bg-card px-2.5 text-xs font-semibold text-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60 sm:h-9 sm:w-32"
+                  >
+                    <span>{props.pageSize}</span>
+                    <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" sideOffset={6} className="min-w-[6rem]">
                     {sizeOptions.map((size) => {
                       const selected = size === props.pageSize;
                       return (
-                        <DropdownMenuItem key={size} asChild>
-                          <button
-                            type="button"
-                            onClick={() => changePageSize(String(size))}
-                            className={cn(
-                              'flex min-h-[40px] w-full cursor-pointer items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-xs font-medium transition-colors focus:outline-none',
-                              selected
-                                ? 'border-border bg-[var(--hafta-50)] font-bold text-foreground'
-                                : 'border-transparent text-muted-foreground',
-                            )}
-                          >
-                            <span>{size}</span>
-                            {selected ? <Check className="h-3.5 w-3.5 shrink-0" /> : null}
-                          </button>
+                        <DropdownMenuItem
+                          key={size}
+                          onClick={() => changePageSize(String(size))}
+                          className={cn(
+                            'min-h-[40px] justify-between gap-2 text-xs',
+                            selected
+                              ? 'bg-[var(--hafta-50)] font-bold text-foreground'
+                              : 'text-muted-foreground',
+                          )}
+                        >
+                          <span>{size}</span>
+                          {selected ? <Check className="h-3.5 w-3.5 shrink-0" /> : null}
                         </DropdownMenuItem>
                       );
                     })}

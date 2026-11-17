@@ -58,22 +58,20 @@ export function PatientTableActions({
   return (
     <>
       <DropdownMenu open={isMenuOpen} onOpenChange={(next) => setOpenRowId(next ? patientId : null)}>
-        <DropdownMenuTrigger asChild>
-          <button
-            type="button"
-            aria-label={patientName ? `Aksi untuk ${patientName}` : 'Aksi pasien'}
-            className="inline-flex h-10 min-h-[40px] w-10 min-w-[40px] shrink-0 aspect-square cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-          >
-            <MoreVertical className="h-4 w-4 shrink-0" />
-          </button>
+        <DropdownMenuTrigger
+          aria-label={patientName ? `Aksi untuk ${patientName}` : 'Aksi pasien'}
+          className="inline-flex h-10 min-h-[40px] w-10 min-w-[40px] shrink-0 aspect-square cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+        >
+          <MoreVertical className="h-4 w-4 shrink-0" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" sideOffset={6} className="w-44 p-2">
           <DropdownMenuItem
             disabled={pending}
-            onSelect={() => setShowConfirm(true)}
-            className="group gap-3 font-semibold focus:bg-red-600 focus:text-white"
+            onClick={() => setShowConfirm(true)}
+            variant="destructive"
+            className="group min-h-[44px] gap-3 text-xs font-semibold"
           >
-            <Archive className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-white group-focus:text-white" />
+            <Archive className="h-4 w-4 shrink-0" />
             <span className="truncate">Arsipkan Pasien</span>
           </DropdownMenuItem>
         </DropdownMenuContent>

@@ -260,36 +260,27 @@ function AppointmentDropdown({
 }) {
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          aria-label="Aksi jadwal"
-          className="inline-flex h-11 w-11 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-        >
-          <MoreVertical className="h-4 w-4 shrink-0" />
-        </button>
+      <DropdownMenuTrigger
+        aria-label="Aksi jadwal"
+        className="inline-flex h-11 w-11 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+      >
+        <MoreVertical className="h-4 w-4 shrink-0" />
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" sideOffset={8} className="w-48">
-        <DropdownMenuItem asChild>
-          <button
-            type="button"
-            onClick={() => window.open(`/dashboard/appointments/${appointment.id}/print`, '_blank')}
-            className="flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors focus:bg-[var(--hafta-50)] focus:text-foreground sm:text-sm"
-          >
-            <Printer className="h-3.5 w-3.5 shrink-0" />
-            <span className="font-medium">Cetak Jadwal</span>
-          </button>
+        <DropdownMenuItem
+          onClick={() => window.open(`/dashboard/appointments/${appointment.id}/print`, '_blank')}
+          className="min-h-[44px] gap-2.5 text-xs text-muted-foreground"
+        >
+          <Printer className="h-3.5 w-3.5 shrink-0" />
+          <span className="font-medium">Cetak Jadwal</span>
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <button
-            type="button"
-            onClick={onDelete}
-            className="flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors focus:bg-[var(--hafta-50)] focus:text-foreground sm:text-sm"
-          >
-            <Trash2 className="h-3.5 w-3.5 shrink-0" />
-            <span className="font-medium text-[var(--hafta-red-600)]">Hapus Jadwal</span>
-          </button>
+        <DropdownMenuItem
+          onClick={onDelete}
+          className="min-h-[44px] gap-2.5 text-xs text-muted-foreground"
+        >
+          <Trash2 className="h-3.5 w-3.5 shrink-0" />
+          <span className="font-medium text-[var(--hafta-red-600)]">Hapus Jadwal</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -61,37 +61,35 @@ export function SmartFilterMenu({
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger asChild disabled={disabled}>
-        <button
-          type="button"
-          aria-label={ariaLabel ?? label}
+      <DropdownMenuTrigger
+        disabled={disabled}
+        aria-label={ariaLabel ?? label}
+        className={cn(
+          'inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:text-[13px]',
+          count > 0
+            ? 'border-[var(--hafta-200)] bg-[var(--hafta-50)] text-foreground'
+            : 'border-border bg-card text-foreground hover:bg-accent',
+          className,
+        )}
+      >
+        {pending ? (
+          <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
+        ) : (
+          <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
+        )}
+        <span>{label}</span>
+        {count > 0 ? (
+          <span className="rounded-full bg-[var(--hafta-900)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--hafta-50)]">
+            {count > 99 ? '99+' : count}
+          </span>
+        ) : null}
+        <ChevronDown
+          aria-hidden="true"
           className={cn(
-            'inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:text-[13px]',
-            count > 0
-              ? 'border-[var(--hafta-200)] bg-[var(--hafta-50)] text-foreground'
-              : 'border-border bg-card text-foreground hover:bg-accent',
-            className,
+            'h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform',
+            open && 'rotate-180',
           )}
-        >
-          {pending ? (
-            <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
-          ) : (
-            <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
-          )}
-          <span>{label}</span>
-          {count > 0 ? (
-            <span className="rounded-full bg-[var(--hafta-900)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--hafta-50)]">
-              {count > 99 ? '99+' : count}
-            </span>
-          ) : null}
-          <ChevronDown
-            aria-hidden="true"
-            className={cn(
-              'h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform',
-              open && 'rotate-180',
-            )}
-          />
-        </button>
+        />
       </DropdownMenuTrigger>
 
       <DropdownMenuContent

@@ -318,14 +318,11 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
               ) : <div />}
 
               <DropdownMenu open={showProgramMenu} onOpenChange={setShowProgramMenu}>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    type="button"
-                    aria-label="Menu opsi program"
-                    className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-                  >
-                    <MoreVertical className="h-4 w-4" />
-                  </button>
+                <DropdownMenuTrigger
+                  aria-label="Menu opsi program"
+                  className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                >
+                  <MoreVertical className="h-4 w-4" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" side="top" sideOffset={8} className="w-56 p-2">
                   <div className="flex flex-col gap-1" onClick={() => setShowProgramMenu(false)}>
