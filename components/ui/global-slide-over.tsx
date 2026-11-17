@@ -205,7 +205,7 @@ export function GlobalSlideOver({
 
             {/* ── 2C. SOLID DOCKED ACTION FOOTER ── */}
             {footer && (
-              <footer className={cn("shrink-0 border-t border-stone-200/80 bg-[var(--background)] px-3.5 py-3.5 sm:px-6 sm:py-4 flex flex-col gap-2.5 w-full", footerClassName)}>
+              <footer className={cn("shrink-0 border-t border-stone-200/80 bg-[var(--background)] px-3.5 py-3 sm:px-6 sm:py-3.5 flex flex-col gap-2.5 w-full", footerClassName)}>
                 {footer}
               </footer>
             )}
