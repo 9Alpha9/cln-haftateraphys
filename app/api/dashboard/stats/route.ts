@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const stats = await getDashboardStats();
+    const stats = await getDashboardStats({ redirectToLogin: false });
     return NextResponse.json(stats);
   } catch (error) {
     if (error instanceof UnauthenticatedError) {

@@ -16,8 +16,9 @@ export type DashboardStats = {
   appointmentsTrend: { day: string; count: number; progressCount?: number }[];
 };
 
-export async function getDashboardStats(): Promise<DashboardStats> {
-  const { session, role } = await requireSession({ redirectToLogin: true });
+export async function getDashboardStats(options: { redirectToLogin?: boolean } = {}): Promise<DashboardStats> {
+  const redirectToLogin = options.redirectToLogin ?? true;
+  const { session, role } = await requireSession({ redirectToLogin });
   const db = getDb();
 
   const isTherapist = role === 'THERAPIST';
