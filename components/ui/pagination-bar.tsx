@@ -3,8 +3,8 @@
 import { useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, MoreHorizontal } from 'lucide-react';
-import { AppSelect } from '@/components/ui/app-select';
+import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+import { Check, ChevronDown, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Loader2, MoreHorizontal } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const controlClass =
@@ -186,17 +186,47 @@ export function PaginationBar({ page, pageCount, className, ...props }: Paginati
             <div className="flex items-center justify-between gap-2 sm:justify-start">
               <span className="whitespace-nowrap">Baris per halaman</span>
               <div className="flex items-center gap-1.5">
-                <AppSelect
-                  size="compact"
-                  align="left"
-                  className="w-24 sm:w-32"
-                  menuClassName="z-20 min-w-24 p-2.5 sm:min-w-32"
-                  value={String(props.pageSize)}
-                  onChange={changePageSize}
-                  disabled={isChangingSize}
-                  aria-label="Baris per halaman"
-                  options={sizeOptions.map((size) => ({ value: String(size), label: String(size) }))}
-                />
+                <DropdownMenuPrimitive.Root modal={false}>
+                  <DropdownMenuPrimitive.Trigger asChild disabled={isChangingSize}>
+                    <button
+                      type="button"
+                      aria-label="Baris per halaman"
+                      className="flex h-8 w-24 cursor-pointer items-center justify-between gap-1.5 rounded-xl border border-border bg-card px-2.5 text-xs font-semibold text-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-60 sm:h-9 sm:w-32"
+                    >
+                      <span>{props.pageSize}</span>
+                      <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    </button>
+                  </DropdownMenuPrimitive.Trigger>
+                  <DropdownMenuPrimitive.Portal>
+                    <DropdownMenuPrimitive.Content
+                      align="start"
+                      sideOffset={6}
+                      collisionPadding={12}
+                      className="z-[70] flex min-w-[6rem] flex-col gap-1 rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)] outline-none"
+                    >
+                      {sizeOptions.map((size) => {
+                        const selected = size === props.pageSize;
+                        return (
+                          <DropdownMenuPrimitive.Item key={size} asChild>
+                            <button
+                              type="button"
+                              onClick={() => changePageSize(String(size))}
+                              className={cn(
+                                'flex min-h-[40px] w-full cursor-pointer items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-xs font-medium transition-colors focus:bg-[var(--hafta-50)] focus:outline-none',
+                                selected
+                                  ? 'border-border bg-[var(--hafta-50)] font-bold text-foreground'
+                                  : 'border-transparent text-muted-foreground hover:bg-[var(--hafta-50)] hover:text-foreground',
+                              )}
+                            >
+                              <span>{size}</span>
+                              {selected ? <Check className="h-3.5 w-3.5 shrink-0" /> : null}
+                            </button>
+                          </DropdownMenuPrimitive.Item>
+                        );
+                      })}
+                    </DropdownMenuPrimitive.Content>
+                  </DropdownMenuPrimitive.Portal>
+                </DropdownMenuPrimitive.Root>
                 {isChangingSize ? (
                   <Loader2
                     className="h-3.5 w-3.5 shrink-0 animate-spin text-muted-foreground"

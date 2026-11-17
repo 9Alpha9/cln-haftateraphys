@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import {
   Calendar,
   Clock,
@@ -252,65 +253,47 @@ function AppointmentDropdown({
   appointment: AppointmentView;
   onDelete: () => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  // Tutup dropdown saat klik di luar panel (rule #4)
-  const handleClickOutside = useCallback(
-    (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    },
-    [],
-  );
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [handleClickOutside]);
-
   return (
-    <div ref={menuRef} className="relative inline-flex shrink-0">
-      {/* Rule #2: tombol pemicu (tidak ada Portal/fixed/getBoundingClientRect) */}
-      <button
-        type="button"
-        onClick={() => setIsOpen((v) => !v)}
-        aria-label="Aksi jadwal"
-        aria-expanded={isOpen}
-        aria-haspopup="menu"
-        className="inline-flex h-11 w-11 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent"
-      >
-        <MoreVertical className="h-4 w-4 shrink-0" />
-      </button>
+    <DropdownMenuPrimitive.Root modal={false}>
+      <DropdownMenuPrimitive.Trigger asChild>
+        <button
+          type="button"
+          aria-label="Aksi jadwal"
+          className="inline-flex h-11 w-11 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent"
+        >
+          <MoreVertical className="h-4 w-4 shrink-0" />
+        </button>
+      </DropdownMenuPrimitive.Trigger>
 
-      {/* Rule #2: panel absolute menempel di bawah tombol, dalam DOM yang sama */}
-      {isOpen && (
-        <div className="absolute right-0 bottom-full mb-2 z-20 flex w-48 origin-bottom-right flex-col gap-1 rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]">
-          <button
-            type="button"
-            onClick={() => {
-              setIsOpen(false);
-              window.open(`/dashboard/appointments/${appointment.id}/print`, '_blank');
-            }}
-            className="flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] hover:text-foreground sm:text-sm"
-          >
-            <Printer className="h-3.5 w-3.5 shrink-0" />
-            <span className="font-medium">Cetak Jadwal</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setIsOpen(false);
-              onDelete();
-            }}
-            className="flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] hover:text-foreground sm:text-sm"
-          >
-            <Trash2 className="h-3.5 w-3.5 shrink-0" />
-            <span className="font-medium text-[var(--hafta-red-600)]">Hapus Jadwal</span>
-          </button>
-        </div>
-      )}
-    </div>
+      <DropdownMenuPrimitive.Portal>
+        <DropdownMenuPrimitive.Content
+          align="end"
+          sideOffset={8}
+          collisionPadding={12}
+          className="z-[70] flex w-48 flex-col gap-1 rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)] outline-none"
+        >
+          <DropdownMenuPrimitive.Item asChild>
+            <button
+              type="button"
+              onClick={() => window.open(`/dashboard/appointments/${appointment.id}/print`, '_blank')}
+              className="flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] hover:text-foreground focus:bg-[var(--hafta-50)] focus:outline-none sm:text-sm"
+            >
+              <Printer className="h-3.5 w-3.5 shrink-0" />
+              <span className="font-medium">Cetak Jadwal</span>
+            </button>
+          </DropdownMenuPrimitive.Item>
+          <DropdownMenuPrimitive.Item asChild>
+            <button
+              type="button"
+              onClick={onDelete}
+              className="flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] hover:text-foreground focus:bg-[var(--hafta-50)] focus:outline-none sm:text-sm"
+            >
+              <Trash2 className="h-3.5 w-3.5 shrink-0" />
+              <span className="font-medium text-[var(--hafta-red-600)]">Hapus Jadwal</span>
+            </button>
+          </DropdownMenuPrimitive.Item>
+        </DropdownMenuPrimitive.Content>
+      </DropdownMenuPrimitive.Portal>
+    </DropdownMenuPrimitive.Root>
   );
 }
