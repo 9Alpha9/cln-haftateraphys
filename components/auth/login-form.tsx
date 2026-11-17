@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
@@ -39,13 +39,16 @@ export function LoginForm({ reason }: LoginFormProps) {
   // diminta ulang tiap kunjungan agar tidak ada pemakaian perangkat bersama
   // yang mengira emailnya akan selalu diingat.
   const [remember, setRemember] = useState(false);
-  const [rememberDevice, setRememberDevice] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return window.localStorage.getItem(REMEMBER_ME_KEY) === '1';
-  });
   const [twoFactorRequired, setTwoFactorRequired] = useState(false);
   const [twoFactorCode, setTwoFactorCode] = useState('');
   const [useBackupCode, setUseBackupCode] = useState(false);
+
+  // Sesi berakhir saat browser ditutup, tanpa opsi "pertahankan sesi".
+  // Bersihkan flag lama agar pengguna yang pernah mengaktifkannya tidak tetap
+  // dikecualikan dari pemeriksaan penutupan browser.
+  useEffect(() => {
+    window.localStorage.removeItem(REMEMBER_ME_KEY);
+  }, []);
 
   const reasonBanner =
     reason === 'idle'
@@ -61,14 +64,6 @@ export function LoginForm({ reason }: LoginFormProps) {
       window.localStorage.setItem(REMEMBER_EMAIL_KEY, value);
     } else {
       window.localStorage.removeItem(REMEMBER_EMAIL_KEY);
-    }
-  };
-
-  const persistRememberDevice = () => {
-    if (rememberDevice) {
-      window.localStorage.setItem(REMEMBER_ME_KEY, '1');
-    } else {
-      window.localStorage.removeItem(REMEMBER_ME_KEY);
     }
   };
 
@@ -148,7 +143,6 @@ export function LoginForm({ reason }: LoginFormProps) {
         }
 
         persistEmail(submittedEmail);
-        persistRememberDevice();
         router.push('/dashboard');
         router.refresh();
       } catch {
@@ -367,20 +361,6 @@ export function LoginForm({ reason }: LoginFormProps) {
               className="h-4 w-4 shrink-0 cursor-pointer rounded border-stone-400 accent-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-300)]"
             />
             <span>Ingat email saya di perangkat ini</span>
-          </label>
-
-          <label
-            htmlFor="rememberDevice"
-            className="flex min-h-10 cursor-pointer select-none items-center gap-2.5 rounded-lg text-[11px] leading-relaxed text-stone-500 transition-colors hover:text-stone-700"
-          >
-            <input
-              id="rememberDevice"
-              type="checkbox"
-              checked={rememberDevice}
-              onChange={(event) => setRememberDevice(event.target.checked)}
-              className="h-3.5 w-3.5 shrink-0 cursor-pointer rounded border-stone-400 accent-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-300)]"
-            />
-            <span>Pertahankan sesi setelah browser ditutup</span>
           </label>
         </fieldset>
 

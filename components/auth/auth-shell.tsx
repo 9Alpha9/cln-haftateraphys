@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useEffect, useState, type ReactNode } from 'react';
-import { ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 const slides = [
   {
@@ -108,22 +108,6 @@ export function AuthShell({
           </Link>
 
           <div className="max-w-lg">
-            {/* Bukti sosial konkret — bukan testimoni karangan. */}
-            <ul className="mb-8 space-y-2.5 text-xs font-medium text-stone-200 xl:text-sm">
-              {[
-                'Asesmen awal dan target pemulihan sejak kunjungan pertama',
-                'Terapis tetap untuk tiap program, tidak berganti tiap sesi',
-                'Data Anda disimpan aman dan tidak dibagikan',
-              ].map((item) => (
-                <li key={item} className="flex items-start gap-2.5">
-                  <span className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-org-300)]/20 text-[var(--hafta-org-200)]">
-                    <Check className="size-3" strokeWidth={3} aria-hidden="true" />
-                  </span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
-
             <AnimatePresence mode="wait">
               <motion.figure
                 key={currentSlide.title}

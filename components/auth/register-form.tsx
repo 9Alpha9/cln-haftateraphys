@@ -208,9 +208,8 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
         <h1 className="text-2xl font-bold tracking-tight text-balance text-[var(--hafta-950)] sm:text-3xl">
           Buat Akun Pasien
         </h1>
-        <p className="mt-2 text-sm leading-relaxed text-stone-600">
-          Cukup isi data dasar untuk mulai memantau jadwal dan perkembangan terapi Anda. Data
-          klinis dilengkapi saat sesi pertama di klinik.
+        <p className="mt-1.5 text-[13px] leading-relaxed text-stone-600">
+          Isi data dasar dulu. Data klinis dilengkapi saat sesi pertama.
         </p>
       </div>
 
@@ -258,7 +257,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
             id="name"
             name="name"
             type="text"
-            placeholder="Sesuai KTP atau nama panggilan"
+            placeholder="Sesuai KTP"
             required
             autoComplete="name"
             disabled={isPending}
@@ -296,7 +295,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
             disabled={isPending}
             onChange={() => clearFieldError('email')}
             aria-invalid={Boolean(fieldErrors.email)}
-            aria-describedby={fieldErrors.email ? 'email-error' : 'email-help'}
+            aria-describedby={fieldErrors.email ? 'email-error' : undefined}
             className={cn(
               'h-12 w-full rounded-xl border bg-white px-4 text-base text-[var(--hafta-950)] placeholder:text-sm placeholder:text-stone-400 transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-50 sm:text-sm',
               fieldErrors.email
@@ -304,13 +303,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
                 : 'border-stone-300 hover:border-stone-400 focus:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/30'
             )}
           />
-          {fieldErrors.email ? (
-            <FieldError id="email-error">{fieldErrors.email}</FieldError>
-          ) : (
-            <p id="email-help" className="pt-0.5 text-xs text-stone-500">
-              Gunakan email aktif untuk menerima tautan reset kata sandi.
-            </p>
-          )}
+          <FieldError id="email-error">{fieldErrors.email}</FieldError>
         </div>
 
         {/* Password & Confirm Password */}
