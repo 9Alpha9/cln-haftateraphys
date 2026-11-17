@@ -298,7 +298,7 @@ export function TherapyCalendarView({
             <div className="flex flex-1 flex-col overflow-hidden">
               <div className="grid shrink-0 grid-cols-7 border-b border-border">
                 {WEEKDAYS.map((day) => (
-                  <div key={day} className="py-2 text-center text-[11px] font-semibold text-muted-foreground">
+                  <div key={day} className="py-2 text-center text-[11px] font-semibold text-stone-600">
                     {day}
                   </div>
                 ))}
@@ -348,7 +348,7 @@ export function TherapyCalendarView({
                           </button>
                         ))}
                         {dayEvents.length > 3 && (
-                          <p className="pl-1 text-[9px] font-medium text-muted-foreground">+{dayEvents.length - 3} lainnya</p>
+                          <p className="pl-1 text-[9px] font-medium text-stone-600">+{dayEvents.length - 3} lainnya</p>
                         )}
                       </div>
                     </div>
@@ -374,7 +374,7 @@ export function TherapyCalendarView({
                       onClick={() => setCurrentDate(day)}
                       className={cn(
                         'flex h-9 w-9 shrink-0 cursor-pointer flex-col items-center justify-center rounded-full text-[10px] font-semibold transition-colors',
-                        isActive ? 'bg-[var(--hafta-900)] text-white' : 'text-muted-foreground hover:bg-accent',
+                        isActive ? 'bg-[var(--hafta-900)] text-white' : 'text-stone-600 hover:bg-accent',
                       )}
                     >
                       <span>{day.getDate()}</span>
@@ -398,7 +398,7 @@ export function TherapyCalendarView({
                       : '';
                   return (
                     <div key={key} className="flex min-w-0 flex-1 flex-col items-center justify-center border-r border-border py-2 last:border-r-0">
-                      <span className={cn('text-[10px] font-medium', day.getDay() === 0 ? 'text-[var(--hafta-red-500)]' : 'text-muted-foreground')}>
+                      <span className={cn('text-[10px] font-medium', day.getDay() === 0 ? 'text-[var(--hafta-red-600)]' : 'text-stone-600')}>
                         {weekdayLabel}
                       </span>
                       <span
@@ -420,7 +420,7 @@ export function TherapyCalendarView({
                 <div className="w-14 shrink-0 border-r border-border">
                   {HOURS.map((hour) => (
                     <div key={hour} className="relative" style={{ height: SLOT_HEIGHT }}>
-                      <span className="absolute right-2 top-0 -translate-y-1/2 font-mono text-[9px] font-medium text-muted-foreground">
+                      <span className="absolute right-2 top-0 -translate-y-1/2 font-mono text-[9px] font-medium text-stone-600">
                         {String(hour).padStart(2, '0')}:00
                       </span>
                     </div>
@@ -551,13 +551,13 @@ export function TherapyCalendarView({
             <div className="rounded-2xl border border-border/70 bg-[var(--hafta-50)] p-4">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-stone-600">
                     Pasien
                   </p>
                   <p className="mt-1 truncate text-sm font-bold text-foreground">
                     {selectedAppointment.patientName}
                   </p>
-                  <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                  <p className="mt-0.5 truncate text-xs text-stone-600">
                     Terapis: {selectedAppointment.therapistName ?? '-'}
                   </p>
                 </div>
@@ -579,7 +579,7 @@ export function TherapyCalendarView({
                   ['Waktu', `${selectedAppointment.startTime} • ${selectedAppointment.durationMinutes} menit WIB`],
                 ].map(([label, value]) => (
                   <div key={label} className="min-w-0">
-                    <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">
+                    <dt className="text-[10px] font-semibold uppercase tracking-[0.1em] text-stone-600">
                       {label}
                     </dt>
                     <dd className="mt-1 text-xs font-semibold leading-relaxed text-foreground sm:text-sm">
@@ -620,9 +620,9 @@ function AgendaView({ monthEvents, onSelect }: { monthEvents: CalendarAppointmen
   if (grouped.length === 0) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-2 p-8 text-center">
-        <CalendarDays className="h-9 w-9 text-muted-foreground/50" />
+        <CalendarDays className="h-9 w-9 text-stone-600" />
         <p className="text-sm font-semibold text-foreground">Belum ada jadwal</p>
-        <p className="text-xs text-muted-foreground">Tidak ada sesi pada periode ini.</p>
+        <p className="text-xs text-stone-600">Tidak ada sesi pada periode ini.</p>
       </div>
     );
   }
@@ -632,7 +632,7 @@ function AgendaView({ monthEvents, onSelect }: { monthEvents: CalendarAppointmen
       <div className="space-y-4 sm:space-y-5">
         {grouped.map(([key, items]) => (
           <section key={key}>
-            <h3 className="mb-2 text-xs font-semibold text-muted-foreground">{formatLongDate(parseDateKey(key))}</h3>
+            <h3 className="mb-2 text-xs font-semibold text-stone-600">{formatLongDate(parseDateKey(key))}</h3>
             <div className="space-y-2">
               {items.map((appointment) => (
                 <button

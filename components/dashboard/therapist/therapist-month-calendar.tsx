@@ -139,13 +139,13 @@ export function TherapistMonthCalendar({
             Hari ini
           </button>
         </div>
-        <p className="text-[11px] leading-relaxed text-muted-foreground">
+        <p className="text-[11px] leading-relaxed text-stone-600">
           {appointments.length} sesi pada rentang jadwal aktif
         </p>
       </div>
 
       <div>
-        <div className="mx-auto grid w-full max-w-[460px] grid-cols-7 text-center text-[11px] font-semibold uppercase tracking-wide text-muted-foreground sm:max-w-[560px] lg:max-w-none">
+        <div className="mx-auto grid w-full max-w-[460px] grid-cols-7 text-center text-[11px] font-semibold uppercase tracking-wide text-stone-600 sm:max-w-[560px] lg:max-w-none">
           {WEEKDAYS.map((label) => (
             <span key={label} className="py-2">
               {label}
@@ -185,9 +185,9 @@ export function TherapistMonthCalendar({
                       ? 'bg-[var(--hafta-900)] text-white'
                       : unavailable
                         ? isSunday || holidayName
-                          ? 'text-[var(--hafta-red-400)]'
-                          : 'text-muted-foreground/50'
-                        : 'text-muted-foreground group-hover:bg-accent',
+                          ? 'text-[var(--hafta-red-600)]'
+                          : 'text-stone-600'
+                        : 'text-stone-600 group-hover:bg-accent',
                     isToday && !isSelected && 'ring-1 ring-[#181700]/25',
                     isSelected && 'ring-2 ring-[#181700] ring-offset-2 ring-offset-white',
                   )}
@@ -203,7 +203,7 @@ export function TherapistMonthCalendar({
                       />
                     ))}
                     {sessions.length > 4 ? (
-                      <span className="text-[8px] font-bold leading-none text-muted-foreground">
+                      <span className="text-[8px] font-bold leading-none text-stone-600">
                         +{sessions.length - 4}
                       </span>
                     ) : null}
@@ -212,7 +212,7 @@ export function TherapistMonthCalendar({
                   <span className="h-1.5 w-1.5 rounded-full bg-transparent" />
                 )}
                 {sessions.length > 0 ? (
-                  <span className="hidden max-w-full truncate text-[9px] font-semibold text-muted-foreground lg:block">
+                  <span className="hidden max-w-full truncate text-[9px] font-semibold text-stone-600 lg:block">
                     {sessions[0].startTime.slice(0, 5)}
                     {sessions.length > 1 ? ` +${sessions.length - 1}` : ''}
                   </span>
@@ -222,7 +222,7 @@ export function TherapistMonthCalendar({
           })}
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-3 text-[10px] text-muted-foreground">
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-border pt-3 text-[10px] text-stone-600">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full bg-[var(--hafta-900)]" /> Ada sesi
           </span>
@@ -255,11 +255,11 @@ export function TherapistMonthCalendar({
         <div className="space-y-3">
           {selectedAppointments.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card px-4 py-8 text-center">
-              <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#FAFAF8] text-muted-foreground">
+              <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[#FAFAF8] text-stone-600">
                 <CalendarX2 className="h-5 w-5" />
               </span>
               <p className="mt-2 text-sm font-semibold text-foreground">Tidak ada sesi</p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-xs text-stone-600">
                 Belum ada jadwal terapi pada tanggal ini.
               </p>
             </div>
@@ -269,7 +269,7 @@ export function TherapistMonthCalendar({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-bold">{appointment.patientName}</p>
-                    <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground/50">
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-stone-600">
                       <Clock3 className="h-3.5 w-3.5" />
                       {appointment.startTime.slice(0, 5)} WIB · {appointment.durationMinutes} menit
                     </p>
@@ -278,7 +278,7 @@ export function TherapistMonthCalendar({
                     {STATUS_LABELS[appointment.status] ?? appointment.status}
                   </span>
                 </div>
-                <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-2 text-xs text-muted-foreground/50">
+                <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-2 text-xs text-stone-600">
                   <UserRound className="h-4 w-4 text-[var(--hafta-org-100)]" />
                   Fisioterapis Hafta
                 </div>
