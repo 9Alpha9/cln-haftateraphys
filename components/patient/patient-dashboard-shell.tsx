@@ -397,9 +397,9 @@ export function PatientDashboardShell({
                                   </span>
                                 ) : null}
                                 {open ? (
-                                  <ChevronUp className="h-4 w-4 text-muted-foreground/50" />
+                                  <ChevronUp className="h-4 w-4 text-white/55" />
                                 ) : (
-                                  <ChevronDown className="h-4 w-4 text-muted-foreground/50" />
+                                  <ChevronDown className="h-4 w-4 text-white/55" />
                                 )}
                               </div>
                             )}
@@ -449,7 +449,7 @@ export function PatientDashboardShell({
                                 transition={{ duration: 0.16, ease: 'easeOut' }}
                                 className="absolute left-3 top-[calc(100%+6px)] z-[80] w-52 rounded-2xl border border-[#2E2D1D] bg-sidebar p-3 shadow-[0_16px_40px_rgba(0,0,0,0.45)]"
                               >
-                                <p className="px-1 pb-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
+                                <p className="px-1 pb-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-white/60">
                                   {item.label}
                                 </p>
                                 <SubmenuTreeList
