@@ -451,12 +451,12 @@ export function TherapyCalendarView({
                   ))}
                 </div>
 
-                <div className="relative flex flex-1">
+                <div className="relative flex flex-1 border-r border-border">
                   {timelineDays.map((day) => {
                     const key = dateKey(day);
                     const dayEvents = groupByDate.get(key) ?? [];
                     return (
-                      <div key={key} className="relative flex-1" style={{ height: HOURS.length * SLOT_HEIGHT }}>
+                      <div key={key} className="relative flex-1 border-l border-border" style={{ height: HOURS.length * SLOT_HEIGHT }}>
                         {HOURS.map((hour) => (
                           <button
                             key={hour}
