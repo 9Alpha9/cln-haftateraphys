@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState, useSyncExternalStore, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
@@ -29,11 +29,12 @@ export function LoginForm({ reason }: LoginFormProps) {
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [email, setEmail] = useState('');
-  // Preferensi "Ingat email saya" hanya berisi email (bukan kredensial) dan
-  // dibaca sekali saat mount. Nilai remote tidak pernah aktif di server,
-  // sehingga tidak ada mismatch hidrasi.
-  const [savedEmail] = useState(() =>
-    typeof window === 'undefined' ? '' : (window.localStorage.getItem(REMEMBER_EMAIL_KEY) ?? ''),
+  // Simpan "ingat email" di localStorage; baca via useSyncExternalStore agar
+  // konsisten antara render server (snapshot '') dan client, mencegah error hidrasi.
+  const savedEmail = useSyncExternalStore(
+    () => () => {},
+    () => (typeof window === 'undefined' ? '' : (window.localStorage.getItem(REMEMBER_EMAIL_KEY) ?? '')),
+    () => '',
   );
   // Email yang tersimpan hanya dipakai untuk prefill. Persetujuan menyimpan
   // diminta ulang tiap kunjungan agar tidak ada pemakaian perangkat bersama

@@ -1,5 +1,6 @@
 'use client';
 
+import { createPortal } from 'react-dom';
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { ChevronDown, Filter, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -73,49 +74,42 @@ export function SmartFilterMenu({
 
       const maxHeight = Math.max(180, Math.min(420, openUp ? spaceAbove : spaceBelow));
 
-      menu.style.position = 'absolute';
+      // Portal to document.body => panel escapes parent overflow clipping.
+      // Position computed from trigger rect (viewport coords); fixed so it follows
+      // page scroll via the scroll listener below.
+      menu.style.position = 'fixed';
       menu.style.width = `${width}px`;
       menu.style.maxHeight = `${maxHeight}px`;
+      menu.style.zIndex = '1050';
+      menu.style.left = `${left}px`;
+      menu.style.right = 'auto';
+      menu.style.top = 'auto';
+      menu.style.bottom = 'auto';
       if (openUp) {
-        menu.style.top = 'auto';
-        menu.style.bottom = `${window.innerHeight - rect.top + 8}px`;
-        menu.style.left = `${left}px`;
-        menu.style.right = 'auto';
+        menu.style.bottom = `calc(100% - ${rect.top + margin}px)`;
       } else {
-        menu.style.bottom = 'auto';
-        menu.style.top = `${rect.bottom + 8}px`;
-        menu.style.left = `${left}px`;
-        menu.style.right = 'auto';
+        menu.style.top = `${rect.bottom + margin}px`;
       }
     }
 
+    // Position initially and on scroll/resize to escape parent overflow clipping
     positionPanel();
-
-    function onPointerDown(event: PointerEvent) {
-      const target = event.target as Node | null;
-      if (!target) return;
-      if (triggerRef.current?.contains(target) || menuRef.current?.contains(target)) return;
-      setOpen(false);
-    }
-
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setOpen(false);
-    }
-
-    document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
+    const scrollHandler = () => positionPanel();
+    const resizeHandler = () => positionPanel();
+    window.addEventListener('scroll', scrollHandler, { passive: true });
+    window.addEventListener('resize', resizeHandler, { passive: true });
 
     return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('scroll', scrollHandler);
+      window.removeEventListener('resize', resizeHandler);
     };
   }, [open, align]);
 
   const close = () => setOpen(false);
   const content = typeof children === 'function' ? children(close) : children;
 
-  return (
-    <>
+  return createPortal(
+    < >
       <button
         ref={triggerRef}
         type="button"
@@ -157,13 +151,14 @@ export function SmartFilterMenu({
           role="dialog"
           aria-label={ariaLabel ?? 'Panel filter'}
           className={cn(
-            'absolute z-[80] flex flex-col gap-1 overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]',
+            'fixed z-[80] max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]',
             panelClassName,
           )}
         >
           {content}
         </div>
       ) : null}
-    </>
+    </ >,
+    document.body,
   );
 }
