@@ -6,14 +6,14 @@ import { eq } from 'drizzle-orm';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { cache } from 'react';
+import { UnauthenticatedError } from '@/lib/permissions/policy';
 import type { Role } from '@/lib/permissions';
 
-export class UnauthenticatedError extends Error {
-  constructor() {
-    super('Unauthenticated');
-    this.name = 'UnauthenticatedError';
-  }
-}
+// Single source of truth: re-export the shared error class so every caller
+// (route handlers, server actions, queries) catches the same instance type.
+// See QA-SEC-31: two duplicate UnauthenticatedError classes caused API routes
+// to fall through to 500/404 instead of 401.
+export { UnauthenticatedError };
 
 async function loadSession(redirectToLogin: boolean) {
   const session = await getAuth().api.getSession({

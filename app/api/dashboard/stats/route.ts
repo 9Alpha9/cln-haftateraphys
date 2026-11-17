@@ -9,7 +9,10 @@ export async function GET() {
     const stats = await getDashboardStats();
     return NextResponse.json(stats);
   } catch (error) {
-    if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+    if (error instanceof UnauthenticatedError) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (error instanceof ForbiddenError) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     return NextResponse.json({ error: 'Internal' }, { status: 500 });

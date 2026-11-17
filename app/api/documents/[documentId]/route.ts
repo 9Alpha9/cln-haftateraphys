@@ -33,7 +33,10 @@ export async function GET(
       },
     });
   } catch (error) {
-    if (error instanceof UnauthenticatedError || error instanceof ForbiddenError) {
+    if (error instanceof UnauthenticatedError) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (error instanceof ForbiddenError) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
     return NextResponse.json({ error: 'Dokumen tidak dapat diunduh.' }, { status: 404 });

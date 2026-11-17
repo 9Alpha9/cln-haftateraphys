@@ -1,5 +1,8 @@
-import { NextResponse } from "next/server";
-import { getRecentNotifications, getUnreadNotificationsCount } from "@/server/queries/notifications";
+import { NextResponse } from 'next/server';
+import { getRecentNotifications, getUnreadNotificationsCount } from '@/server/queries/notifications';
+import { ForbiddenError, UnauthenticatedError } from '@/lib/permissions';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
@@ -9,7 +12,13 @@ export async function GET() {
     ]);
 
     return NextResponse.json({ notifications, unreadCount });
-  } catch {
-    return NextResponse.json({ notifications: [], unreadCount: 0 }, { status: 500 });
+  } catch (error) {
+    if (error instanceof UnauthenticatedError) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (error instanceof ForbiddenError) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    return NextResponse.json({ error: 'Internal' }, { status: 500 });
   }
 }
