@@ -13,8 +13,6 @@ import {
   Clock,
   Sparkles,
   Activity,
-  Filter,
-  ChevronDown,
   X,
   LayoutList,
   Check,
@@ -26,12 +24,6 @@ import { archivePatientIntake } from '@/server/actions/intake-review';
 import { IntakeDetailDrawer } from '@/components/dashboard/intake/intake-detail-drawer';
 import { cn } from '@/lib/utils';
 import { SmartFilterMenu } from '@/components/ui/smart-filter-menu';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 export type IntakeRowItem = {
   id: string;
@@ -186,51 +178,45 @@ export function IntakeManagementTable({
             </button>
           ) : null}
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            className={cn(
-              'ml-auto inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 sm:px-4 sm:text-[13px]',
-              statusFilter !== 'ALL'
-                ? 'border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] text-foreground'
-                : 'border-border bg-card text-foreground hover:bg-accent',
-            )}
-          >
-            <Filter className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <span>Filter</span>
-            <span className="rounded-full bg-[var(--hafta-900)] px-1.5 py-0.5 text-[10px] font-bold text-white">
-              {statusFilter === 'ALL'
-                ? items.length
-                : statusFilter === 'PENDING'
-                  ? countPending
-                  : countAccepted}
-            </span>
-            <ChevronDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            {[
-              { value: 'ALL' as const, label: `Semua (${items.length})`, icon: LayoutList },
-              { value: 'PENDING' as const, label: `Perlu Ditinjau (${countPending})`, icon: Clock },
-              { value: 'ACCEPTED' as const, label: `Diterima (${countAccepted})`, icon: CheckCircle2 },
-            ].map((option) => {
-              const Icon = option.icon;
-              const selected = statusFilter === option.value;
-              return (
-                <DropdownMenuItem
-                  key={option.value}
-                  onClick={() => setStatusFilter(option.value)}
-                  className={cn(
-                    'gap-2.5',
-                    selected && 'border border-border bg-[#F4F4F1] font-bold',
-                  )}
-                >
-                  <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  <span className="flex-1">{option.label}</span>
-                  {selected ? <Check className="h-3.5 w-3.5" /> : null}
-                </DropdownMenuItem>
-              );
-            })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <SmartFilterMenu
+          label="Filter status intake"
+          count={statusFilter !== 'ALL' ? statusFilter === 'PENDING' ? countPending : countAccepted : items.length}
+          panelClassName="w-56"
+        >
+          {(close) => (
+            <>
+              {[
+                { value: 'ALL' as const, label: `Semua (${items.length})`, icon: LayoutList },
+                { value: 'PENDING' as const, label: `Perlu Ditinjau (${countPending})`, icon: Clock },
+                { value: 'ACCEPTED' as const, label: `Diterima (${countAccepted})`, icon: CheckCircle2 },
+              ].map((option) => {
+                const Icon = option.icon;
+                const selected = statusFilter === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      setStatusFilter(option.value);
+                      close();
+                    }}
+                    aria-pressed={selected}
+                    className={cn(
+                      'flex w-full cursor-pointer items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors sm:text-[13px]',
+                      selected
+                        ? 'border-border bg-[#F4F4F1] font-bold'
+                        : 'border-transparent font-medium text-muted-foreground hover:bg-[var(--hafta-50)] hover:text-foreground',
+                    )}
+                  >
+                    <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span className="flex-1">{option.label}</span>
+                    {selected ? <Check className="h-3.5 w-3.5" /> : null}
+                  </button>
+                );
+              })}
+            </>
+          )}
+        </SmartFilterMenu>
       </div>
 
       {/* ── 2. INTERACTIVE CLINICAL INTAKE CARDS (GLOBAL INVERTED OUTLINE NOTCHEDCARD) ── */}
