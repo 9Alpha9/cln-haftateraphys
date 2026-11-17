@@ -26,6 +26,8 @@ export type LegalDocumentProps = {
   contactNote: string;
   /** Catatan tambahan di atas kanal kontak, mis. alamat domisili dan syarat permintaan. */
   contactDetail?: string;
+  /** Judul dokumen, mis. "Kebijakan Privasi". */
+  title?: string;
 };
 
 const CONTACT_WHATSAPP =
@@ -43,10 +45,13 @@ export function LegalDocument({
   relatedLink,
   contactNote,
   contactDetail,
+  title,
 }: LegalDocumentProps) {
   return (
     <article className="mx-auto mt-6 max-w-3xl rounded-2xl border border-border bg-white p-6 md:p-10">
-      <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
+      <h1 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">{title}</h1>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium text-muted-foreground">
         <span className="inline-flex items-center rounded-full bg-surface px-2.5 py-1 text-[11px] font-semibold text-foreground">
           Berlaku {effectiveDate}
         </span>

@@ -13,8 +13,9 @@ export const metadata: Metadata = {
 
 const sections = [
   {
+    id: 'informasi-yang-kami-kumpulkan',
     title: 'Informasi yang kami kumpulkan',
-    content:
+    blocks: [
       'Kami dapat mengumpulkan informasi yang Anda berikan saat membuat akun, menghubungi kami, atau menggunakan layanan. Informasi ini dapat mencakup nama, email, nomor telepon, dan data lain yang diperlukan untuk menyediakan layanan atau menjalankan Patient Portal.',
   },
   {
