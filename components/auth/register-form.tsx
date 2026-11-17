@@ -213,23 +213,7 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
         </p>
       </div>
 
-      {reason === 'portal' ? (
-        <div className="mb-5">
-          <AuthAlert
-            type="info"
-            title="Akses dashboard memerlukan akun"
-            message="Buat akun pasien untuk membuka dashboard dan mengajukan jadwal terapi."
-            action={
-              <Link
-                href="/login"
-                className="rounded font-semibold underline underline-offset-2 hover:no-underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-300)]"
-              >
-                Sudah punya akun? Masuk di sini
-              </Link>
-            }
-          />
-        </div>
-      ) : null}
+
 
       {generalError ? (
         <div className="mb-5">
