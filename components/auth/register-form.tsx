@@ -2,12 +2,12 @@
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { PasswordField } from '@/components/auth/password-field';
 import { AuthAlert, AuthErrorSummary, FieldError } from '@/components/auth/auth-alert';
 import { getSession, signIn, signUp } from '@/lib/auth/client';
+import { MIN_PASSWORD_LENGTH } from '@/lib/auth/password-strength';
 import { ensureCurrentPatientProfile } from '@/server/actions/patient-profile';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +20,6 @@ type RegisterFieldErrors = {
 };
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MIN_PASSWORD_LENGTH = 8;
 
 const FIELD_LABELS: Record<keyof RegisterFieldErrors, string> = {
   name: 'Nama lengkap',
@@ -204,20 +203,6 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
 
   return (
     <div>
-      {/* ── LOGO HANYA DI MOBILE/TABLET (DI DESKTOP SUDAH ADA DI PANEL KIRI) ── */}
-      <div className="mb-6 lg:hidden">
-        <Link href="/" className="inline-block rounded focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/40">
-          <Image
-            src="/images/logos/logos-text.png"
-            alt="Hafta Fisioterapi"
-            width={140}
-            height={93}
-            priority
-            className="h-11 w-auto sm:h-12"
-          />
-        </Link>
-      </div>
-
       {/* ── HEADER FORM RATA KIRI (BERSIH & HUMANIZE) ── */}
       <div className="mb-6 sm:mb-7">
         <h1 className="text-2xl font-bold tracking-tight text-balance text-[var(--hafta-950)] sm:text-3xl">
@@ -334,11 +319,12 @@ export function RegisterForm({ reason }: { reason?: string | null }) {
           name="password"
           label="Kata Sandi"
           placeholder="Minimal 8 karakter"
-          description="Minimal 8 karakter. Gunakan kombinasi yang mudah Anda ingat namun sulit ditebak orang lain."
+          description="Gunakan kombinasi yang mudah Anda ingat namun sulit ditebak orang lain."
           autoComplete="new-password"
           disabled={isPending}
           error={fieldErrors.password}
           onChange={() => clearFieldError('password')}
+          showStrength
         />
 
         <PasswordField

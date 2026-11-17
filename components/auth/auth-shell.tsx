@@ -183,6 +183,19 @@ export function AuthShell({
           </nav>
 
           <main className="flex-1 rounded-2xl border border-stone-200/90 bg-white px-5 py-6 shadow-[0_1px_2px_rgba(24,23,0,0.04)] sm:rounded-3xl sm:px-7 sm:py-8 lg:flex-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
+            {/* Logo hanya di mobile/tablet; di desktop sudah ada di panel kiri. */}
+            <div className="mb-6 lg:hidden">
+              <Link href="/" className="inline-block rounded focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/40">
+                <Image
+                  src="/images/logos/logos-text.png"
+                  alt="Hafta Fisioterapi"
+                  width={140}
+                  height={93}
+                  priority
+                  className="h-11 w-auto sm:h-12"
+                />
+              </Link>
+            </div>
             {children}
           </main>
 

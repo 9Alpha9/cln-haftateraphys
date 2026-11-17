@@ -7,6 +7,7 @@ import { CheckCircle2, Loader2 } from 'lucide-react';
 import { PasswordField } from '@/components/auth/password-field';
 import { AuthAlert } from '@/components/auth/auth-alert';
 import { authClient } from '@/lib/auth/client';
+import { MIN_PASSWORD_LENGTH } from '@/lib/auth/password-strength';
 
 export function ResetPasswordForm({ token }: { token: string | null }) {
   const router = useRouter();
@@ -61,8 +62,8 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
     const password = String(formData.get('password') ?? '');
     const confirmPassword = String(formData.get('confirmPassword') ?? '');
 
-    if (password.length < 8) {
-      setFieldError('Kata sandi minimal 8 karakter.');
+    if (password.length < MIN_PASSWORD_LENGTH) {
+      setFieldError(`Kata sandi minimal ${MIN_PASSWORD_LENGTH} karakter.`);
       return;
     }
     if (password !== confirmPassword) {
@@ -112,6 +113,7 @@ export function ResetPasswordForm({ token }: { token: string | null }) {
           placeholder="Min. 8 karakter"
           autoComplete="new-password"
           disabled={pending}
+          showStrength
         />
         <PasswordField
           id="confirmPassword"

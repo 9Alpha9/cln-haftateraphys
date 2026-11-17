@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
@@ -36,7 +35,10 @@ export function LoginForm({ reason }: LoginFormProps) {
   const [savedEmail] = useState(() =>
     typeof window === 'undefined' ? '' : (window.localStorage.getItem(REMEMBER_EMAIL_KEY) ?? ''),
   );
-  const [remember, setRemember] = useState(savedEmail.length > 0);
+  // Email yang tersimpan hanya dipakai untuk prefill. Persetujuan menyimpan
+  // diminta ulang tiap kunjungan agar tidak ada pemakaian perangkat bersama
+  // yang mengira emailnya akan selalu diingat.
+  const [remember, setRemember] = useState(false);
   const [rememberDevice, setRememberDevice] = useState(() => {
     if (typeof window === 'undefined') return false;
     return window.localStorage.getItem(REMEMBER_ME_KEY) === '1';
@@ -257,20 +259,6 @@ export function LoginForm({ reason }: LoginFormProps) {
 
   return (
     <div>
-      {/* ── LOGO HANYA DI MOBILE/TABLET (DI DESKTOP SUDAH ADA DI PANEL KIRI) ── */}
-      <div className="mb-6 lg:hidden">
-        <Link href="/" className="inline-block rounded focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-org-200)]/40">
-          <Image
-            src="/images/logos/logos-text.png"
-            alt="Hafta Fisioterapi"
-            width={140}
-            height={93}
-            priority
-            className="h-11 w-auto sm:h-12"
-          />
-        </Link>
-      </div>
-
       {/* ── HEADER FORM RATA KIRI (BERSIH & HUMANIZE) ── */}
       <div className="mb-6 sm:mb-7">
         <h1 className="text-2xl font-bold tracking-tight text-balance text-[var(--hafta-950)] sm:text-3xl">
@@ -364,12 +352,12 @@ export function LoginForm({ reason }: LoginFormProps) {
           }
         />
 
-        {/* Opsi sesi */}
+        {/* Opsi sesi — preferensi tampilan utama, opsi durasi sesi sekunder. */}
         <fieldset className="space-y-2 pt-1" disabled={isPending}>
           <legend className="sr-only">Opsi sesi masuk</legend>
           <label
             htmlFor="rememberLogin"
-            className="flex min-h-11 cursor-pointer select-none items-center gap-2.5 rounded-lg text-xs text-stone-700 sm:min-h-0"
+            className="flex min-h-10 cursor-pointer select-none items-center gap-2.5 rounded-lg text-xs text-stone-700"
           >
             <input
               id="rememberLogin"
@@ -383,14 +371,14 @@ export function LoginForm({ reason }: LoginFormProps) {
 
           <label
             htmlFor="rememberDevice"
-            className="flex min-h-11 cursor-pointer select-none items-center gap-2.5 rounded-lg text-xs text-stone-700 sm:min-h-0"
+            className="flex min-h-10 cursor-pointer select-none items-center gap-2.5 rounded-lg text-[11px] leading-relaxed text-stone-500 transition-colors hover:text-stone-700"
           >
             <input
               id="rememberDevice"
               type="checkbox"
               checked={rememberDevice}
               onChange={(event) => setRememberDevice(event.target.checked)}
-              className="h-4 w-4 shrink-0 cursor-pointer rounded border-stone-400 accent-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-300)]"
+              className="h-3.5 w-3.5 shrink-0 cursor-pointer rounded border-stone-400 accent-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-300)]"
             />
             <span>Pertahankan sesi setelah browser ditutup</span>
           </label>
