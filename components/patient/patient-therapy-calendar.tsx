@@ -657,7 +657,7 @@ export function PatientTherapyCalendar({
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-sm font-bold">{appointment.startTime}</p>
-                          <p className="mt-1 text-xs text-muted-foreground/50">
+                          <p className="mt-1 text-xs text-stone-300">
                             {appointment.durationMinutes} menit
                           </p>
                         </div>
@@ -665,7 +665,7 @@ export function PatientTherapyCalendar({
                           {STATUS_LABELS[appointment.status] ?? appointment.status}
                         </span>
                       </div>
-                      <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-2 text-xs text-muted-foreground/50">
+                      <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-2 text-xs text-stone-300">
                         <UserRound className="h-4 w-4 text-[var(--hafta-org-100)]" />
                         {appointment.therapistName ?? 'Fisioterapis Hafta'}
                       </div>

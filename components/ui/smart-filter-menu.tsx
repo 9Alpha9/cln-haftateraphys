@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import { createPortal } from 'react-dom';
 import { ChevronDown, Filter, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -36,10 +35,6 @@ type SmartFilterMenuProps = {
   children: ReactNode | ((close: () => void) => ReactNode);
 };
 
-/**
- * Global filter dropdown. Renders its panel in a portal, measures available
- * space and flips above the trigger when the bottom navigation would cover it.
- */
 export function SmartFilterMenu({
   label = 'Filter',
   count = 0,
@@ -59,7 +54,7 @@ export function SmartFilterMenu({
   useEffect(() => {
     if (!open) return;
 
-    function updatePosition() {
+    function positionPanel() {
       const trigger = triggerRef.current;
       const menu = menuRef.current;
       if (!trigger || !menu) return;
@@ -78,24 +73,23 @@ export function SmartFilterMenu({
 
       const maxHeight = Math.max(180, Math.min(420, openUp ? spaceAbove : spaceBelow));
 
-      menu.style.position = 'fixed';
+      menu.style.position = 'absolute';
       menu.style.width = `${width}px`;
       menu.style.maxHeight = `${maxHeight}px`;
       if (openUp) {
         menu.style.top = 'auto';
         menu.style.bottom = `${window.innerHeight - rect.top + 8}px`;
+        menu.style.left = `${left}px`;
+        menu.style.right = 'auto';
       } else {
         menu.style.bottom = 'auto';
         menu.style.top = `${rect.bottom + 8}px`;
+        menu.style.left = `${left}px`;
+        menu.style.right = 'auto';
       }
-      menu.style.left = `${left}px`;
     }
 
-    let rafId = 0;
-    function handleScrollOrResize() {
-      cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(updatePosition);
-    }
+    positionPanel();
 
     function onPointerDown(event: PointerEvent) {
       const target = event.target as Node | null;
@@ -108,18 +102,10 @@ export function SmartFilterMenu({
       if (event.key === 'Escape') setOpen(false);
     }
 
-    // Initial position sync once portal renders
-    requestAnimationFrame(updatePosition);
-
-    window.addEventListener('resize', handleScrollOrResize);
-    window.addEventListener('scroll', handleScrollOrResize, true);
     document.addEventListener('pointerdown', onPointerDown);
     document.addEventListener('keydown', onKeyDown);
 
     return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener('resize', handleScrollOrResize);
-      window.removeEventListener('scroll', handleScrollOrResize, true);
       document.removeEventListener('pointerdown', onPointerDown);
       document.removeEventListener('keydown', onKeyDown);
     };
@@ -140,7 +126,7 @@ export function SmartFilterMenu({
         aria-label={ariaLabel ?? label}
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          'inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold  transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:text-[13px]',
+          'inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border px-3.5 text-xs font-semibold transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60 sm:px-4 sm:text-[13px]',
           count > 0
             ? 'border-[var(--hafta-200)] bg-[var(--hafta-50)] text-foreground'
             : 'border-border bg-card text-foreground hover:bg-accent',
@@ -164,23 +150,20 @@ export function SmartFilterMenu({
         />
       </button>
 
-      {open
-        ? createPortal(
-            <div
-              ref={menuRef}
-              id={listboxId}
-              role="dialog"
-              aria-label={ariaLabel ?? 'Panel filter'}
-              className={cn(
-                'fixed z-[80] flex flex-col gap-1 overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]',
-                panelClassName,
-              )}
-            >
-              {content}
-            </div>,
-            document.body,
-          )
-        : null}
+      {open ? (
+        <div
+          ref={menuRef}
+          id={listboxId}
+          role="dialog"
+          aria-label={ariaLabel ?? 'Panel filter'}
+          className={cn(
+            'absolute z-[80] flex flex-col gap-1 overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]',
+            panelClassName,
+          )}
+        >
+          {content}
+        </div>
+      ) : null}
     </>
   );
 }

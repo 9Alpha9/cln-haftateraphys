@@ -83,12 +83,6 @@ const staffNavigation: DashboardNavGroup[] = [
             icon: Archive,
             requiredPermission: PERMISSIONS.PATIENT_LIST,
           },
-          {
-            label: 'Form Intake Awal',
-            href: '/dashboard/intake',
-            icon: ClipboardList,
-            requiredPermission: PERMISSIONS.INTAKE_READ,
-          },
         ],
       },
       {

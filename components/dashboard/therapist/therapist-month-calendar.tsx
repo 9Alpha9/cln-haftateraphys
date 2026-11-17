@@ -269,7 +269,7 @@ export function TherapistMonthCalendar({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-bold">{appointment.patientName}</p>
-                    <p className="mt-1 flex items-center gap-1.5 text-xs text-stone-600">
+                    <p className="mt-1 flex items-center gap-1.5 text-xs text-stone-300">
                       <Clock3 className="h-3.5 w-3.5" />
                       {appointment.startTime.slice(0, 5)} WIB · {appointment.durationMinutes} menit
                     </p>
@@ -278,7 +278,7 @@ export function TherapistMonthCalendar({
                     {STATUS_LABELS[appointment.status] ?? appointment.status}
                   </span>
                 </div>
-                <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-2 text-xs text-stone-600">
+                <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-2 text-xs text-stone-300">
                   <UserRound className="h-4 w-4 text-[var(--hafta-org-100)]" />
                   Fisioterapis Hafta
                 </div>

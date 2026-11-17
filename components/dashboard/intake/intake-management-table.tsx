@@ -25,6 +25,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { archivePatientIntake } from '@/server/actions/intake-review';
 import { IntakeDetailDrawer } from '@/components/dashboard/intake/intake-detail-drawer';
 import { cn } from '@/lib/utils';
+import { SmartFilterMenu } from '@/components/ui/smart-filter-menu';
 import {
   DropdownMenu,
   DropdownMenuContent,
