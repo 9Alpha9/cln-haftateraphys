@@ -8,6 +8,7 @@ import {
   Download,
   FileText,
   Image as ImageIcon,
+  Loader2,
   Paperclip,
   Search,
   Upload,
@@ -16,6 +17,7 @@ import { SmartFilterMenu } from '@/components/ui/smart-filter-menu';
 import { AppSelect } from '@/components/ui/app-select';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { Progress } from '@/components/ui/progress';
 import {
   Dialog,
   DialogContent,
@@ -77,6 +79,9 @@ export function DocumentsManager({
   const [typeFilter, setTypeFilter] = useState('ALL');
   const [uploadOpen, setUploadOpen] = useState(false);
   const [archiveTarget, setArchiveTarget] = useState<DocumentView | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [downloadId, setDownloadId] = useState<string | null>(null);
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -107,23 +112,38 @@ export function DocumentsManager({
       return;
     }
 
+    setUploadProgress(0);
+    // Server actions don't expose byte-level progress, so show a smooth
+    // indeterminate-style ramp up to 90% while the upload is in flight.
+    let simulated = 0;
+    const progressTimer = window.setInterval(() => {
+      simulated = Math.min(90, simulated + Math.max(2, Math.round((92 - simulated) / 8)));
+      setUploadProgress(simulated);
+    }, 220);
+
     startTransition(async () => {
       let success = 0;
       const failures: string[] = [];
 
-      for (const file of files) {
-        const payload = new FormData();
-        payload.set('patientId', patientId);
-        payload.set('documentType', documentType);
-        if (patientVisible) payload.set('patientVisible', 'on');
-        payload.set('file', file);
+      try {
+        for (const file of files) {
+          const payload = new FormData();
+          payload.set('patientId', patientId);
+          payload.set('documentType', documentType);
+          if (patientVisible) payload.set('patientVisible', 'on');
+          payload.set('file', file);
 
-        const result = await uploadDocument(payload);
-        if (result.ok) {
-          success += 1;
-        } else {
-          failures.push(`${file.name}: ${result.error}`);
+          const result = await uploadDocument(payload);
+          if (result.ok) {
+            success += 1;
+          } else {
+            failures.push(`${file.name}: ${result.error}`);
+          }
         }
+      } finally {
+        window.clearInterval(progressTimer);
+        setUploadProgress(100);
+        window.setTimeout(() => setUploadProgress(null), 700);
       }
 
       if (success > 0) {
@@ -139,6 +159,58 @@ export function DocumentsManager({
         showToast('error', failures[0] ?? 'Sebagian dokumen gagal diunggah.');
       }
     });
+  }
+
+  async function handleDownload(document: DocumentView) {
+    setDownloadId(document.id);
+    setDownloadProgress(0);
+    try {
+      const response = await fetch(`/api/documents/${document.id}`);
+      if (!response.ok) {
+        throw new Error('Dokumen tidak dapat diunduh.');
+      }
+
+      const total = Number(response.headers.get('content-length') ?? 0);
+      const contentType = response.headers.get('content-type') ?? 'application/octet-stream';
+      const reader = response.body?.getReader();
+      const chunks: BlobPart[] = [];
+      let received = 0;
+
+      if (reader) {
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          if (value) {
+            chunks.push(value);
+            received += value.byteLength;
+          }
+          setDownloadProgress((current) => {
+            if (total > 0) return Math.min(99, Math.round((received / total) * 100));
+            return Math.min(95, current + 4);
+          });
+        }
+      } else {
+        chunks.push(await response.blob());
+      }
+
+      const blob = new Blob(chunks, { type: contentType });
+      const objectUrl = URL.createObjectURL(blob);
+      const link = window.document.createElement('a');
+      link.href = objectUrl;
+      link.download = document.originalFilename ?? 'dokumen';
+      window.document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(objectUrl);
+      setDownloadProgress(100);
+    } catch (error) {
+      showToast('error', error instanceof Error ? error.message : 'Gagal mengunduh dokumen.');
+    } finally {
+      window.setTimeout(() => {
+        setDownloadId(null);
+        setDownloadProgress(0);
+      }, 700);
+    }
   }
 
   function handleArchive(document: DocumentView) {
@@ -286,13 +358,24 @@ export function DocumentsManager({
 
               <div className="flex shrink-0 items-center gap-2">
                 {canDownload && document.status === 'ACTIVE' ? (
-                  <a
-                    href={`/api/documents/${document.id}`}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent"
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                    Unduh
-                  </a>
+                  <div className="flex flex-col items-end gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => handleDownload(document)}
+                      disabled={downloadId === document.id}
+                      className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent disabled:cursor-progress disabled:opacity-70"
+                    >
+                      {downloadId === document.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Download className="h-3.5 w-3.5" />
+                      )}
+                      {downloadId === document.id ? 'Mengunduh…' : 'Unduh'}
+                    </button>
+                    {downloadId === document.id ? (
+                      <Progress value={downloadProgress} className="h-1 w-24" />
+                    ) : null}
+                  </div>
                 ) : null}
                 {canArchive && document.status === 'ACTIVE' ? (
                   <button
@@ -368,6 +451,15 @@ export function DocumentsManager({
               />
               <span>Izinkan pasien melihat dokumen ini di portal (opsional).</span>
             </label>
+            {uploadProgress !== null ? (
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
+                  <span>Mengunggah dokumen…</span>
+                  <span className="tabular-nums">{Math.round(uploadProgress)}%</span>
+                </div>
+                <Progress value={uploadProgress} />
+              </div>
+            ) : null}
             <div className="flex justify-end gap-2 pt-1">
               <Button
                 type="button"

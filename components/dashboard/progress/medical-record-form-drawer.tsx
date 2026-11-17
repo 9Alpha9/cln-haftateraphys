@@ -4,6 +4,7 @@ import { useEffect, useId, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Activity, ClipboardList, Eye, EyeOff, FilePenLine, ImagePlus, Loader2, Lock, Save, Stethoscope, UserRound } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
+import { Progress } from '@/components/ui/progress';
 import { AppSelect } from '@/components/ui/app-select';
 import { useToast } from '@/components/ui/toast';
 import {
@@ -161,6 +162,7 @@ function MedicalRecordForm({
     record?.patientId ?? defaultPatientId ?? (patientOptions.length === 1 ? patientOptions[0].id : ''),
   );
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
   const fieldsDisabled = pending || uploading || !patientId;
 
@@ -392,6 +394,15 @@ function MedicalRecordForm({
               </span>
               <span className="text-[10px] text-muted-foreground">JPG, PNG, WEBP · maks. 10 MB per file</span>
             </label>
+            {uploadProgress !== null ? (
+              <div className="mt-2 space-y-1.5">
+                <div className="flex items-center justify-between text-[10px] font-medium text-muted-foreground">
+                  <span>Mengunggah foto…</span>
+                  <span className="tabular-nums">{Math.round(uploadProgress)}%</span>
+                </div>
+                <Progress value={uploadProgress} className="h-1.5" />
+              </div>
+            ) : null}
             <input
               id="medical-record-attachments"
               type="file"
@@ -403,20 +414,32 @@ function MedicalRecordForm({
                 event.target.value = '';
                 if (!patientId || files.length === 0) return;
                 setUploading(true);
+                setUploadProgress(0);
+                let simulated = 0;
+                const progressTimer = window.setInterval(() => {
+                  simulated = Math.min(90, simulated + Math.max(2, Math.round((92 - simulated) / 8)));
+                  setUploadProgress(simulated);
+                }, 220);
                 let success = 0;
-                for (const file of files) {
-                  const payload = new FormData();
-                  payload.set('patientId', patientId);
-                  payload.set('documentType', 'EXAM_RESULT');
-                  if (patientVisible === '1') payload.set('patientVisible', 'on');
-                  payload.set('file', file);
-                  const result = await uploadDocument(payload);
-                  if (result.ok) {
-                    success += 1;
-                    setUploadedFiles((current) => [...current, file.name]);
-                  } else {
-                    showToast('error', result.error);
+                try {
+                  for (const file of files) {
+                    const payload = new FormData();
+                    payload.set('patientId', patientId);
+                    payload.set('documentType', 'EXAM_RESULT');
+                    if (patientVisible === '1') payload.set('patientVisible', 'on');
+                    payload.set('file', file);
+                    const result = await uploadDocument(payload);
+                    if (result.ok) {
+                      success += 1;
+                      setUploadedFiles((current) => [...current, file.name]);
+                    } else {
+                      showToast('error', result.error);
+                    }
                   }
+                } finally {
+                  window.clearInterval(progressTimer);
+                  setUploadProgress(100);
+                  window.setTimeout(() => setUploadProgress(null), 700);
                 }
                 setUploading(false);
                 if (success > 0) {

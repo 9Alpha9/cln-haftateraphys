@@ -414,7 +414,7 @@ export function TherapyCalendarView({
                   columns share the exact same width (including the scrollbar
                   gutter) as the grid below, keeping the vertical lines aligned. */}
               <div className="sticky top-0 z-30 flex border-b border-border bg-card">
-                <div className="flex w-14 shrink-0 flex-col items-end justify-end border-r border-border px-1.5 pb-1.5">
+                <div className="flex w-14 shrink-0 flex-col items-end justify-end px-1.5 pb-1.5">
                   <span className="text-[9px] font-semibold uppercase tracking-wide text-stone-500">WIB</span>
                 </div>
                 <div className="flex flex-1">
@@ -422,7 +422,7 @@ export function TherapyCalendarView({
                     const key = dateKey(day);
                     const isToday = key === todayKey;
                     return (
-                      <div key={key} className="flex min-w-0 flex-1 flex-col items-center border-r border-border py-1.5 last:border-r-0">
+                      <div key={key} className="flex min-w-0 flex-1 flex-col items-center py-1.5">
                         <span className={cn('text-[10px] font-semibold uppercase tracking-wide', day.getDay() === 0 ? 'text-[var(--hafta-red-600)]' : 'text-stone-500')}>
                           {WEEKDAY_SHORT[(day.getDay() + 6) % 7]}
                         </span>
@@ -441,7 +441,7 @@ export function TherapyCalendarView({
               </div>
 
               <div className="relative flex pt-4">
-                <div className="w-14 shrink-0 border-r border-border">
+                <div className="w-14 shrink-0">
                   {HOURS.map((hour) => (
                     <div key={hour} className="relative" style={{ height: SLOT_HEIGHT }}>
                       <span className="absolute right-2 top-0 -translate-y-1/2 text-[10px] font-medium tabular-nums text-stone-500">
@@ -456,7 +456,7 @@ export function TherapyCalendarView({
                     const key = dateKey(day);
                     const dayEvents = groupByDate.get(key) ?? [];
                     return (
-                      <div key={key} className="relative flex-1 border-r border-border last:border-r-0" style={{ height: HOURS.length * SLOT_HEIGHT }}>
+                      <div key={key} className="relative flex-1" style={{ height: HOURS.length * SLOT_HEIGHT }}>
                         {HOURS.map((hour) => (
                           <button
                             key={hour}
