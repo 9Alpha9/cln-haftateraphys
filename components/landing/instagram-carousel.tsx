@@ -1,163 +1,247 @@
 'use client';
 
 import Image from 'next/image';
-import { motion, useReducedMotion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 interface InstagramCarouselProps {
   images: string[];
+  /** Profil Instagram resmi yang dibuka saat gambar atau tautan diklik. */
+  profileUrl?: string;
 }
 
-function getVisibleImages(width: number) {
-  if (width >= 1024) return 4;
-  if (width >= 768) return 3;
-  if (width >= 520) return 2;
-  return 1;
-}
+const DEFAULT_PROFILE_URL = 'https://www.instagram.com/hafta.fisioterapi/';
 
-export function InstagramCarousel({ images }: InstagramCarouselProps) {
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const [visibleImages, setVisibleImages] = useState(1);
+/**
+ * Galeri Instagram bergaya carousel dengan gulir native.
+ *
+ * Prinsip desain: tanpa rotasi otomatis (konten tidak bergerak sendiri),
+ * tanpa kartu-di-dalam-kartu, dan hanya memakai warna charcoal/stone/oranye
+ * Hafta 300 agar selaras dengan pedoman warna proyek.
+ */
+export function InstagramCarousel({
+  images,
+  profileUrl = DEFAULT_PROFILE_URL,
+}: InstagramCarouselProps) {
+  const scrollerRef = useRef<HTMLUListElement>(null);
+  // 0 = belum diukur. Titik navigasi disembunyikan sampai jumlah pastinya
+  // diketahui agar tidak muncul kilatan jumlah yang salah saat hidrasi.
+  const [positionCount, setPositionCount] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
-  const reduceMotion = useReducedMotion();
-  const pages = useMemo(() => {
-    const groupedImages = [];
 
-    for (let index = 0; index < images.length; index += visibleImages) {
-      groupedImages.push(images.slice(index, index + visibleImages));
-    }
+  /**
+   * Jumlah posisi berhenti dihitung dari rentang gulir sebenarnya, bukan dari
+   * breakpoint viewport. Cara ini tetap akurat ketika lebar kartu diatur lewat
+   * kelas responsif yang tidak sejalan dengan lebar kontainer.
+   */
+  const measurePositions = useCallback(() => {
+    const scroller = scrollerRef.current;
+    const firstCard = scroller?.children[0] as HTMLElement | undefined;
+    if (!scroller || !firstCard) return;
 
-    return groupedImages;
-  }, [images, visibleImages]);
-  const displayedIndex = Math.min(activeIndex, pages.length - 1);
+    const gap = parseFloat(getComputedStyle(scroller).columnGap) || 0;
+    const step = firstCard.getBoundingClientRect().width + gap;
+    if (step <= 0) return;
 
-  useEffect(() => {
-    const carousel = carouselRef.current;
-    if (!carousel) return;
+    const maxScroll = Math.max(0, scroller.scrollWidth - scroller.clientWidth);
+    const nextCount = Math.max(1, Math.round(maxScroll / step) + 1);
 
-    const observer = new ResizeObserver(([entry]) => {
-      const nextVisibleImages = getVisibleImages(entry.contentRect.width);
-      setVisibleImages((current) => (current === nextVisibleImages ? current : nextVisibleImages));
-    });
-
-    observer.observe(carousel);
-    return () => observer.disconnect();
+    setPositionCount(nextCount);
+    setActiveIndex((current) => Math.min(current, nextCount - 1));
   }, []);
 
   useEffect(() => {
-    if (reduceMotion || pages.length <= 1) return;
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
 
-    const interval = window.setInterval(() => {
-      setActiveIndex((current) => (current + 1) % pages.length);
-    }, 6500);
+    measurePositions();
 
-    return () => window.clearInterval(interval);
-  }, [pages.length, reduceMotion]);
+    const observer = new ResizeObserver(() => measurePositions());
+    observer.observe(scroller);
+    return () => observer.disconnect();
+  }, [measurePositions]);
 
-  const showPrevious = () => {
-    setActiveIndex((current) => (current - 1 + pages.length) % pages.length);
+  /** Indeks aktif diturunkan dari posisi geser, bukan disimpan terpisah. */
+  const syncActiveIndex = useCallback(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+
+    const scrollerLeft = scroller.getBoundingClientRect().left;
+    let closest = 0;
+    let closestDistance = Number.POSITIVE_INFINITY;
+
+    Array.from(scroller.children).forEach((child, index) => {
+      const distance = Math.abs(child.getBoundingClientRect().left - scrollerLeft);
+      if (distance < closestDistance - 0.5) {
+        closestDistance = distance;
+        closest = index;
+      }
+    });
+
+    setActiveIndex(Math.min(closest, Math.max(0, positionCount - 1)));
+  }, [positionCount]);
+
+  useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+
+    scroller.addEventListener('scroll', syncActiveIndex, { passive: true });
+    return () => scroller.removeEventListener('scroll', syncActiveIndex);
+  }, [syncActiveIndex]);
+
+  /** Geser tepat satu kartu; peramban akan membulatkan ke titik snap terdekat. */
+  const moveBy = useCallback((direction: -1 | 1) => {
+    const scroller = scrollerRef.current;
+    if (!scroller) return;
+
+    const firstCard = scroller.children[0] as HTMLElement | undefined;
+    const gap = parseFloat(getComputedStyle(scroller).columnGap) || 0;
+    const cardWidth = firstCard ? firstCard.getBoundingClientRect().width + gap : scroller.clientWidth * 0.8;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    scroller.scrollBy({
+      left: direction * cardWidth,
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    });
+  }, []);
+
+  const moveToPosition = useCallback((position: number) => {
+    const scroller = scrollerRef.current;
+    const target = scroller?.children[position] as HTMLElement | undefined;
+    if (!scroller || !target) return;
+
+    const delta = target.getBoundingClientRect().left - scroller.getBoundingClientRect().left;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    scroller.scrollBy({ left: delta, behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+  }, []);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLUListElement>) => {
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      moveBy(-1);
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      moveBy(1);
+    }
   };
 
-  const showNext = () => {
-    setActiveIndex((current) => (current + 1) % pages.length);
-  };
+  const isAtStart = activeIndex === 0;
+  const isAtEnd = positionCount > 0 && activeIndex >= positionCount - 1;
 
   return (
-    <div ref={carouselRef} className="mx-auto mt-8 w-full max-w-7xl text-center">
-      <div className="overflow-hidden rounded-2xl border border-border bg-white p-3 sm:p-4">
-        <div className="flex items-center justify-center gap-2 pb-3 text-xs font-medium text-foreground sm:pb-4">
-          <Image
-            src="/images/logos/logos.png"
-            alt=""
-            width={24}
-            height={24}
-            className="h-5 w-5 rounded-full object-cover"
-          />
-          <span>Latest @hafta.fisioterapi Posts</span>
-        </div>
-
-        <div className="relative aspect-[4/5] sm:aspect-[16/9] lg:aspect-[16/5]">
-          {pages.map((page, pageIndex) => (
-            <motion.div
-              key={page.join('-')}
-              initial={false}
-              animate={{ opacity: pageIndex === displayedIndex ? 1 : 0 }}
-              transition={{ duration: reduceMotion ? 0 : 0.5, ease: 'easeInOut' }}
-              className="absolute inset-0 grid gap-1.5 overflow-hidden sm:grid-cols-2 sm:gap-2 md:grid-cols-3 xl:grid-cols-4"
-              aria-hidden={pageIndex !== displayedIndex}
-            >
-              {page.map((image, imageIndex) => (
-                <a
-                  key={image}
-                  href="https://www.instagram.com/hafta.fisioterapi/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  tabIndex={pageIndex === displayedIndex ? 0 : -1}
-                  className="group relative block h-full overflow-hidden rounded-sm bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  <Image
-                    src={image}
-                    alt={`Aktivitas Hafta Fisioterapi ${pageIndex * visibleImages + imageIndex + 1}`}
-                    fill
-                    sizes="(max-width: 520px) 100vw, (max-width: 768px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                    className="object-cover transition-transform duration-500 motion-reduce:transition-none group-hover:scale-105"
-                    quality={100}
-                    loading={pageIndex === 0 && imageIndex === 0 ? 'eager' : 'lazy'}
-                  />
-                  <div className="absolute inset-0 bg-hafta-grn-950/0 transition-colors duration-300 group-hover:bg-hafta-grn-950/20" />
-                  <ExternalLink className="absolute right-2 top-2 h-4 w-4 text-white opacity-0 drop-shadow transition-opacity duration-300 group-hover:opacity-100" />
-                </a>
-              ))}
-            </motion.div>
-          ))}
-        </div>
-
-        <div className="relative mt-3 flex min-h-9 items-center justify-center">
-          <button
-            type="button"
-            onClick={showPrevious}
-            aria-label="Slide Instagram sebelumnya"
-            className="absolute left-0  inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-primary transition-colors hover:text-white hover:bg-hafta-grn-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <div className="flex items-center gap-1.5" aria-label={`Slide ${displayedIndex + 1} dari ${pages.length}`}>
-            {pages.map((page, pageIndex) => (
-              <button
-                key={page.join('-')}
-                type="button"
-                onClick={() => setActiveIndex(pageIndex)}
-                aria-label={`Tampilkan slide Instagram ${pageIndex + 1}`}
-                aria-current={pageIndex === displayedIndex ? 'true' : undefined}
-                className={`h-1.5  cursor-pointer rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                  pageIndex === displayedIndex ? 'w-4 bg-primary' : 'w-1.5 bg-primary/25 hover:bg-primary/50'
-                }`}
-              />
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={showNext}
-            aria-label="Slide Instagram berikutnya"
-            className="absolute  right-0 inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-primary transition-colors hover:text-white hover:bg-hafta-grn-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </div>
+    <div className="mx-auto mt-10 w-full max-w-7xl">
+      {/* Kontrol desktop: ringkas, sejajar kanan, tidak menutupi gambar. */}
+      <div className="mb-4 hidden items-center justify-end gap-2 sm:flex">
+        <button
+          type="button"
+          onClick={() => moveBy(-1)}
+          disabled={isAtStart}
+          aria-label="Geser galeri ke kiri"
+          className="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-stone-300 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-300)] disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-300 disabled:hover:bg-transparent"
+        >
+          <ChevronLeft className="size-4" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          onClick={() => moveBy(1)}
+          disabled={isAtEnd}
+          aria-label="Geser galeri ke kanan"
+          className="inline-flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border border-stone-300 text-stone-700 transition-colors hover:border-stone-400 hover:bg-stone-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-300)] disabled:cursor-not-allowed disabled:border-stone-200 disabled:text-stone-300 disabled:hover:bg-transparent"
+        >
+          <ChevronRight className="size-4" aria-hidden="true" />
+        </button>
       </div>
 
-      <a
-        href="https://www.instagram.com/hafta.fisioterapi/"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mx-auto mt-4 inline-flex min-h-9 items-center justify-center gap-1.5 rounded-md bg-surface px-3 text-xs font-medium text-muted-foreground transition-colors hover:bg-sage-200 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      {/*
+        Gulir asli peramban: geser dengan jari di mobile, trackpad/Shift+wheel di
+        desktop, dan tombol panah saat area ini difokus. Tidak ada rotasi otomatis
+        agar konten tidak bergerak sendiri.
+      */}
+      <ul
+        ref={scrollerRef}
+        role="region"
+        aria-label="Galeri dokumentasi Instagram Hafta Fisioterapi"
+        tabIndex={0}
+        onKeyDown={handleKeyDown}
+        className={cn(
+          '-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-4 pb-1 scroll-px-4',
+          'sm:mx-0 sm:gap-4 sm:px-0 sm:scroll-px-0',
+          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-300)] focus-visible:ring-offset-2',
+          '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+        )}
       >
-        <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Zm5.25-3.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5Z" />
-        </svg>
-        Follow kami di Instagram
-      </a>
+        {images.map((image, index) => (
+          <li
+            key={image}
+            className="w-[76%] shrink-0 snap-start sm:w-[46%] lg:w-[31.5%] xl:w-[23.5%]"
+          >
+            <a
+              href={profileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Buka dokumentasi Instagram Hafta Fisioterapi nomor ${index + 1} di tab baru`}
+              className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-300)] focus-visible:ring-offset-2"
+            >
+              <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-stone-100">
+                <Image
+                  src={image}
+                  alt={`Dokumentasi aktivitas Hafta Fisioterapi ${index + 1}`}
+                  fill
+                  sizes="(max-width: 639px) 78vw, (max-width: 1023px) 47vw, (max-width: 1279px) 32vw, 24vw"
+                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+                  quality={90}
+                  loading={index < 2 ? 'eager' : 'lazy'}
+                />
+                {/* Penanda halus bahwa kartu membuka Instagram. */}
+                <span className="absolute right-2.5 top-2.5 flex size-7 items-center justify-center rounded-full bg-black/45 text-white opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
+                  <ArrowUpRight className="size-3.5" aria-hidden="true" />
+                </span>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        {/* Titik navigasi: area sentuh 44px, tampilan tetap tipis. */}
+        {positionCount > 1 ? (
+          <div className="flex items-center" role="group" aria-label="Navigasi galeri">
+            {Array.from({ length: positionCount }, (_, position) => (
+              <button
+                key={position}
+                type="button"
+                onClick={() => moveToPosition(position)}
+                aria-label={`Ke posisi galeri ${position + 1} dari ${positionCount}`}
+                aria-current={position === activeIndex ? 'true' : undefined}
+                className="group flex h-11 w-5 cursor-pointer items-center justify-center focus-visible:outline-none"
+              >
+                <span
+                  className={cn(
+                    'block h-1.5 rounded-full transition-all duration-300',
+                    position === activeIndex
+                      ? 'w-5 bg-[var(--hafta-950)]'
+                      : 'w-1.5 bg-stone-300 group-hover:bg-stone-400',
+                  )}
+                  aria-hidden="true"
+                />
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="hidden sm:block" />
+        )}
+
+        <a
+          href={profileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex min-h-11 items-center gap-1.5 self-start whitespace-nowrap text-sm font-semibold text-stone-700 transition-colors hover:text-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-300)] focus-visible:ring-offset-2 sm:self-auto"
+        >
+          Lihat semua di Instagram
+          <ArrowUpRight className="size-4" aria-hidden="true" />
+        </a>
+      </div>
     </div>
   );
 }
