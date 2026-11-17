@@ -930,7 +930,7 @@ export function PatientDashboardShell({
                             {badge > 99 ? '99+' : badge}
                           </span>
                         ) : null}
-                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50" />
+                        <ChevronRight className="h-4 w-4 shrink-0 text-stone-400" />
                       </Link>
                     </li>
                   );
@@ -960,7 +960,7 @@ export function PatientDashboardShell({
                       {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   ) : null}
-                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/50" />
+                  <ChevronRight className="h-4 w-4 shrink-0 text-stone-400" />
                 </Link>
               </li>
             </ul>

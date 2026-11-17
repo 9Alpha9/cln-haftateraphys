@@ -52,14 +52,6 @@ export function SmartFilterMenu({
   children,
 }: SmartFilterMenuProps) {
   const [open, setOpen] = useState(false);
-  const [position, setPosition] = useState({
-    top: 0,
-    bottom: 0,
-    left: 0,
-    width: 260,
-    maxHeight: 320,
-    openUp: false,
-  });
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const listboxId = useId();
@@ -69,11 +61,11 @@ export function SmartFilterMenu({
 
     function updatePosition() {
       const trigger = triggerRef.current;
-      if (!trigger) return;
+      const menu = menuRef.current;
+      if (!trigger || !menu) return;
 
       const rect = trigger.getBoundingClientRect();
       const margin = 12;
-      // Keep the panel clear of the mobile bottom navigation capsule.
       const bottomClearance = window.innerWidth < 1024 ? 96 : margin;
       const spaceBelow = window.innerHeight - rect.bottom - bottomClearance;
       const spaceAbove = rect.top - margin;
@@ -84,14 +76,25 @@ export function SmartFilterMenu({
           ? Math.max(margin, rect.right - width)
           : Math.max(margin, Math.min(rect.left, window.innerWidth - width - margin));
 
-      setPosition({
-        top: rect.bottom + 8,
-        bottom: window.innerHeight - rect.top + 8,
-        left,
-        width,
-        maxHeight: Math.max(180, Math.min(420, openUp ? spaceAbove : spaceBelow)),
-        openUp,
-      });
+      const maxHeight = Math.max(180, Math.min(420, openUp ? spaceAbove : spaceBelow));
+
+      menu.style.position = 'fixed';
+      menu.style.width = `${width}px`;
+      menu.style.maxHeight = `${maxHeight}px`;
+      if (openUp) {
+        menu.style.top = 'auto';
+        menu.style.bottom = `${window.innerHeight - rect.top + 8}px`;
+      } else {
+        menu.style.bottom = 'auto';
+        menu.style.top = `${rect.bottom + 8}px`;
+      }
+      menu.style.left = `${left}px`;
+    }
+
+    let rafId = 0;
+    function handleScrollOrResize() {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(updatePosition);
     }
 
     function onPointerDown(event: PointerEvent) {
@@ -105,15 +108,18 @@ export function SmartFilterMenu({
       if (event.key === 'Escape') setOpen(false);
     }
 
-    updatePosition();
-    window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, true);
+    // Initial position sync once portal renders
+    requestAnimationFrame(updatePosition);
+
+    window.addEventListener('resize', handleScrollOrResize);
+    window.addEventListener('scroll', handleScrollOrResize, true);
     document.addEventListener('pointerdown', onPointerDown);
     document.addEventListener('keydown', onKeyDown);
 
     return () => {
-      window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition, true);
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', handleScrollOrResize);
+      window.removeEventListener('scroll', handleScrollOrResize, true);
       document.removeEventListener('pointerdown', onPointerDown);
       document.removeEventListener('keydown', onKeyDown);
     };
@@ -165,16 +171,8 @@ export function SmartFilterMenu({
               id={listboxId}
               role="dialog"
               aria-label={ariaLabel ?? 'Panel filter'}
-              style={{
-                position: 'fixed',
-                top: position.openUp ? 'auto' : position.top,
-                bottom: position.openUp ? position.bottom : 'auto',
-                left: position.left,
-                width: position.width,
-                maxHeight: position.maxHeight,
-              }}
               className={cn(
-                'z-[80] flex flex-col gap-1 overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]',
+                'fixed z-[80] flex flex-col gap-1 overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]',
                 panelClassName,
               )}
             >

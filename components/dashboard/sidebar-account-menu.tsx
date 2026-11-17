@@ -61,7 +61,7 @@ export function SidebarAccountMenu({
           <span className="block truncate text-sm font-bold text-foreground">{userName || 'Administrator'}</span>
           <span className="block truncate text-xs font-medium text-muted-foreground">{roleLabel}</span>
         </span>
-        <ChevronRight className={cn('h-4 w-4 shrink-0 text-slate-400 transition-transform duration-300 rotate-180', open && 'rotate-0')} />
+        <ChevronRight className={cn('h-4 w-4 shrink-0 text-stone-400 transition-transform duration-300 rotate-180', open && 'rotate-0')} />
       </button>
 
       <AnimatePresence>
