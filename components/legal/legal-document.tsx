@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowUpRight, Mail, MessageCircle } from 'lucide-react';
+import { ArrowUpRight, MessageCircle } from 'lucide-react';
 
 export type LegalBlock =
   | { type: 'paragraph'; text: string }
@@ -24,11 +24,17 @@ export type LegalDocumentProps = {
   /** Tautan silang ke dokumen legal lain. */
   relatedLink?: { href: string; label: string };
   contactNote: string;
+  /** Catatan tambahan di atas kanal kontak, mis. alamat domisili dan syarat permintaan. */
+  contactDetail?: string;
 };
 
-const CONTACT_WHATSAPP = 'https://wa.me/6281232932872?text=Halo%20Admin%20Hafta%20Fisioterapi,%20saya%20ingin%20menanyakan%20hal%20terkait%20kebijakan%20Hafta.';
-const CONTACT_EMAIL = 'mailto:info@hafta-fisioterapi.com?subject=Pertanyaan%20Kebijakan%20Hafta%20Fisioterapi';
+const CONTACT_WHATSAPP =
+  'https://wa.me/6281232932872?text=Halo%20Admin%20Hafta%20Fisioterapi,%20saya%20ingin%20menanyakan%20hal%20terkait%20kebijakan%20Hafta.';
 
+/**
+ * Render dokumen legal statis (kebijakan privasi, syarat layanan, dll.) dengan daftar isi otomatis.
+ * Server component: tidak ada state maupun interaksi klien selain tautan.
+ */
 export function LegalDocument({
   sections,
   effectiveDate,
@@ -36,6 +42,7 @@ export function LegalDocument({
   summary,
   relatedLink,
   contactNote,
+  contactDetail,
 }: LegalDocumentProps) {
   return (
     <article className="mx-auto mt-6 max-w-3xl rounded-2xl border border-border bg-white p-6 md:p-10">
@@ -59,7 +66,7 @@ export function LegalDocument({
         </Link>
       ) : null}
 
-      {/* Daftar isi: membantu di mobile karena dokumen panjang. */}
+      {/* Daftar isi membantu pengguna di mobile karena dokumen legal panjang. */}
       {sections.length > 4 ? (
         <nav aria-label="Daftar isi" className="mt-7 rounded-xl border border-border bg-surface/70 p-4">
           <h2 className="text-xs font-semibold uppercase tracking-wide text-foreground">Daftar isi</h2>
@@ -125,9 +132,12 @@ export function LegalDocument({
         ))}
       </div>
 
-      <section className="mt-9 rounded-xl bg-surface p-5">
+      <section id="kontak" className="mt-9 scroll-mt-24 rounded-xl border border-border bg-surface p-5">
         <h2 className="text-base font-semibold text-foreground">Pertanyaan dan permintaan terkait kebijakan</h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{contactNote}</p>
+        {contactDetail ? (
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{contactDetail}</p>
+        ) : null}
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <a
             href={CONTACT_WHATSAPP}
@@ -136,19 +146,19 @@ export function LegalDocument({
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           >
             <MessageCircle className="size-4" aria-hidden="true" />
-            WhatsApp 0812-3293-2872
+            WhatsApp admin
           </a>
-          <a
-            href={CONTACT_EMAIL}
+          <Link
+            href="/kontak"
             className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-white px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
           >
-            <Mail className="size-4" aria-hidden="true" />
-            Email admin
-          </a>
+            Halaman kontak
+          </Link>
         </div>
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
-          Kami menanggapi permintaan terkait data pribadi dalam waktu paling lama 14 (empat belas) hari kerja setelah
-          identitas pemohon diverifikasi.
+          Kami menanggapi permintaan terkait data pribadi paling lama 14 (empat belas) hari kerja setelah identitas
+          pemohon diverifikasi sesuai ketentuan pelindungan data pribadi yang berlaku. Permintaan yang memerlukan
+          pemeriksaan lintas tim dapat membutuhkan waktu tambahan, dan kami akan menyampaikan perkiraan waktunya.
         </p>
       </section>
     </article>

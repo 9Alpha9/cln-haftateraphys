@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowLeft, ShieldCheck } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Container } from '@/components/container';
 import { Footer } from '@/components/landing/footer';
 import { PublicHeader } from '@/components/landing/navbar';
+import { LegalDocument, type LegalSection } from '@/components/legal/legal-document';
 
 export const metadata: Metadata = {
   title: 'Kebijakan Privasi — Hafta Fisioterapi',
