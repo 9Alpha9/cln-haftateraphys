@@ -100,9 +100,9 @@ export function SmartFilterMenu({
           sideOffset={8}
           collisionPadding={12}
           className={cn(
-            // z-50 keeps the panel above page content but below slide-overs
-            // (GlobalSlideOver uses z-60), so it never floats over an open drawer.
-            'z-50 flex max-h-[min(420px,calc(100dvh-4rem))] min-w-[232px] flex-col gap-1 overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-1.5 text-popover-foreground shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)] outline-none',
+            // z-[70] keeps the panel above slide-overs (z-60), matching AppSelect,
+            // so it also works inside drawers. Menus auto-close when an overlay opens.
+            'z-[70] flex max-h-[min(420px,calc(100dvh-4rem))] min-w-[232px] flex-col gap-1 overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-1.5 text-popover-foreground shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)] outline-none',
             panelClassName,
           )}
         >
