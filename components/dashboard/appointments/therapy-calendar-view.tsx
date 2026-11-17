@@ -212,7 +212,7 @@ export function TherapyCalendarView({
               </div>
               <div className="min-w-0">
                 <h2 className="truncate text-sm font-bold text-foreground sm:text-base">Jadwal Terapi</h2>
-                <p className="truncate text-[11px] font-medium text-muted-foreground sm:text-xs">{title}</p>
+                <p className="truncate text-[11px] font-medium text-stone-600 sm:text-xs">{title}</p>
               </div>
             </div>
 
@@ -252,7 +252,7 @@ export function TherapyCalendarView({
                   onClick={() => setViewMode(mode)}
                   className={cn(
                     'h-7 shrink-0 cursor-pointer rounded-full px-2.5 text-[11px] font-semibold transition-colors',
-                    viewMode === mode ? 'bg-[var(--hafta-900)] text-white' : 'text-muted-foreground hover:text-foreground',
+                    viewMode === mode ? 'bg-[var(--hafta-900)] text-white' : 'text-stone-600 hover:text-foreground',
                   )}
                 >
                   {mode === 'day' ? 'Hari' : mode === 'week' ? 'Minggu' : mode === 'month' ? 'Bulan' : 'Agenda'}
@@ -321,13 +321,13 @@ export function TherapyCalendarView({
                         <span
                           className={cn(
                             'flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold',
-                            key === todayKey ? 'bg-[var(--hafta-900)] text-white' : isCurrentMonth ? 'text-foreground' : 'text-muted-foreground',
+                            key === todayKey ? 'bg-[var(--hafta-900)] text-white' : isCurrentMonth ? 'text-foreground font-medium' : 'text-stone-700 font-semibold',
                           )}
                         >
                           {day.getDate()}
                         </span>
                         {dayEvents.length > 0 && (
-                          <span className="text-[9px] font-semibold text-muted-foreground">{dayEvents.length}</span>
+                          <span className="text-[9px] font-semibold text-stone-600">{dayEvents.length}</span>
                         )}
                       </div>
                       <div className="space-y-0.5">
