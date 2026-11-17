@@ -1,8 +1,8 @@
 'use server';
 
-import { and, ilike, or, eq, desc, isNull } from 'drizzle-orm';
+import { and, ilike, or, eq, desc, isNull, inArray } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { patients, appointments, users, profiles, auditLogs, therapyProgressRecords } from '@/db/schema';
+import { patients, appointments, users, profiles, auditLogs, therapyProgressRecords, patientAssignments } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 
@@ -20,6 +20,22 @@ export async function searchGlobalEntities(query: string): Promise<SearchResultI
 
   const { session, role } = await requireSession({ redirectToLogin: false });
   const db = getDb();
+
+  // Therapists only see patients they actively supervise (AGENTS.md clinical scope)
+  let therapistAssignedPatientIds: string[] | null = null;
+  if (role === 'THERAPIST') {
+    const assignments = await db
+      .select({ patientId: patientAssignments.patientId })
+      .from(patientAssignments)
+      .where(
+        and(
+          eq(patientAssignments.staffUserId, session.user.id),
+          isNull(patientAssignments.activeUntil),
+        ),
+      );
+    therapistAssignedPatientIds = assignments.map((a) => a.patientId);
+    if (therapistAssignedPatientIds.length === 0) therapistAssignedPatientIds = []; // no active assignments → no results
+  }
   const results: SearchResultItem[] = [];
 
   // 1. Menu Cepat (Navigation Shortcuts)
@@ -64,10 +80,15 @@ export async function searchGlobalEntities(query: string): Promise<SearchResultI
         })
         .from(patients)
         .where(
-          or(
-            ilike(patients.fullName, `%${rawQ}%`),
-            ilike(patients.medicalRecordNumber, `%${rawQ}%`)
-          )
+          and(
+            or(
+              ilike(patients.fullName, `%${rawQ}%`),
+              ilike(patients.medicalRecordNumber, `%${rawQ}%`)
+            ),
+            role === 'THERAPIST'
+              ? inArray(patients.id, therapistAssignedPatientIds!)
+              : undefined,
+          ),
         )
         .limit(5);
 
@@ -116,6 +137,13 @@ export async function searchGlobalEntities(query: string): Promise<SearchResultI
         }
       } else {
         // Admin / SuperAdmin / Therapist — Cari berdasarkan nama pasien, tipe sesi, status, atau nama terapis
+        const apptWhere = or(
+          ilike(patients.fullName, `%${rawQ}%`),
+          ilike(users.name, `%${rawQ}%`),
+          ilike(appointments.type, `%${rawQ}%`),
+          ilike(appointments.status, `%${rawQ}%`),
+        );
+
         const foundAppts = await db
           .select({
             id: appointments.id,
@@ -130,12 +158,9 @@ export async function searchGlobalEntities(query: string): Promise<SearchResultI
           .leftJoin(patients, eq(appointments.patientId, patients.id))
           .leftJoin(users, eq(appointments.therapistId, users.id))
           .where(
-            or(
-              ilike(patients.fullName, `%${rawQ}%`),
-              ilike(users.name, `%${rawQ}%`),
-              ilike(appointments.type, `%${rawQ}%`),
-              ilike(appointments.status, `%${rawQ}%`)
-            )
+            role === 'THERAPIST'
+              ? and(apptWhere, inArray(appointments.patientId, therapistAssignedPatientIds!))
+              : apptWhere,
           )
           .limit(5);
 
