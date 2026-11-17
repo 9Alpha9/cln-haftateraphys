@@ -108,8 +108,8 @@ export function SmartFilterMenu({
   const close = () => setOpen(false);
   const content = typeof children === 'function' ? children(close) : children;
 
-  return createPortal(
-    < >
+  return (
+    <>
       <button
         ref={triggerRef}
         type="button"
@@ -144,21 +144,23 @@ export function SmartFilterMenu({
         />
       </button>
 
-      {open ? (
-        <div
-          ref={menuRef}
-          id={listboxId}
-          role="dialog"
-          aria-label={ariaLabel ?? 'Panel filter'}
-          className={cn(
-            'fixed z-[80] max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]',
-            panelClassName,
-          )}
-        >
-          {content}
-        </div>
-      ) : null}
-    </ >,
-    document.body,
+      {open
+        ? createPortal(
+            <div
+              ref={menuRef}
+              id={listboxId}
+              role="dialog"
+              aria-label={ariaLabel ?? 'Panel filter'}
+              className={cn(
+                'fixed z-[80] max-h-[calc(100vh-4rem)] overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]',
+                panelClassName,
+              )}
+            >
+              {content}
+            </div>,
+            document.body,
+          )
+        : null}
+    </>
   );
 }

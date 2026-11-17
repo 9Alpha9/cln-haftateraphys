@@ -17,6 +17,13 @@ const nextConfig: NextConfig = {
     },
   },
   async headers() {
+    // React dev-mode tooling (callstack reconstruction) requires eval(); only
+    // enable 'unsafe-eval' in development so production CSP stays strict.
+    const isDev = process.env.NODE_ENV === 'development';
+    const scriptSrc = isDev
+      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com"
+      : "script-src 'self' 'unsafe-inline' https://www.google.com";
+
     return [
       {
         source: '/(.*)',
@@ -43,7 +50,7 @@ const nextConfig: NextConfig = {
           },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; frame-src 'self'",
+            value: `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; frame-src 'self'`,
           },
           ...(process.env.NODE_ENV !== 'development'
             ? [
