@@ -10,6 +10,12 @@ import { sendEmail } from '@/lib/email/send-email';
 
 function createAuth() {
   return betterAuth({
+    rateLimit: {
+      enabled: process.env.NODE_ENV !== 'development',
+      window: 60, // 60 detik per window
+      max: 20,    // maksimal 20 percobaan per window
+      storage: 'memory',
+    },
     database: drizzleAdapter(getDb(), {
       provider: 'pg',
       schema: {

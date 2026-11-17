@@ -6,9 +6,60 @@ import {
   isMaintenanceExemptPath,
 } from '@/lib/maintenance';
 
+// In-memory rate limiter untuk endpoint auth sensitif
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+const WINDOW_MS = 60 * 1000; // 1 menit
+const MAX_AUTH_ATTEMPTS = 15; // Maksimal 15 percobaan/menit
+
+function checkRateLimit(request: NextRequest, pathname: string): NextResponse | null {
+  if (
+    pathname.startsWith('/api/auth/sign-in') ||
+    pathname.startsWith('/api/auth/sign-up') ||
+    pathname.startsWith('/api/auth/request-password-reset')
+  ) {
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      '127.0.0.1';
+
+    const key = `${ip}:${pathname}`;
+    const now = Date.now();
+    let record = rateLimitMap.get(key);
+
+    if (!record || now > record.resetTime) {
+      record = { count: 1, resetTime: now + WINDOW_MS };
+      rateLimitMap.set(key, record);
+    } else {
+      record.count++;
+    }
+
+    if (record.count > MAX_AUTH_ATTEMPTS) {
+      return new NextResponse(
+        JSON.stringify({
+          error: 'Terlalu banyak percobaan. Silakan coba lagi nanti.',
+          code: 'RATE_LIMIT_EXCEEDED',
+        }),
+        {
+          status: 429,
+          headers: {
+            'Content-Type': 'application/json',
+            'Retry-After': '60',
+          },
+        }
+      );
+    }
+  }
+  return null;
+}
+
 export async function proxy(request: NextRequest) {
   const host = request.headers.get('host') ?? '';
   const pathname = request.nextUrl.pathname;
+
+  // Rate limiting check
+  const rateLimitResponse = checkRateLimit(request, pathname);
+  if (rateLimitResponse) return rateLimitResponse;
+
   const publicHost = process.env.PUBLIC_APP_HOST ?? '';
 
   if (shouldHideDashboardOnHost(host, pathname, publicHost)) {
@@ -32,5 +83,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|images).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico|images).*)'],
 };
