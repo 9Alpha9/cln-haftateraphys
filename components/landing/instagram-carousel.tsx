@@ -158,24 +158,29 @@ export function InstagramCarousel({
         desktop, dan tombol panah saat area ini difokus. Tidak ada rotasi otomatis
         agar konten tidak bergerak sendiri.
       */}
-      <ul
-        ref={scrollerRef}
+      {/* Wrapper landmark + keyboard focus untuk navigasi galeri. role="region"
+          diletakkan di div pembungkus (bukan di <ul>) agar <li> tetap berperan
+          sebagai daftar menurut AX-tree (fix QA-A11Y-38). */}
+      <div
         role="region"
         aria-label="Galeri dokumentasi Instagram Hafta Fisioterapi"
-        tabIndex={0}
-        onKeyDown={handleKeyDown}
-        className={cn(
-          '-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-4 pb-1 scroll-px-4',
-          'sm:mx-0 sm:gap-4 sm:px-0 sm:scroll-px-0',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-300)] focus-visible:ring-offset-2',
-          '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
-        )}
+        className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-300)] focus-visible:ring-offset-2"
       >
-        {images.map((image, index) => (
-          <li
-            key={image}
-            className="w-[76%] shrink-0 snap-start sm:w-[46%] lg:w-[31.5%] xl:w-[23.5%]"
-          >
+        <ul
+          ref={scrollerRef}
+          tabIndex={0}
+          onKeyDown={handleKeyDown}
+          className={cn(
+            '-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain px-4 pb-1 scroll-px-4',
+            'sm:mx-0 sm:gap-4 sm:px-0 sm:scroll-px-0',
+            '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          )}
+        >
+          {images.map((image, index) => (
+            <li
+              key={image}
+              className="w-[76%] shrink-0 snap-start sm:w-[46%] lg:w-[31.5%] xl:w-[23.5%]"
+            >
             <a
               href={profileUrl}
               target="_blank"
@@ -201,7 +206,8 @@ export function InstagramCarousel({
             </a>
           </li>
         ))}
-      </ul>
+        </ul>
+      </div>
 
       <div className="mt-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         {/* Titik navigasi: area sentuh 44px, tampilan tetap tipis. */}
