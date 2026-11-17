@@ -6,7 +6,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { getDb } from '@/db';
 import { accounts, sessions, twoFactor as twoFactorTable, users, verifications } from '@/db/schema';
 import { createAuditLog } from '@/lib/audit';
-import { sendEmail } from '@/lib/email/send-email';
+import { sendEmail, escapeHtml } from '@/lib/email/send-email';
 
 function createAuth() {
   return betterAuth({
@@ -37,13 +37,13 @@ function createAuth() {
           html: `
             <div style="font-family:Arial,sans-serif;line-height:1.6;color:#181700">
               <h2>Reset kata sandi</h2>
-              <p>Halo ${user.name || 'Pasien'},</p>
+              <p>Halo ${escapeHtml(user.name || 'Pasien')},</p>
               <p>Kami menerima permintaan untuk mengatur ulang kata sandi akun Hafta Fisioterapi Anda.</p>
               <p><a href="${url}" style="display:inline-block;padding:10px 16px;background:#FFD097;color:#181700;text-decoration:none;border-radius:999px;font-weight:700">Atur ulang kata sandi</a></p>
               <p>Tautan berlaku selama 1 jam. Jika Anda tidak meminta reset, abaikan email ini.</p>
             </div>
           `,
-          text: `Halo ${user.name || 'Pasien'},\n\nAtur ulang kata sandi Anda: ${url}\n\nTautan berlaku 1 jam. Abaikan email ini jika bukan Anda.`,
+          text: `Halo ${escapeHtml(user.name || 'Pasien')},\n\nAtur ulang kata sandi Anda: ${url}\n\nTautan berlaku 1 jam. Abaikan email ini jika bukan Anda.`,
         });
 
         await createAuditLog({
@@ -66,13 +66,13 @@ function createAuth() {
           html: `
             <div style="font-family:Arial,sans-serif;line-height:1.6;color:#181700">
               <h2>Verifikasi email</h2>
-              <p>Halo ${user.name || 'Pasien'},</p>
+              <p>Halo ${escapeHtml(user.name || 'Pasien')},</p>
               <p>Konfirmasi alamat email Anda untuk mengamankan akun Hafta Fisioterapi.</p>
               <p><a href="${url}" style="display:inline-block;padding:10px 16px;background:#FFD097;color:#181700;text-decoration:none;border-radius:999px;font-weight:700">Verifikasi email</a></p>
               <p>Tautan berlaku selama 1 jam.</p>
             </div>
           `,
-          text: `Halo ${user.name || 'Pasien'},\n\nVerifikasi email Anda: ${url}\n\nTautan berlaku 1 jam.`,
+          text: `Halo ${escapeHtml(user.name || 'Pasien')},\n\nVerifikasi email Anda: ${url}\n\nTautan berlaku 1 jam.`,
         });
 
         await createAuditLog({

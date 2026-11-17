@@ -5,6 +5,18 @@ type SendEmailInput = {
   text: string;
 };
 
+/**
+ * Escape HTML special characters so user-controlled values (e.g. user.name)
+ * cannot inject markup into email bodies.
+ */
+export function escapeHtml(value: string): string {
+  return value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
+
 export function isEmailConfigured() {
   return Boolean(process.env.EMAIL_PROVIDER_API_KEY?.trim() && process.env.EMAIL_FROM?.trim());
 }
