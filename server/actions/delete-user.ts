@@ -103,6 +103,7 @@ export async function deleteUser(input: unknown): Promise<DeleteUserResult> {
 
     // Delete all related data using raw SQL to bypass constraints
     // Order matters: delete child tables first
+    // Note: audit_logs are never hard-deleted (AGENTS.md §6); preserved for compliance.
     await db.execute(sql`DELETE FROM appointment_notification_reads WHERE user_id = ${userId}`);
     await db.execute(sql`DELETE FROM therapy_progress_records WHERE therapist_id = ${userId} OR finalized_by = ${userId}`);
     await db.execute(sql`DELETE FROM appointments WHERE therapist_id = ${userId} OR created_by = ${userId}`);
@@ -110,7 +111,7 @@ export async function deleteUser(input: unknown): Promise<DeleteUserResult> {
     await db.execute(sql`DELETE FROM home_programs WHERE created_by = ${userId}`);
     await db.execute(sql`DELETE FROM patient_intakes WHERE reviewed_by = ${userId}`);
     await db.execute(sql`DELETE FROM internal_calendar_events WHERE created_by = ${userId}`);
-    await db.execute(sql`DELETE FROM audit_logs WHERE actor_user_id = ${userId}`);
+    // audit_logs dihapus tidak (soft-archive); catatan deletion akan dibuat di akhir fungsi.
     await db.execute(sql`DELETE FROM notifications WHERE user_id = ${userId}`);
 
     // Delete patient records owned by this user
