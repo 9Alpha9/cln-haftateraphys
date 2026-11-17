@@ -14,11 +14,34 @@ import { cn } from '@/lib/utils';
  * - Content is portalled to <body>, attached to its trigger, and kept below
  *   the sticky top bar via `collisionPadding.top`.
  */
+type DropdownMenuContextValue = { setOpen: (open: boolean) => void };
+const DropdownMenuContext = React.createContext<DropdownMenuContextValue | null>(null);
+
 function DropdownMenu({
   modal = false,
+  open: openProp,
+  onOpenChange,
+  children,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
-  return <DropdownMenuPrimitive.Root modal={modal} {...props} />;
+  const [uncontrolledOpen, setUncontrolledOpen] = React.useState(false);
+  const isControlled = openProp !== undefined;
+  const open = isControlled ? openProp : uncontrolledOpen;
+  const setOpen = React.useCallback(
+    (next: boolean) => {
+      if (!isControlled) setUncontrolledOpen(next);
+      onOpenChange?.(next);
+    },
+    [isControlled, onOpenChange],
+  );
+
+  return (
+    <DropdownMenuContext.Provider value={{ setOpen }}>
+      <DropdownMenuPrimitive.Root open={open} onOpenChange={setOpen} modal={modal} {...props}>
+        {children}
+      </DropdownMenuPrimitive.Root>
+    </DropdownMenuContext.Provider>
+  );
 }
 
 const DropdownMenuTrigger = React.forwardRef<
@@ -30,23 +53,55 @@ const DropdownMenuTrigger = React.forwardRef<
 DropdownMenuTrigger.displayName = DropdownMenuPrimitive.Trigger.displayName;
 
 const dropdownContentClasses =
-  'z-[70] min-w-[8rem] overflow-hidden rounded-2xl border border-border bg-card p-1.5 text-popover-foreground shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)] outline-none';
+  'z-[70] min-w-[8rem] overflow-hidden overscroll-contain rounded-2xl border border-border bg-card p-1.5 text-popover-foreground shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)] outline-none';
 
 const DropdownMenuContent = React.forwardRef<
   React.ElementRef<typeof DropdownMenuPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content>
->(({ className, sideOffset = 6, align = 'end', collisionPadding, ...props }, ref) => (
-  <DropdownMenuPrimitive.Portal>
-    <DropdownMenuPrimitive.Content
-      ref={ref}
-      align={align}
-      sideOffset={sideOffset}
-      collisionPadding={collisionPadding ?? { top: 76, right: 12, bottom: 12, left: 12 }}
-      className={cn(dropdownContentClasses, className)}
-      {...props}
-    />
-  </DropdownMenuPrimitive.Portal>
-));
+>(({ className, sideOffset = 6, align = 'end', collisionPadding, ...props }, forwardedRef) => {
+  const context = React.useContext(DropdownMenuContext);
+  const contentRef = React.useRef<HTMLDivElement | null>(null);
+
+  // Close on page/container scroll so the panel never drifts away from its
+  // trigger. Scrolling inside the menu itself is ignored.
+  React.useEffect(() => {
+    if (!context) return;
+    let armed = false;
+    const armTimer = window.setTimeout(() => {
+      armed = true;
+    }, 150);
+
+    const handleScroll = (event: Event) => {
+      if (!armed) return;
+      const target = event.target as Node | null;
+      if (target && contentRef.current?.contains(target)) return;
+      context.setOpen(false);
+    };
+
+    window.addEventListener('scroll', handleScroll, true);
+    return () => {
+      window.clearTimeout(armTimer);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
+  }, [context]);
+
+  return (
+    <DropdownMenuPrimitive.Portal>
+      <DropdownMenuPrimitive.Content
+        ref={(node) => {
+          contentRef.current = node;
+          if (typeof forwardedRef === 'function') forwardedRef(node);
+          else if (forwardedRef) forwardedRef.current = node;
+        }}
+        align={align}
+        sideOffset={sideOffset}
+        collisionPadding={collisionPadding ?? { top: 76, right: 12, bottom: 12, left: 12 }}
+        className={cn(dropdownContentClasses, className)}
+        {...props}
+      />
+    </DropdownMenuPrimitive.Portal>
+  );
+});
 DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 
 const DropdownMenuItem = React.forwardRef<
