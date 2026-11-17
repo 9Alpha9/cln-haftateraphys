@@ -264,7 +264,6 @@ export function TherapyCalendarView({
 
             <SmartFilterMenu
               label="Filter status sesi"
-              avoidSelector="[data-calendar-date-header]"
               count={statusFilter === 'ALL' ? filteredAppointments.length : filteredAppointments.filter((a) => a.status === statusFilter).length}
             >
               {(close) => (
@@ -414,7 +413,7 @@ export function TherapyCalendarView({
               {/* Sticky date header sits inside the scroll container so its
                   columns share the exact same width (including the scrollbar
                   gutter) as the grid below, keeping the vertical lines aligned. */}
-              <div data-calendar-date-header="true" className="sticky top-0 z-30 flex border-b border-border bg-card">
+              <div className="sticky top-0 z-30 flex border-b border-border bg-card">
                 <div className="flex w-14 shrink-0 flex-col items-end justify-end px-1.5 pb-1.5">
                   <span className="text-[9px] font-semibold uppercase tracking-wide text-stone-500">WIB</span>
                 </div>

@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Calendar,
   Clock,
@@ -254,46 +259,39 @@ function AppointmentDropdown({
   onDelete: () => void;
 }) {
   return (
-    <DropdownMenuPrimitive.Root modal={false}>
-      <DropdownMenuPrimitive.Trigger asChild>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <button
           type="button"
           aria-label="Aksi jadwal"
-          className="inline-flex h-11 w-11 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent"
+          className="inline-flex h-11 w-11 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
         >
           <MoreVertical className="h-4 w-4 shrink-0" />
         </button>
-      </DropdownMenuPrimitive.Trigger>
+      </DropdownMenuTrigger>
 
-      <DropdownMenuPrimitive.Portal>
-        <DropdownMenuPrimitive.Content
-          align="end"
-          sideOffset={8}
-          collisionPadding={12}
-          className="z-[70] flex w-48 flex-col gap-1 rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)] outline-none"
-        >
-          <DropdownMenuPrimitive.Item asChild>
-            <button
-              type="button"
-              onClick={() => window.open(`/dashboard/appointments/${appointment.id}/print`, '_blank')}
-              className="flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] hover:text-foreground focus:bg-[var(--hafta-50)] focus:outline-none sm:text-sm"
-            >
-              <Printer className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-medium">Cetak Jadwal</span>
-            </button>
-          </DropdownMenuPrimitive.Item>
-          <DropdownMenuPrimitive.Item asChild>
-            <button
-              type="button"
-              onClick={onDelete}
-              className="flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] hover:text-foreground focus:bg-[var(--hafta-50)] focus:outline-none sm:text-sm"
-            >
-              <Trash2 className="h-3.5 w-3.5 shrink-0" />
-              <span className="font-medium text-[var(--hafta-red-600)]">Hapus Jadwal</span>
-            </button>
-          </DropdownMenuPrimitive.Item>
-        </DropdownMenuPrimitive.Content>
-      </DropdownMenuPrimitive.Portal>
-    </DropdownMenuPrimitive.Root>
+      <DropdownMenuContent align="end" sideOffset={8} className="w-48">
+        <DropdownMenuItem asChild>
+          <button
+            type="button"
+            onClick={() => window.open(`/dashboard/appointments/${appointment.id}/print`, '_blank')}
+            className="flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors focus:bg-[var(--hafta-50)] focus:text-foreground sm:text-sm"
+          >
+            <Printer className="h-3.5 w-3.5 shrink-0" />
+            <span className="font-medium">Cetak Jadwal</span>
+          </button>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <button
+            type="button"
+            onClick={onDelete}
+            className="flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors focus:bg-[var(--hafta-50)] focus:text-foreground sm:text-sm"
+          >
+            <Trash2 className="h-3.5 w-3.5 shrink-0" />
+            <span className="font-medium text-[var(--hafta-red-600)]">Hapus Jadwal</span>
+          </button>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

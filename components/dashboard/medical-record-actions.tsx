@@ -1,9 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { MoreVertical, FileDown, Loader2, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/toast';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import type { MedicalRecordPdfData } from '@/components/pdf/medical-record-document';
 import { medicalRecordFileName, renderMedicalRecordPdf } from '@/components/pdf/render-medical-record-pdf';
 import { recordClinicalRecordExport } from '@/server/actions/audit-export';
@@ -103,23 +109,6 @@ export function MedicalRecordActions({
   menuPlacement?: 'up' | 'down';
 }) {
   const { openPrintPage, downloadPdf, loading, printing, iframeRef } = useMedicalRecordPdf(record, extras);
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  // Tutup dropdown saat klik di luar panel (rule #4)
-  const handleClickOutside = useCallback(
-    (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    },
-    [],
-  );
-
-  useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [handleClickOutside]);
 
   if (layout === 'split') {
     return (
@@ -162,8 +151,7 @@ export function MedicalRecordActions({
   }
 
   return (
-    // Rule #2: wrapper relative inline-flex dalam pohon DOM yang sama dengan tombol pemicu
-    <div ref={menuRef} className={`relative sm:inline-flex shrink-0 rounded-full ${className ?? ''}`}>
+    <div className={cn('relative shrink-0 rounded-full sm:inline-flex', className)}>
       <iframe
         ref={iframeRef}
         title="Dokumen cetak rekam medis"
@@ -171,44 +159,38 @@ export function MedicalRecordActions({
         tabIndex={-1}
         className="hidden"
       />
-      {/* Rule #2: tombol pemicu (tidak ada Portal/fixed/getBoundingClientRect) */}
-      <button
-        type="button"
-        onClick={() => setIsOpen((v) => !v)}
-        disabled={loading || printing}
-        aria-label="Aksi rekam medis"
-        aria-expanded={isOpen}
-        aria-haspopup="menu"
-        className={
-          tone === 'dark'
-            ? 'flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/[0.06] p-0 text-white/80 transition-[background-color,color,box-shadow,transform] duration-200 ease-out hover:bg-white/[0.12] hover:text-white hover:shadow-[0_2px_10px_rgba(0,0,0,0.45)] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
-            : 'flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full p-0 text-muted-foreground transition-[background-color,color,box-shadow,transform] duration-200 ease-out hover:bg-accent hover:text-foreground hover:shadow-[0_2px_10px_rgba(28,25,23,0.10)] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
-        }
-      >
-        <MoreVertical className="w-4 h-4 shrink-0" />
-        {/* <span className="hidden sm:inline">Aksi Lebih Banyak</span> */}
-      </button>
-
-      {/* Rule #2: panel absolute menempel di atas tombol, dalam DOM yang sama */}
-      {isOpen && (
-        <div
-          className={
-            tone === 'dark'
-              ? `absolute ${menuPlacement === 'down' ? 'top-full mt-2 origin-top-right' : 'bottom-full mb-2 origin-bottom-right'} right-0 z-20 flex w-48 flex-col gap-1 rounded-2xl border border-white/10 bg-[#191817] p-1.5 shadow-[0_12px_32px_rgba(0,0,0,0.55)]`
-              : `absolute ${menuPlacement === 'down' ? 'top-full mt-2 origin-top-right' : 'bottom-full mb-2 origin-bottom-right'} right-0 z-20 flex w-48 flex-col gap-1 rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]`
-          }
-        >
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild disabled={loading || printing}>
           <button
             type="button"
-            onClick={() => {
-              setIsOpen(false);
-              void openPrintPage();
-            }}
-            disabled={printing}
+            aria-label="Aksi rekam medis"
             className={
               tone === 'dark'
-                ? 'flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-white/70 transition-colors hover:bg-white/[0.08] hover:text-white sm:text-sm'
-                : 'flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] hover:text-foreground sm:text-sm'
+                ? 'flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/[0.06] p-0 text-white/80 transition-[background-color,color,box-shadow,transform] duration-200 ease-out hover:bg-white/[0.12] hover:text-white hover:shadow-[0_2px_10px_rgba(0,0,0,0.45)] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
+                : 'flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full p-0 text-muted-foreground transition-[background-color,color,box-shadow,transform] duration-200 ease-out hover:bg-accent hover:text-foreground hover:shadow-[0_2px_10px_rgba(28,25,23,0.10)] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
+            }
+          >
+            <MoreVertical className="w-4 h-4 shrink-0" />
+          </button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent
+          align="end"
+          side={menuPlacement === 'down' ? 'bottom' : 'top'}
+          sideOffset={8}
+          className={
+            tone === 'dark'
+              ? 'w-48 border-white/10 bg-[#191817] p-1.5 text-white shadow-[0_12px_32px_rgba(0,0,0,0.55)]'
+              : 'w-48 p-1.5'
+          }
+        >
+          <DropdownMenuItem
+            disabled={printing}
+            onSelect={() => void openPrintPage()}
+            className={
+              tone === 'dark'
+                ? 'text-white/70 focus:bg-white/[0.08] focus:text-white'
+                : 'text-muted-foreground focus:bg-[var(--hafta-50)] focus:text-foreground'
             }
           >
             <div className="flex items-center gap-2">
@@ -219,18 +201,14 @@ export function MedicalRecordActions({
               )}
               <span className="font-medium text-xs">{printing ? 'Mencetak...' : 'Cetak Dokumen'}</span>
             </div>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setIsOpen(false);
-              void downloadPdf();
-            }}
+          </DropdownMenuItem>
+          <DropdownMenuItem
             disabled={loading}
+            onSelect={() => void downloadPdf()}
             className={
               tone === 'dark'
-                ? 'flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-white/70 transition-colors hover:bg-white/[0.08] hover:text-white sm:text-sm'
-                : 'flex w-full min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] hover:text-foreground sm:text-sm'
+                ? 'text-white/70 focus:bg-white/[0.08] focus:text-white'
+                : 'text-muted-foreground focus:bg-[var(--hafta-50)] focus:text-foreground'
             }
           >
             <div className="flex items-center gap-2">
@@ -241,9 +219,9 @@ export function MedicalRecordActions({
               )}
               <span className="font-medium text-xs">{loading ? 'Memproses...' : 'Unduh PDF'}</span>
             </div>
-          </button>
-        </div>
-      )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

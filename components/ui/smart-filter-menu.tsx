@@ -1,9 +1,9 @@
 'use client';
 
-import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { ChevronDown, Filter, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export function FilterPendingBar({ active }: { active: boolean }) {
   return (
@@ -33,8 +33,6 @@ type SmartFilterMenuProps = {
   className?: string;
   panelClassName?: string;
   'aria-label'?: string;
-  /** Optional selector of an element (e.g. a sticky header) that must not be covered by the panel. */
-  avoidSelector?: string;
   children: ReactNode | ((close: () => void) => ReactNode);
 };
 
@@ -47,12 +45,9 @@ export function SmartFilterMenu({
   className,
   panelClassName,
   'aria-label': ariaLabel,
-  avoidSelector,
   children,
 }: SmartFilterMenuProps) {
   const [open, setOpen] = useState(false);
-  const [sideOffset, setSideOffset] = useState(8);
-  const triggerRef = useRef<HTMLButtonElement>(null);
   const close = () => setOpen(false);
   const content = typeof children === 'function' ? children(close) : children;
 
@@ -64,29 +59,10 @@ export function SmartFilterMenu({
     return () => window.removeEventListener('hafta:overlay-open', handleOverlayOpen);
   }, []);
 
-  function handleOpenChange(next: boolean) {
-    setOpen(next);
-    if (!next) return;
-    let offset = 8;
-    if (avoidSelector) {
-      const avoid = document.querySelector(avoidSelector);
-      const trigger = triggerRef.current;
-      if (avoid && trigger) {
-        const triggerRect = trigger.getBoundingClientRect();
-        const avoidRect = avoid.getBoundingClientRect();
-        if (avoidRect.top >= triggerRect.bottom - 1) {
-          offset = Math.max(offset, Math.round(avoidRect.bottom - triggerRect.bottom) + 8);
-        }
-      }
-    }
-    setSideOffset(offset);
-  }
-
   return (
-    <DropdownMenuPrimitive.Root open={open} onOpenChange={handleOpenChange} modal={false}>
-      <DropdownMenuPrimitive.Trigger asChild disabled={disabled}>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger asChild disabled={disabled}>
         <button
-          ref={triggerRef}
           type="button"
           aria-label={ariaLabel ?? label}
           className={cn(
@@ -116,23 +92,18 @@ export function SmartFilterMenu({
             )}
           />
         </button>
-      </DropdownMenuPrimitive.Trigger>
+      </DropdownMenuTrigger>
 
-      <DropdownMenuPrimitive.Portal>
-        <DropdownMenuPrimitive.Content
-          align={align === 'right' ? 'end' : 'start'}
-          sideOffset={sideOffset}
-          collisionPadding={12}
-          className={cn(
-            // z-[70] keeps the panel above slide-overs (z-60), matching AppSelect,
-            // so it also works inside drawers. Menus auto-close when an overlay opens.
-            'z-[70] flex max-h-[min(420px,calc(100dvh-4rem))] min-w-[232px] flex-col gap-1 overflow-y-auto overscroll-contain rounded-2xl border border-border bg-card p-1.5 text-popover-foreground shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)] outline-none',
-            panelClassName,
-          )}
-        >
-          {content}
-        </DropdownMenuPrimitive.Content>
-      </DropdownMenuPrimitive.Portal>
-    </DropdownMenuPrimitive.Root>
+      <DropdownMenuContent
+        align={align === 'right' ? 'end' : 'start'}
+        sideOffset={6}
+        className={cn(
+          'flex max-h-[min(420px,calc(100dvh-4rem))] min-w-[232px] flex-col gap-1 overflow-y-auto overscroll-contain',
+          panelClassName,
+        )}
+      >
+        {content}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

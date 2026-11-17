@@ -17,6 +17,11 @@ import {
   UserRound,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { PaginationBar } from '@/components/ui/pagination-bar';
 import { SkeletonBlock, SkeletonLine, SkeletonPanel } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
@@ -312,51 +317,39 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                 </button>
               ) : <div />}
 
-              <div className="relative">
-                <button
-                  type="button"
-                  aria-label="Menu opsi program"
-                  onClick={() => setShowProgramMenu((prev) => !prev)}
-                  className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </button>
-
-                {showProgramMenu && (
-                  <>
-                    <button
-                      type="button"
-                      aria-label="Tutup menu"
-                      className="fixed inset-0 z-10 cursor-default"
-                      onClick={() => setShowProgramMenu(false)}
-                    />
-                    <div className="absolute bottom-full right-0 z-20 mb-2 w-56 origin-bottom-right rounded-2xl border border-border bg-card p-2 shadow-[0_12px_32px_rgba(24,23,0,0.14)]">
-                      {data.capabilities.canCreateAppointment ? (
-                        <span onClick={(e) => e.stopPropagation()}>
-                          <NewAppointmentButton
-                            defaultPatientId={patient.id}
-                            className="flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-0 bg-transparent px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground shadow-none transition-colors hover:bg-muted hover:text-foreground [&>span]:w-full [&>span]:justify-start"
-                          >
-                            <CalendarPlus className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                            <span>Jadwalkan Sesi Baru</span>
-                          </NewAppointmentButton>
-                        </span>
-                      ) : null}
-                      {data.capabilities.canCompleteProgram &&
-                      (patient.caseStatus === 'ACTIVE' || patient.caseStatus === 'ON_HOLD') ? (
-                        <span onClick={(e) => e.stopPropagation()}>
-                          <CompleteProgramButton
-                            patientId={patient.id}
-                            patientName={patient.fullName}
-                            onCompleted={() => setReloadToken((token) => token + 1)}
-                            className="flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-0 bg-transparent px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground shadow-none transition-colors hover:bg-muted hover:text-foreground [&>span]:w-full [&>span]:justify-start"
-                          />
-                        </span>
-                      ) : null}
-                    </div>
-                  </>
-                )}
-              </div>
+              <DropdownMenu open={showProgramMenu} onOpenChange={setShowProgramMenu}>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label="Menu opsi program"
+                    className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" side="top" sideOffset={8} className="w-56 p-2">
+                  <div className="flex flex-col gap-1" onClick={() => setShowProgramMenu(false)}>
+                    {data.capabilities.canCreateAppointment ? (
+                      <NewAppointmentButton
+                        defaultPatientId={patient.id}
+                        className="flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-0 bg-transparent px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground shadow-none transition-colors hover:bg-muted hover:text-foreground [&>span]:w-full [&>span]:justify-start"
+                      >
+                        <CalendarPlus className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                        <span>Jadwalkan Sesi Baru</span>
+                      </NewAppointmentButton>
+                    ) : null}
+                    {data.capabilities.canCompleteProgram &&
+                    (patient.caseStatus === 'ACTIVE' || patient.caseStatus === 'ON_HOLD') ? (
+                      <CompleteProgramButton
+                        patientId={patient.id}
+                        patientName={patient.fullName}
+                        onCompleted={() => setReloadToken((token) => token + 1)}
+                        className="flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-0 bg-transparent px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground shadow-none transition-colors hover:bg-muted hover:text-foreground [&>span]:w-full [&>span]:justify-start"
+                      />
+                    ) : null}
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ) : null
         }

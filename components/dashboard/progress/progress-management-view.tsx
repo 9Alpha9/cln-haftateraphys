@@ -26,6 +26,12 @@ import {
   X,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { PaginationBar } from '@/components/ui/pagination-bar';
 import { SmartFilterMenu } from '@/components/ui/smart-filter-menu';
 import {
@@ -150,49 +156,33 @@ function MedicalRecordCard({
             className="relative shrink-0"
             onClick={(event) => event.stopPropagation()}
           >
-            <button
-              type="button"
-              aria-label="Menu opsi rekam medis"
-              onClick={() => setShowRecordMenu((prev) => !prev)}
-              className="inline-flex h-9 w-9 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-[var(--hafta-50)]"
-            >
-              <MoreVertical className="h-4 w-4 shrink-0" />
-            </button>
-
-            {showRecordMenu && (
-              <>
+            <DropdownMenu open={showRecordMenu} onOpenChange={setShowRecordMenu}>
+              <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  aria-label="Tutup menu"
-                  className="fixed inset-0 z-10 cursor-default"
-                  onClick={() => setShowRecordMenu(false)}
-                />
-                <div className="absolute right-0 top-full z-20 mt-2 w-48 origin-top-right rounded-2xl border border-border bg-card p-1.5 shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)]">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowRecordMenu(false);
-                      void openPrintPage();
-                    }}
-                    className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] sm:text-sm"
-                  >
-                    <Printer className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                    <span className="text-xs font-medium">Print Rekam Medis</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowRecordMenu(false);
-                      void downloadPdf();
-                    }}
-                    className="flex w-full cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-muted-foreground transition-colors hover:bg-[var(--hafta-50)] sm:text-sm"
-                  >
-                    <FileDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                    <span className="text-xs font-medium">Unduh PDF</span>
-                  </button>
-                </div>
-              </>
-            )}
+                  aria-label="Menu opsi rekam medis"
+                  className="inline-flex h-9 w-9 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-[var(--hafta-50)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                >
+                  <MoreVertical className="h-4 w-4 shrink-0" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" sideOffset={6} className="w-48">
+                <DropdownMenuItem
+                  onSelect={() => void openPrintPage()}
+                  className="gap-2 text-muted-foreground"
+                >
+                  <Printer className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <span className="text-xs font-medium">Print Rekam Medis</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => void downloadPdf()}
+                  className="gap-2 text-muted-foreground"
+                >
+                  <FileDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                  <span className="text-xs font-medium">Unduh PDF</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
