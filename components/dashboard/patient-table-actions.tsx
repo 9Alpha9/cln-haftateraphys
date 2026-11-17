@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 
 export function PatientTableActions({
   patientId,
+  patientName,
   canArchive,
   rowIndex,
   totalRows,
@@ -18,6 +19,7 @@ export function PatientTableActions({
   setOpenRowId,
 }: {
   patientId: string;
+  patientName: string;
   canArchive: boolean;
   rowIndex: number;
   totalRows: number;
@@ -108,6 +110,7 @@ export function PatientTableActions({
         type="button"
         aria-expanded={isMenuOpen}
         aria-haspopup="menu"
+        aria-label={patientName ? `Aksi untuk ${patientName}` : 'Aksi pasien'}
         onClick={() => {
           if (isMenuOpen) {
             closeMenu();

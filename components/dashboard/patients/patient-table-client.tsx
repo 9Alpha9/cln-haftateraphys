@@ -186,6 +186,7 @@ export function PatientTableClient({
 
                 <PatientTableActions
                   patientId={patient.id}
+                  patientName={patient.fullName}
                   canArchive={canArchive}
                   rowIndex={index}
                   totalRows={items.length}
