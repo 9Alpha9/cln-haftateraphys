@@ -234,7 +234,7 @@ export function IntakeManagementTable({
                 </div>
                 <div className="h-6 w-20 rounded-full bg-muted" />
               </div>
-              <div className="mt-4 space-y-2 rounded-2xl bg-[var(--hafta-50)] p-3">
+              <div className="mt-4 space-y-2 rounded-2xl bg-muted/50 p-3">
                 <div className="h-3 w-full rounded bg-muted" />
                 <div className="h-3 w-4/5 rounded bg-muted" />
                 <div className="h-3 w-2/3 rounded bg-muted" />

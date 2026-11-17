@@ -1,7 +1,7 @@
 'use client';
 
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { ChevronDown, Filter, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -33,6 +33,8 @@ type SmartFilterMenuProps = {
   className?: string;
   panelClassName?: string;
   'aria-label'?: string;
+  /** Optional selector of an element (e.g. a sticky header) that must not be covered by the panel. */
+  avoidSelector?: string;
   children: ReactNode | ((close: () => void) => ReactNode);
 };
 
@@ -45,9 +47,12 @@ export function SmartFilterMenu({
   className,
   panelClassName,
   'aria-label': ariaLabel,
+  avoidSelector,
   children,
 }: SmartFilterMenuProps) {
   const [open, setOpen] = useState(false);
+  const [sideOffset, setSideOffset] = useState(8);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const close = () => setOpen(false);
   const content = typeof children === 'function' ? children(close) : children;
 
@@ -59,10 +64,29 @@ export function SmartFilterMenu({
     return () => window.removeEventListener('hafta:overlay-open', handleOverlayOpen);
   }, []);
 
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (!next) return;
+    let offset = 8;
+    if (avoidSelector) {
+      const avoid = document.querySelector(avoidSelector);
+      const trigger = triggerRef.current;
+      if (avoid && trigger) {
+        const triggerRect = trigger.getBoundingClientRect();
+        const avoidRect = avoid.getBoundingClientRect();
+        if (avoidRect.top >= triggerRect.bottom - 1) {
+          offset = Math.max(offset, Math.round(avoidRect.bottom - triggerRect.bottom) + 8);
+        }
+      }
+    }
+    setSideOffset(offset);
+  }
+
   return (
-    <DropdownMenuPrimitive.Root open={open} onOpenChange={setOpen}>
+    <DropdownMenuPrimitive.Root open={open} onOpenChange={handleOpenChange} modal={false}>
       <DropdownMenuPrimitive.Trigger asChild disabled={disabled}>
         <button
+          ref={triggerRef}
           type="button"
           aria-label={ariaLabel ?? label}
           className={cn(
@@ -97,7 +121,7 @@ export function SmartFilterMenu({
       <DropdownMenuPrimitive.Portal>
         <DropdownMenuPrimitive.Content
           align={align === 'right' ? 'end' : 'start'}
-          sideOffset={8}
+          sideOffset={sideOffset}
           collisionPadding={12}
           className={cn(
             // z-[70] keeps the panel above slide-overs (z-60), matching AppSelect,

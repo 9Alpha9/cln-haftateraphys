@@ -298,7 +298,7 @@ export function IntakeDetailDrawer({
           </SkeletonPanel>
           {[0, 1, 2].map((section) => (
             <SkeletonPanel key={section} className="overflow-hidden rounded-2xl">
-              <div className="border-b border-border bg-[var(--hafta-50)]/80 px-4 py-3">
+              <div className="border-b border-border bg-muted/60 px-4 py-3">
                 <SkeletonBlock className="h-3 w-32 rounded-md bg-muted/80" />
               </div>
               <div className="space-y-3 p-4">
