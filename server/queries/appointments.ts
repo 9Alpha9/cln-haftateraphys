@@ -1,6 +1,6 @@
 import { and, asc, count, desc, eq, ilike, inArray, isNull, or } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { appointmentNotificationReads, appointments, patients, profiles, users } from '@/db/schema';
+import { appointmentNotificationReads, appointments, patients, patientAssignments, profiles, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 
@@ -172,7 +172,7 @@ export async function getScopedAppointments(
 }
 
 export async function assertPatientSchedulingScope(patientId: string) {
-  const { role } = await requireSession({ redirectToLogin: true });
+  const { session, role } = await requireSession({ redirectToLogin: true });
   if (role === 'USER' || !hasPermission(role, PERMISSIONS.APPOINTMENT_CREATE)) {
     throw new ForbiddenError();
   }
@@ -184,4 +184,20 @@ export async function assertPatientSchedulingScope(patientId: string) {
     .limit(1);
 
   if (!patient) throw new ForbiddenError();
+
+  // THERAPIST must have an active assignment to the patient (AGENTS.md §5 clinical scope)
+  if (role === 'THERAPIST') {
+    const [assignment] = await getDb()
+      .select({ id: patientAssignments.patientId })
+      .from(patientAssignments)
+      .where(
+        and(
+          eq(patientAssignments.patientId, patientId),
+          eq(patientAssignments.staffUserId, session.user.id),
+          isNull(patientAssignments.activeUntil),
+        ),
+      )
+      .limit(1);
+    if (!assignment) throw new ForbiddenError();
+  }
 }
