@@ -67,6 +67,8 @@ export function GlobalSlideOver({
 
   useEffect(() => {
     if (!isOpen) return;
+    // Let page-level dropdown menus (e.g. SmartFilterMenu) close when a drawer opens.
+    window.dispatchEvent(new Event('hafta:overlay-open'));
     const previouslyFocused = document.activeElement as HTMLElement | null;
     const frame = window.requestAnimationFrame(() => panelRef.current?.focus());
     return () => {
@@ -151,7 +153,11 @@ export function GlobalSlideOver({
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 280, mass: 0.8 }}
             className={cn(
-              'fixed inset-y-0 right-0 flex h-dvh w-full flex-col rounded-none border-l border-stone-200/90 bg-white -[-16px_0_48px_rgba(24,23,0,0.14)] will-change-transform overflow-x-hidden',
+              // `overflow-x-clip` clips horizontal overflow WITHOUT turning the
+              // panel into a vertical scroll container (which `overflow-x-hidden`
+              // would, because CSS then computes overflow-y to `auto`). Only the
+              // body section below should scroll, avoiding a second scrollbar.
+              'fixed inset-y-0 right-0 flex h-dvh w-full flex-col rounded-none border-l border-stone-200/90 bg-white -[-16px_0_48px_rgba(24,23,0,0.14)] will-change-transform overflow-x-clip',
               sizeWidthMap[size],
               className
             )}
