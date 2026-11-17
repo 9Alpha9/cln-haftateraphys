@@ -252,7 +252,7 @@ export function TherapyCalendarView({
                   type="button"
                   onClick={() => setViewMode(mode)}
                   className={cn(
-                    'h-7 shrink-0 cursor-pointer rounded-full px-2.5 text-[11px] font-semibold transition-colors',
+                    'h-8 shrink-0 cursor-pointer rounded-full px-2.5 text-[11px] font-semibold transition-colors',
                     viewMode === mode ? 'bg-[var(--hafta-900)] text-white' : 'text-stone-600 hover:text-foreground',
                   )}
                 >
@@ -305,9 +305,9 @@ export function TherapyCalendarView({
               <button
                 type="button"
                 onClick={() => openCreate(dateKey(currentDate), '08:00')}
-                className="inline-flex h-8 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-300)] px-3 text-[11px] font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)]"
+                className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full bg-[var(--hafta-300)] px-3.5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)] sm:text-[13px]"
               >
-                <Plus className="h-3.5 w-3.5" />
+                <Plus className="h-4 w-4" />
                 Buat Jadwal
               </button>
             )}
@@ -408,37 +408,40 @@ export function TherapyCalendarView({
               </div>
             )}
 
-            <div className="flex shrink-0 border-b border-border">
-              <div className="w-14 shrink-0" />
-              <div className="flex flex-1">
-                {timelineDays.map((day, index) => {
-                  const key = dateKey(day);
-                  const isToday = key === todayKey;
-                  const weekdayLabel = isMobile
-                    ? WEEKDAYS[(day.getDay() + 6) % 7]
-                    : index < 7
-                      ? WEEKDAYS[(day.getDay() + 6) % 7]
-                      : '';
-                  return (
-                    <div key={key} className="flex min-w-0 flex-1 flex-col items-center justify-center border-r border-border py-2 last:border-r-0">
-                      <span className={cn('text-[10px] font-medium', day.getDay() === 0 ? 'text-[var(--hafta-red-600)]' : 'text-stone-600')}>
-                        {weekdayLabel}
-                      </span>
-                      <span
-                        className={cn(
-                          'mt-0.5 flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold',
-                          isToday ? 'bg-[var(--hafta-900)] text-white' : 'text-foreground',
-                        )}
-                      >
-                        {day.getDate()}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
             <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+              {/* Sticky date header sits inside the scroll container so its
+                  columns share the exact same width (including the scrollbar
+                  gutter) as the grid below, keeping the vertical lines aligned. */}
+              <div className="sticky top-0 z-30 flex border-b border-border bg-card">
+                <div className="w-14 shrink-0 border-r border-border" />
+                <div className="flex flex-1">
+                  {timelineDays.map((day, index) => {
+                    const key = dateKey(day);
+                    const isToday = key === todayKey;
+                    const weekdayLabel = isMobile
+                      ? WEEKDAYS[(day.getDay() + 6) % 7]
+                      : index < 7
+                        ? WEEKDAYS[(day.getDay() + 6) % 7]
+                        : '';
+                    return (
+                      <div key={key} className="flex min-w-0 flex-1 flex-col items-center justify-center border-r border-border py-2 last:border-r-0">
+                        <span className={cn('text-[10px] font-medium', day.getDay() === 0 ? 'text-[var(--hafta-red-600)]' : 'text-stone-600')}>
+                          {weekdayLabel}
+                        </span>
+                        <span
+                          className={cn(
+                            'mt-0.5 flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold',
+                            isToday ? 'bg-[var(--hafta-900)] text-white' : 'text-foreground',
+                          )}
+                        >
+                          {day.getDate()}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
               <div className="relative flex pt-2">
                 <div className="w-14 shrink-0 border-r border-border">
                   {HOURS.map((hour) => (
