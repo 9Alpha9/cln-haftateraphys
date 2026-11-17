@@ -41,7 +41,11 @@ const nextConfig: NextConfig = {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
           },
-          ...(process.env.NODE_ENV === 'production'
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.google.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; font-src 'self'; frame-src 'self'",
+          },
+          ...(process.env.NODE_ENV !== 'development'
             ? [
                 {
                   key: 'Strict-Transport-Security',
