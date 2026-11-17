@@ -141,7 +141,7 @@ const sections: LegalSection[] = [
       {
         type: 'list',
         items: [
-          'Kepada penyedia infrastruktur yang kami gunakan untuk menjalankan layanan, seperti penyedia basis data, penyimpanan berkas, dan pengiriman email transaksional, yang terikat kewajiban kerahasiaan dan hanya memproses data atas instruksi kami.',
+          'Kepada penyedia infrastruktur yang kami gunakan untuk menjalankan layanan, yaitu penyedia basis data terkelola (Neon), penyimpanan berkas privat (Cloudflare R2), dan pengiriman email transaksional (Resend). Mereka terikat kewajiban kerahasiaan dan hanya memproses data atas instruksi kami.',
           'Kepada tenaga kesehatan atau fasilitas kesehatan lain, hanya apabila Anda memberikan persetujuan atau apabila diwajibkan untuk kelangsungan pelayanan dan rujukan.',
           'Kepada pihak berwenang, apabila terdapat kewajiban hukum, permintaan resmi yang sah, atau keperluan penegakan hukum.',
           'Kepada penasihat hukum atau auditor, apabila diperlukan untuk melindungi hak kami, dengan pembatasan akses seminimal mungkin.',
@@ -150,6 +150,33 @@ const sections: LegalSection[] = [
       {
         type: 'paragraph',
         text: 'Kami tidak mengirimkan data pasien ke layanan kecerdasan buatan pihak ketiga untuk keperluan pelatihan model, dan tidak menggunakan data klinis Anda untuk keperluan pemasaran.',
+      },
+    ],
+  },
+  {
+    id: 'transfer-luar-wilayah',
+    title: 'Transfer data ke luar wilayah Indonesia',
+    blocks: [
+      {
+        type: 'paragraph',
+        text: 'Untuk menyelenggarakan layanan digital, kami menggunakan penyedia infrastruktur berskala global. Hal ini berarti data pribadi Anda dapat diproses atau disimpan pada pusat data yang berlokasi di luar wilayah Indonesia.',
+      },
+      {
+        type: 'paragraph',
+        text: 'Sesuai Pasal 56 Undang-Undang Nomor 27 Tahun 2022 tentang Pelindungan Data Pribadi, kami memastikan bahwa transfer tersebut dilakukan dengan tingkat pelindungan data pribadi yang setara atau lebih tinggi dari yang dijamin oleh undang-undang, melalui langkah berikut:',
+      },
+      {
+        type: 'list',
+        items: [
+          'Pemilihan penyedia yang memiliki komitmen pelindungan data dan standar keamanan internasional yang diakui.',
+          'Pengikatan kewajiban kontraktual agar penyedia hanya memproses data sesuai instruksi kami dan tidak menggunakannya untuk tujuan lain.',
+          'Enkripsi data saat transit dan saat disimpan, serta pembatasan akses hanya pada personel yang memerlukan.',
+          'Pembatasan jenis data yang dikirim ke luar, yaitu sebatas yang diperlukan untuk fungsi layanan yang bersangkutan.',
+        ],
+      },
+      {
+        type: 'paragraph',
+        text: 'Kami tidak mengalihkan data klinis Anda ke pihak ketiga untuk tujuan komersial, pemasaran, atau pelatihan model kecerdasan buatan.',
       },
     ],
   },

@@ -26,8 +26,8 @@ export type LegalDocumentProps = {
   contactNote: string;
   /** Catatan tambahan di atas kanal kontak, mis. alamat domisili dan syarat permintaan. */
   contactDetail?: string;
-  /** Judul dokumen, mis. "Kebijakan Privasi". */
-  title?: string;
+  /** Judul dokumen, mis. "Kebijakan Privasi". Wajib agar heading h1 tidak kosong. */
+  title: string;
 };
 
 const CONTACT_WHATSAPP =

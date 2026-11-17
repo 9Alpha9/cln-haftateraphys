@@ -3,6 +3,7 @@ import { Container } from '@/components/container';
 import { Footer } from '@/components/landing/footer';
 import { PublicHeader } from '@/components/landing/navbar';
 import { LegalDocument, type LegalSection } from '@/components/legal/legal-document';
+import { CLINIC_HOURS } from '@/lib/clinic-hours';
 
 export const metadata: Metadata = {
   title: 'Syarat & Ketentuan — Hafta Fisioterapi',
@@ -241,6 +242,37 @@ const sections: LegalSection[] = [
     ],
   },
   {
+    id: 'ketentuan-umum',
+    title: 'Ketentuan umum',
+    blocks: [
+      {
+        type: 'definition',
+        items: [
+          {
+            term: 'Keterpisahan',
+            description:
+              'Apabila salah satu ketentuan dalam dokumen ini dinyatakan tidak sah atau tidak dapat dilaksanakan oleh pihak yang berwenang, ketentuan tersebut akan ditafsirkan ulang sejauh mungkin agar tujuannya tetap tercapai, dan ketentuan lainnya tetap berlaku penuh.',
+          },
+          {
+            term: 'Keseluruhan perjanjian',
+            description:
+              'Syarat dan Ketentuan ini beserta Kebijakan Privasi merupakan keseluruhan kesepahaman antara Anda dan kami mengenai penggunaan layanan digital, dan menggantikan ketentuan lisan maupun tertulis sebelumnya yang bertentangan.',
+          },
+          {
+            term: 'Bahasa',
+            description:
+              'Dokumen ini disusun dalam Bahasa Indonesia. Apabila di kemudian hari tersedia terjemahan dalam bahasa lain, versi Bahasa Indonesia yang berlaku apabila terdapat perbedaan penafsiran.',
+          },
+          {
+            term: 'Tidak melepaskan hak',
+            description:
+              'Apabila kami tidak segera menegakkan suatu ketentuan, hal tersebut tidak berarti kami melepaskan hak untuk menegakkannya di kemudian hari.',
+          },
+        ],
+      },
+    ],
+  },
+  {
     id: 'perubahan-ketentuan',
     title: 'Perubahan ketentuan',
     blocks: [
@@ -257,6 +289,10 @@ const sections: LegalSection[] = [
 ];
 
 export default function TermsPage() {
+  // Jam layanan diambil dari satu sumber kebenaran agar tidak berbeda dengan
+  // halaman kontak dan profil Google Business.
+  const clinicHours = CLINIC_HOURS.map((entry) => `${entry.day} ${entry.hours}`).join(', ');
+
   return (
     <div className="flex min-h-screen flex-col bg-surface">
       <PublicHeader />
@@ -271,7 +307,7 @@ export default function TermsPage() {
               relatedLink={{ href: '/privacy', label: 'Baca juga Kebijakan Privasi' }}
               sections={sections}
               contactNote="Apabila ada bagian dari ketentuan ini yang belum jelas, atau Anda ingin mengajukan pertanyaan sebelum menggunakan layanan, silakan hubungi kami melalui kanal resmi berikut."
-              contactDetail="Hafta Fisioterapi berkedudukan di Jl. Pd. Sidokare Indah No.AE-13, Cangkring, Sidokare, Kecamatan Sidoarjo, Kabupaten Sidoarjo, Jawa Timur 61214. Jam layanan: Senin–Jumat 09.00–19.00, Sabtu 09.00–17.00, Minggu tutup."
+              contactDetail={`Hafta Fisioterapi berkedudukan di Jl. Pd. Sidokare Indah No.AE-13, Cangkring, Sidokare, Kecamatan Sidoarjo, Kabupaten Sidoarjo, Jawa Timur 61214. Jam layanan: ${clinicHours}.`}
             />
           </div>
         </Container>
