@@ -26,6 +26,7 @@ type SelectOption = { id: string; label: string };
 const HOURS = Array.from({ length: 24 }, (_, index) => index);
 const SLOT_HEIGHT = 64;
 const WEEKDAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+const WEEKDAY_SHORT = ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MIN'];
 const MONTHS = [
   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
@@ -413,25 +414,22 @@ export function TherapyCalendarView({
                   columns share the exact same width (including the scrollbar
                   gutter) as the grid below, keeping the vertical lines aligned. */}
               <div className="sticky top-0 z-30 flex border-b border-border bg-card">
-                <div className="w-14 shrink-0 border-r border-border" />
+                <div className="flex w-14 shrink-0 flex-col items-end justify-end border-r border-border px-1.5 pb-1.5">
+                  <span className="text-[9px] font-semibold uppercase tracking-wide text-stone-500">WIB</span>
+                </div>
                 <div className="flex flex-1">
-                  {timelineDays.map((day, index) => {
+                  {timelineDays.map((day) => {
                     const key = dateKey(day);
                     const isToday = key === todayKey;
-                    const weekdayLabel = isMobile
-                      ? WEEKDAYS[(day.getDay() + 6) % 7]
-                      : index < 7
-                        ? WEEKDAYS[(day.getDay() + 6) % 7]
-                        : '';
                     return (
-                      <div key={key} className="flex min-w-0 flex-1 flex-col items-center justify-center border-r border-border py-2 last:border-r-0">
-                        <span className={cn('text-[10px] font-medium', day.getDay() === 0 ? 'text-[var(--hafta-red-600)]' : 'text-stone-600')}>
-                          {weekdayLabel}
+                      <div key={key} className="flex min-w-0 flex-1 flex-col items-center border-r border-border py-1.5 last:border-r-0">
+                        <span className={cn('text-[10px] font-semibold uppercase tracking-wide', day.getDay() === 0 ? 'text-[var(--hafta-red-600)]' : 'text-stone-500')}>
+                          {WEEKDAY_SHORT[(day.getDay() + 6) % 7]}
                         </span>
                         <span
                           className={cn(
-                            'mt-0.5 flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold',
-                            isToday ? 'bg-[var(--hafta-900)] text-white' : 'text-foreground',
+                            'mt-1 flex h-9 w-9 items-center justify-center rounded-full text-xl font-medium leading-none',
+                            isToday ? 'bg-[var(--hafta-900)] text-[var(--hafta-50)]' : 'text-foreground',
                           )}
                         >
                           {day.getDate()}
@@ -442,11 +440,11 @@ export function TherapyCalendarView({
                 </div>
               </div>
 
-              <div className="relative flex pt-2">
+              <div className="relative flex pt-4">
                 <div className="w-14 shrink-0 border-r border-border">
                   {HOURS.map((hour) => (
                     <div key={hour} className="relative" style={{ height: SLOT_HEIGHT }}>
-                      <span className="absolute right-2 top-0 -translate-y-1/2 font-mono text-[9px] font-medium text-stone-600">
+                      <span className="absolute right-2 top-0 -translate-y-1/2 text-[10px] font-medium tabular-nums text-stone-500">
                         {String(hour).padStart(2, '0')}:00
                       </span>
                     </div>
