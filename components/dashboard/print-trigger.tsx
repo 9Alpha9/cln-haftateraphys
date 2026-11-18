@@ -27,8 +27,13 @@ export function PrintTrigger({
     const fileName = `${patientName}-${rmPart}-${datePart}`;
     document.title = fileName;
 
-    const timer = window.setTimeout(() => window.print(), 500);
-    return () => window.clearTimeout(timer);
+    // Only auto-open the print dialog when explicitly requested (e.g. direct
+    // print links). The in-app preview shows the document first.
+    if (new URLSearchParams(window.location.search).get('auto') === '1') {
+      const timer = window.setTimeout(() => window.print(), 500);
+      return () => window.clearTimeout(timer);
+    }
+    return undefined;
   }, [patientName, recordId, recordedAt, medicalRecordNumber]);
 
   return (

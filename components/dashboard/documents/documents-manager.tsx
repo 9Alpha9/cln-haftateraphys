@@ -3,9 +3,11 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
+  AlertCircle,
   Archive,
   Check,
   Download,
+  Eye,
   FileText,
   Image as ImageIcon,
   Loader2,
@@ -80,8 +82,14 @@ export function DocumentsManager({
   const [uploadOpen, setUploadOpen] = useState(false);
   const [archiveTarget, setArchiveTarget] = useState<DocumentView | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [uploadErrors, setUploadErrors] = useState<string[]>([]);
   const [downloadId, setDownloadId] = useState<string | null>(null);
   const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadError, setDownloadError] = useState<{ id: string; message: string } | null>(null);
+  const [previewDoc, setPreviewDoc] = useState<DocumentView | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewStatus, setPreviewStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const [previewError, setPreviewError] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -113,6 +121,7 @@ export function DocumentsManager({
     }
 
     setUploadProgress(0);
+    setUploadErrors([]);
     // Server actions don't expose byte-level progress, so show a smooth
     // indeterminate-style ramp up to 90% while the upload is in flight.
     let simulated = 0;
@@ -156,6 +165,7 @@ export function DocumentsManager({
         router.refresh();
       }
       if (failures.length > 0) {
+        setUploadErrors(failures);
         showToast('error', failures[0] ?? 'Sebagian dokumen gagal diunggah.');
       }
     });
@@ -164,6 +174,7 @@ export function DocumentsManager({
   async function handleDownload(document: DocumentView) {
     setDownloadId(document.id);
     setDownloadProgress(0);
+    setDownloadError(null);
     try {
       const response = await fetch(`/api/documents/${document.id}`);
       if (!response.ok) {
@@ -204,12 +215,45 @@ export function DocumentsManager({
       URL.revokeObjectURL(objectUrl);
       setDownloadProgress(100);
     } catch (error) {
-      showToast('error', error instanceof Error ? error.message : 'Gagal mengunduh dokumen.');
+      const message = error instanceof Error ? error.message : 'Gagal mengunduh dokumen.';
+      setDownloadError({ id: document.id, message });
+      showToast('error', message);
     } finally {
       window.setTimeout(() => {
         setDownloadId(null);
         setDownloadProgress(0);
       }, 700);
+    }
+  }
+
+  async function handlePreview(document: DocumentView) {
+    setPreviewDoc(document);
+    setPreviewStatus('loading');
+    setPreviewError(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
+    }
+    try {
+      const response = await fetch(`/api/documents/${document.id}`);
+      if (!response.ok) throw new Error('Dokumen tidak dapat dibuka.');
+      const blob = await response.blob();
+      setPreviewUrl(URL.createObjectURL(blob));
+      setPreviewStatus('ready');
+    } catch (error) {
+      setPreviewStatus('error');
+      setPreviewError(error instanceof Error ? error.message : 'Gagal membuka dokumen.');
+    }
+  }
+
+  function closePreview(open: boolean) {
+    if (open) return;
+    setPreviewDoc(null);
+    setPreviewStatus('idle');
+    setPreviewError(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+      setPreviewUrl(null);
     }
   }
 
@@ -359,21 +403,39 @@ export function DocumentsManager({
               <div className="flex shrink-0 items-center gap-2">
                 {canDownload && document.status === 'ACTIVE' ? (
                   <div className="flex flex-col items-end gap-1.5">
-                    <button
-                      type="button"
-                      onClick={() => handleDownload(document)}
-                      disabled={downloadId === document.id}
-                      className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent disabled:cursor-progress disabled:opacity-70"
-                    >
-                      {downloadId === document.id ? (
-                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                      ) : (
-                        <Download className="h-3.5 w-3.5" />
-                      )}
-                      {downloadId === document.id ? 'Mengunduh…' : 'Unduh'}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => void handlePreview(document)}
+                        className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent"
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        Lihat
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void handleDownload(document)}
+                        disabled={downloadId === document.id}
+                        className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent disabled:cursor-progress disabled:opacity-70"
+                      >
+                        {downloadId === document.id ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Download className="h-3.5 w-3.5" />
+                        )}
+                        {downloadId === document.id
+                          ? `Mengunduh ${Math.round(downloadProgress)}%`
+                          : 'Unduh'}
+                      </button>
+                    </div>
                     {downloadId === document.id ? (
-                      <Progress value={downloadProgress} className="h-1 w-24" />
+                      <Progress value={downloadProgress} className="h-1 w-28" />
+                    ) : null}
+                    {downloadError?.id === document.id ? (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-medium text-red-600">
+                        <AlertCircle className="h-3 w-3 shrink-0" />
+                        {downloadError.message}
+                      </span>
                     ) : null}
                   </div>
                 ) : null}
@@ -451,6 +513,19 @@ export function DocumentsManager({
               />
               <span>Izinkan pasien melihat dokumen ini di portal (opsional).</span>
             </label>
+            {uploadErrors.length > 0 && uploadProgress === null ? (
+              <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-[11px] text-red-700">
+                <p className="flex items-center gap-1.5 font-semibold">
+                  <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                  Sebagian file gagal diunggah
+                </p>
+                <ul className="mt-1 list-disc space-y-0.5 pl-4">
+                  {uploadErrors.map((message) => (
+                    <li key={message}>{message}</li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
             {uploadProgress !== null ? (
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between text-[11px] font-medium text-muted-foreground">
@@ -475,6 +550,73 @@ export function DocumentsManager({
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(previewDoc)} onOpenChange={closePreview}>
+        <DialogContent className="max-w-4xl gap-0 overflow-hidden p-0">
+          <DialogHeader className="border-b border-border p-4 pr-12 text-left">
+            <DialogTitle className="truncate text-base font-bold text-foreground">
+              {previewDoc?.originalFilename ?? 'Dokumen'}
+            </DialogTitle>
+            <DialogDescription className="truncate text-xs text-muted-foreground">
+              {previewDoc
+                ? `${DOCUMENT_TYPE_LABELS[previewDoc.documentType] ?? previewDoc.documentType} · ${previewDoc.patientName}`
+                : ''}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex max-h-[68vh] min-h-[240px] items-center justify-center overflow-auto bg-stone-50 p-3">
+            {previewStatus === 'loading' ? (
+              <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground">
+                <Loader2 className="h-6 w-6 animate-spin" />
+                Memuat dokumen…
+              </div>
+            ) : previewStatus === 'error' ? (
+              <div className="flex flex-col items-center gap-2 text-center text-xs text-red-600">
+                <AlertCircle className="h-6 w-6" />
+                {previewError ?? 'Gagal membuka dokumen.'}
+              </div>
+            ) : previewUrl && previewDoc ? (
+              previewDoc.mimeType.startsWith('image/') ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={previewUrl}
+                  alt={previewDoc.originalFilename ?? 'Dokumen'}
+                  className="max-h-[64vh] w-auto max-w-full object-contain"
+                />
+              ) : previewDoc.mimeType === 'application/pdf' ? (
+                <iframe
+                  src={previewUrl}
+                  title={previewDoc.originalFilename ?? 'Dokumen'}
+                  className="h-[64vh] w-full rounded-lg border-0 bg-white"
+                />
+              ) : (
+                <div className="flex flex-col items-center gap-2 text-center text-xs text-muted-foreground">
+                  <FileText className="h-10 w-10" />
+                  <p>Pratinjau tidak tersedia untuk jenis file ini.</p>
+                  <p className="text-[10px]">Unduh untuk membuka file.</p>
+                </div>
+              )
+            ) : null}
+          </div>
+          <div className="flex items-center justify-end gap-2 border-t border-border p-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => closePreview(false)}
+              className="h-10 px-4 text-xs font-semibold"
+            >
+              Tutup
+            </Button>
+            <Button
+              type="button"
+              onClick={() => previewDoc && void handleDownload(previewDoc)}
+              className="h-10 px-4 text-xs font-bold"
+            >
+              <Download className="mr-1.5 h-3.5 w-3.5" />
+              Unduh
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 

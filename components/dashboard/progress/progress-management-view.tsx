@@ -39,7 +39,8 @@ import {
   SkeletonLine,
   SkeletonPanel,
 } from '@/components/dashboard/skeletons/skeleton-primitives';
-import { MedicalRecordActions, useMedicalRecordPdf } from '@/components/dashboard/medical-record-actions';
+import { useMedicalRecordPdf } from '@/components/dashboard/medical-record-actions';
+import { openPrintPreview } from '@/components/print/print-preview-host';
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
 import { ProgressAmendmentDialog } from '@/components/dashboard/progress/progress-amendment-dialog';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
@@ -80,7 +81,7 @@ function MedicalRecordCard({
   onEdit,
   onAmend,
 }: MedicalRecordCardProps) {
-  const { openPrintPage, downloadPdf } = useMedicalRecordPdf(record);
+  const { downloadPdf } = useMedicalRecordPdf(record);
   const [showRecordMenu, setShowRecordMenu] = useState(false);
   const isFinal = record.status === 'FINALIZED';
   const isAmendment = Boolean(record.amendedFromId);
@@ -165,7 +166,7 @@ function MedicalRecordCard({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" sideOffset={6} className="w-48">
                 <DropdownMenuItem
-                  onClick={() => void openPrintPage()}
+                  onClick={() => openPrintPreview(`/dashboard/progress/${record.id}/print`)}
                   className="min-h-[40px] gap-2 text-xs text-muted-foreground"
                 >
                   <Printer className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -727,7 +728,7 @@ export function ProgressManagementView({
         }
         footer={
           selectedRecord ? (
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center justify-end gap-3">
               {canEdit && (
                 <button
                   type="button"
@@ -750,7 +751,6 @@ export function ProgressManagementView({
                   <span>{selectedRecord.status === 'FINALIZED' ? 'Amandemen' : 'Edit'}</span>
                 </button>
               )}
-              <MedicalRecordActions record={selectedRecord} />
             </div>
           ) : null
         }

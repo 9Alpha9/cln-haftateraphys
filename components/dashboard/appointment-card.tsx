@@ -24,7 +24,7 @@ import type { Role } from '@/lib/permissions/roles';
 import { deleteAppointment } from '@/server/actions/appointments';
 import { markCalendarAppointmentsRead } from '@/server/actions/appointment-notifications';
 import { cn } from '@/lib/utils';
-import { printUrlViaIframe } from '@/lib/print/iframe-print';
+import { openPrintPreview } from '@/components/print/print-preview-host';
 import type { AppointmentView } from '@/server/queries/appointments';
 import { AppointmentEditButton } from '@/components/dashboard/appointments/appointment-edit-button';
 import { AppointmentEditDrawer, useAppointmentEditDrawer } from '@/components/dashboard/appointments/appointment-edit-drawer';
@@ -270,7 +270,7 @@ function AppointmentDropdown({
 
       <DropdownMenuContent align="end" sideOffset={8} className="w-48">
         <DropdownMenuItem
-          onClick={() => printUrlViaIframe(`/dashboard/appointments/${appointment.id}/print`)}
+          onClick={() => openPrintPreview(`/dashboard/appointments/${appointment.id}/print`)}
           className="min-h-[44px] gap-2.5 text-xs text-muted-foreground"
         >
           <Printer className="h-3.5 w-3.5 shrink-0" />
