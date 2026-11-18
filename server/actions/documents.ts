@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 import { and, eq, isNull } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/db';
-import { patientAssignments, patientDocuments, patients } from '@/db/schema';
+import { patientAssignments, patientDocuments, patients, therapyProgressRecords } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { createAuditLog } from '@/lib/audit';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
@@ -37,6 +37,7 @@ export async function uploadDocument(formData: FormData): Promise<DocumentAction
 
   const patientId = String(formData.get('patientId') ?? '').trim();
   const documentType = String(formData.get('documentType') ?? 'OTHER').trim();
+  const recordIdRaw = String(formData.get('recordId') ?? '').trim();
   const patientVisible = formData.get('patientVisible') === 'on' ? 1 : 0;
   const file = formData.get('file');
 
@@ -61,6 +62,20 @@ export async function uploadDocument(formData: FormData): Promise<DocumentAction
     .where(eq(patients.id, patientId))
     .limit(1);
   if (!patient) return { ok: false, error: 'Pasien tidak ditemukan.' };
+
+  // Lampiran rekam medis: rekam harus ada dan milik pasien yang sama.
+  let recordId: string | null = null;
+  if (recordIdRaw) {
+    const [record] = await db
+      .select({ id: therapyProgressRecords.id, patientId: therapyProgressRecords.patientId })
+      .from(therapyProgressRecords)
+      .where(eq(therapyProgressRecords.id, recordIdRaw))
+      .limit(1);
+    if (!record || record.patientId !== patientId) {
+      return { ok: false, error: 'Rekam medis lampiran tidak ditemukan untuk pasien ini.' };
+    }
+    recordId = record.id;
+  }
 
   if (role === 'THERAPIST') {
     const [assignment] = await db
@@ -101,6 +116,7 @@ export async function uploadDocument(formData: FormData): Promise<DocumentAction
         mimeType: file.type,
         sizeBytes: file.size,
         documentType: documentType as never,
+        therapyProgressRecordId: recordId,
         patientVisible,
         status: 'ACTIVE',
       })
@@ -114,7 +130,7 @@ export async function uploadDocument(formData: FormData): Promise<DocumentAction
     action: 'document.upload',
     targetType: 'document',
     targetId: patientId,
-    meta: { documentType, sizeBytes: file.size, patientVisible },
+    meta: { documentType, sizeBytes: file.size, patientVisible, recordId },
     userId: session.user.id,
   });
 

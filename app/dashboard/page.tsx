@@ -18,6 +18,7 @@ import { TherapistAnalyticsBento } from '@/components/dashboard/therapist/therap
 import { TherapistMonthCalendar } from '@/components/dashboard/therapist/therapist-month-calendar';
 import { DesktopOnly } from '@/components/dashboard/desktop-only';
 import { NewAppointmentButton } from '@/components/dashboard/appointments/new-appointment-button';
+import { SessionSchedule } from '@/components/dashboard/session-schedule';
 import Link from 'next/link';
 import { Activity, CalendarClock, CalendarDays, CalendarPlus, ChevronRight, ClipboardCheck, Clock3, FilePenLine, Users } from 'lucide-react';
 
@@ -165,11 +166,15 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
                 <CalendarClock className="h-4 w-4" />
               </span>
             </div>
-            <h3 className="mt-2 text-lg font-extrabold leading-tight">
-              {nextAppointment
-                ? `${formatAppointmentDate(nextAppointment.scheduledDate)} · ${nextAppointment.startTime.slice(0, 5)}`
-                : 'Belum ada jadwal'}
-            </h3>
+            {nextAppointment ? (
+              <SessionSchedule
+                scheduledDate={nextAppointment.scheduledDate}
+                startTime={nextAppointment.startTime}
+                durationMinutes={nextAppointment.durationMinutes}
+              />
+            ) : (
+              <h3 className="mt-2 text-xl font-extrabold leading-tight sm:text-2xl">Belum ada jadwal</h3>
+            )}
             <p className="mt-1 text-xs leading-relaxed text-foreground/80">
               {nextAppointment?.patientName ?? 'Tambahkan jadwal baru'}
             </p>

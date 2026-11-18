@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import { SmartFilterMenu } from '@/components/ui/smart-filter-menu';
+import { PaginationBar } from '@/components/ui/pagination-bar';
 import { AppSelect } from '@/components/ui/app-select';
 import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -99,6 +100,9 @@ export function DocumentsManager({
   const [pending, startTransition] = useTransition();
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('ALL');
+  const [fileKind, setFileKind] = useState<'ALL' | 'PHOTO' | 'DOCUMENT'>('ALL');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(8);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [archiveTarget, setArchiveTarget] = useState<DocumentView | null>(null);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
@@ -111,10 +115,14 @@ export function DocumentsManager({
   const [previewStatus, setPreviewStatus] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
   const [previewError, setPreviewError] = useState<string | null>(null);
 
+  const isPhoto = (mimeType: string) => mimeType.startsWith('image/');
+
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     return documents.filter((document) => {
       if (typeFilter !== 'ALL' && document.documentType !== typeFilter) return false;
+      if (fileKind === 'PHOTO' && !isPhoto(document.mimeType)) return false;
+      if (fileKind === 'DOCUMENT' && isPhoto(document.mimeType)) return false;
       if (!query) return true;
       return (
         (document.originalFilename ?? '').toLowerCase().includes(query) ||
@@ -122,7 +130,18 @@ export function DocumentsManager({
         (document.medicalRecordNumber ?? '').toLowerCase().includes(query)
       );
     });
-  }, [documents, search, typeFilter]);
+  }, [documents, search, typeFilter, fileKind]);
+
+  const photoCount = useMemo(
+    () => documents.filter((document) => isPhoto(document.mimeType)).length,
+    [documents],
+  );
+  const documentCount = documents.length - photoCount;
+
+  // Paginasi sisi klien: 6–8 berkas per halaman agar daftar tetap ringkas.
+  const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const safePage = Math.min(page, pageCount);
+  const pagedDocuments = filtered.slice((safePage - 1) * pageSize, safePage * pageSize);
 
   function handleUpload(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -300,12 +319,59 @@ export function DocumentsManager({
         </div>
       ) : null}
 
+      <div
+        role="tablist"
+        aria-label="Jenis berkas"
+        className="flex w-full gap-1 overflow-x-auto rounded-full border border-border bg-card p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {([
+          { key: 'ALL' as const, label: 'Semua', count: documents.length, icon: Paperclip },
+          { key: 'PHOTO' as const, label: 'Foto', count: photoCount, icon: ImageIcon },
+          { key: 'DOCUMENT' as const, label: 'Dokumen', count: documentCount, icon: FileText },
+        ]).map((tab) => {
+          const Icon = tab.icon;
+          const active = fileKind === tab.key;
+          return (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => {
+                setFileKind(tab.key);
+                setPage(1);
+              }}
+              className={cn(
+                'inline-flex h-10 flex-1 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[11px] font-semibold transition-colors sm:text-xs',
+                active
+                  ? 'bg-[var(--hafta-900)] text-white'
+                  : 'text-muted-foreground hover:bg-[var(--hafta-50)] hover:text-foreground',
+              )}
+            >
+              <Icon className="h-3.5 w-3.5 shrink-0" />
+              {tab.label}
+              <span
+                className={cn(
+                  'rounded-full px-1.5 py-0.5 text-[10px] font-bold tabular-nums',
+                  active ? 'bg-white/15 text-white' : 'bg-[var(--hafta-50)] text-muted-foreground',
+                )}
+              >
+                {tab.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <div className="relative min-w-0 flex-1">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) => {
+              setSearch(event.target.value);
+              setPage(1);
+            }}
             placeholder="Cari nama file, pasien, atau No. RM"
             aria-label="Cari dokumen"
             className="h-10 w-full rounded-full border border-border bg-card pl-10 pr-3 text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
@@ -326,6 +392,7 @@ export function DocumentsManager({
                       type="button"
                       onClick={() => {
                         setTypeFilter(option.value);
+                        setPage(1);
                         close();
                       }}
                       aria-pressed={selected}
@@ -359,16 +426,25 @@ export function DocumentsManager({
       </div>
 
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-border bg-card px-5 py-12 text-center">
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card px-5 py-12 text-center">
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-foreground">
-            <Paperclip className="h-7 w-7" />
+            {fileKind === 'PHOTO' ? <ImageIcon className="h-7 w-7" /> : <Paperclip className="h-7 w-7" />}
           </span>
-          <p className="mt-4 text-sm font-bold text-foreground">Belum ada dokumen</p>
-          <p className="mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
-            Dokumen pendukung pasien seperti hasil pemeriksaan atau surat rujukan akan tampil di
-            sini.
+          <p className="mt-4 text-sm font-bold text-foreground">
+            {documents.length === 0
+              ? 'Belum ada dokumen'
+              : fileKind === 'PHOTO'
+                ? 'Belum ada foto'
+                : fileKind === 'DOCUMENT'
+                  ? 'Belum ada dokumen berkas'
+                  : 'Tidak ada berkas yang cocok'}
           </p>
-          {canUpload ? (
+          <p className="mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
+            {documents.length === 0
+              ? 'Dokumen pendukung pasien seperti hasil pemeriksaan atau surat rujukan akan tampil di sini.'
+              : 'Ubah kata kunci, jenis berkas, atau filter jenis dokumen.'}
+          </p>
+          {canUpload && documents.length === 0 ? (
             <Button
               type="button"
               onClick={() => setUploadOpen(true)}
@@ -381,53 +457,59 @@ export function DocumentsManager({
           ) : null}
         </div>
       ) : (
-        <div className="space-y-2.5">
-          {filtered.map((document) => (
-            <article
-              key={document.id}
-              className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-3.5 sm:flex-row sm:items-center sm:justify-between sm:p-4"
-            >
-              <div className="flex min-w-0 items-start gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F4F4F1] text-foreground">
-                  <DocumentIcon mimeType={document.mimeType} />
-                </span>
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="truncate text-sm font-bold text-foreground">
+        <>
+          <p className="text-[11px] text-muted-foreground">
+            Menampilkan {(safePage - 1) * pageSize + 1}–
+            {Math.min(safePage * pageSize, filtered.length)} dari {filtered.length} berkas
+          </p>
+
+          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+            {pagedDocuments.map((document) => (
+              <article
+                key={document.id}
+                className="flex flex-col justify-between gap-3 rounded-2xl border border-border bg-card p-3.5 transition-colors hover:border-[var(--hafta-300)]"
+              >
+                <div className="flex items-start gap-3">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F4F4F1] text-foreground">
+                    <DocumentIcon mimeType={document.mimeType} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="line-clamp-2 text-sm font-bold leading-snug text-foreground">
                       {document.originalFilename ?? 'Dokumen'}
                     </p>
-                    <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                      {DOCUMENT_TYPE_LABELS[document.documentType] ?? document.documentType}
-                    </span>
-                    {document.patientVisible ? (
-                      <span className="rounded-full bg-[var(--hafta-grn-50)] px-2 py-0.5 text-[10px] font-semibold text-[var(--hafta-grn-700)]">
-                        Terlihat pasien
+                    <p className="mt-1 truncate text-[11px] text-muted-foreground">
+                      {document.patientName}
+                      {document.medicalRecordNumber ? ` · ${document.medicalRecordNumber}` : ''}
+                    </p>
+                    <p className="mt-0.5 truncate text-[10px] text-muted-foreground">
+                      {formatSize(document.sizeBytes)} · {formatDate(document.createdAt)}
+                      {document.uploadedByName ? ` · ${document.uploadedByName}` : ''}
+                    </p>
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                        {DOCUMENT_TYPE_LABELS[document.documentType] ?? document.documentType}
                       </span>
-                    ) : null}
-                    {document.status === 'ARCHIVED' ? (
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                        Arsip
-                      </span>
-                    ) : null}
+                      {document.patientVisible ? (
+                        <span className="rounded-full bg-[var(--hafta-grn-50)] px-2 py-0.5 text-[10px] font-semibold text-[var(--hafta-grn-700)]">
+                          Terlihat pasien
+                        </span>
+                      ) : null}
+                      {document.status === 'ARCHIVED' ? (
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                          Arsip
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
-                  <p className="mt-1 truncate text-[11px] text-muted-foreground">
-                    {document.patientName}
-                    {document.medicalRecordNumber ? ` · ${document.medicalRecordNumber}` : ''}
-                    {' · '}
-                    {formatSize(document.sizeBytes)} · {formatDate(document.createdAt)}
-                    {document.uploadedByName ? ` · ${document.uploadedByName}` : ''}
-                  </p>
                 </div>
-              </div>
 
-              <div className="flex shrink-0 items-center gap-2">
                 {canDownload && document.status === 'ACTIVE' ? (
-                  <div className="flex flex-col items-end gap-1.5">
-                    <div className="flex items-center gap-2">
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-1.5">
                       <button
                         type="button"
                         onClick={() => void handlePreview(document)}
-                        className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent"
+                        className="inline-flex h-10 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-300)] px-3 text-[11px] font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)]"
                       >
                         <Eye className="h-3.5 w-3.5" />
                         Lihat
@@ -436,20 +518,28 @@ export function DocumentsManager({
                         type="button"
                         onClick={() => void handleDownload(document)}
                         disabled={downloadId === document.id}
-                        className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent disabled:cursor-progress disabled:opacity-70"
+                        aria-label={`Unduh ${document.originalFilename ?? 'dokumen'}`}
+                        className="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent disabled:cursor-progress disabled:opacity-70"
                       >
                         {downloadId === document.id ? (
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         ) : (
                           <Download className="h-3.5 w-3.5" />
                         )}
-                        {downloadId === document.id
-                          ? `Mengunduh ${Math.round(downloadProgress)}%`
-                          : 'Unduh'}
                       </button>
+                      {canArchive && document.status === 'ACTIVE' ? (
+                        <button
+                          type="button"
+                          onClick={() => setArchiveTarget(document)}
+                          aria-label={`Arsipkan ${document.originalFilename ?? 'dokumen'}`}
+                          className="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:bg-accent"
+                        >
+                          <Archive className="h-3.5 w-3.5" />
+                        </button>
+                      ) : null}
                     </div>
                     {downloadId === document.id ? (
-                      <Progress value={downloadProgress} className="h-1 w-28" />
+                      <Progress value={downloadProgress} className="h-1" />
                     ) : null}
                     {downloadError?.id === document.id ? (
                       <span className="inline-flex items-center gap-1 text-[10px] font-medium text-red-600">
@@ -458,21 +548,34 @@ export function DocumentsManager({
                       </span>
                     ) : null}
                   </div>
-                ) : null}
-                {canArchive && document.status === 'ACTIVE' ? (
+                ) : canArchive && document.status === 'ACTIVE' ? (
                   <button
                     type="button"
                     onClick={() => setArchiveTarget(document)}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-accent"
+                    className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-border bg-card text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-accent"
                   >
                     <Archive className="h-3.5 w-3.5" />
                     Arsipkan
                   </button>
                 ) : null}
-              </div>
-            </article>
-          ))}
-        </div>
+              </article>
+            ))}
+          </div>
+
+          {pageCount > 1 ? (
+            <PaginationBar
+              page={safePage}
+              pageCount={pageCount}
+              pageSize={pageSize}
+              pageSizeOptions={[6, 8]}
+              onPageChange={setPage}
+              onPageSizeChange={(size) => {
+                setPageSize(size);
+                setPage(1);
+              }}
+            />
+          ) : null}
+        </>
       )}
 
       <Dialog open={uploadOpen} onOpenChange={setUploadOpen}>

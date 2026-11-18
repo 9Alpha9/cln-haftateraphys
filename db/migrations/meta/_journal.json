@@ -239,6 +239,13 @@
       "when": 1794964394898,
       "tag": "0033_accounts_issuer",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1795003963831,
+      "tag": "0034_common_mandarin",
+      "breakpoints": true
     }
   ]
 }

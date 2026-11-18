@@ -20,12 +20,14 @@ const styles = StyleSheet.create({
   page: {
     paddingTop: 32,
     paddingHorizontal: 38,
-    paddingBottom: 74,
+    paddingBottom: 88,
     backgroundColor: '#ffffff',
     fontFamily: 'Helvetica',
     fontSize: FONT.body,
     lineHeight: FONT.lineHeight,
     color: '#1c1917',
+    orphans: 2,
+    widows: 2,
     flexDirection: 'column',
   },
   pageContent: { flexGrow: 1 },
@@ -71,7 +73,7 @@ const styles = StyleSheet.create({
   identityCellLast: { flex: 1, padding: 5 },
   identityLabel: { fontSize: FONT_META, color: '#78716c', marginBottom: 1, lineHeight: 1.4 },
   identityValue: { fontSize: FONT.body, fontFamily: 'Helvetica-Bold', lineHeight: FONT.lineHeight, color: '#181700' },
-  bodyText: { fontSize: FONT.body, lineHeight: FONT.lineHeight, color: '#292524' },
+  bodyText: { fontSize: FONT.body, lineHeight: FONT.lineHeight, color: '#292524', orphans: 2, widows: 2 },
   subLabel: { fontSize: FONT_SUB, fontFamily: 'Helvetica-Bold', color: '#57534e', marginBottom: 2, marginTop: 4 },
   chart: { borderWidth: 1, borderColor: '#e7e5e4', borderRadius: 6, paddingVertical: 9, paddingHorizontal: 10, backgroundColor: '#fafaf9' },
   chartRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
@@ -112,22 +114,20 @@ const styles = StyleSheet.create({
     borderRightColor: '#e7e5e4',
   },
   tableCellLast: { padding: 5, fontSize: FONT_TABLE, lineHeight: FONT.lineHeight, color: '#292524' },
-  pageFooterLine: {
+  pageFooter: {
     position: 'absolute',
-    bottom: 38,
-    left: 38,
-    right: 38,
-    height: 1,
-    backgroundColor: '#e7e5e4',
-  },
-  pageFooterCenter: {
-    position: 'absolute',
-    bottom: 18,
+    // Catatan: pada versi `@react-pdf/renderer` ini `bottom` diabaikan untuk
+    // elemen absolut, sehingga posisi footer dihitung dari `top`. Nilai ini
+    // menyisakan jarak bawah yang sama dengan `paddingTop` halaman (32pt).
+    top: 793,
     left: 38,
     right: 38,
     textAlign: 'center',
-    fontSize: FONT_META,
-    color: '#a8a29e',
+    fontSize: FONT_SUB,
+    color: '#57534e',
+    borderTopWidth: 1,
+    borderTopColor: '#e7e5e4',
+    paddingTop: 6,
   },
   footer: {
     marginTop: 18,
@@ -288,7 +288,14 @@ const scoreSummary = (record: MedicalRecordPdfData) =>
   `Nyeri ${record.painScore}/10 · ROM ${record.rangeOfMotionScore}/10 · Kekuatan ${record.strengthScore}/10 · Fungsi ${record.functionScore}/10`;
 
 function SectionTitle({ children }: { children: string }) {
-  return <Text style={styles.sectionTitle}>{children}</Text>;
+  // `minPresenceAhead` mencegah judul bagian tertinggal sendirian di dasar
+  // halaman: react-pdf akan memindahkan judul ke halaman berikutnya bila ruang
+  // tersisa kurang dari ambang ini.
+  return (
+    <View minPresenceAhead={86}>
+      <Text style={styles.sectionTitle}>{children}</Text>
+    </View>
+  );
 }
 
 function TextSection({ title, value }: { title: string; value: string | null | undefined }) {
@@ -367,17 +374,14 @@ function FunctionalChart({ record }: { record: MedicalRecordPdfData }) {
   );
 }
 
-/** Footer tetap pada setiap halaman: garis pemisah + nomor halaman di tengah. */
+/** Nomor halaman di tengah footer, diulang pada setiap halaman. */
 function PageFooter() {
   return (
-    <>
-      <View style={styles.pageFooterLine} fixed />
-      <Text
-        style={styles.pageFooterCenter}
-        fixed
-        render={({ pageNumber, totalPages }) => `Halaman ${pageNumber} dari ${totalPages}`}
-      />
-    </>
+    <Text
+      style={styles.pageFooter}
+      fixed
+      render={({ pageNumber, totalPages }) => `Halaman ${pageNumber} dari ${totalPages}`}
+    />
   );
 }
 
@@ -566,7 +570,7 @@ export const MedicalRecordDocument = ({
             </View>
           </View>
 
-          <View style={styles.section}>
+          <View style={styles.section} wrap={false}>
             <SectionTitle>3. INDIKATOR FUNGSIONAL</SectionTitle>
             <FunctionalChart record={record} />
           </View>

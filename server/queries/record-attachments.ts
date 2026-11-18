@@ -23,8 +23,11 @@ const MAX_TOTAL_BYTES = 9 * 1024 * 1024;
 const PDF_IMAGE_MIME_TYPES = ['image/png', 'image/jpeg'];
 
 /**
- * Lampiran foto analisa/hasil pemeriksaan yang diunggah terapis melalui menu
- * Dokumen (jenis: Hasil Pemeriksaan). Hanya gambar aktif yang dimasukkan ke PDF.
+ * Lampiran foto analisa/hasil pemeriksaan milik satu rekam medis.
+ *
+ * Hanya gambar yang diunggah dari form rekam medis (terikat lewat
+ * `therapy_progress_record_id`) yang diambil, sehingga lampiran tidak bocor ke
+ * rekam lain milik pasien yang sama.
  */
 export async function getRecordAttachmentImages(recordId: string): Promise<RecordAttachmentImage[]> {
   if (!isR2Configured()) return [];
@@ -46,9 +49,9 @@ export async function getRecordAttachmentImages(recordId: string): Promise<Recor
     .from(patientDocuments)
     .where(
       and(
+        eq(patientDocuments.therapyProgressRecordId, record.id),
         eq(patientDocuments.patientId, record.patientId),
         eq(patientDocuments.status, 'ACTIVE'),
-        eq(patientDocuments.documentType, 'EXAM_RESULT'),
         inArray(patientDocuments.mimeType, PDF_IMAGE_MIME_TYPES),
         role === 'USER' ? eq(patientDocuments.patientVisible, 1) : undefined,
       ),

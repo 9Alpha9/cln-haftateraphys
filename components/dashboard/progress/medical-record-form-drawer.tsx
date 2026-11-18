@@ -15,6 +15,7 @@ import {
 } from '@/server/actions/therapy-progress';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
 import { uploadDocument, removeOwnDocument } from '@/server/actions/documents';
+import { fetchRecordAttachmentImages } from '@/server/actions/record-attachments';
 
 type PatientOption = { id: string; label: string };
 
@@ -164,7 +165,11 @@ function MedicalRecordForm({
   );
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
-  const [uploadedFiles, setUploadedFiles] = useState<Array<{ name: string; id?: string }>>([]);
+  // `file` terisi untuk lampiran yang menunggu rekam disimpan lebih dulu
+  // (rekam baru belum punya id), `id` terisi setelah berhasil diunggah.
+  const [attachments, setAttachments] = useState<
+    Array<{ key: string; name: string; id?: string; file?: File }>
+  >([]);
   const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
   const fieldsDisabled = pending || uploading || !patientId;
 
@@ -176,9 +181,78 @@ function MedicalRecordForm({
     onPatientReadyChange?.(Boolean(patientId));
   }, [onPatientReadyChange, patientId]);
 
-  async function handleRemoveUploaded(index: number) {
-    const target = uploadedFiles[index];
+  // Tampilkan lampiran yang sudah tersimpan pada rekam ini agar terapis tahu
+  // foto mana yang ikut tercetak di PDF.
+  useEffect(() => {
+    let active = true;
+    if (!record?.id) return;
+    void fetchRecordAttachmentImages(record.id)
+      .then((images) => {
+        if (!active || images.length === 0) return;
+        setAttachments(
+          images.map((image) => ({ key: image.id, name: image.name, id: image.id })),
+        );
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [record?.id]);
+
+  /**
+   * `@react-pdf/renderer` hanya dapat menyematkan PNG/JPEG, jadi WebP (yang
+   * diizinkan saat unggah) dikonversi ke PNG di browser sebelum dikirim.
+   */
+  async function normalizeImageFile(file: File): Promise<File> {
+    if (file.type !== 'image/webp') return file;
+    try {
+      const bitmap = await createImageBitmap(file);
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+      const context = canvas.getContext('2d');
+      if (!context) return file;
+      context.drawImage(bitmap, 0, 0);
+      const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+      if (!blob) return file;
+      return new File([blob], file.name.replace(/\.webp$/i, '.png'), { type: 'image/png' });
+    } catch {
+      return file;
+    }
+  }
+
+  async function uploadFiles(files: File[], targetRecordId?: string): Promise<number> {
+    let success = 0;
+    for (const raw of files) {
+      const file = await normalizeImageFile(raw);
+      const payload = new FormData();
+      payload.set('patientId', patientId);
+      payload.set('documentType', 'EXAM_RESULT');
+      if (targetRecordId) payload.set('recordId', targetRecordId);
+      if (patientVisible === '1') payload.set('patientVisible', 'on');
+      payload.set('file', file);
+      const result = await uploadDocument(payload);
+      if (result.ok) {
+        success += 1;
+        setAttachments((current) => [
+          ...current,
+          { key: result.documentId ?? `${raw.name}-${Date.now()}`, name: raw.name, id: result.documentId },
+        ]);
+      } else {
+        showToast('error', result.error);
+      }
+    }
+    return success;
+  }
+
+  async function handleRemoveAttachment(key: string) {
+    const target = attachments.find((item) => item.key === key);
     if (!target) return;
+
+    if (!target.id) {
+      setAttachments((current) => current.filter((item) => item.key !== key));
+      return;
+    }
 
     if (target.id) {
       setDeletingFileId(target.id);
@@ -196,7 +270,7 @@ function MedicalRecordForm({
       }
     }
 
-    setUploadedFiles((current) => current.filter((_, itemIndex) => itemIndex !== index));
+    setAttachments((current) => current.filter((item) => item.key !== key));
     showToast('success', 'Foto dihapus.');
   }
 
@@ -241,6 +315,17 @@ function MedicalRecordForm({
         if (!result.ok) {
           showToast('error', result.error);
           return;
+        }
+        // Unggah lampiran yang ditahan ke rekam yang baru dibuat.
+        const pendingFiles = attachments
+          .filter((item) => item.file)
+          .map((item) => item.file as File);
+        if (pendingFiles.length > 0) {
+          setAttachments((current) => current.filter((item) => !item.file));
+          const uploaded = await uploadFiles(pendingFiles, result.id);
+          if (uploaded > 0) {
+            showToast('success', `${uploaded} foto dilampirkan pada rekam medis ini.`);
+          }
         }
         if (status === 'FINALIZED') {
           const finalizeResult = await finalizeTherapyProgress(result.id);
@@ -421,7 +506,7 @@ function MedicalRecordForm({
           <SectionHeading
             icon={<ImagePlus className="h-3.5 w-3.5" />}
             title="Foto Analisa / Hasil Pemeriksaan"
-            description="Unggah CT Scan, X-Ray, USG, atau foto analisa lain. Gambar disimpan pada dokumen pasien dan otomatis dilampirkan pada PDF rekam medis. Pasien hanya melihatnya jika rekam ini dibagikan ke pasien."
+            description="Unggah CT Scan, X-Ray, USG, atau foto analisa lain. Gambar dilampirkan pada rekam medis ini dan otomatis muncul di PDF-nya. Pasien hanya melihatnya jika rekam ini dibagikan ke pasien."
           />
           <div className="rounded-2xl border border-dashed border-border bg-[var(--hafta-50)]/40 p-3.5">
             <label
@@ -461,6 +546,21 @@ function MedicalRecordForm({
                 const files = Array.from(event.target.files ?? []);
                 event.target.value = '';
                 if (!patientId || files.length === 0) return;
+                // Rekam baru belum punya id: lampiran ditahan dulu lalu diunggah
+                // setelah rekam tersimpan agar terikat ke rekam yang tepat.
+                if (!record?.id) {
+                  setAttachments((current) => [
+                    ...current,
+                    ...files.map((file) => ({
+                      key: `${file.name}-${file.size}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                      name: file.name,
+                      file,
+                    })),
+                  ]);
+                  showToast('success', 'Foto ditambahkan dan akan diunggah saat rekam disimpan.');
+                  return;
+                }
+
                 setUploading(true);
                 setUploadProgress(0);
                 let simulated = 0;
@@ -470,23 +570,7 @@ function MedicalRecordForm({
                 }, 220);
                 let success = 0;
                 try {
-                  for (const file of files) {
-                    const payload = new FormData();
-                    payload.set('patientId', patientId);
-                    payload.set('documentType', 'EXAM_RESULT');
-                    if (patientVisible === '1') payload.set('patientVisible', 'on');
-                    payload.set('file', file);
-                    const result = await uploadDocument(payload);
-                    if (result.ok) {
-                      success += 1;
-                      setUploadedFiles((current) => [
-                        ...current,
-                        { name: file.name, id: result.documentId },
-                      ]);
-                    } else {
-                      showToast('error', result.error);
-                    }
-                  }
+                  success = await uploadFiles(files, record.id);
                 } finally {
                   window.clearInterval(progressTimer);
                   setUploadProgress(100);
@@ -494,7 +578,7 @@ function MedicalRecordForm({
                 }
                 setUploading(false);
                 if (success > 0) {
-                  showToast('success', `${success} foto berhasil diunggah dan akan masuk ke PDF rekam medis.`);
+                  showToast('success', `${success} foto berhasil dilampirkan pada rekam medis ini.`);
                 }
               }}
               className="sr-only"
@@ -504,20 +588,23 @@ function MedicalRecordForm({
                 Pilih pasien terlebih dahulu sebelum mengunggah foto.
               </p>
             ) : null}
-            {uploadedFiles.length > 0 ? (
+            {attachments.length > 0 ? (
               <ul className="mt-3 space-y-1 border-t border-border/60 pt-2">
-                {uploadedFiles.map((file, index) => (
+                {attachments.map((file) => (
                   <li
-                    key={`${file.name}-${index}`}
+                    key={file.key}
                     className="flex items-center gap-2 rounded-lg px-1 py-0.5 text-[11px] text-muted-foreground"
                   >
-                    <span className="min-w-0 flex-1 truncate">✓ {file.name}</span>
+                    <span className="min-w-0 flex-1 truncate">
+                      {file.id ? '✓' : '•'} {file.name}
+                      {file.id ? '' : ' (disimpan bersama rekam)'}
+                    </span>
                     <button
                       type="button"
                       aria-label={`Hapus ${file.name}`}
                       title="Hapus foto"
                       disabled={deletingFileId === file.id}
-                      onClick={() => void handleRemoveUploaded(index)}
+                      onClick={() => void handleRemoveAttachment(file.key)}
                       className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {deletingFileId === file.id ? (
@@ -531,8 +618,8 @@ function MedicalRecordForm({
               </ul>
             ) : null}
             <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
-              Foto langsung tersimpan sebagai dokumen pasien. Untuk rekam final, lampiran tetap dapat
-              dilihat pada PDF dan tidak mengubah isi SOAP.
+              Foto dilampirkan ke rekam medis ini dan otomatis muncul pada PDF-nya. Untuk rekam final,
+              lampiran tetap dapat dilihat tanpa mengubah isi SOAP.
             </p>
           </div>
         </section>
