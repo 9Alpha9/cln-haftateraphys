@@ -56,6 +56,8 @@ export async function getRecordAttachmentImages(
         eq(patientDocuments.therapyProgressRecordId, record.id),
         eq(patientDocuments.patientId, record.patientId),
         eq(patientDocuments.status, 'ACTIVE'),
+        // Jenis dokumen tidak dibatasi: foto dari menu Dokumen (jenis "Lainnya")
+        // tetap boleh dilampirkan selama formatnya bisa disematkan ke PDF.
         inArray(patientDocuments.mimeType, PDF_IMAGE_MIME_TYPES),
         role === 'USER' ? eq(patientDocuments.patientVisible, 1) : undefined,
       ),
@@ -93,18 +95,18 @@ export async function getRecordAttachmentImages(
 }
 
 
-export type UnlinkedExamImage = {
+export type UnlinkedDocumentImage = {
   id: string;
   name: string;
   createdAt: Date;
 };
 
 /**
- * Foto hasil pemeriksaan milik pasien yang belum terhubung ke rekam medis mana
- * pun. Ditampilkan pada form rekam agar terapis bisa melampirkan foto lama tanpa
- * mengunggah ulang.
+ * Gambar milik pasien yang belum terhubung ke rekam medis mana pun. Ditampilkan
+ * pada form rekam agar terapis bisa melampirkan foto lama tanpa mengunggah ulang.
+ * Semua jenis dokumen diterima selama formatnya PNG/JPEG.
  */
-export async function listUnlinkedExamImages(patientId: string): Promise<UnlinkedExamImage[]> {
+export async function listUnlinkedImages(patientId: string): Promise<UnlinkedDocumentImage[]> {
   if (!isR2Configured()) return [];
 
   await requireSession({ redirectToLogin: false });
@@ -120,7 +122,6 @@ export async function listUnlinkedExamImages(patientId: string): Promise<Unlinke
       and(
         eq(patientDocuments.patientId, patientId),
         eq(patientDocuments.status, 'ACTIVE'),
-        eq(patientDocuments.documentType, 'EXAM_RESULT'),
         inArray(patientDocuments.mimeType, PDF_IMAGE_MIME_TYPES),
         isNull(patientDocuments.therapyProgressRecordId),
       ),

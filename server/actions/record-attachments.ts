@@ -8,9 +8,9 @@ import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { requireSession } from '@/lib/auth/require-session';
 import {
   getRecordAttachmentImages,
-  listUnlinkedExamImages,
+  listUnlinkedImages,
   type RecordAttachmentImage,
-  type UnlinkedExamImage,
+  type UnlinkedDocumentImage,
 } from '@/server/queries/record-attachments';
 
 /** Melampirkan foto pasien yang sudah diunggah ke rekam medis tertentu. */
@@ -111,9 +111,9 @@ export async function fetchRecordAttachmentImages(
 }
 
 
-export async function fetchUnlinkedExamImages(patientId: string): Promise<UnlinkedExamImage[]> {
+export async function fetchUnlinkedImages(patientId: string): Promise<UnlinkedDocumentImage[]> {
   try {
-    return await listUnlinkedExamImages(patientId);
+    return await listUnlinkedImages(patientId);
   } catch {
     return [];
   }

@@ -18,7 +18,7 @@ import { uploadDocument, removeOwnDocument } from '@/server/actions/documents';
 import {
   attachDocumentToRecord,
   fetchRecordAttachmentImages,
-  fetchUnlinkedExamImages,
+  fetchUnlinkedImages,
 } from '@/server/actions/record-attachments';
 
 type PatientOption = { id: string; label: string };
@@ -196,7 +196,7 @@ function MedicalRecordForm({
     if (!record?.id) return;
     void Promise.all([
       fetchRecordAttachmentImages(record.id),
-      fetchUnlinkedExamImages(record.patientId),
+      fetchUnlinkedImages(record.patientId),
     ])
       .then(([images, unlinked]) => {
         if (!active) return;
