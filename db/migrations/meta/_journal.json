@@ -232,6 +232,13 @@
       "when": 1794800000000,
       "tag": "0032_far_tyrannus",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1794964394898,
+      "tag": "0033_accounts_issuer",
+      "breakpoints": true
     }
   ]
 }
