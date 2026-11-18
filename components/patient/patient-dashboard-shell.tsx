@@ -261,7 +261,7 @@ export function PatientDashboardShell({
           aria-expanded={!collapsed}
           title={collapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
           onClick={() => setCollapsedOverride(!collapsed)}
-          className="hidden md:flex absolute -right-3 top-[26px] z-30 h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-[var(--hafta-org-200)] hover:bg-[var(--hafta-org-50)] hover:text-foreground"
+          className="hidden md:flex absolute -right-3 top-[20px] z-30 h-7 w-7 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:border-[var(--hafta-org-200)] hover:bg-[var(--hafta-org-50)] hover:text-foreground"
         >
           {collapsed ? <PanelLeftOpen className="h-3.5 w-3.5" /> : <PanelLeftClose className="h-3.5 w-3.5" />}
         </button>
@@ -269,7 +269,7 @@ export function PatientDashboardShell({
         {/* ── Header: Logo ── */}
         <div
           className={cn(
-            'flex h-[80px] shrink-0 items-center border-b border-stone-800/80',
+            'flex h-[68px] shrink-0 items-center border-b border-stone-800/80',
             collapsed ? 'justify-center px-2' : 'justify-center px-2 md:justify-between md:px-6'
           )}
         >
