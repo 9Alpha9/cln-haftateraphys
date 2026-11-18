@@ -590,14 +590,18 @@ export function DocumentsManager({
               </DialogDescription>
             </div>
             <div className="flex shrink-0 items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => previewDoc && void handleDownload(previewDoc)}
-                className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-background px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent"
-              >
-                <Download className="h-3.5 w-3.5" />
-                Unduh
-              </button>
+              {/* Tombol Unduh hanya perlu saat dokumen tidak punya toolbar viewer
+                  sendiri. PDF/teks di dalam iframe sudah menyediakan unduh. */}
+              {previewDoc && previewKind(previewDoc.mimeType) !== 'frame' ? (
+                <button
+                  type="button"
+                  onClick={() => void handleDownload(previewDoc)}
+                  className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-background px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent"
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Unduh
+                </button>
+              ) : null}
               <DialogClose
                 aria-label="Tutup pratinjau dokumen"
                 className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
