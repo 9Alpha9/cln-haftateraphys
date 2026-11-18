@@ -24,8 +24,8 @@ export function PrintPreviewHost() {
     return () => window.removeEventListener(PRINT_PREVIEW_EVENT, handlePreview);
   }, []);
 
-  // Escape closes; focus lands on the close action so the overlay is operable
-  // from the keyboard (the iframe content is a separate document).
+  // Escape closes, and the close action takes focus so the overlay stays
+  // operable from the keyboard (the iframe is a separate document).
   useEffect(() => {
     if (!url) return;
     closeButtonRef.current?.focus();
