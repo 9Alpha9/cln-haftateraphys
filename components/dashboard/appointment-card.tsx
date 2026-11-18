@@ -24,7 +24,7 @@ import type { Role } from '@/lib/permissions/roles';
 import { deleteAppointment } from '@/server/actions/appointments';
 import { markCalendarAppointmentsRead } from '@/server/actions/appointment-notifications';
 import { cn } from '@/lib/utils';
-import { openPrintPreview } from '@/components/print/print-preview-host';
+import { openPrintPreview } from '@/components/print/print-iframe';
 import type { AppointmentView } from '@/server/queries/appointments';
 import { AppointmentEditButton } from '@/components/dashboard/appointments/appointment-edit-button';
 import { AppointmentEditDrawer, useAppointmentEditDrawer } from '@/components/dashboard/appointments/appointment-edit-drawer';

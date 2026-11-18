@@ -40,7 +40,7 @@ import {
   SkeletonPanel,
 } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { useMedicalRecordPdf } from '@/components/dashboard/medical-record-actions';
-import { openPrintPreview } from '@/components/print/print-preview-host';
+import { openPrintPreview } from '@/components/print/print-iframe';
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
 import { ProgressAmendmentDialog } from '@/components/dashboard/progress/progress-amendment-dialog';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';

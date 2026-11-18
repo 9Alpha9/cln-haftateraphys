@@ -1,19 +1,22 @@
 'use client';
 
 import { useEffect } from 'react';
-import { ArrowLeft, FileDown, Printer } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
+/**
+ * Navigational header for the appointment print sheet. The document itself has
+ * no print button: printing is driven by the hidden print iframe host, and the
+ * page only auto-prints when `?auto=1` is present (i.e. when loaded by it).
+ */
 export function PrintTrigger({
-  mode,
   patientName,
   recordId,
   recordedAt,
   medicalRecordNumber,
   backHref = '/dashboard/progress',
 }: {
-  mode: 'print' | 'pdf';
   patientName: string;
   recordId: string;
   recordedAt: Date;
@@ -22,15 +25,15 @@ export function PrintTrigger({
 }) {
   useEffect(() => {
     const dateValue = new Date(recordedAt);
-    const datePart = `${dateValue.getFullYear()}-${String(dateValue.getMonth() + 1).padStart(2, '0')}-${String(dateValue.getDate()).padStart(2, '0')}`;
+    const datePart = `${dateValue.getFullYear()}-${String(dateValue.getMonth() + 1).padStart(
+      2,
+      '0',
+    )}-${String(dateValue.getDate()).padStart(2, '0')}`;
     const rmPart = medicalRecordNumber || recordId.slice(0, 8).toUpperCase();
-    const fileName = `${patientName}-${rmPart}-${datePart}`;
-    document.title = fileName;
+    document.title = `${patientName}-${rmPart}-${datePart}`;
 
-    // Only auto-open the print dialog when explicitly requested (e.g. direct
-    // print links). The in-app preview shows the document first.
     if (new URLSearchParams(window.location.search).get('auto') === '1') {
-      const timer = window.setTimeout(() => window.print(), 500);
+      const timer = window.setTimeout(() => window.print(), 400);
       return () => window.clearTimeout(timer);
     }
     return undefined;
@@ -43,15 +46,6 @@ export function PrintTrigger({
           <ArrowLeft className="h-4 w-4" /> Kembali
         </Button>
       </Link>
-      <div className="flex items-center gap-2">
-        {mode === 'pdf' ? (
-          <p className="hidden text-xs text-muted-foreground sm:block">Pilih &quot;Save as PDF&quot; pada dialog browser.</p>
-        ) : null}
-        <Button size="sm" onClick={() => window.print()}>
-          {mode === 'pdf' ? <FileDown className="h-4 w-4" /> : <Printer className="h-4 w-4" />}
-          {mode === 'pdf' ? 'Simpan PDF' : 'Print'}
-        </Button>
-      </div>
     </div>
   );
 }

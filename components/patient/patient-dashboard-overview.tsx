@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { openPrintPreview } from '@/components/print/print-preview-host';
+import { openPrintPreview } from '@/components/print/print-iframe';
 import {
   ArrowRight,
   CalendarDays,

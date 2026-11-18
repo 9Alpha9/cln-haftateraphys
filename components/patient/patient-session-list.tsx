@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { CalendarDays, History, Printer } from 'lucide-react';
-import { openPrintPreview } from '@/components/print/print-preview-host';
+import { openPrintPreview } from '@/components/print/print-iframe';
 import { PaginationBar } from '@/components/ui/pagination-bar';
 import type { PatientPortalAppointment } from '@/server/queries/patient-portal';
 

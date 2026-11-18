@@ -45,13 +45,11 @@ function formatGender(gender: string | null | undefined): string {
 
 export default async function PrintAppointmentPage({
   params,
-  searchParams,
 }: {
   params: Promise<{ appointmentId: string }>;
-  searchParams: Promise<{ mode?: 'print' | 'pdf' }>;
 }) {
   const { appointmentId } = await params;
-  const { mode = 'print' } = await searchParams;
+  const mode = 'print';
   const { session, role } = await requireSession({ redirectToLogin: true });
   if (role !== 'USER' && !hasPermission(role, PERMISSIONS.PATIENT_EXPORT)) notFound();
   let appointment;
@@ -89,7 +87,6 @@ export default async function PrintAppointmentPage({
   return (
     <div className="min-h-screen bg-stone-50 p-4 sm:p-8 print:bg-white print:p-0">
       <PrintTrigger
-        mode={mode}
         patientName={appointment.patientName}
         recordId={appointment.id}
         recordedAt={date}
