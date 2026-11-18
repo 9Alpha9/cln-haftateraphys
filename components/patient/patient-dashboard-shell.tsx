@@ -591,18 +591,13 @@ export function PatientDashboardShell({
         )}
       >
         {/* Top header */}
-        <header className="sticky top-0 z-30">
+        <header className="sticky top-0 z-[60]">
           <div
             aria-hidden="true"
-            className={cn(
-              'pointer-events-none absolute inset-x-0 top-0 h-[calc(100%+1.25rem)] border-b border-border/70 bg-card/80 transition-opacity duration-300 ease-out',
-              scrolled ? 'opacity-100' : 'opacity-0',
-            )}
+            className="pointer-events-none absolute inset-x-0 top-0 h-[calc(100%+1.25rem)] border-b border-border/70 bg-card/80"
             style={{
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
-              maskImage: 'linear-gradient(to bottom, #000 0%, #000 70%, transparent 100%)',
-              WebkitMaskImage: 'linear-gradient(to bottom, #000 0%, #000 70%, transparent 100%)',
             }}
           />
           <div className="relative z-10 mx-auto flex h-[68px] w-full max-w-[1600px] items-center gap-3 px-4 sm:px-6 lg:px-8">

@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Activity, ClipboardList, Eye, EyeOff, FilePenLine, ImagePlus, Loader2, Lock, Save, Stethoscope, UserRound } from 'lucide-react';
+import { Activity, ClipboardList, Eye, EyeOff, FilePenLine, ImagePlus, Loader2, Lock, Save, Stethoscope, Trash2, UserRound } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import { Progress } from '@/components/ui/progress';
 import { AppSelect } from '@/components/ui/app-select';
@@ -13,7 +13,7 @@ import {
   updateTherapyProgress,
 } from '@/server/actions/therapy-progress';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
-import { uploadDocument } from '@/server/actions/documents';
+import { uploadDocument, removeOwnDocument } from '@/server/actions/documents';
 
 type PatientOption = { id: string; label: string };
 
@@ -163,7 +163,8 @@ function MedicalRecordForm({
   );
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
-  const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<Array<{ name: string; id?: string }>>([]);
+  const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
   const fieldsDisabled = pending || uploading || !patientId;
 
   useEffect(() => {
@@ -173,6 +174,30 @@ function MedicalRecordForm({
   useEffect(() => {
     onPatientReadyChange?.(Boolean(patientId));
   }, [onPatientReadyChange, patientId]);
+
+  async function handleRemoveUploaded(index: number) {
+    const target = uploadedFiles[index];
+    if (!target) return;
+
+    if (target.id) {
+      setDeletingFileId(target.id);
+      try {
+        const result = await removeOwnDocument(target.id);
+        if (!result.ok) {
+          showToast('error', result.error);
+          return;
+        }
+      } catch {
+        showToast('error', 'Gagal menghapus foto.');
+        return;
+      } finally {
+        setDeletingFileId(null);
+      }
+    }
+
+    setUploadedFiles((current) => current.filter((_, itemIndex) => itemIndex !== index));
+    showToast('success', 'Foto dihapus.');
+  }
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -431,7 +456,10 @@ function MedicalRecordForm({
                     const result = await uploadDocument(payload);
                     if (result.ok) {
                       success += 1;
-                      setUploadedFiles((current) => [...current, file.name]);
+                      setUploadedFiles((current) => [
+                        ...current,
+                        { name: file.name, id: result.documentId },
+                      ]);
                     } else {
                       showToast('error', result.error);
                     }
@@ -455,9 +483,26 @@ function MedicalRecordForm({
             ) : null}
             {uploadedFiles.length > 0 ? (
               <ul className="mt-3 space-y-1 border-t border-border/60 pt-2">
-                {uploadedFiles.map((name, index) => (
-                  <li key={`${name}-${index}`} className="truncate text-[11px] text-muted-foreground">
-                    ✓ {name}
+                {uploadedFiles.map((file, index) => (
+                  <li
+                    key={`${file.name}-${index}`}
+                    className="flex items-center gap-2 rounded-lg px-1 py-0.5 text-[11px] text-muted-foreground"
+                  >
+                    <span className="min-w-0 flex-1 truncate">✓ {file.name}</span>
+                    <button
+                      type="button"
+                      aria-label={`Hapus ${file.name}`}
+                      title="Hapus foto"
+                      disabled={deletingFileId === file.id}
+                      onClick={() => void handleRemoveUploaded(index)}
+                      className="flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {deletingFileId === file.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-3.5 w-3.5" />
+                      )}
+                    </button>
                   </li>
                 ))}
               </ul>

@@ -11,7 +11,9 @@ import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { isR2Configured, uploadObject } from '@/lib/storage/r2';
 import { DOCUMENT_TYPES, isAllowedDocumentMime, MAX_DOCUMENT_BYTES } from '@/lib/documents';
 
-export type DocumentActionResult = { ok: true } | { ok: false; error: string };
+export type DocumentActionResult =
+  | { ok: true; documentId?: string }
+  | { ok: false; error: string };
 
 const MIME_EXTENSION: Record<string, string> = {
   'application/pdf': 'pdf',
@@ -87,18 +89,23 @@ export async function uploadDocument(formData: FormData): Promise<DocumentAction
     return { ok: false, error: 'Dokumen gagal diunggah ke penyimpanan.' };
   }
 
+  let documentId: string;
   try {
-    await db.insert(patientDocuments).values({
-      patientId,
-      uploadedBy: session.user.id,
-      storageKey,
-      originalFilename: sanitizeFilename(file.name || `dokumen.${extension}`),
-      mimeType: file.type,
-      sizeBytes: file.size,
-      documentType: documentType as never,
-      patientVisible,
-      status: 'ACTIVE',
-    });
+    const [created] = await db
+      .insert(patientDocuments)
+      .values({
+        patientId,
+        uploadedBy: session.user.id,
+        storageKey,
+        originalFilename: sanitizeFilename(file.name || `dokumen.${extension}`),
+        mimeType: file.type,
+        sizeBytes: file.size,
+        documentType: documentType as never,
+        patientVisible,
+        status: 'ACTIVE',
+      })
+      .returning({ id: patientDocuments.id });
+    documentId = created.id;
   } catch {
     return { ok: false, error: 'Dokumen gagal disimpan. Silakan coba lagi.' };
   }
@@ -112,7 +119,7 @@ export async function uploadDocument(formData: FormData): Promise<DocumentAction
   });
 
   revalidatePath('/dashboard/documents');
-  return { ok: true };
+  return { ok: true, documentId };
 }
 
 export async function archiveDocument(documentId: string): Promise<DocumentActionResult> {
@@ -144,5 +151,72 @@ export async function archiveDocument(documentId: string): Promise<DocumentActio
   });
 
   revalidatePath('/dashboard/documents');
+  return { ok: true };
+}
+
+/**
+ * Soft-archive a document that the current user uploaded (or any document for
+ * users with archive permission). Used by the medical-record photo uploader so
+ * a freshly uploaded photo can be removed again without hard-deleting clinical
+ * data.
+ */
+export async function removeOwnDocument(documentId: string): Promise<DocumentActionResult> {
+  const { session, role } = await requireSession({ redirectToLogin: false });
+  const canArchive = hasPermission(role, PERMISSIONS.DOCUMENT_ARCHIVE);
+  if (!canArchive && !hasPermission(role, PERMISSIONS.DOCUMENT_UPLOAD)) {
+    return { ok: false, error: 'Anda tidak memiliki izin menghapus dokumen.' };
+  }
+
+  const db = getDb();
+  const [document] = await db
+    .select({
+      id: patientDocuments.id,
+      patientId: patientDocuments.patientId,
+      uploadedBy: patientDocuments.uploadedBy,
+      status: patientDocuments.status,
+    })
+    .from(patientDocuments)
+    .where(eq(patientDocuments.id, documentId))
+    .limit(1);
+
+  if (!document) return { ok: false, error: 'Dokumen tidak ditemukan.' };
+  if (document.status === 'ARCHIVED') return { ok: true };
+
+  if (!canArchive && document.uploadedBy !== session.user.id) {
+    return { ok: false, error: 'Anda hanya dapat menghapus dokumen yang Anda unggah.' };
+  }
+
+  if (role === 'THERAPIST') {
+    const [assignment] = await db
+      .select({ id: patientAssignments.id })
+      .from(patientAssignments)
+      .where(
+        and(
+          eq(patientAssignments.patientId, document.patientId),
+          eq(patientAssignments.staffUserId, session.user.id),
+          isNull(patientAssignments.activeUntil),
+        ),
+      )
+      .limit(1);
+    if (!assignment) {
+      return { ok: false, error: 'Anda hanya dapat menghapus dokumen untuk pasien yang di-assign.' };
+    }
+  }
+
+  await db
+    .update(patientDocuments)
+    .set({ status: 'ARCHIVED', updatedAt: new Date() })
+    .where(eq(patientDocuments.id, documentId));
+
+  await createAuditLog({
+    action: 'document.archive',
+    targetType: 'document',
+    targetId: documentId,
+    meta: { patientId: document.patientId, reason: 'uploader-delete' },
+    userId: session.user.id,
+  });
+
+  revalidatePath('/dashboard/documents');
+  revalidatePath('/dashboard/progress');
   return { ok: true };
 }
