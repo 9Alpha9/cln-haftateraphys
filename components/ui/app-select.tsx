@@ -31,6 +31,8 @@ type AppSelectProps = {
   menuClassName?: string;
   size?: 'default' | 'sm' | 'compact';
   align?: 'left' | 'right';
+  /** Pesan saat tidak ada opsi sama sekali (mis. belum ada pasien terhubung). */
+  emptyMessage?: string;
   'aria-label'?: string;
 };
 
@@ -49,6 +51,7 @@ export function AppSelect({
   menuClassName,
   size = 'default',
   align = 'left',
+  emptyMessage = 'Tidak ada opsi tersedia.',
   'aria-label': ariaLabel,
 }: AppSelectProps) {
   const allOptions = groups?.flatMap((group) => group.options) ?? options;
@@ -110,6 +113,9 @@ export function AppSelect({
               )}
             >
               <SelectPrimitive.List className="flex flex-col gap-1">
+                {allOptions.length === 0 ? (
+                  <p className="px-3 py-2.5 text-xs leading-relaxed text-stone-500">{emptyMessage}</p>
+                ) : null}
                 {groups
                   ? groups.map((group) => (
                       <SelectPrimitive.Group key={group.label} className="flex flex-col gap-1">

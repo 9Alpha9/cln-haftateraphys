@@ -83,9 +83,13 @@ export default async function PatientsPage({
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
             <Users className="h-6 w-6" />
           </span>
-          <p className="mt-3 text-sm font-bold text-[#181700]">Tidak ada pasien ditemukan</p>
+          <p className="mt-3 text-sm font-bold text-[#181700]">
+            {search || status || therapist ? 'Tidak ada pasien ditemukan' : 'Belum ada pasien terhubung'}
+          </p>
           <p className="mt-1 max-w-sm text-xs text-stone-500">
-            Ubah pencarian atau filter, atau tambahkan akun USER sebagai pasien.
+            {search || status || therapist
+              ? 'Ubah pencarian atau filter, atau tambahkan akun USER sebagai pasien.'
+              : 'Pasien akan muncul di sini setelah akun USER didaftarkan sebagai pasien. Gunakan tombol Daftarkan Pasien untuk memulai.'}
           </p>
         </div>
       ) : (

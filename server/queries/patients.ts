@@ -62,7 +62,13 @@ export async function getPatientsList(
     );
   }
   const where = and(...filters);
-  const [total] = await db.select({ value: count() }).from(patients).where(where);
+  // Query hitung wajib memakai JOIN yang sama dengan query data: filter pencarian
+  // menyentuh `users.email`, sehingga tanpa join Postgres menolak query (500).
+  const [total] = await db
+    .select({ value: count() })
+    .from(patients)
+    .innerJoin(users, eq(patients.userId, users.id))
+    .where(where);
   const totalPages = Math.max(1, Math.ceil(total.value / pageSize));
   const currentPage = Math.min(safePage, totalPages);
   const rows = await db
@@ -242,7 +248,13 @@ export async function getArchivedPatientsList(page = 1, pageSize = 10, search = 
     );
   }
   const where = and(...filters);
-  const [total] = await db.select({ value: count() }).from(patients).where(where);
+  // Query hitung wajib memakai JOIN yang sama dengan query data: filter pencarian
+  // menyentuh `users.email`, sehingga tanpa join Postgres menolak query (500).
+  const [total] = await db
+    .select({ value: count() })
+    .from(patients)
+    .innerJoin(users, eq(patients.userId, users.id))
+    .where(where);
   const totalPages = Math.max(1, Math.ceil(total.value / pageSize));
   const currentPage = Math.min(safePage, totalPages);
   const items = await db

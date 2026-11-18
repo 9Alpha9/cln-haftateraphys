@@ -272,20 +272,7 @@ export function LoginForm({ reason }: LoginFormProps) {
 
       {generalError ? (
         <div className="mb-5">
-          <AuthAlert
-            type="error"
-            message={generalError}
-            action={
-              <a
-                href="https://wa.me/6281232932872?text=Halo%20Admin%20Hafta%20Fisioterapi,%20saya%20butuh%20bantuan%20masuk%20ke%20akun%20pasien."
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-semibold underline underline-offset-2 hover:no-underline"
-              >
-                Hubungi admin via WhatsApp
-              </a>
-            }
-          />
+          <AuthAlert type="error" message={generalError} />
         </div>
       ) : null}
 
@@ -395,19 +382,6 @@ export function LoginForm({ reason }: LoginFormProps) {
           </Link>
         </p>
       </form>
-
-      {/* Bantuan menonaktif tombol: kecil, tidak bersaing dengan CTA */}
-      <p className="mt-4 text-center text-[11px] text-stone-500">
-        Butuh bantuan masuk?{' '}
-        <a
-          href="https://wa.me/6281232932872?text=Halo%20Admin%20Hafta%20Fisioterapi,%20saya%20butuh%20bantuan%20masuk%20ke%20akun%20pasien."
-          target="_blank"
-          rel="noopener noreferrer"
-          className="rounded font-medium text-stone-700 underline underline-offset-2 hover:text-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-300)]"
-        >
-          Hubungi admin
-        </a>
-      </p>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useState, useTransition } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Activity, ClipboardList, Eye, EyeOff, FilePenLine, ImagePlus, Loader2, Lock, Save, Stethoscope, Trash2, UserRound } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
@@ -266,7 +267,28 @@ function MedicalRecordForm({
               title="Pasien"
               description="Evaluasi akan disimpan pada rekam medis pasien ini."
             />
-            {patientOptions.length === 1 ? (
+            {patientOptions.length === 0 ? (
+              <div className="mt-3 space-y-2">
+                <div
+                  aria-disabled="true"
+                  className="flex h-11 w-full cursor-not-allowed items-center rounded-xl border border-dashed border-stone-300 bg-stone-50 px-3 text-sm text-stone-500"
+                >
+                  Belum ada pasien terhubung
+                </div>
+                <p className="rounded-xl border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] px-3 py-2.5 text-[11px] leading-relaxed text-[var(--hafta-org-900)]">
+                  Rekam medis hanya bisa dibuat untuk pasien yang ditugaskan kepada Anda. Daftarkan
+                  pasien baru atau minta admin menugaskan pasien terlebih dahulu melalui menu{' '}
+                  <span className="font-semibold">Pasien</span>.
+                </p>
+                <Link
+                  href="/dashboard/patients"
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent"
+                >
+                  <UserRound className="h-3.5 w-3.5" />
+                  Buka menu Pasien
+                </Link>
+              </div>
+            ) : patientOptions.length === 1 ? (
               <>
                 <input type="hidden" name="patientId" value={patientOptions[0].id} />
                 <div className="mt-3 flex h-10 items-center rounded-xl border border-border bg-[var(--hafta-50)]/60 px-3.5 text-sm font-semibold text-foreground">
@@ -283,6 +305,7 @@ function MedicalRecordForm({
                   placeholder="Pilih pasien"
                   disabled={pending}
                   required
+                  emptyMessage="Belum ada pasien terhubung ke akun Anda."
                   options={patientOptions.map((patient) => ({ value: patient.id, label: patient.label }))}
                 />
               </div>
