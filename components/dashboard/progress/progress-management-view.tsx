@@ -635,7 +635,7 @@ export function ProgressManagementView({
             </div>
           ) : (
             <>
-              <div className="grid w-full grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid w-full grid-cols-[repeat(auto-fit,minmax(min(100%,340px),1fr))] gap-4 sm:gap-5">
                 {visibleRecords.map((record) => (
                   <MedicalRecordCard
                     key={record.id}

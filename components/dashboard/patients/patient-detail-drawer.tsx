@@ -11,21 +11,14 @@ import {
   Eye,
   FileText,
   Loader2,
-  MoreVertical,
   Pencil,
   ShieldCheck,
   UserRound,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { PaginationBar } from '@/components/ui/pagination-bar';
 import { SkeletonBlock, SkeletonLine, SkeletonPanel } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
-import { NewAppointmentButton } from '@/components/dashboard/appointments/new-appointment-button';
 import { TherapyScheduleForm } from '@/components/patient/therapy-schedule-form';
 import { TherapistAssignControl } from '@/components/dashboard/patients/therapist-assign-control';
 import { HomeProgramPanel } from '@/components/dashboard/patients/home-program-panel';
@@ -191,7 +184,6 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
   const [editingRecord, setEditingRecord] = useState<TherapyProgressView | null>(null);
   const [creatingRecord, setCreatingRecord] = useState(false);
   const [reloadToken, setReloadToken] = useState(0);
-  const [showProgramMenu, setShowProgramMenu] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -305,7 +297,7 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
         }
         footer={
           data && patient ? (
-            <div className="flex items-center justify-between gap-3 w-full">
+            <div className="flex w-full flex-wrap items-center gap-2.5 sm:justify-between">
               {data.capabilities.canEditRecord ? (
                 <button
                   type="button"
@@ -315,38 +307,17 @@ export function PatientDetailDrawer({ isOpen, onClose, patientId }: { isOpen: bo
                   <FileText className="h-4 w-4 shrink-0" />
                   Catat Assessment Baru
                 </button>
-              ) : <div />}
+              ) : null}
 
-              <DropdownMenu open={showProgramMenu} onOpenChange={setShowProgramMenu}>
-                <DropdownMenuTrigger
-                  aria-label="Menu opsi program"
-                  className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-                >
-                  <MoreVertical className="h-4 w-4" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" side="top" sideOffset={8} className="w-56 p-2">
-                  <div className="flex flex-col gap-1" onClick={() => setShowProgramMenu(false)}>
-                    {data.capabilities.canCreateAppointment ? (
-                      <NewAppointmentButton
-                        defaultPatientId={patient.id}
-                        className="flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-0 bg-transparent px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground shadow-none transition-colors hover:bg-muted hover:text-foreground [&>span]:w-full [&>span]:justify-start"
-                      >
-                        <CalendarPlus className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                        <span>Jadwalkan Sesi Baru</span>
-                      </NewAppointmentButton>
-                    ) : null}
-                    {data.capabilities.canCompleteProgram &&
-                    (patient.caseStatus === 'ACTIVE' || patient.caseStatus === 'ON_HOLD') ? (
-                      <CompleteProgramButton
-                        patientId={patient.id}
-                        patientName={patient.fullName}
-                        onCompleted={() => setReloadToken((token) => token + 1)}
-                        className="flex h-auto w-full cursor-pointer items-center justify-start gap-2.5 rounded-xl border-0 bg-transparent px-3 py-2.5 text-left text-xs font-semibold text-muted-foreground shadow-none transition-colors hover:bg-muted hover:text-foreground [&>span]:w-full [&>span]:justify-start"
-                      />
-                    ) : null}
-                  </div>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              {data.capabilities.canCompleteProgram &&
+              (patient.caseStatus === 'ACTIVE' || patient.caseStatus === 'ON_HOLD') ? (
+                <CompleteProgramButton
+                  patientId={patient.id}
+                  patientName={patient.fullName}
+                  onCompleted={() => setReloadToken((token) => token + 1)}
+                  className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-card px-4 text-xs font-semibold text-foreground transition-colors hover:bg-accent sm:h-11"
+                />
+              ) : null}
             </div>
           ) : null
         }

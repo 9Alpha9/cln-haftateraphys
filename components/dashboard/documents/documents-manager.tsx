@@ -14,6 +14,7 @@ import {
   Paperclip,
   Search,
   Upload,
+  X,
 } from 'lucide-react';
 import { SmartFilterMenu } from '@/components/ui/smart-filter-menu';
 import { AppSelect } from '@/components/ui/app-select';
@@ -22,6 +23,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Progress } from '@/components/ui/progress';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -44,6 +46,24 @@ function formatSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/**
+ * Jenis pratinjau mengikuti file yang diunggah: gambar ditampilkan utuh, PDF dan
+ * dokumen teks memakai viewer browser, sedangkan format lain (mis. DOCX/XLSX)
+ * hanya bisa diunduh karena browser tidak punya penampil bawaan.
+ */
+function previewKind(mimeType: string): 'image' | 'frame' | 'unsupported' {
+  if (mimeType.startsWith('image/')) return 'image';
+  if (
+    mimeType === 'application/pdf' ||
+    mimeType.startsWith('text/') ||
+    mimeType === 'application/json' ||
+    mimeType === 'application/xml'
+  ) {
+    return 'frame';
+  }
+  return 'unsupported';
 }
 
 function formatDate(value: Date) {
@@ -554,68 +574,86 @@ export function DocumentsManager({
       </Dialog>
 
       <Dialog open={Boolean(previewDoc)} onOpenChange={closePreview}>
-        <DialogContent className="max-w-4xl gap-0 overflow-hidden p-0">
-          <DialogHeader className="border-b border-border p-4 pr-12 text-left">
-            <DialogTitle className="truncate text-base font-bold text-foreground">
-              {previewDoc?.originalFilename ?? 'Dokumen'}
-            </DialogTitle>
-            <DialogDescription className="truncate text-xs text-muted-foreground">
-              {previewDoc
-                ? `${DOCUMENT_TYPE_LABELS[previewDoc.documentType] ?? previewDoc.documentType} · ${previewDoc.patientName}`
-                : ''}
-            </DialogDescription>
+        <DialogContent
+          showCloseButton={false}
+          className="flex h-[96dvh] w-[96vw] max-w-[1400px] flex-col gap-0 overflow-hidden p-0 sm:h-[94vh] sm:rounded-xl sm:p-0"
+        >
+          <DialogHeader className="flex shrink-0 flex-row items-center justify-between gap-3 space-y-0 border-b border-border px-4 py-2 pr-2.5 text-left sm:px-5">
+            <div className="min-w-0">
+              <DialogTitle className="truncate text-sm font-bold leading-tight text-foreground">
+                {previewDoc?.originalFilename ?? 'Dokumen'}
+              </DialogTitle>
+              <DialogDescription className="truncate text-[11px] leading-snug text-muted-foreground">
+                {previewDoc
+                  ? `${DOCUMENT_TYPE_LABELS[previewDoc.documentType] ?? previewDoc.documentType} · ${previewDoc.patientName} · ${previewDoc.sizeBytes ? formatSize(previewDoc.sizeBytes) : ''}`
+                  : ''}
+              </DialogDescription>
+            </div>
+            <div className="flex shrink-0 items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => previewDoc && void handleDownload(previewDoc)}
+                className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-background px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent"
+              >
+                <Download className="h-3.5 w-3.5" />
+                Unduh
+              </button>
+              <DialogClose
+                aria-label="Tutup pratinjau dokumen"
+                className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+              >
+                <X className="h-4 w-4" />
+              </DialogClose>
+            </div>
           </DialogHeader>
-          <div className="flex max-h-[68vh] min-h-[240px] items-center justify-center overflow-auto bg-stone-50 p-3">
+          <div className="min-h-0 flex-1 overflow-hidden bg-stone-100">
             {previewStatus === 'loading' ? (
-              <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground">
+              <div className="flex h-full flex-col items-center justify-center gap-2 text-xs text-muted-foreground">
                 <Loader2 className="h-6 w-6 animate-spin" />
                 Memuat dokumen…
               </div>
             ) : previewStatus === 'error' ? (
-              <div className="flex flex-col items-center gap-2 text-center text-xs text-red-600">
+              <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center text-xs text-red-600">
                 <AlertCircle className="h-6 w-6" />
                 {previewError ?? 'Gagal membuka dokumen.'}
               </div>
             ) : previewUrl && previewDoc ? (
-              previewDoc.mimeType.startsWith('image/') ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={previewUrl}
-                  alt={previewDoc.originalFilename ?? 'Dokumen'}
-                  className="max-h-[64vh] w-auto max-w-full object-contain"
-                />
-              ) : previewDoc.mimeType === 'application/pdf' ? (
+              previewKind(previewDoc.mimeType) === 'image' ? (
+                <div className="flex h-full items-center justify-center overflow-auto p-3">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={previewUrl}
+                    alt={previewDoc.originalFilename ?? 'Dokumen'}
+                    className="max-h-full w-auto max-w-full object-contain"
+                  />
+                </div>
+              ) : previewKind(previewDoc.mimeType) === 'frame' ? (
                 <iframe
                   src={previewUrl}
                   title={previewDoc.originalFilename ?? 'Dokumen'}
-                  className="h-[64vh] w-full rounded-lg border-0 bg-white"
+                  className="h-full w-full border-0 bg-white"
                 />
               ) : (
-                <div className="flex flex-col items-center gap-2 text-center text-xs text-muted-foreground">
-                  <FileText className="h-10 w-10" />
-                  <p>Pratinjau tidak tersedia untuk jenis file ini.</p>
-                  <p className="text-[10px]">Unduh untuk membuka file.</p>
+                <div className="flex h-full flex-col items-center justify-center gap-2 px-6 text-center">
+                  <FileText className="h-10 w-10 text-muted-foreground" />
+                  <p className="text-sm font-semibold text-foreground">
+                    Pratinjau tidak tersedia untuk jenis file ini
+                  </p>
+                  <p className="max-w-sm text-xs text-muted-foreground">
+                    {previewDoc.mimeType || 'Format tidak dikenal'} tidak dapat ditampilkan di
+                    browser. Unduh dokumen untuk membukanya.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void handleDownload(previewDoc)}
+                    className="mt-2 inline-flex h-10 cursor-pointer items-center gap-1.5 rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)]"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    Unduh Dokumen
+                  </button>
                 </div>
               )
             ) : null}
-          </div>
-          <div className="flex items-center justify-end gap-2 border-t border-border p-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => closePreview(false)}
-              className="h-10 px-4 text-xs font-semibold"
-            >
-              Tutup
-            </Button>
-            <Button
-              type="button"
-              onClick={() => previewDoc && void handleDownload(previewDoc)}
-              className="h-10 px-4 text-xs font-bold"
-            >
-              <Download className="mr-1.5 h-3.5 w-3.5" />
-              Unduh
-            </Button>
           </div>
         </DialogContent>
       </Dialog>

@@ -6,7 +6,7 @@ import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import { Loader2, UserPlus, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Label } from '@/components/ui/label';
-import { Select } from '@/components/ui/select';
+import { AppSelect } from '@/components/ui/app-select';
 import { Input } from '@/components/ui/input';
 import { createPatientFromUser } from '@/server/actions/patients';
 import { createUser } from '@/server/actions/create-user';
@@ -200,21 +200,19 @@ export function CreatePatientForm({
         {mode === 'pick-user' ? (
           <div className="space-y-2">
             <Label htmlFor="userId">Akun pasien</Label>
-            <Select
+            <AppSelect
               id="userId"
               name="userId"
               required
               value={selectedUserId}
-              onChange={(event) => setSelectedUserId(event.target.value)}
+              onChange={setSelectedUserId}
               disabled={pending || userOptions.length === 0}
-            >
-              <option value="">Pilih akun pasien</option>
-              {userOptions.map((user) => (
-                <option key={user.id} value={user.id}>
-                  {user.name || 'Tanpa nama'} · {user.email}
-                </option>
-              ))}
-            </Select>
+              placeholder="Pilih akun pasien"
+              options={userOptions.map((user) => ({
+                value: user.id,
+                label: `${user.name || 'Tanpa nama'} · ${user.email}`,
+              }))}
+            />
             {userOptions.length === 0 ? (
               <p className="text-sm text-muted-foreground">
                 Belum ada akun USER yang tersedia. Klik tombol <strong>Buat akun baru</strong> di bawah untuk membuat akun pasien baru dari nol.
