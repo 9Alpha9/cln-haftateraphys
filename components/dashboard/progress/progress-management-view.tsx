@@ -18,20 +18,12 @@ import {
   EyeOff,
   Pencil,
   Stethoscope,
-  MoreVertical,
   Printer,
-  FileDown,
   Search,
   Trash2,
   X,
 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { PaginationBar } from '@/components/ui/pagination-bar';
 import { SmartFilterMenu } from '@/components/ui/smart-filter-menu';
 import {
@@ -39,7 +31,6 @@ import {
   SkeletonLine,
   SkeletonPanel,
 } from '@/components/dashboard/skeletons/skeleton-primitives';
-import { useMedicalRecordPdf } from '@/components/dashboard/medical-record-actions';
 import { MedicalRecordPrintDialog } from '@/components/pdf/medical-record-print-dialog';
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
 import { ProgressAmendmentDialog } from '@/components/dashboard/progress/progress-amendment-dialog';
@@ -83,8 +74,6 @@ function MedicalRecordCard({
   onAmend,
   onPrint,
 }: MedicalRecordCardProps) {
-  const { downloadPdf } = useMedicalRecordPdf(record);
-  const [showRecordMenu, setShowRecordMenu] = useState(false);
   const isFinal = record.status === 'FINALIZED';
   const isAmendment = Boolean(record.amendedFromId);
   const revision = record.revisionNumber ?? 1;
@@ -155,34 +144,16 @@ function MedicalRecordCard({
             </div>
           </div>
 
-          <div
-            className="relative shrink-0"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <DropdownMenu open={showRecordMenu} onOpenChange={setShowRecordMenu}>
-              <DropdownMenuTrigger
-                aria-label="Menu opsi rekam medis"
-                className="inline-flex h-9 w-9 aspect-square shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-[var(--hafta-50)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-              >
-                <MoreVertical className="h-4 w-4 shrink-0" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" sideOffset={6} className="w-48">
-                <DropdownMenuItem
-                  onClick={() => onPrint(record)}
-                  className="min-h-[40px] gap-2 text-xs text-muted-foreground"
-                >
-                  <Printer className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <span className="font-medium">Print Rekam Medis</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => void downloadPdf()}
-                  className="min-h-[40px] gap-2 text-xs text-muted-foreground"
-                >
-                  <FileDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <span className="font-medium">Unduh PDF</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+          <div className="shrink-0" onClick={(event) => event.stopPropagation()}>
+            <button
+              type="button"
+              onClick={() => onPrint(record)}
+              aria-label="Cetak atau unduh rekam medis"
+              className="inline-flex h-9 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+            >
+              <Printer className="h-3.5 w-3.5 shrink-0" />
+              <span className="whitespace-nowrap">Cetak/Unduh</span>
+            </button>
           </div>
         </div>
 

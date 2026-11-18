@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   page: {
     paddingTop: 32,
     paddingHorizontal: 38,
-    paddingBottom: 64,
+    paddingBottom: 74,
     backgroundColor: '#ffffff',
     fontFamily: 'Helvetica',
     fontSize: FONT.body,
@@ -73,20 +73,24 @@ const styles = StyleSheet.create({
   identityValue: { fontSize: FONT.body, fontFamily: 'Helvetica-Bold', lineHeight: FONT.lineHeight, color: '#181700' },
   bodyText: { fontSize: FONT.body, lineHeight: FONT.lineHeight, color: '#292524' },
   subLabel: { fontSize: FONT_SUB, fontFamily: 'Helvetica-Bold', color: '#57534e', marginBottom: 2, marginTop: 4 },
-  chart: { borderWidth: 1, borderColor: '#e7e5e4', borderRadius: 5, padding: 8, backgroundColor: '#fafaf9' },
-  chartRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
+  chart: { borderWidth: 1, borderColor: '#e7e5e4', borderRadius: 6, paddingVertical: 9, paddingHorizontal: 10, backgroundColor: '#fafaf9' },
+  chartRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
   chartLabel: { width: 78, fontSize: FONT_SUB, color: '#57534e' },
   chartTrack: {
     flex: 1,
-    height: 8,
-    borderRadius: 4,
+    height: 7,
+    borderRadius: 3.5,
     backgroundColor: '#e7e5e4',
-    marginHorizontal: 6,
+    marginHorizontal: 8,
     overflow: 'hidden',
   },
-  chartFill: { height: 8, borderRadius: 4 },
-  chartValue: { width: 42, textAlign: 'right', fontSize: FONT_SUB, fontFamily: 'Helvetica-Bold', color: '#181700' },
-  chartNote: { fontSize: FONT_META, color: '#78716c', marginTop: 4, lineHeight: 1.5 },
+  chartFill: { height: 7, borderRadius: 3.5 },
+  chartValue: { width: 68, textAlign: 'right', fontSize: FONT_META, fontFamily: 'Helvetica-Bold', color: '#181700' },
+  chartScaleRow: { flexDirection: 'row', alignItems: 'center', marginTop: 1 },
+  chartScaleSpacer: { width: 86 },
+  chartScale: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginRight: 8 },
+  chartScaleText: { fontSize: FONT_META, color: '#a8a29e' },
+  chartNote: { fontSize: FONT_META, color: '#78716c', marginTop: 6, lineHeight: 1.5 },
   table: { borderWidth: 1, borderColor: '#e7e5e4' },
   tableHeader: { flexDirection: 'row', backgroundColor: '#f5f5f4' },
   tableHeaderCell: {
@@ -110,23 +114,18 @@ const styles = StyleSheet.create({
   tableCellLast: { padding: 5, fontSize: FONT_TABLE, lineHeight: FONT.lineHeight, color: '#292524' },
   pageFooterLine: {
     position: 'absolute',
-    bottom: 34,
+    bottom: 38,
     left: 38,
     right: 38,
     height: 1,
     backgroundColor: '#e7e5e4',
   },
-  pageFooterLeft: {
+  pageFooterCenter: {
     position: 'absolute',
-    bottom: 22,
+    bottom: 18,
     left: 38,
-    fontSize: FONT_META,
-    color: '#a8a29e',
-  },
-  pageFooterRight: {
-    position: 'absolute',
-    bottom: 22,
     right: 38,
+    textAlign: 'center',
     fontSize: FONT_META,
     color: '#a8a29e',
   },
@@ -347,30 +346,34 @@ function FunctionalChart({ record }: { record: MedicalRecordPdfData }) {
             <Text style={styles.chartLabel}>{item.label}</Text>
             <View style={styles.chartTrack}>
               <View
-                style={[styles.chartFill, { width: `${Math.max(4, item.value * 10)}%`, backgroundColor: item.color }]}
+                style={[styles.chartFill, { width: `${Math.max(3, item.value * 10)}%`, backgroundColor: item.color }]}
               />
             </View>
-            <Text style={styles.chartValue}>
-              {item.value}/10 · {item.hint}
-            </Text>
+            <Text style={styles.chartValue}>{`${item.value}/10 · ${item.hint}`}</Text>
           </View>
         ))}
+        <View style={styles.chartScaleRow} wrap={false}>
+          <View style={styles.chartScaleSpacer} />
+          <View style={styles.chartScale}>
+            <Text style={styles.chartScaleText}>0</Text>
+            <Text style={styles.chartScaleText}>5</Text>
+            <Text style={styles.chartScaleText}>10</Text>
+          </View>
+          <View style={{ width: 68 }} />
+        </View>
       </View>
       <Text style={styles.chartNote}>{FUNCTIONAL_SCALE_NOTE}</Text>
     </View>
   );
 }
 
-/** Footer tetap pada setiap halaman: identitas dokumen + nomor halaman. */
+/** Footer tetap pada setiap halaman: garis pemisah + nomor halaman di tengah. */
 function PageFooter() {
   return (
     <>
       <View style={styles.pageFooterLine} fixed />
-      <Text style={styles.pageFooterLeft} fixed>
-        Hafta Fisioterapi · Rekam Medis Fisioterapi
-      </Text>
       <Text
-        style={styles.pageFooterRight}
+        style={styles.pageFooterCenter}
         fixed
         render={({ pageNumber, totalPages }) => `Halaman ${pageNumber} dari ${totalPages}`}
       />
