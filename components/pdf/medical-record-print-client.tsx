@@ -8,8 +8,12 @@ import { medicalRecordFileName, renderMedicalRecordPdf } from './render-medical-
 import { fetchRecordAttachmentImages } from '@/server/actions/record-attachments';
 
 /**
- * Halaman cetak memakai renderer yang sama dengan tombol Unduh PDF. Dengan
- * begitu hasil cetak dan unduhan selalu identik, termasuk footer pengesahan.
+ * Halaman cetak memakai renderer yang sama dengan tombol Unduh PDF, sehingga
+ * hasil cetak dan unduhan selalu identik termasuk footer pengesahan.
+ *
+ * Iframe pratinjau mengikat `src` pada state blobUrl agar PDF dimuat begitu
+ * blob siap. Sebelumnya src hanya disetel lewat ref di dalam handler onload
+ * yang dipasang setelah iframe dimuat, sehingga PDF tidak pernah tampil.
  */
 export function MedicalRecordPrintClient({
   record,
@@ -20,14 +24,13 @@ export function MedicalRecordPrintClient({
 }) {
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   /** Bernilai true hanya bila URL memakai ?print=1 agar dialog cetak terbuka otomatis. */
   const autoPrintRef = useRef(false);
 
   useEffect(() => {
-    autoPrintRef.current =
-      new URLSearchParams(window.location.search).get('print') === '1';
-  }, [autoPrintRef]);
+    autoPrintRef.current = new URLSearchParams(window.location.search).get('print') === '1';
+  }, []);
 
   useEffect(() => {
     let objectUrl: string | null = null;
@@ -69,7 +72,7 @@ export function MedicalRecordPrintClient({
       if (timer) window.clearTimeout(timer);
       iframe.onload = null;
     };
-  }, [autoPrintRef, status, blobUrl]);
+  }, [status, blobUrl]);
 
   function download() {
     if (!blobUrl) return;
@@ -150,6 +153,7 @@ export function MedicalRecordPrintClient({
             </p>
             <iframe
               ref={iframeRef}
+              src={blobUrl ?? 'about:blank'}
               title="Pratinjau rekam medis PDF"
               className="h-[calc(100dvh-8.5rem)] min-h-[420px] w-full flex-1 border-0 bg-white sm:h-[calc(100dvh-10rem)] sm:rounded-b-xl sm:border sm:border-stone-200 print:h-auto print:min-h-0"
             />
