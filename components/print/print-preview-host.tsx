@@ -1,27 +1,56 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { X } from 'lucide-react';
-import { PRINT_PREVIEW_EVENT } from '@/components/print/print-iframe';
+import { ExternalLink, X } from 'lucide-react';
+import {
+  PRINT_PREVIEW_CLOSE_EVENT,
+  PRINT_PREVIEW_EVENT,
+  PRINT_PREVIEW_TAB_EVENT,
+} from '@/components/print/print-iframe';
 
 /**
  * Visible print preview overlay.
  *
  * The previewed page owns its Cetak/Unduh controls (the browser PDF viewer for
  * medical-record PDFs, or the in-page print trigger for appointment sheets),
- * so this host only frames the document and offers a close action.
+ * so this host only frames the document, offers a real-tab escape hatch, and a
+ * close action. The previewed page can also close the overlay itself through
+ * `closePrintPreview()` after it finishes printing.
  */
 export function PrintPreviewHost() {
   const [url, setUrl] = useState<string | null>(null);
+  /**
+   * Muat ulang state pratinjau bila tombol cetak diklik dua kali untuk dokumen
+   * yang sama. Tanpa ini, URL identik tidak memicu iframe memuat ulang setelah
+   * dokumen sebelumnya gagal dirender.
+   */
+  const [reloadToken, setReloadToken] = useState(0);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
 
   useEffect(() => {
     const handlePreview = (event: Event) => {
       const detail = (event as CustomEvent<{ url?: string }>).detail;
-      if (detail?.url) setUrl(detail.url);
+      if (detail?.url) {
+        setUrl(detail.url);
+        setReloadToken((token) => token + 1);
+      }
     };
+    const handleOpenTab = (event: Event) => {
+      const detail = (event as CustomEvent<{ url?: string }>).detail;
+      if (!detail?.url) return;
+      window.open(detail.url, '_blank', 'noopener,noreferrer');
+      setUrl(null);
+    };
+    const handleClose = () => setUrl(null);
+
     window.addEventListener(PRINT_PREVIEW_EVENT, handlePreview);
-    return () => window.removeEventListener(PRINT_PREVIEW_EVENT, handlePreview);
+    window.addEventListener(PRINT_PREVIEW_TAB_EVENT, handleOpenTab);
+    window.addEventListener(PRINT_PREVIEW_CLOSE_EVENT, handleClose);
+    return () => {
+      window.removeEventListener(PRINT_PREVIEW_EVENT, handlePreview);
+      window.removeEventListener(PRINT_PREVIEW_TAB_EVENT, handleOpenTab);
+      window.removeEventListener(PRINT_PREVIEW_CLOSE_EVENT, handleClose);
+    };
   }, []);
 
   // Escape closes, and the close action takes focus so the overlay stays
@@ -53,24 +82,38 @@ export function PrintPreviewHost() {
           <div className="min-w-0">
             <p className="truncate text-sm font-bold text-foreground">Pratinjau Cetak</p>
             <p className="truncate text-[10.5px] text-muted-foreground">
-              Cetak atau simpan dokumen lewat kontrol di dalam pratinjau.
+              Cetak atau simpan lewat kontrol dokumen, atau buka di tab baru bila PDF tidak
+              tampil.
             </p>
           </div>
-          <button
-            ref={closeButtonRef}
-            type="button"
-            onClick={() => setUrl(null)}
-            aria-label="Tutup pratinjau cetak"
-            className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-          >
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <a
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Buka tab
+            </a>
+            <button
+              ref={closeButtonRef}
+              type="button"
+              onClick={() => setUrl(null)}
+              aria-label="Tutup pratinjau cetak"
+              className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
         <iframe
+          key={reloadToken}
+          data-print-preview-frame
           src={url}
           title="Pratinjau cetak"
           allow="fullscreen"
-          className="min-h-0 w-full flex-1 border-0 bg-white"
+          className="min-h-0 w-full flex-1 border-0 bg-white dark:bg-white"
         />
       </div>
     </div>

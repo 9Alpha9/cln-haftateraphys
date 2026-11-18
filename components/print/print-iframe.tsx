@@ -1,6 +1,8 @@
 'use client';
 
 const PRINT_PREVIEW_EVENT = 'hafta:print-preview';
+const PRINT_PREVIEW_TAB_EVENT = 'hafta:print-preview-tab';
+const PRINT_PREVIEW_CLOSE_EVENT = 'hafta:print-preview-close';
 
 /**
  * Opens a print route inside a visible iframe preview instead of a new tab.
@@ -14,4 +16,22 @@ export function openPrintPreview(url: string) {
   window.dispatchEvent(new CustomEvent(PRINT_PREVIEW_EVENT, { detail: { url } }));
 }
 
-export { PRINT_PREVIEW_EVENT };
+/**
+ * Hands the previewed route to a real tab, for browsers that refuse to embed a
+ * PDF plugin inside a nested iframe.
+ */
+export function openPrintPreviewTab(url: string) {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent(PRINT_PREVIEW_TAB_EVENT, { detail: { url } }));
+}
+
+/**
+ * Menutup overlay pratinjau cetak. Dipakai halaman di dalam iframe setelah
+ * pengguna selesai mencetak atau mengunduh dokumen.
+ */
+export function closePrintPreview() {
+  if (typeof window === 'undefined') return;
+  window.parent?.dispatchEvent(new CustomEvent(PRINT_PREVIEW_CLOSE_EVENT));
+}
+
+export { PRINT_PREVIEW_EVENT, PRINT_PREVIEW_TAB_EVENT, PRINT_PREVIEW_CLOSE_EVENT };
