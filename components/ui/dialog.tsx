@@ -26,7 +26,7 @@ function DialogOverlay({ className, ...props }: BaseDialog.Backdrop.Props) {
     <BaseDialog.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        'fixed inset-0 z-50 bg-black/80 transition-opacity duration-200 ease-out data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
+        'fixed inset-0 z-[80] bg-black/80 transition-opacity duration-200 ease-out data-[starting-style]:opacity-0 data-[ending-style]:opacity-0',
         className,
       )}
       {...props}
@@ -41,7 +41,7 @@ function DialogContent({ className, children, ...props }: BaseDialog.Popup.Props
       <BaseDialog.Popup
         data-slot="dialog-content"
         className={cn(
-          'fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-3.5 sm:p-5 transition-[opacity,scale] duration-200 ease-out data-[starting-style]:scale-95 data-[starting-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 sm:rounded-lg',
+          'fixed left-[50%] top-[50%] z-[80] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-3.5 sm:p-5 transition-[opacity,scale] duration-200 ease-out data-[starting-style]:scale-95 data-[starting-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 sm:rounded-lg',
           className,
         )}
         {...props}
