@@ -248,7 +248,7 @@ export function PatientDashboardShell({
       {/* ═══ SIDEBAR (WeStud Dark Theme #181700) ═══ */}
       <aside
         className={cn(
-          'fixed inset-y-0 left-0 z-50 hidden md:flex flex-col bg-sidebar text-[var(--sidebar-foreground)]',
+          'fixed inset-y-0 left-0 z-[58] hidden md:flex flex-col bg-sidebar text-[var(--sidebar-foreground)]',
           'transition-all duration-300 ease-in-out',
           collapsed ? 'w-[68px]' : 'w-[248px]',
           collapsed && 'overflow-visible',
@@ -591,10 +591,10 @@ export function PatientDashboardShell({
         )}
       >
         {/* Top header */}
-        <header className="sticky top-0 z-[60]">
+        <header className="sticky top-0 z-[55]">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 h-[calc(100%+1.25rem)] border-b border-border/70 bg-card/80"
+            className="pointer-events-none absolute inset-x-0 top-0 h-full border-b border-border/70 bg-card/80"
             style={{
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
