@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { patientDocuments } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
@@ -29,11 +29,15 @@ const PDF_IMAGE_MIME_TYPES = ['image/png', 'image/jpeg'];
  * `therapy_progress_record_id`) yang diambil, sehingga lampiran tidak bocor ke
  * rekam lain milik pasien yang sama.
  */
-export async function getRecordAttachmentImages(recordId: string): Promise<RecordAttachmentImage[]> {
+export async function getRecordAttachmentImages(
+  recordId: string,
+  /** Rekam yang sudah dimuat pemanggil, untuk menghindari query ganda. */
+  preloadedRecord?: { id: string; patientId: string },
+): Promise<RecordAttachmentImage[]> {
   if (!isR2Configured()) return [];
 
   const { role } = await requireSession({ redirectToLogin: false });
-  const record = await getTherapyProgressById(recordId);
+  const record = preloadedRecord ?? (await getTherapyProgressById(recordId));
   if (!record) return [];
 
   const rows = await getDb()
@@ -86,4 +90,47 @@ export async function getRecordAttachmentImages(recordId: string): Promise<Recor
   }
 
   return images;
+}
+
+
+export type UnlinkedExamImage = {
+  id: string;
+  name: string;
+  createdAt: Date;
+};
+
+/**
+ * Foto hasil pemeriksaan milik pasien yang belum terhubung ke rekam medis mana
+ * pun. Ditampilkan pada form rekam agar terapis bisa melampirkan foto lama tanpa
+ * mengunggah ulang.
+ */
+export async function listUnlinkedExamImages(patientId: string): Promise<UnlinkedExamImage[]> {
+  if (!isR2Configured()) return [];
+
+  await requireSession({ redirectToLogin: false });
+
+  const rows = await getDb()
+    .select({
+      id: patientDocuments.id,
+      name: patientDocuments.originalFilename,
+      createdAt: patientDocuments.createdAt,
+    })
+    .from(patientDocuments)
+    .where(
+      and(
+        eq(patientDocuments.patientId, patientId),
+        eq(patientDocuments.status, 'ACTIVE'),
+        eq(patientDocuments.documentType, 'EXAM_RESULT'),
+        inArray(patientDocuments.mimeType, PDF_IMAGE_MIME_TYPES),
+        isNull(patientDocuments.therapyProgressRecordId),
+      ),
+    )
+    .orderBy(desc(patientDocuments.createdAt))
+    .limit(12);
+
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name ?? 'Lampiran pemeriksaan',
+    createdAt: row.createdAt,
+  }));
 }

@@ -15,7 +15,11 @@ import {
 } from '@/server/actions/therapy-progress';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
 import { uploadDocument, removeOwnDocument } from '@/server/actions/documents';
-import { fetchRecordAttachmentImages } from '@/server/actions/record-attachments';
+import {
+  attachDocumentToRecord,
+  fetchRecordAttachmentImages,
+  fetchUnlinkedExamImages,
+} from '@/server/actions/record-attachments';
 
 type PatientOption = { id: string; label: string };
 
@@ -171,6 +175,10 @@ function MedicalRecordForm({
     Array<{ key: string; name: string; id?: string; file?: File }>
   >([]);
   const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
+  const [unlinkedImages, setUnlinkedImages] = useState<
+    Array<{ id: string; name: string; createdAt: Date }>
+  >([]);
+  const [attachingId, setAttachingId] = useState<string | null>(null);
   const fieldsDisabled = pending || uploading || !patientId;
 
   useEffect(() => {
@@ -186,18 +194,22 @@ function MedicalRecordForm({
   useEffect(() => {
     let active = true;
     if (!record?.id) return;
-    void fetchRecordAttachmentImages(record.id)
-      .then((images) => {
-        if (!active || images.length === 0) return;
-        setAttachments(
-          images.map((image) => ({ key: image.id, name: image.name, id: image.id })),
-        );
+    void Promise.all([
+      fetchRecordAttachmentImages(record.id),
+      fetchUnlinkedExamImages(record.patientId),
+    ])
+      .then(([images, unlinked]) => {
+        if (!active) return;
+        if (images.length > 0) {
+          setAttachments(images.map((image) => ({ key: image.id, name: image.name, id: image.id })));
+        }
+        setUnlinkedImages(unlinked);
       })
       .catch(() => {});
     return () => {
       active = false;
     };
-  }, [record?.id]);
+  }, [record?.id, record?.patientId]);
 
   /**
    * `@react-pdf/renderer` hanya dapat menyematkan PNG/JPEG, jadi WebP (yang
@@ -243,6 +255,29 @@ function MedicalRecordForm({
       }
     }
     return success;
+  }
+
+  async function handleAttachExisting(documentId: string) {
+    if (!record?.id) return;
+    setAttachingId(documentId);
+    try {
+      const result = await attachDocumentToRecord(documentId, record.id);
+      if (!result.ok) {
+        showToast('error', result.error);
+        return;
+      }
+      const image = unlinkedImages.find((item) => item.id === documentId);
+      setUnlinkedImages((current) => current.filter((item) => item.id !== documentId));
+      if (image) {
+        setAttachments((current) => [
+          ...current,
+          { key: image.id, name: image.name, id: image.id },
+        ]);
+      }
+      showToast('success', 'Foto dilampirkan ke rekam medis ini.');
+    } finally {
+      setAttachingId(null);
+    }
   }
 
   async function handleRemoveAttachment(key: string) {
@@ -621,6 +656,33 @@ function MedicalRecordForm({
               Foto dilampirkan ke rekam medis ini dan otomatis muncul pada PDF-nya. Untuk rekam final,
               lampiran tetap dapat dilihat tanpa mengubah isi SOAP.
             </p>
+            {record?.id && unlinkedImages.length > 0 ? (
+              <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/70 p-2.5">
+                <p className="text-[10px] font-semibold text-amber-900">
+                  Foto pasien yang belum terhubung ke rekam ini
+                </p>
+                <ul className="mt-1.5 space-y-1">
+                  {unlinkedImages.map((image) => (
+                    <li key={image.id} className="flex items-center gap-2 text-[10.5px] text-amber-900">
+                      <span className="min-w-0 flex-1 truncate">{image.name}</span>
+                      <button
+                        type="button"
+                        disabled={attachingId === image.id}
+                        onClick={() => void handleAttachExisting(image.id)}
+                        className="inline-flex h-7 shrink-0 cursor-pointer items-center gap-1 rounded-full border border-amber-300 bg-white px-2.5 text-[10px] font-semibold text-amber-900 transition-colors hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {attachingId === image.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <ImagePlus className="h-3 w-3" />
+                        )}
+                        Lampirkan
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
         </section>
 

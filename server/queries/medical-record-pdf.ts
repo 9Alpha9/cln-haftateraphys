@@ -7,6 +7,7 @@ import {
 } from '@/server/queries/therapy-progress';
 import { getHomeProgramForPatient, getOwnHomeProgram } from '@/server/queries/home-programs';
 import { getOwnTreatmentPlan, getTreatmentPlanForPatient } from '@/server/queries/treatment-plans';
+import { getRecordAttachmentImages } from '@/server/queries/record-attachments';
 
 export type MedicalRecordPdfSource = {
   record: TherapyProgressDetail;
@@ -27,15 +28,20 @@ export async function buildMedicalRecordPdfSource(
   if (!record) return null;
 
   const isPatient = role === 'USER';
-  const [patientSummary, treatmentPlan, homeProgram] = await Promise.all([
+  const [patientSummary, treatmentPlan, homeProgram, attachmentImages] = await Promise.all([
     isPatient ? getOwnMedicalRecordSummary() : Promise.resolve(null),
     isPatient ? getOwnTreatmentPlan() : getTreatmentPlanForPatient(record.patientId),
     isPatient ? getOwnHomeProgram() : getHomeProgramForPatient(record.patientId),
+    getRecordAttachmentImages(record.id, { id: record.id, patientId: record.patientId }).catch(
+      () => [],
+    ),
   ]);
 
   const pdfRecord: MedicalRecordPdfData = {
     ...record,
     recordedAt: new Date(record.recordedAt),
+    // Lampiran khusus rekam ini; tanpa ini PDF tidak memuat foto analisa.
+    attachmentImages,
     therapyInfo: {
       visitNumber: record.visitNumber ?? null,
       status: record.status,
