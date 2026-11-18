@@ -1,4 +1,4 @@
-import { and, asc, eq, like } from 'drizzle-orm';
+import { and, asc, eq, inArray } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { patientDocuments } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
@@ -15,6 +15,12 @@ export type RecordAttachmentImage = {
 
 const MAX_ATTACHMENTS = 4;
 const MAX_TOTAL_BYTES = 9 * 1024 * 1024;
+
+/**
+ * Format gambar yang dapat disematkan `@react-pdf/renderer`. WebP/HEIC/SVG tidak
+ * didukung dan akan tampil sebagai kotak kosong pada PDF, sehingga tidak diambil.
+ */
+const PDF_IMAGE_MIME_TYPES = ['image/png', 'image/jpeg'];
 
 /**
  * Lampiran foto analisa/hasil pemeriksaan yang diunggah terapis melalui menu
@@ -43,7 +49,7 @@ export async function getRecordAttachmentImages(recordId: string): Promise<Recor
         eq(patientDocuments.patientId, record.patientId),
         eq(patientDocuments.status, 'ACTIVE'),
         eq(patientDocuments.documentType, 'EXAM_RESULT'),
-        like(patientDocuments.mimeType, 'image/%'),
+        inArray(patientDocuments.mimeType, PDF_IMAGE_MIME_TYPES),
         role === 'USER' ? eq(patientDocuments.patientVisible, 1) : undefined,
       ),
     )

@@ -46,6 +46,7 @@ export function ProgressAmendmentDialog({
     <ConfirmDialog
       isOpen
       title="Buat Amandemen Rekam"
+      panelClassName="max-w-xl"
       description={
         <div className="space-y-3">
           <p>
@@ -70,10 +71,10 @@ export function ProgressAmendmentDialog({
                 setReason(event.target.value);
                 if (error) setError(null);
               }}
-              rows={3}
+              rows={5}
               maxLength={500}
               placeholder="Contoh: koreksi diagnosis setelah hasil pemeriksaan lanjutan."
-              className="w-full resize-y rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-100)]"
+              className="min-h-[128px] w-full resize-y rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-100)]"
             />
           </label>
           {error ? (

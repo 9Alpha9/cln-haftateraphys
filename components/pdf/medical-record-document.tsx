@@ -1,25 +1,26 @@
 import { Document, Image, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
 /**
- * Skala tipografi dokumen (pt): header 24 bold, judul 14 bold, isi 12 regular,
- * paragraf line-height 1.5. Semua ukuran turunan dihitung dari skala ini agar
- * satu perubahan menjaga konsistensi seluruh dokumen.
+ * Skala tipografi dokumen (pt). Ukuran dibuat ringkas agar teks panjang tetap
+ * muat tanpa terpotong: header 17 bold, judul bagian 11 bold, isi 10 regular,
+ * line-height 1.45. Semua ukuran turunan dihitung dari skala ini agar satu
+ * perubahan menjaga konsistensi seluruh dokumen.
  */
 const FONT = {
-  header: 24,
-  title: 14,
-  body: 12,
-  lineHeight: 1.5,
+  header: 17,
+  title: 11,
+  body: 10,
+  lineHeight: 1.45,
 } as const;
-const FONT_SUB = 10;
-const FONT_META = 9;
-const FONT_TABLE = 10;
+const FONT_SUB = 9;
+const FONT_META = 8;
+const FONT_TABLE = 9;
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 36,
-    paddingHorizontal: 40,
-    paddingBottom: 56,
+    paddingTop: 32,
+    paddingHorizontal: 38,
+    paddingBottom: 64,
     backgroundColor: '#ffffff',
     fontFamily: 'Helvetica',
     fontSize: FONT.body,
@@ -29,95 +30,105 @@ const styles = StyleSheet.create({
   },
   pageContent: { flexGrow: 1 },
   header: {
-    marginBottom: 16,
+    marginBottom: 14,
     borderBottomWidth: 1,
     borderBottomColor: '#e7e5e4',
-    paddingBottom: 12,
+    paddingBottom: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
   headerIdentity: { flexDirection: 'row', alignItems: 'flex-start', flex: 1 },
-  headerLogo: { width: 120, height: 48, objectFit: 'contain', marginLeft: -18, marginRight: 10, marginTop: -6, alignSelf: 'flex-start' },
+  headerLogo: { width: 94, height: 38, objectFit: 'contain', marginLeft: -14, marginRight: 8, marginTop: -4, alignSelf: 'flex-start' },
   headerClinic: { flex: 1 },
-  clinicName: { fontSize: FONT.header, fontFamily: 'Helvetica-Bold', color: '#181700', lineHeight: 1.15, marginBottom: 3 },
-  clinicInfo: { fontSize: FONT_META, color: '#57534e', lineHeight: FONT.lineHeight },
+  clinicName: { fontSize: FONT.header, fontFamily: 'Helvetica-Bold', color: '#181700', lineHeight: 1.2, marginBottom: 2 },
+  clinicInfo: { fontSize: FONT_META, color: '#57534e', lineHeight: 1.5 },
   badgeBox: { alignItems: 'flex-end', marginLeft: 10 },
   badge: {
     fontSize: FONT_META,
     fontFamily: 'Helvetica-Bold',
-    color: '#181700',
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#a8a29e',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    color: '#78716c',
+    letterSpacing: 0.6,
   },
-  recordId: { fontSize: FONT_META, color: '#a8a29e', marginTop: 5 },
-  section: { marginBottom: 14 },
+  recordId: { fontSize: FONT_META, color: '#a8a29e', marginTop: 4 },
+  section: { marginBottom: 12 },
   sectionTitle: {
     fontSize: FONT.title,
     fontFamily: 'Helvetica-Bold',
-    lineHeight: FONT.lineHeight,
+    lineHeight: 1.4,
     color: '#181700',
     backgroundColor: '#f5f5f4',
     borderLeftWidth: 3,
     borderLeftColor: '#a8a29e',
     paddingHorizontal: 8,
-    paddingVertical: 5,
-    marginBottom: 8,
+    paddingVertical: 4,
+    marginBottom: 6,
   },
   identityTable: { borderWidth: 1, borderColor: '#e7e5e4' },
   identityRow: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: '#e7e5e4' },
   identityRowLast: { flexDirection: 'row' },
-  identityCell: { flex: 1, padding: 6, borderRightWidth: 1, borderRightColor: '#e7e5e4' },
-  identityCellLast: { flex: 1, padding: 6 },
-  identityLabel: { fontSize: FONT_META, color: '#78716c', marginBottom: 2, lineHeight: 1.4 },
+  identityCell: { flex: 1, padding: 5, borderRightWidth: 1, borderRightColor: '#e7e5e4' },
+  identityCellLast: { flex: 1, padding: 5 },
+  identityLabel: { fontSize: FONT_META, color: '#78716c', marginBottom: 1, lineHeight: 1.4 },
   identityValue: { fontSize: FONT.body, fontFamily: 'Helvetica-Bold', lineHeight: FONT.lineHeight, color: '#181700' },
   bodyText: { fontSize: FONT.body, lineHeight: FONT.lineHeight, color: '#292524' },
   subLabel: { fontSize: FONT_SUB, fontFamily: 'Helvetica-Bold', color: '#57534e', marginBottom: 2, marginTop: 4 },
-  scoreRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 2 },
-  scoreBox: {
+  chart: { borderWidth: 1, borderColor: '#e7e5e4', borderRadius: 5, padding: 8, backgroundColor: '#fafaf9' },
+  chartRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 5 },
+  chartLabel: { width: 78, fontSize: FONT_SUB, color: '#57534e' },
+  chartTrack: {
     flex: 1,
-    minWidth: 100,
-    borderWidth: 1,
-    borderColor: '#e7e5e4',
-    borderRadius: 5,
-    padding: 8,
-    backgroundColor: '#fafaf9',
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#e7e5e4',
+    marginHorizontal: 6,
+    overflow: 'hidden',
   },
-  scoreLabel: { fontSize: FONT_META, color: '#78716c' },
-  scoreValue: { fontSize: FONT.title, fontFamily: 'Helvetica-Bold', color: '#181700', marginTop: 2 },
+  chartFill: { height: 8, borderRadius: 4 },
+  chartValue: { width: 42, textAlign: 'right', fontSize: FONT_SUB, fontFamily: 'Helvetica-Bold', color: '#181700' },
+  chartNote: { fontSize: FONT_META, color: '#78716c', marginTop: 4, lineHeight: 1.5 },
   table: { borderWidth: 1, borderColor: '#e7e5e4' },
   tableHeader: { flexDirection: 'row', backgroundColor: '#f5f5f4' },
   tableHeaderCell: {
-    padding: 6,
+    padding: 5,
     fontSize: FONT_TABLE,
     fontFamily: 'Helvetica-Bold',
     color: '#44403c',
-    lineHeight: 1.4,
+    lineHeight: 1.35,
     borderRightWidth: 1,
     borderRightColor: '#e7e5e4',
   },
   tableRow: { flexDirection: 'row', borderTopWidth: 1, borderTopColor: '#e7e5e4' },
   tableCell: {
-    padding: 6,
+    padding: 5,
     fontSize: FONT_TABLE,
     lineHeight: FONT.lineHeight,
     color: '#292524',
     borderRightWidth: 1,
     borderRightColor: '#e7e5e4',
   },
-  tableCellLast: { padding: 6, fontSize: FONT_TABLE, lineHeight: FONT.lineHeight, color: '#292524' },
-  pageNumber: {
+  tableCellLast: { padding: 5, fontSize: FONT_TABLE, lineHeight: FONT.lineHeight, color: '#292524' },
+  pageFooterLine: {
     position: 'absolute',
-    bottom: 18,
-    left: 40,
-    right: 40,
-    textAlign: 'center',
+    bottom: 34,
+    left: 38,
+    right: 38,
+    height: 1,
+    backgroundColor: '#e7e5e4',
+  },
+  pageFooterLeft: {
+    position: 'absolute',
+    bottom: 22,
+    left: 38,
     fontSize: FONT_META,
     color: '#a8a29e',
-    lineHeight: FONT.lineHeight,
+  },
+  pageFooterRight: {
+    position: 'absolute',
+    bottom: 22,
+    right: 38,
+    fontSize: FONT_META,
+    color: '#a8a29e',
   },
   footer: {
     marginTop: 18,
@@ -282,13 +293,14 @@ function SectionTitle({ children }: { children: string }) {
 }
 
 function TextSection({ title, value }: { title: string; value: string | null | undefined }) {
-  // Jarak antar paragraf 1,5 baris mengikuti skala tipografi dokumen.
+  // Jarak antar paragraf mengikuti skala tipografi dokumen. Tanpa `wrap={false}`
+  // agar teks sangat panjang mengalir ke halaman berikutnya, bukan terpotong.
   const paragraphs = (value ?? '')
     .split(/\n+/)
     .map((paragraph) => paragraph.trim())
     .filter(Boolean);
   return (
-    <View style={styles.section} wrap={false}>
+    <View style={styles.section}>
       <SectionTitle>{title}</SectionTitle>
       <View style={styles.bodyText}>
         {paragraphs.length > 0 ? (
@@ -298,6 +310,71 @@ function TextSection({ title, value }: { title: string; value: string | null | u
         )}
       </View>
     </View>
+  );
+}
+
+const FUNCTIONAL_SCALE_NOTE =
+  'Skala penilaian 0–10. Nyeri: angka lebih kecil berarti keluhan lebih ringan. ROM, kekuatan, dan fungsi: angka lebih besar berarti kemampuan lebih baik.';
+
+/**
+ * Grafik batang indikator fungsional agar pasien mudah membaca perkembangan.
+ * Warna mengikuti arah skor: nyeri membaik saat turun, tiga indikator lain
+ * membaik saat naik.
+ */
+function FunctionalChart({ record }: { record: MedicalRecordPdfData }) {
+  const items = [
+    { label: 'Nyeri (VAS)', value: record.painScore, inverse: true },
+    { label: 'ROM', value: record.rangeOfMotionScore, inverse: false },
+    { label: 'Kekuatan', value: record.strengthScore, inverse: false },
+    { label: 'Fungsi', value: record.functionScore, inverse: false },
+  ].map((item) => {
+    const value = Math.max(0, Math.min(10, Number(item.value) || 0));
+    const good = item.inverse ? value <= 3 : value >= 7;
+    const mid = item.inverse ? value <= 6 : value >= 4;
+    return {
+      ...item,
+      value,
+      color: good ? '#4d7c0f' : mid ? '#b45309' : '#b91c1c',
+      hint: good ? 'Baik' : mid ? 'Cukup' : 'Perlu perhatian',
+    };
+  });
+
+  return (
+    <View>
+      <View style={styles.chart}>
+        {items.map((item) => (
+          <View key={item.label} style={styles.chartRow} wrap={false}>
+            <Text style={styles.chartLabel}>{item.label}</Text>
+            <View style={styles.chartTrack}>
+              <View
+                style={[styles.chartFill, { width: `${Math.max(4, item.value * 10)}%`, backgroundColor: item.color }]}
+              />
+            </View>
+            <Text style={styles.chartValue}>
+              {item.value}/10 · {item.hint}
+            </Text>
+          </View>
+        ))}
+      </View>
+      <Text style={styles.chartNote}>{FUNCTIONAL_SCALE_NOTE}</Text>
+    </View>
+  );
+}
+
+/** Footer tetap pada setiap halaman: identitas dokumen + nomor halaman. */
+function PageFooter() {
+  return (
+    <>
+      <View style={styles.pageFooterLine} fixed />
+      <Text style={styles.pageFooterLeft} fixed>
+        Hafta Fisioterapi · Rekam Medis Fisioterapi
+      </Text>
+      <Text
+        style={styles.pageFooterRight}
+        fixed
+        render={({ pageNumber, totalPages }) => `Halaman ${pageNumber} dari ${totalPages}`}
+      />
+    </>
   );
 }
 
@@ -332,7 +409,12 @@ export const MedicalRecordDocument = ({
   const formattedDate = formatDate(record.recordedAt);
   const printedAt = new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
-  const hasAttachments = Boolean(record.attachmentImages && record.attachmentImages.length > 0);
+  // @react-pdf/renderer hanya dapat menyematkan PNG/JPEG. Format lain (mis. WebP)
+  // dirender sebagai kotak kosong, jadi disaring agar tidak muncul kotak hampa.
+  const renderableAttachments = (record.attachmentImages ?? []).filter((attachment) =>
+    /^data:image\/(png|jpe?g)[;,]/i.test(attachment.dataUrl),
+  );
+  const hasAttachments = renderableAttachments.length > 0;
   const logoUrl = `${origin}/images/logos/logos-text.png`;
   const visitLabel = record.therapyInfo?.visitNumber
     ? `Sesi ${record.therapyInfo.visitNumber}`
@@ -378,10 +460,6 @@ export const MedicalRecordDocument = ({
               penatalaksanaan, dan lampiran hasil pemeriksaan bila tersedia.
             </Text>
             <Text style={styles.pengesahanMeta}>Jenis laporan: Rekam Medis Fisioterapi · {visitLabel}</Text>
-            <Text style={styles.pengesahanMeta}>Pasien: {record.patientName}</Text>
-            <Text style={styles.pengesahanMeta}>No. RM: {record.medicalRecordNumber || '-'}</Text>
-            <Text style={styles.pengesahanMeta}>Tanggal pemeriksaan: {formattedDate}</Text>
-            <Text style={styles.pengesahanMeta}>Terapis: {record.therapistName || 'Terapis Hafta'}</Text>
             <View style={styles.noteBox}>
               <Text style={styles.noteTitle}>Catatan Pengesahan</Text>
               <Text style={styles.noteText}>
@@ -484,19 +562,7 @@ export const MedicalRecordDocument = ({
 
           <View style={styles.section}>
             <SectionTitle>3. INDIKATOR FUNGSIONAL</SectionTitle>
-            <View style={styles.scoreRow}>
-              {[
-                { label: 'Nyeri (VAS)', value: record.painScore },
-                { label: 'ROM', value: record.rangeOfMotionScore },
-                { label: 'Kekuatan', value: record.strengthScore },
-                { label: 'Fungsi', value: record.functionScore },
-              ].map((item) => (
-                <View key={item.label} style={styles.scoreBox}>
-                  <Text style={styles.scoreLabel}>{item.label}</Text>
-                  <Text style={styles.scoreValue}>{item.value}/10</Text>
-                </View>
-              ))}
-            </View>
+            <FunctionalChart record={record} />
           </View>
 
           <TextSection title="4. ANAMNESA FISIOTERAPI" value={record.anamnesis} />
@@ -565,7 +631,7 @@ export const MedicalRecordDocument = ({
                     .filter(Boolean)
                     .join(' · ');
                   return (
-                    <View key={`${item.name}-${index}`} style={styles.tableRow} wrap={false}>
+                    <View key={`${item.name}-${index}`} style={styles.tableRow}>
                       <Text style={[styles.tableCell, { flex: 1.5 }]}>{item.name}</Text>
                       <Text style={[styles.tableCell, { flex: 1.8 }]}>{item.instruction || '-'}</Text>
                       <Text style={[styles.tableCell, { flex: 0.8 }]}>{dose || '-'}</Text>
@@ -587,7 +653,7 @@ export const MedicalRecordDocument = ({
                 <Text style={[styles.tableHeaderCell, { flex: 1.2, borderRightWidth: 0 }]}>Keterangan</Text>
               </View>
               {rows.map((row, index) => (
-                <View key={`${row.date}-${index}`} style={styles.tableRow} wrap={false}>
+                <View key={`${row.date}-${index}`} style={styles.tableRow}>
                   <Text style={[styles.tableCell, { flex: 0.9 }]}>{row.date}</Text>
                   <Text style={[styles.tableCell, { flex: 1.6 }]}>{row.therapy}</Text>
                   <Text style={[styles.tableCell, { flex: 1.6 }]}>{row.evaluation}</Text>
@@ -617,11 +683,7 @@ export const MedicalRecordDocument = ({
 
         {!signatureOnNewPage && !hasAttachments ? signatureBlock(record, printedAt) : null}
 
-        <Text
-          style={styles.pageNumber}
-          fixed
-          render={({ pageNumber, totalPages }) => `Halaman ${pageNumber} dari ${totalPages}`}
-        />
+        <PageFooter />
       </Page>
 
       {hasAttachments ? (
@@ -629,7 +691,7 @@ export const MedicalRecordDocument = ({
           <View style={styles.pageContent}>
             <View style={styles.attachmentSection}>
               <SectionTitle>15. LAMPIRAN FOTO ANALISA / HASIL PEMERIKSAAN</SectionTitle>
-              {record.attachmentImages?.map((attachment) => (
+              {renderableAttachments.map((attachment) => (
                 <View key={attachment.id} style={styles.attachmentBlock} wrap={false}>
                   {/* eslint-disable-next-line jsx-a11y/alt-text */}
                   <Image src={attachment.dataUrl} style={styles.attachmentImage} />
@@ -641,11 +703,7 @@ export const MedicalRecordDocument = ({
 
           {!signatureOnNewPage ? signatureBlock(record, printedAt) : null}
 
-          <Text
-          style={styles.pageNumber}
-          fixed
-            render={({ pageNumber, totalPages }) => `Halaman ${pageNumber} dari ${totalPages}`}
-          />
+          <PageFooter />
         </Page>
       ) : null}
 
@@ -666,11 +724,7 @@ export const MedicalRecordDocument = ({
             {signatureBlock(record, printedAt)}
           </View>
 
-          <Text
-            style={styles.pageNumber}
-            fixed
-            render={({ pageNumber, totalPages }) => `Halaman ${pageNumber} dari ${totalPages}`}
-          />
+          <PageFooter />
         </Page>
       ) : null}
     </Document>
