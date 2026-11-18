@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { CalendarDays, History, Printer } from 'lucide-react';
+import { printUrlViaIframe } from '@/lib/print/iframe-print';
 import { PaginationBar } from '@/components/ui/pagination-bar';
 import type { PatientPortalAppointment } from '@/server/queries/patient-portal';
 
@@ -66,13 +66,14 @@ function SessionRow({ appointment }: { appointment: PatientPortalAppointment }) 
           {STATUS_LABELS[appointment.status] ?? appointment.status}
         </span>
         {canPrint ? (
-          <Link
-            href={`/dashboard/appointments/${appointment.id}/print`}
-            className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
+          <button
+            type="button"
+            onClick={() => printUrlViaIframe(`/dashboard/appointments/${appointment.id}/print`)}
+            className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
           >
             <Printer className="h-3.5 w-3.5" />
             Cetak
-          </Link>
+          </button>
         ) : null}
       </div>
     </li>

@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { printUrlViaIframe } from '@/lib/print/iframe-print';
 import {
   ArrowRight,
   CalendarDays,
@@ -337,13 +338,14 @@ export function PatientDashboardOverview({
             </dl>
 
             <div className="mt-3 hidden justify-end sm:flex">
-              <Link
-                href={`/dashboard/progress/${latestRecord.id}/print`}
-                className="inline-flex h-11 items-center gap-1.5 rounded-full border border-border bg-background px-4 text-xs font-semibold text-foreground transition-colors hover:bg-accent focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+              <button
+                type="button"
+                onClick={() => printUrlViaIframe(`/dashboard/progress/${latestRecord.id}/print?print=1`)}
+                className="inline-flex h-11 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-background px-4 text-xs font-semibold text-foreground transition-colors hover:bg-accent focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
               >
                 <Printer className="h-3.5 w-3.5" />
-                Detail / Cetak
-              </Link>
+                Cetak Rekam Medis
+              </button>
             </div>
           </div>
         ) : null}
