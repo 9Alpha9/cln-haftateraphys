@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ExternalLink, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import {
   PRINT_PREVIEW_CLOSE_EVENT,
   PRINT_PREVIEW_EVENT,
@@ -38,6 +38,17 @@ export function PrintPreviewHost() {
     const handleOpenTab = (event: Event) => {
       const detail = (event as CustomEvent<{ url?: string }>).detail;
       if (!detail?.url) return;
+      // Blob PDF tidak bisa dibuka di tab baru (`noopener` membuat URL blob tak
+      // terjangkau), jadi blob diunduh agar pengguna tetap bisa mencetak.
+      if (detail.url.startsWith('blob:')) {
+        const link = document.createElement('a');
+        link.href = detail.url;
+        link.download = 'dokumen-hafta.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        return;
+      }
       window.open(detail.url, '_blank', 'noopener,noreferrer');
       setUrl(null);
     };
@@ -82,20 +93,10 @@ export function PrintPreviewHost() {
           <div className="min-w-0">
             <p className="truncate text-sm font-bold text-foreground">Pratinjau Cetak</p>
             <p className="truncate text-[10.5px] text-muted-foreground">
-              Cetak atau simpan lewat kontrol dokumen, atau buka di tab baru bila PDF tidak
-              tampil.
+              Cetak atau unduh lewat tombol di dalam pratinjau.
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-              Buka tab
-            </a>
             <button
               ref={closeButtonRef}
               type="button"

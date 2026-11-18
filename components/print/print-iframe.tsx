@@ -17,8 +17,9 @@ export function openPrintPreview(url: string) {
 }
 
 /**
- * Hands the previewed route to a real tab, for browsers that refuse to embed a
- * PDF plugin inside a nested iframe.
+ * Hands the previewed document to the host, which opens a same-origin print
+ * route in a real tab. Blob URLs are downloaded instead, because a new tab
+ * cannot reach another document's object URL.
  */
 export function openPrintPreviewTab(url: string) {
   if (typeof window === 'undefined') return;
