@@ -404,21 +404,24 @@ function signatureBlock(record: MedicalRecordPdfData, printedAt: string) {
 export const MedicalRecordDocument = ({
   record,
   signatureOnNewPage = false,
+  logoUrl,
 }: {
   record: MedicalRecordPdfData;
   /** Dipakai saat isi rekam lebih dari satu halaman. */
   signatureOnNewPage?: boolean;
+  /** Sumber logo; di server diisi data URI agar tidak perlu request jaringan. */
+  logoUrl?: string;
 }) => {
   const formattedDate = formatDate(record.recordedAt);
   const printedAt = new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+  const resolvedLogoUrl = logoUrl ?? `${origin}/images/logos/logos-text.png`;
   // @react-pdf/renderer hanya dapat menyematkan PNG/JPEG. Format lain (mis. WebP)
   // dirender sebagai kotak kosong, jadi disaring agar tidak muncul kotak hampa.
   const renderableAttachments = (record.attachmentImages ?? []).filter((attachment) =>
     /^data:image\/(png|jpe?g)[;,]/i.test(attachment.dataUrl),
   );
   const hasAttachments = renderableAttachments.length > 0;
-  const logoUrl = `${origin}/images/logos/logos-text.png`;
   const visitLabel = record.therapyInfo?.visitNumber
     ? `Sesi ${record.therapyInfo.visitNumber}`
     : 'Evaluasi Terapi';
@@ -441,7 +444,7 @@ export const MedicalRecordDocument = ({
           <View style={styles.header}>
             <View style={styles.headerIdentity}>
               {/* eslint-disable-next-line jsx-a11y/alt-text */}
-              <Image src={logoUrl} style={styles.headerLogo} />
+              <Image src={resolvedLogoUrl} style={styles.headerLogo} />
               <View style={styles.headerClinic}>
                 <Text style={styles.clinicName}>HAFTA FISIOTERAPI</Text>
                 <Text style={styles.clinicInfo}>Klinik &amp; Layanan Terapi Fisik Profesional</Text>

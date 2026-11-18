@@ -2,6 +2,9 @@
 
 import { pdf } from '@react-pdf/renderer';
 import { MedicalRecordDocument, type MedicalRecordPdfData } from './medical-record-document';
+import { medicalRecordFileName } from './medical-record-filename';
+
+export { medicalRecordFileName };
 
 /**
  * Hitung halaman dengan membaca penanda objek halaman pada byte PDF. Cukup untuk
@@ -35,12 +38,4 @@ export async function renderMedicalRecordPdf(record: MedicalRecordPdfData): Prom
     return pdf(<MedicalRecordDocument record={record} signatureOnNewPage={false} />).toBlob();
   }
   return blob;
-}
-
-export function medicalRecordFileName(record: MedicalRecordPdfData): string {
-  const safe = (value: string) => value.replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, ' ').trim();
-  const date = new Date(record.recordedAt);
-  const datePart = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  const rmPart = safe(record.medicalRecordNumber || record.id.slice(0, 8).toUpperCase());
-  return `${safe(record.patientName)}-${rmPart}-${datePart}.pdf`;
 }
