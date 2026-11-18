@@ -106,11 +106,13 @@ pekerjaan lanjutan.
 ### 10. Fallback preview PDF
 
 - [x] Pratinjau rekam medis dirender di modal (iframe satu tingkat) agar viewer PDF
-      tidak kosong karena iframe bertingkat; halaman print tetap tersedia lewat
-      "Buka di tab".
-- [x] Petunjuk fallback + tombol Coba lagi saat PDF gagal dibuat.
-- Catatan: bila viewer diblokir kebijakan browser, pengguna tetap dapat memakai
-      Unduh PDF / Buka di tab.
+      tidak kosong karena iframe bertingkat.
+- [x] Toolbar tambahan (Cetak/Unduh PDF/Buka di tab) dihapus: viewer PDF bawaan
+      sudah menyediakan cetak dan unduh, sehingga seluruh alur selesai di modal.
+- [x] Tombol Coba lagi saat PDF gagal dibuat.
+- Catatan CSP: `connect-src` wajib memuat `data:`/`blob:` dan `worker-src` wajib
+      memuat `blob:`; tanpa itu `@react-pdf/renderer` (WASM Yoga + worker) macet
+      di status "Menyiapkan dokumen PDF…". Lihat `next.config.ts`.
 
 ### 11. Rate limit/cache endpoint publik
 

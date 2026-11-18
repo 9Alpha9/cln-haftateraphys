@@ -5,15 +5,13 @@ import { X } from 'lucide-react';
 import {
   PRINT_PREVIEW_CLOSE_EVENT,
   PRINT_PREVIEW_EVENT,
-  PRINT_PREVIEW_TAB_EVENT,
 } from '@/components/print/print-iframe';
 
 /**
  * Visible print preview overlay.
  *
- * The previewed page owns its Cetak/Unduh controls (the browser PDF viewer for
- * medical-record PDFs, or the in-page print trigger for appointment sheets),
- * so this host only frames the document, offers a real-tab escape hatch, and a
+ * The previewed page owns its Cetak/Unduh controls (the in-page print trigger
+ * for appointment sheets), so this host only frames the document and offers a
  * close action. The previewed page can also close the overlay itself through
  * `closePrintPreview()` after it finishes printing.
  */
@@ -35,31 +33,12 @@ export function PrintPreviewHost() {
         setReloadToken((token) => token + 1);
       }
     };
-    const handleOpenTab = (event: Event) => {
-      const detail = (event as CustomEvent<{ url?: string }>).detail;
-      if (!detail?.url) return;
-      // Blob PDF tidak bisa dibuka di tab baru (`noopener` membuat URL blob tak
-      // terjangkau), jadi blob diunduh agar pengguna tetap bisa mencetak.
-      if (detail.url.startsWith('blob:')) {
-        const link = document.createElement('a');
-        link.href = detail.url;
-        link.download = 'dokumen-hafta.pdf';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        return;
-      }
-      window.open(detail.url, '_blank', 'noopener,noreferrer');
-      setUrl(null);
-    };
     const handleClose = () => setUrl(null);
 
     window.addEventListener(PRINT_PREVIEW_EVENT, handlePreview);
-    window.addEventListener(PRINT_PREVIEW_TAB_EVENT, handleOpenTab);
     window.addEventListener(PRINT_PREVIEW_CLOSE_EVENT, handleClose);
     return () => {
       window.removeEventListener(PRINT_PREVIEW_EVENT, handlePreview);
-      window.removeEventListener(PRINT_PREVIEW_TAB_EVENT, handleOpenTab);
       window.removeEventListener(PRINT_PREVIEW_CLOSE_EVENT, handleClose);
     };
   }, []);
