@@ -100,7 +100,7 @@ export default async function ProgressPage({
             initialSearch={search}
           />
 
-          {search.trim() && totalPages > 1 ? (
+          {totalPages > 1 ? (
             <PaginationBar
               page={currentPage}
               pageCount={totalPages}

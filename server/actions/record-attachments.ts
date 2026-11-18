@@ -17,7 +17,13 @@ export async function fetchRecordAttachmentImages(
       });
     }
     return images;
-  } catch {
+  } catch (error) {
+    // Lampiran bersifat pelengkap: kegagalan tidak boleh menggagalkan PDF, tetapi
+    // tetap terlihat di log agar penyebabnya bisa ditelusuri tanpa data pasien.
+    console.error(
+      '[record-attachments] gagal memuat lampiran',
+      error instanceof Error ? error.message : 'unknown error',
+    );
     return [];
   }
 }

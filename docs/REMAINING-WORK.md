@@ -105,10 +105,12 @@ pekerjaan lanjutan.
 
 ### 10. Fallback preview PDF
 
-- [ ] Saat viewer PDF diblokir, tampilkan tombol Unduh/Cetak yang jelas tanpa
-      iframe kosong.
-- Catatan: sudah ada tombol Cetak/Unduh, tetapi fallback visual untuk viewer
-      yang diblokir masih bisa diperbaiki.
+- [x] Pratinjau rekam medis dirender di modal (iframe satu tingkat) agar viewer PDF
+      tidak kosong karena iframe bertingkat; halaman print tetap tersedia lewat
+      "Buka di tab".
+- [x] Petunjuk fallback + tombol Coba lagi saat PDF gagal dibuat.
+- Catatan: bila viewer diblokir kebijakan browser, pengguna tetap dapat memakai
+      Unduh PDF / Buka di tab.
 
 ### 11. Rate limit/cache endpoint publik
 

@@ -10,17 +10,32 @@ import { closePrintPreview, openPrintPreviewTab } from '@/components/print/print
 type Stage = 'rendering' | 'ready' | 'error';
 
 /**
- * Pratinjau PDF rekam medis di dalam overlay cetak.
+ * Pratinjau PDF rekam medis.
  *
- * PDF dirender langsung di overlay, bukan lewat `<iframe>` halaman print, karena
- * Chromium tidak membuka plugin PDF di iframe bertingkat (overlay → halaman
- * print → PDF). Blob PDF dimuat pada iframe langsung dan tombol Cetak memanggil
+ * PDF wajib dirender pada iframe **satu tingkat** di dokumen teratas (modal),
+ * bukan di dalam iframe halaman print, karena Chromium tidak membuka plugin PDF
+ * pada iframe bertingkat (overlay → halaman print → PDF) sehingga frame tampak
+ * kosong. Blob PDF dimuat pada iframe langsung dan tombol Cetak memanggil
  * `contentWindow.print()` pada viewer itu.
  */
-export function MedicalRecordPrintPreview({ record }: { record: MedicalRecordPdfData }) {
+export function MedicalRecordPrintPreview({
+  record,
+  onClose,
+  openInTabHref,
+  hideCloseButton = false,
+}: {
+  record: MedicalRecordPdfData;
+  /** Aksi tutup milik pemanggil; default menutup overlay cetak global. */
+  onClose?: () => void;
+  /** Bila diisi, "Buka di tab" membuka halaman print asli, bukan blob. */
+  openInTabHref?: string;
+  /** Disembunyikan saat modal induk sudah punya tombol tutup sendiri. */
+  hideCloseButton?: boolean;
+}) {
   const [stage, setStage] = useState<Stage>('rendering');
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [fileName, setFileName] = useState('');
+  const [attempt, setAttempt] = useState(0);
   const pdfRef = useRef<HTMLIFrameElement | null>(null);
 
   useEffect(() => {
@@ -49,9 +64,15 @@ export function MedicalRecordPrintPreview({ record }: { record: MedicalRecordPdf
       cancelled = true;
       if (objectUrl) URL.revokeObjectURL(objectUrl);
     };
-  }, [record]);
+  }, [record, attempt]);
 
   const canPrint = stage === 'ready' && pdfUrl !== null;
+
+  function retry() {
+    setStage('rendering');
+    setPdfUrl(null);
+    setAttempt((value) => value + 1);
+  }
 
   function printDocument() {
     pdfRef.current?.contentWindow?.print();
@@ -88,7 +109,17 @@ export function MedicalRecordPrintPreview({ record }: { record: MedicalRecordPdf
           >
             Unduh PDF
           </button>
-          {pdfUrl ? (
+          {openInTabHref ? (
+            <a
+              href={openInTabHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-background px-3 text-[11px] font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Buka di tab
+            </a>
+          ) : pdfUrl ? (
             <button
               type="button"
               onClick={() => openPrintPreviewTab(pdfUrl)}
@@ -99,15 +130,21 @@ export function MedicalRecordPrintPreview({ record }: { record: MedicalRecordPdf
             </button>
           ) : null}
         </div>
-        <button
-          type="button"
-          onClick={closePrintPreview}
-          aria-label="Tutup pratinjau cetak"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        {hideCloseButton ? null : (
+          <button
+            type="button"
+            onClick={onClose ?? closePrintPreview}
+            aria-label="Tutup pratinjau cetak"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
+      <p className="border-b border-border bg-[var(--hafta-50)] px-3 py-1.5 text-[10.5px] text-muted-foreground sm:px-4">
+        Jika pratinjau kosong, gunakan <span className="font-semibold">Unduh PDF</span> atau{' '}
+        <span className="font-semibold">Buka di tab</span>.
+      </p>
       <div className="min-h-0 flex-1 bg-white">
         {stage === 'rendering' ? (
           <div className="flex h-full min-h-[320px] flex-col items-center justify-center text-center">
@@ -118,8 +155,16 @@ export function MedicalRecordPrintPreview({ record }: { record: MedicalRecordPdf
           <div className="flex h-full min-h-[320px] flex-col items-center justify-center px-6 text-center">
             <p className="text-sm font-semibold text-stone-800">Dokumen gagal dibuat</p>
             <p className="mt-1 max-w-sm text-xs text-stone-500">
-              Tutup pratinjau, lalu coba lagi dari halaman rekam medis.
+              Data rekam medis tidak berubah. Coba lagi, atau buka tab pratinjau bila masalah
+              berulang.
             </p>
+            <button
+              type="button"
+              onClick={retry}
+              className="mt-4 inline-flex h-9 items-center rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-400)]"
+            >
+              Coba lagi
+            </button>
           </div>
         ) : (
           <iframe

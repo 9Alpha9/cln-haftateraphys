@@ -40,7 +40,7 @@ import {
   SkeletonPanel,
 } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { useMedicalRecordPdf } from '@/components/dashboard/medical-record-actions';
-import { openPrintPreview } from '@/components/print/print-iframe';
+import { MedicalRecordPrintDialog } from '@/components/pdf/medical-record-print-dialog';
 import { MedicalRecordFormDrawer } from '@/components/dashboard/progress/medical-record-form-drawer';
 import { ProgressAmendmentDialog } from '@/components/dashboard/progress/progress-amendment-dialog';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
@@ -72,6 +72,7 @@ interface MedicalRecordCardProps {
   onSelect: (record: TherapyProgressView) => void;
   onEdit: (record: TherapyProgressView) => void;
   onAmend: (record: TherapyProgressView) => void;
+  onPrint: (record: TherapyProgressView) => void;
 }
 
 function MedicalRecordCard({
@@ -80,6 +81,7 @@ function MedicalRecordCard({
   onSelect,
   onEdit,
   onAmend,
+  onPrint,
 }: MedicalRecordCardProps) {
   const { downloadPdf } = useMedicalRecordPdf(record);
   const [showRecordMenu, setShowRecordMenu] = useState(false);
@@ -166,7 +168,7 @@ function MedicalRecordCard({
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" sideOffset={6} className="w-48">
                 <DropdownMenuItem
-                  onClick={() => openPrintPreview(`/dashboard/progress/${record.id}/print`)}
+                  onClick={() => onPrint(record)}
                   className="min-h-[40px] gap-2 text-xs text-muted-foreground"
                 >
                   <Printer className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
@@ -288,6 +290,7 @@ export function ProgressManagementView({
   const router = useRouter();
   const [isNavigating, startNavigation] = useTransition();
   const [selectedRecord, setSelectedRecord] = useState<TherapyProgressView | null>(null);
+  const [printRecord, setPrintRecord] = useState<TherapyProgressView | null>(null);
   const [editingRecord, setEditingRecord] = useState<TherapyProgressView | null>(null);
   const [amendmentRecord, setAmendmentRecord] = useState<TherapyProgressView | null>(null);
   const [search, setSearch] = useState(initialSearch);
@@ -609,17 +612,25 @@ export function ProgressManagementView({
                 <Search className="h-6 w-6" />
               </span>
               <h3 className="mt-3 text-sm font-bold text-foreground">
-                Tidak ditemukan rekam medis untuk kata kunci tersebut
+                {hasQuery || activeFilterCount > 0
+                  ? 'Tidak ditemukan rekam medis untuk filter tersebut'
+                  : 'Belum ada rekam medis'}
               </h3>
               <p className="mx-auto mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
-                Periksa kembali No. RM, nama pasien, atau diagnosis yang Anda ketik.
+                {hasQuery || activeFilterCount > 0
+                  ? 'Periksa kembali No. RM, nama pasien, atau diagnosis, lalu longgarkan filter status/visibilitas.'
+                  : 'Rekam medis akan muncul di sini setelah fisioterapis menambahkan catatan evaluasi pasien.'}
               </p>
               <button
                 type="button"
-                onClick={() => applySearch('')}
+                onClick={() => {
+                  setStatusFilter('ALL');
+                  setVisibilityFilter('ALL');
+                  applySearch('');
+                }}
                 className="mt-5 inline-flex h-10 cursor-pointer items-center justify-center rounded-full border border-border bg-card px-4 sm:px-5 text-xs font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
               >
-                Bersihkan Pencarian
+                {hasQuery || activeFilterCount > 0 ? 'Bersihkan Pencarian & Filter' : 'Muat Ulang'}
               </button>
             </div>
           ) : (
@@ -633,6 +644,7 @@ export function ProgressManagementView({
                     onSelect={() => setSelectedRecord(record)}
                     onEdit={() => setEditingRecord(record)}
                     onAmend={() => setAmendmentRecord(record)}
+                    onPrint={() => setPrintRecord(record)}
                   />
                 ))}
               </div>
@@ -919,6 +931,14 @@ export function ProgressManagementView({
         onClose={() => setEditingRecord(null)}
         record={editingRecord}
         patientOptions={patientOptions}
+      />
+
+      <MedicalRecordPrintDialog
+        record={printRecord}
+        open={Boolean(printRecord)}
+        onOpenChange={(open) => {
+          if (!open) setPrintRecord(null);
+        }}
       />
     </div>
   );

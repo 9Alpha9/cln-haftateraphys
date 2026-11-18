@@ -3,7 +3,6 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { openPrintPreview } from '@/components/print/print-iframe';
 import {
   ArrowRight,
   CalendarDays,
@@ -19,6 +18,7 @@ import {
 import { GlobalModal } from '@/components/ui/global-modal';
 import { Button } from '@/components/ui/button';
 import { MedicalRecordActions } from '@/components/dashboard/medical-record-actions';
+import { MedicalRecordPrintDialog } from '@/components/pdf/medical-record-print-dialog';
 import { PatientBookingPanel } from '@/components/patient/patient-booking-panel';
 import { useToast } from '@/components/ui/toast';
 import { cancelPatientAppointmentRequest } from '@/server/actions/appointment-requests';
@@ -94,6 +94,7 @@ export function PatientDashboardOverview({
   const { showToast } = useToast();
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
+  const [printOpen, setPrintOpen] = useState(false);
   const [cancelPending, startCancelTransition] = useTransition();
 
   const today = toDateKey(new Date());
@@ -340,7 +341,7 @@ export function PatientDashboardOverview({
             <div className="mt-3 hidden justify-end sm:flex">
               <button
                 type="button"
-                onClick={() => openPrintPreview(`/dashboard/progress/${latestRecord.id}/print`)}
+                onClick={() => setPrintOpen(true)}
                 className="inline-flex h-11 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-background px-4 text-xs font-semibold text-foreground transition-colors hover:bg-accent focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
               >
                 <Printer className="h-3.5 w-3.5" />
@@ -445,6 +446,12 @@ export function PatientDashboardOverview({
           </dl>
         ) : null}
       </GlobalModal>
+
+      <MedicalRecordPrintDialog
+        record={latestRecord}
+        open={printOpen}
+        onOpenChange={setPrintOpen}
+      />
     </div>
   );
 }

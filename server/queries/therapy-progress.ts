@@ -317,7 +317,12 @@ export async function getScopedTherapyProgress(
   } else if (role === 'THERAPIST') {
     // Hanya pasien dengan assignment aktif. Rekam lama tetap tersedia bila
     // pasien di-assign kembali, tetapi tidak terbuka setelah assignment berakhir.
-    scopeFilter = eq(patientAssignments.staffUserId, session.user.id);
+    // `activeUntil` wajib ikut di filter (bukan hanya di JOIN) agar query hitung
+    // total memakai scope yang sama dengan query data.
+    scopeFilter = and(
+      eq(patientAssignments.staffUserId, session.user.id),
+      isNull(patientAssignments.activeUntil),
+    );
   }
 
   const filters = [scopeFilter, isNull(therapyProgressRecords.supersededAt)];

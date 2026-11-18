@@ -30,7 +30,7 @@ export function MedicalRecordPrintClient({
       </div>
       <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col px-3 py-3 sm:px-5 sm:py-5 print:block print:p-0">
         <div className="flex min-h-[70vh] flex-1 flex-col overflow-hidden rounded-xl border border-stone-200 bg-white">
-          <MedicalRecordPrintPreview record={record} />
+          <MedicalRecordPrintPreview record={record} hideCloseButton />
         </div>
       </div>
     </div>
