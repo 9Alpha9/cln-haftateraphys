@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Printer, X } from 'lucide-react';
 
 const PRINT_PREVIEW_EVENT = 'hafta:print-preview';
 
@@ -33,28 +32,6 @@ export function PrintPreviewHost() {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [url]);
 
-  function handlePrint() {
-    const frame = iframeRef.current;
-    if (!frame) return;
-    try {
-      const innerDoc = frame.contentDocument;
-      // The medical-record preview page has its own Cetak button to print the
-      // PDF inside its nested frame; prefer clicking it when present.
-      const innerButton = innerDoc
-        ? Array.from(innerDoc.querySelectorAll('button')).find((button) =>
-            /^Cetak$/i.test(button.textContent?.trim() ?? ''),
-          )
-        : null;
-      if (innerButton) {
-        innerButton.click();
-        return;
-      }
-      frame.contentWindow?.print();
-    } catch {
-      frame.contentWindow?.print();
-    }
-  }
-
   if (!url) return null;
 
   return (
@@ -62,29 +39,30 @@ export function PrintPreviewHost() {
       role="dialog"
       aria-modal="true"
       aria-label="Pratinjau cetak"
-      className="fixed inset-0 z-[120] flex flex-col bg-black/50 p-3 backdrop-blur-sm sm:p-6"
+      className="fixed inset-0 z-[80] bg-black/80 transition-opacity duration-200 ease-out data-[starting-style]:opacity-0 data-[ending-style]:opacity-0"
     >
-      <div className="mx-auto flex h-full w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-2xl">
-        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3">
-          <p className="text-sm font-bold text-foreground">Pratinjau Cetak</p>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handlePrint}
-              className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full bg-[var(--hafta-300)] px-3.5 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)]"
+      <div className="fixed left-[50%] top-[50%] z-[80] grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-3.5 sm:p-5 transition-[opacity,scale] duration-200 ease-out data-[starting-style]:scale-95 data-[starting-style]:opacity-0 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 sm:rounded-lg">
+        <p className="text-sm font-bold text-foreground">Pratinjau Cetak</p>
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setUrl(null)}
+            aria-label="Tutup pratinjau cetak"
+            className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+          >
+            <svg
+              className="h-4 w-4"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <Printer className="h-3.5 w-3.5" />
-              Cetak
-            </button>
-            <button
-              type="button"
-              onClick={() => setUrl(null)}
-              aria-label="Tutup pratinjau cetak"
-              className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          </div>
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
         <div className="min-h-0 flex-1 bg-white">
           <iframe
