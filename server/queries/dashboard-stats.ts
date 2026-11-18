@@ -10,6 +10,8 @@ export type DashboardStats = {
     activePatients: number;
     submittedIntakes: number;
     completedCases: number;
+    /** Rekam medis berstatus draft yang masih perlu difinalisasi. */
+    draftRecords: number;
   };
   patientsByStatus: { status: string; count: number }[];
   appointmentsByStatus: { status: string; count: number }[];
@@ -25,7 +27,13 @@ export async function getDashboardStats(options: { redirectToLogin?: boolean } =
   const canSeeAll = role === 'SUPER_ADMIN' || role === 'ADMIN' || role === 'THERAPIST';
 
   const notAllowed: DashboardStats = {
-    kpis: { totalAppointments: 0, activePatients: 0, submittedIntakes: 0, completedCases: 0 },
+    kpis: {
+      totalAppointments: 0,
+      activePatients: 0,
+      submittedIntakes: 0,
+      completedCases: 0,
+      draftRecords: 0,
+    },
     patientsByStatus: [],
     appointmentsByStatus: [],
     appointmentsTrend: [],
@@ -109,6 +117,22 @@ export async function getDashboardStats(options: { redirectToLogin?: boolean } =
     .from(patientIntakes)
     .where(sql`${patientIntakes.status} in ('SUBMITTED','UNDER_REVIEW')`);
 
+  // 4b. KPI Rekam medis draft yang belum difinalisasi (mengikuti scope terapis).
+  const draftScope = isTherapist
+    ? and(
+        eq(therapyProgressRecords.therapistId, session.user.id),
+        eq(therapyProgressRecords.status, 'DRAFT'),
+        isNull(therapyProgressRecords.supersededAt),
+      )
+    : and(
+        eq(therapyProgressRecords.status, 'DRAFT'),
+        isNull(therapyProgressRecords.supersededAt),
+      );
+  const [draftRecordsRow] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(therapyProgressRecords)
+    .where(draftScope);
+
   // 5. KPI Selesai (Final progress records atau Completed patients)
   let completedCount = 0;
   if (isTherapist) {
@@ -191,6 +215,7 @@ export async function getDashboardStats(options: { redirectToLogin?: boolean } =
       activePatients: activePatientsCount,
       submittedIntakes: submittedIntakes?.count ?? 0,
       completedCases: completedCount,
+      draftRecords: draftRecordsRow?.count ?? 0,
     },
     patientsByStatus: patientsByStatusRows,
     appointmentsByStatus: appointmentsByStatusRows,

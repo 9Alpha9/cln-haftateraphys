@@ -14,13 +14,12 @@ import {
   getUpcomingScheduleAppointments,
 } from '@/server/queries/appointment-calendar';
 import { getIndonesianHolidays } from '@/server/queries/indonesian-holidays';
-import { getPendingIntakeCount } from '@/server/queries/intake-review';
 import { TherapistAnalyticsBento } from '@/components/dashboard/therapist/therapist-analytics-bento';
 import { TherapistMonthCalendar } from '@/components/dashboard/therapist/therapist-month-calendar';
 import { DesktopOnly } from '@/components/dashboard/desktop-only';
 import { NewAppointmentButton } from '@/components/dashboard/appointments/new-appointment-button';
 import Link from 'next/link';
-import { Activity, CalendarClock, CalendarDays, CalendarPlus, ChevronRight, ClipboardCheck, Clock3, Users } from 'lucide-react';
+import { Activity, CalendarClock, CalendarDays, CalendarPlus, ChevronRight, ClipboardCheck, Clock3, FilePenLine, Users } from 'lucide-react';
 
 function getGreeting(): string {
   const hour = new Date().getHours();
@@ -83,7 +82,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   const canManageUsers = hasPermission(role, PERMISSIONS.USER_LIST);
   const canManageSettings = hasPermission(role, PERMISSIONS.SETTINGS_MANAGE);
 
-  const [holidays, nextYearHolidays, calendarAppointments, upcomingAppointments, stats, activities, pendingIntake] =
+  const [holidays, nextYearHolidays, calendarAppointments, upcomingAppointments, stats, activities] =
     await Promise.all([
       getIndonesianHolidays(currentYear),
       getIndonesianHolidays(currentYear + 1),
@@ -91,7 +90,6 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
       getUpcomingScheduleAppointments(),
       showCharts ? getDashboardStats() : Promise.resolve(null),
       getRecentActivities({ limit: 8, userId: session.user.id }),
-      canReviewIntake ? getPendingIntakeCount() : Promise.resolve(0),
     ]);
 
   const toKey = (value: Date | string) =>
@@ -106,6 +104,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   );
   const nextAppointment = upcomingAppointments[0] ?? null;
   const activePatients = stats?.kpis.activePatients ?? 0;
+  const draftRecords = stats?.kpis.draftRecords ?? 0;
   const firstName = session.user.name?.split(' ')[0] || 'Tim Hafta';
 
   const formatAppointmentDate = (value: Date | string) => {
@@ -125,9 +124,9 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             Halo, {firstName}
           </h1>
           <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted-foreground sm:text-sm">
-            {pendingIntake > 0
-              ? `${pendingIntake} intake menunggu tinjauan.`
-              : 'Tidak ada intake yang menunggu tinjauan.'}
+            {draftRecords > 0
+              ? `${draftRecords} rekam medis menunggu finalisasi.`
+              : 'Semua rekam medis sudah difinalisasi.'}
             {nextAppointment
               ? ` Sesi berikutnya ${formatAppointmentDate(nextAppointment.scheduledDate)} pukul ${nextAppointment.startTime.slice(0, 5)}.`
               : ' Belum ada jadwal mendatang.'}
@@ -187,25 +186,25 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
           <div>
             <div className="flex items-start justify-between gap-2">
               <p className="text-[9px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
-                Intake menunggu
+                Rekam medis draft
               </p>
               <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-50)] text-foreground">
-                <ClipboardCheck className="h-4 w-4" />
+                <FilePenLine className="h-4 w-4" />
               </span>
             </div>
             <p className="mt-2 text-2xl font-extrabold leading-none text-foreground">
-              {pendingIntake}
+              {draftRecords}
               <span className="ml-1 text-xs font-semibold text-muted-foreground">berkas</span>
             </p>
             <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">
-              {pendingIntake > 0 ? 'Perlu ditinjau hari ini.' : 'Semua intake sudah ditinjau.'}
+              {draftRecords > 0 ? 'Belum difinalisasi.' : 'Tidak ada draft tertunda.'}
             </p>
           </div>
           <Link
-            href="/dashboard/intake"
+            href="/dashboard/progress"
             className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-[var(--hafta-50)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-org-100)]"
           >
-            Tinjau intake
+            Lihat rekam medis
           </Link>
         </article>
 
