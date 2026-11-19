@@ -314,13 +314,14 @@
 }
 
 html {
+  /* Thumb lebih tipis dan track transparan agar tidak ada pita abu-abu. */
   scrollbar-width: thin;
   scrollbar-color: #d6d3d1 transparent;
 }
 
 *::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 *::-webkit-scrollbar-track,
@@ -328,9 +329,20 @@ html {
   background: transparent;
 }
 
+/*
+ * `border` transparan + `background-clip: padding-box` membuat thumb tampak
+ * lebih kecil dan menjorok ke dalam, sehingga tidak menyentuh/keluar dari sudut
+ * melengkung container.
+ */
 *::-webkit-scrollbar-thumb {
-  background: #d6d3d1;
+  background-color: #d6d3d1;
+  border: 2px solid transparent;
   border-radius: 9999px;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #a8a29e;
 }
 
 @media print {

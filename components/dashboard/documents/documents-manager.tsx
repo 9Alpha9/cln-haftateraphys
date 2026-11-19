@@ -4,16 +4,14 @@ import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   AlertCircle,
-  Archive,
   Check,
-  ChevronRight,
   Download,
-  Eye,
   FileText,
   Image as ImageIcon,
   Loader2,
   Paperclip,
   Search,
+  Trash2,
   Upload,
   X,
 } from 'lucide-react';
@@ -35,7 +33,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/toast';
 import { cn } from '@/lib/utils';
 import { DOCUMENT_TYPE_LABELS, type DocumentView } from '@/lib/documents';
-import { archiveDocument, uploadDocument } from '@/server/actions/documents';
+import { removeOwnDocument, uploadDocument } from '@/server/actions/documents';
 
 type PatientOption = { id: string; label: string };
 
@@ -299,11 +297,11 @@ export function DocumentsManager({
     }
   }
 
-  function handleArchive(document: DocumentView) {
+  function handleDelete(document: DocumentView) {
     startTransition(async () => {
-      const result = await archiveDocument(document.id);
+      const result = await removeOwnDocument(document.id);
       if (result.ok) {
-        showToast('success', 'Dokumen diarsipkan.');
+        showToast('success', 'Dokumen dihapus.');
         setArchiveTarget(null);
         router.refresh();
       } else {
@@ -341,10 +339,11 @@ export function DocumentsManager({
           aria-label="Filter dokumen"
           count={activeFilterCount}
           className="w-full sm:w-auto"
-          panelClassName="w-64"
+          panelClassName="flex w-64 flex-col overflow-hidden p-0"
         >
           {(close) => (
             <>
+              <div className="max-h-[60vh] overflow-y-auto p-1.5">
               <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                 Jenis berkas
               </p>
@@ -408,13 +407,16 @@ export function DocumentsManager({
                 );
               })}
 
-              <button
-                type="button"
-                onClick={close}
-                className="mt-2 h-10 w-full cursor-pointer rounded-full bg-[var(--hafta-300)] text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)]"
-              >
-                Terapkan
-              </button>
+              </div>
+              <div className="shrink-0 border-t border-border p-1.5">
+                <button
+                  type="button"
+                  onClick={close}
+                  className="inline-flex min-h-11 w-full cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)]"
+                >
+                  Terapkan
+                </button>
+              </div>
             </>
           )}
         </SmartFilterMenu>
@@ -471,47 +473,64 @@ export function DocumentsManager({
 
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
             {pagedDocuments.map((document) => (
-              <button
-                key={document.id}
-                type="button"
-                onClick={() => void handlePreview(document)}
-                className="group flex w-full items-start gap-3 rounded-2xl border border-border bg-card p-3.5 text-left transition-colors hover:border-[var(--hafta-300)] hover:bg-[var(--hafta-50)]/40 focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-              >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F4F4F1] text-foreground">
-                  <DocumentIcon mimeType={document.mimeType} />
-                </span>
+              <div key={document.id} className="relative">
+                <button
+                  type="button"
+                  onClick={() => void handlePreview(document)}
+                  className={cn(
+                    'group flex w-full items-start gap-3 rounded-2xl border border-border bg-card p-3.5 text-left transition-colors hover:border-[var(--hafta-300)] hover:bg-[var(--hafta-50)]/40 focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
+                    canUpload || canArchive ? 'pr-14' : '',
+                  )}
+                >
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F4F4F1] text-foreground">
+                    <DocumentIcon mimeType={document.mimeType} />
+                  </span>
 
-                <span className="min-w-0 flex-1">
-                  <span className="line-clamp-2 text-sm font-bold leading-snug text-foreground">
-                    {document.originalFilename ?? 'Dokumen'}
-                  </span>
-                  <span className="mt-1 block truncate text-[11px] text-muted-foreground">
-                    {document.patientName}
-                    {document.medicalRecordNumber ? ` · ${document.medicalRecordNumber}` : ''}
-                  </span>
-                  <span className="mt-0.5 block truncate text-[10px] text-muted-foreground">
-                    {formatSize(document.sizeBytes)} · {formatDate(document.createdAt)}
-                    {document.uploadedByName ? ` · ${document.uploadedByName}` : ''}
-                  </span>
-                  <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
-                    <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                      {DOCUMENT_TYPE_LABELS[document.documentType] ?? document.documentType}
+                  <span className="min-w-0 flex-1">
+                    <span className="line-clamp-2 text-sm font-bold leading-snug text-foreground">
+                      {document.originalFilename ?? 'Dokumen'}
                     </span>
-                    {document.patientVisible ? (
-                      <span className="rounded-full bg-[var(--hafta-grn-50)] px-2 py-0.5 text-[10px] font-semibold text-[var(--hafta-grn-700)]">
-                        Terlihat pasien
+                    <span className="mt-1 block truncate text-[11px] text-muted-foreground">
+                      {document.patientName}
+                      {document.medicalRecordNumber ? ` · ${document.medicalRecordNumber}` : ''}
+                    </span>
+                    <span className="mt-0.5 block truncate text-[10px] text-muted-foreground">
+                      {formatSize(document.sizeBytes)} · {formatDate(document.createdAt)}
+                      {document.uploadedByName ? ` · ${document.uploadedByName}` : ''}
+                    </span>
+                    <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      <span className="rounded-full bg-[#F4F4F1] px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                        {DOCUMENT_TYPE_LABELS[document.documentType] ?? document.documentType}
                       </span>
-                    ) : null}
-                    {document.status === 'ARCHIVED' ? (
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
-                        Arsip
-                      </span>
-                    ) : null}
+                      {document.patientVisible ? (
+                        <span className="rounded-full bg-[var(--hafta-grn-50)] px-2 py-0.5 text-[10px] font-semibold text-[var(--hafta-grn-700)]">
+                          Terlihat pasien
+                        </span>
+                      ) : null}
+                      {document.status === 'ARCHIVED' ? (
+                        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                          Arsip
+                        </span>
+                      ) : null}
+                    </span>
                   </span>
-                </span>
+                </button>
 
-                <ChevronRight className="mt-2 h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5" />
-              </button>
+                {canUpload || canArchive ? (
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setArchiveTarget(document);
+                    }}
+                    aria-label={`Hapus ${document.originalFilename ?? 'dokumen'}`}
+                    title="Hapus dokumen"
+                    className="absolute right-2 top-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                ) : null}
+              </div>
             ))}
           </div>
 
@@ -654,11 +673,11 @@ export function DocumentsManager({
                     closePreview(false);
                     setArchiveTarget(target);
                   }}
-                  aria-label="Arsipkan dokumen"
-                  title="Arsipkan dokumen"
+                  aria-label="Hapus dokumen"
+                  title="Hapus dokumen"
                   className="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 >
-                  <Archive className="h-3.5 w-3.5" />
+                  <Trash2 className="h-3.5 w-3.5" />
                 </button>
               ) : null}
               {/* Tombol Unduh hanya perlu saat dokumen tidak punya toolbar viewer
@@ -735,17 +754,17 @@ export function DocumentsManager({
 
       <ConfirmDialog
         isOpen={Boolean(archiveTarget)}
-        title="Arsipkan dokumen?"
+        title="Hapus dokumen?"
         description={
           archiveTarget
-            ? `"${archiveTarget.originalFilename ?? 'Dokumen'}" akan diarsipkan dan tidak dapat diunduh lagi.`
+            ? `"${archiveTarget.originalFilename ?? 'Dokumen'}" akan dihapus dari daftar dan tidak dapat diunduh lagi.`
             : undefined
         }
-        confirmLabel="Arsipkan"
+        confirmLabel="Hapus"
         cancelLabel="Batal"
         variant="destructive"
         pending={pending}
-        onConfirm={() => archiveTarget && handleArchive(archiveTarget)}
+        onConfirm={() => archiveTarget && handleDelete(archiveTarget)}
         onCancel={() => setArchiveTarget(null)}
       />
 
