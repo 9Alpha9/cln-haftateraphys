@@ -105,6 +105,12 @@ vi.mock('next/cache', () => ({
 }));
 
 import { getDocumentForDownload } from '@/server/queries/documents';
+import { getTherapyProgressById } from '@/server/queries/therapy-progress';
+import {
+  attachDocumentToRecord,
+  fetchRecordAttachmentMeta,
+} from '@/server/actions/record-attachments';
+import { listRecordAttachmentMeta } from '@/server/queries/record-attachments';
 import { getIntakeDetailForPdf } from '@/server/queries/patient-intakes';
 import { getIntakeForPdf } from '@/server/actions/intake-pdf';
 import {
@@ -424,5 +430,112 @@ describe('matriks izin lintas peran', () => {
         permission: PERMISSIONS.PATIENT_READ,
       }),
     ).toThrow('Silakan login terlebih dahulu');
+  });
+});
+
+
+// ── Skenario 5: scope BACA rekam medis & lampiran ──────────────────────────
+describe('S5 — scope baca rekam medis dan lampiran rekam', () => {
+  it('getTherapyProgressById mengembalikan null untuk terapis tanpa assignment', async () => {
+    const record = await getTherapyProgressById(RECORD_ID);
+    expect(record).toBeNull();
+  });
+
+  it('KONTROL POSITIF: terapis dengan assignment aktif dapat membaca rekam', async () => {
+    mocks.state.rows.patient_assignments = [{ id: 'assignment-1', patientId: PATIENT_ID }];
+    const record = await getTherapyProgressById(RECORD_ID);
+    expect(record).not.toBeNull();
+    expect(record?.id).toBe(RECORD_ID);
+  });
+
+  it('USER tidak dapat membaca rekam milik pasien lain', async () => {
+    mocks.state.currentRole = 'USER';
+    mocks.state.currentUserId = 'intruder-user';
+    mocks.state.rows.therapy_progress_records = [
+      {
+        id: RECORD_ID,
+        patientId: PATIENT_ID,
+        patientUserId: 'patient-user',
+        therapistId: 'therapist-1',
+        status: 'FINALIZED',
+        amendedFromId: null,
+        supersededAt: null,
+        patientVisible: 1,
+      },
+    ];
+    const record = await getTherapyProgressById(RECORD_ID);
+    expect(record).toBeNull();
+  });
+
+  it('USER tidak dapat membaca rekam yang belum dibagikan (patientVisible = 0)', async () => {
+    mocks.state.currentRole = 'USER';
+    mocks.state.currentUserId = 'patient-user';
+    mocks.state.rows.therapy_progress_records = [
+      {
+        id: RECORD_ID,
+        patientId: PATIENT_ID,
+        patientUserId: 'patient-user',
+        therapistId: 'therapist-1',
+        status: 'FINALIZED',
+        amendedFromId: null,
+        supersededAt: null,
+        patientVisible: 0,
+      },
+    ];
+    const record = await getTherapyProgressById(RECORD_ID);
+    expect(record).toBeNull();
+  });
+
+  it('KONTROL POSITIF: USER dapat membaca rekam final miliknya yang dibagikan', async () => {
+    mocks.state.currentRole = 'USER';
+    mocks.state.currentUserId = 'patient-user';
+    mocks.state.rows.therapy_progress_records = [
+      {
+        id: RECORD_ID,
+        patientId: PATIENT_ID,
+        patientUserId: 'patient-user',
+        therapistId: 'therapist-1',
+        status: 'FINALIZED',
+        amendedFromId: null,
+        supersededAt: null,
+        patientVisible: 1,
+      },
+    ];
+    const record = await getTherapyProgressById(RECORD_ID);
+    expect(record?.id).toBe(RECORD_ID);
+  });
+
+  it('metadata lampiran kosong bila rekam di luar scope terapis', async () => {
+    expect(await listRecordAttachmentMeta(RECORD_ID)).toEqual([]);
+    expect(await fetchRecordAttachmentMeta(RECORD_ID)).toEqual([]);
+  });
+
+  it('KONTROL POSITIF: metadata lampiran terbaca dengan assignment aktif', async () => {
+    mocks.state.rows.patient_assignments = [{ id: 'assignment-1', patientId: PATIENT_ID }];
+    mocks.state.rows.patient_documents = [
+      {
+        id: DOCUMENT_ID,
+        patientId: PATIENT_ID,
+        therapyProgressRecordId: RECORD_ID,
+        // `name` adalah hasil aliasing kolom original_filename pada select.
+        name: 'foto-analisa.png',
+        original_filename: 'foto-analisa.png',
+        mimeType: 'image/png',
+        sizeBytes: 2048,
+        status: 'ACTIVE',
+      },
+    ];
+    const meta = await listRecordAttachmentMeta(RECORD_ID);
+    expect(meta).toEqual([{ id: DOCUMENT_ID, name: 'foto-analisa.png' }]);
+  });
+
+  it('melampirkan dokumen ditolak karena terapis tanpa assignment', async () => {
+    const result = await attachDocumentToRecord(DOCUMENT_ID, RECORD_ID);
+    expect(result).toEqual({
+      ok: false,
+      error: 'Anda hanya dapat mengubah pasien yang di-assign.',
+    });
+    // Tidak ada baris dokumen yang diubah.
+    expect(mocks.state.updateCalls.filter((c) => c.tableName === 'patient_documents')).toHaveLength(0);
   });
 });

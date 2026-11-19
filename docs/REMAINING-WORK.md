@@ -32,11 +32,17 @@ pekerjaan lanjutan.
 
 ### 1. Rate limiting autentikasi dan operasi sensitif
 
-- [ ] Rate limit per IP + per akun untuk login, register, forgot/reset password,
-      resend verification, dan ekspor/unduh sensitif.
-- [ ] Implementasi harus bekerja di runtime deployment (bukan in-memory per instance).
-- [ ] Respons 429 yang aman + audit kegagalan login.
+- [x] Rate limit per IP untuk sign-in, sign-up, request/reset password, dan
+      kirim ulang verifikasi — memakai tabel `rate_limit_hits` (Neon Postgres),
+      jadi berlaku lintas instance, bukan in-memory.
+- [x] Respons 429 dengan `Retry-After`; fail-open bila database bermasalah agar
+      gangguan DB tidak mengunci semua pengguna.
+- [ ] Rate limit per akun (butuh identitas akun dari body) — belum.
+- [ ] Rate limit ekspor/unduh sensitif — belum.
+- [ ] Audit kegagalan login otomatis — belum.
 - Acceptance: percobaan berulang tidak dapat melakukan brute force tanpa hambatan.
+- Bukti: 17 percobaan login beruntun → 15× 401 lalu **429** (`retry-after: 48`),
+  baris penghitung tersimpan di `rate_limit_hits`.
 
 ### 2. Content-Security-Policy
 
@@ -55,11 +61,14 @@ pekerjaan lanjutan.
 
 ### 4. Test authorization regresi
 
-- [ ] Therapist unassigned tidak bisa read/write rekam medis.
-- [ ] Therapist unassigned tidak bisa melihat/mengekspor intake.
-- [ ] Patient tidak bisa membuka dokumen/record pasien lain.
-- [ ] Super Admin tanpa clinical permission tidak bisa membuka rekam medis.
+- [x] Therapist unassigned tidak bisa read/write rekam medis.
+- [x] Therapist unassigned tidak bisa melihat/mengekspor intake.
+- [x] Patient tidak bisa membuka dokumen/record pasien lain.
+- [x] Super Admin tanpa clinical permission tidak bisa membuka rekam medis.
 - Acceptance: test gagal jika scope assignment dihapus dari query/action.
+- Status: `tests/authorization/clinical-scope.test.ts` (33 test) mencakup tulis
+      rekam, baca rekam (`getTherapyProgressById`), metadata/lampiran rekam,
+      surat intake, unduh dokumen, IDOR pasien, dan matriks izin lintas peran.
 
 ## Prioritas P1 — sebelum rilis stabil
 

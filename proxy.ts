@@ -1,39 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { shouldHideDashboardOnHost } from '@/lib/security/host-routing';
 import {
+  buildAuthRateLimitKey,
+  consumeRateLimit,
+  getAuthRateLimitPolicy,
+  pruneRateLimitHits,
+} from '@/lib/security/rate-limit';
+import {
   decideMaintenance,
   getMaintenanceFlags,
   isMaintenanceExemptPath,
 } from '@/lib/maintenance';
 
-// In-memory rate limiter untuk endpoint auth sensitif
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const WINDOW_MS = 60 * 1000; // 1 menit
-const MAX_AUTH_ATTEMPTS = 15; // Maksimal 15 percobaan/menit
+/**
+ * Rate limit endpoint auth dengan penghitung di database, sehingga berlaku
+ * lintas instance (bukan in-memory per proses).
+ */
+async function checkRateLimit(request: NextRequest, pathname: string): Promise<NextResponse | null> {
+  const policy = getAuthRateLimitPolicy(pathname);
+  if (!policy) return null;
 
-function checkRateLimit(request: NextRequest, pathname: string): NextResponse | null {
-  if (
-    pathname.startsWith('/api/auth/sign-in') ||
-    pathname.startsWith('/api/auth/sign-up') ||
-    pathname.startsWith('/api/auth/request-password-reset')
-  ) {
-    const ip =
-      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-      request.headers.get('x-real-ip') ||
-      '127.0.0.1';
+  const ip =
+    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    request.headers.get('x-real-ip') ||
+    '127.0.0.1';
 
-    const key = `${ip}:${pathname}`;
-    const now = Date.now();
-    let record = rateLimitMap.get(key);
-
-    if (!record || now > record.resetTime) {
-      record = { count: 1, resetTime: now + WINDOW_MS };
-      rateLimitMap.set(key, record);
-    } else {
-      record.count++;
-    }
-
-    if (record.count > MAX_AUTH_ATTEMPTS) {
+  try {
+    const result = await consumeRateLimit(buildAuthRateLimitKey(ip, pathname), policy);
+    if (!result.allowed) {
       return new NextResponse(
         JSON.stringify({
           error: 'Terlalu banyak percobaan. Silakan coba lagi nanti.',
@@ -43,11 +37,17 @@ function checkRateLimit(request: NextRequest, pathname: string): NextResponse | 
           status: 429,
           headers: {
             'Content-Type': 'application/json',
-            'Retry-After': '60',
+            'Retry-After': String(result.retryAfterSeconds),
           },
         }
       );
     }
+    // Bersihkan baris lama sesekali (murah, tidak setiap request).
+    if (Math.random() < 0.02) {
+      void pruneRateLimitHits().catch(() => undefined);
+    }
+  } catch {
+    // Fail-open: gangguan database tidak boleh mengunci semua pengguna dari login.
   }
   return null;
 }
@@ -56,8 +56,8 @@ export async function proxy(request: NextRequest) {
   const host = request.headers.get('host') ?? '';
   const pathname = request.nextUrl.pathname;
 
-  // Rate limiting check
-  const rateLimitResponse = checkRateLimit(request, pathname);
+  // Rate limiting check (backing store database)
+  const rateLimitResponse = await checkRateLimit(request, pathname);
   if (rateLimitResponse) return rateLimitResponse;
 
   const publicHost = process.env.PUBLIC_APP_HOST ?? '';

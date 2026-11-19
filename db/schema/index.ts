@@ -15,3 +15,4 @@ export * from './patient-intakes';
 export * from './therapy-progress';
 export * from './audit-logs';
 export * from './app-settings';
+export * from './rate-limit';
