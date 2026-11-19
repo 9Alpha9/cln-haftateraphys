@@ -13,10 +13,10 @@ import {
 import { cn } from '@/lib/utils';
 
 const controlClass =
-  'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-30 sm:h-9 sm:w-9';
+  'flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-30 sm:h-9 sm:w-9';
 
 const pageClass =
-  'flex h-8 min-w-8 items-center justify-center rounded-lg border px-1.5 text-[11px] font-semibold transition-colors sm:h-9 sm:min-w-9 sm:text-xs';
+  'flex h-10 min-w-10 items-center justify-center rounded-lg border px-1.5 text-[11px] font-semibold transition-colors sm:h-9 sm:min-w-9 sm:text-xs';
 
 type PaginationBarBaseProps = {
   page: number;

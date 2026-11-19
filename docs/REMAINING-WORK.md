@@ -83,13 +83,22 @@ pekerjaan lanjutan.
 
 ### 5. Mobile Gate penuh
 
-- [ ] 320 px, 360 px, 390 px, 430 px.
-- [ ] 768 px dan 834 px tablet.
-- [ ] 1024/1280/1440 px desktop.
-- Catatan: 390 px sudah lolos untuk landing, maintenance, dan preview PDF;
-      halaman dashboard lain masih perlu matriks penuh.
-- Acceptance: tidak ada body-level horizontal scroll dan semua tap target utama
-      ≥44 px.
+- [x] 320 px, 360 px, 390 px, 430 px.
+- [x] 768 px dan 834 px tablet.
+- [x] 1024/1280/1440 px desktop.
+- Halaman diuji: `/`, `/login`, `/kontak`, `/maintenance`, `/dashboard`,
+  `/dashboard/documents`, `/dashboard/progress`, `/dashboard/patients`, serta
+  portal pasien (`/dashboard`, `/dashboard/progress`, `/dashboard/history`).
+- Hasil: **overflow horizontal 0 px di semua kombinasi** (metode iframe
+  berlebar terkunci; `scrollWidth - clientWidth`).
+- [x] Tap target utama halaman Dokumen: pencarian, Filter, dan Unggah kini
+  **44 px** di mobile; tombol hapus ikon memakai utilitas `.tap-target`
+  (area sentuh 44 px tanpa mengubah ukuran visual).
+- [ ] Sisa: beberapa kontrol bersama (pagination, tombol ikon lain) masih 40 px
+  dan breadcrumb berupa tautan teks — perlu pass desain terpisah bila ingin
+  seluruhnya ≥44 px.
+- Acceptance: tidak ada body-level horizontal scroll **tercapai**; tap target
+  utama sebagian tercapai (lihat sisa di atas).
 
 ### 6. Halaman dokumen pasien
 

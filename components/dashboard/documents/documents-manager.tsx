@@ -343,14 +343,14 @@ export function DocumentsManager({
             }}
             placeholder="Cari nama file, pasien, atau No. RM"
             aria-label="Cari dokumen"
-            className="h-10 w-full rounded-full border border-border bg-card pl-10 pr-3 text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
+            className="h-11 w-full rounded-full border border-border bg-card pl-10 pr-3 sm:h-10 text-xs text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35 sm:text-[13px]"
           />
         </div>
         <SmartFilterMenu
           label="Filter"
           aria-label="Filter dokumen"
           count={activeFilterCount}
-          className="w-full sm:w-auto"
+          className="h-11 w-full sm:h-10 sm:w-auto"
           panelClassName="flex w-64 flex-col overflow-hidden p-0"
         >
           {(close) => (
@@ -437,7 +437,7 @@ export function DocumentsManager({
             type="button"
             onClick={() => setUploadOpen(true)}
             disabled={!storageReady}
-            className="h-10 shrink-0 gap-2 px-4 text-xs font-bold"
+            className="h-11 shrink-0 gap-2 px-4 text-xs font-bold sm:h-10"
           >
             <Upload className="h-4 w-4" />
             Unggah Dokumen
@@ -537,7 +537,7 @@ export function DocumentsManager({
                     }}
                     aria-label={`Hapus ${document.originalFilename ?? 'dokumen'}`}
                     title="Hapus dokumen"
-                    className="absolute right-2 top-2 inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200"
+                    className="tap-target absolute right-2 top-2 inline-flex h-10 w-10 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>

@@ -311,6 +311,21 @@
   .hafta-tint {
     @apply rounded-xl bg-[var(--hafta-50)];
   }
+
+  /* Area sentuh minimum 44px tanpa mengubah ukuran visual tombol ikon. */
+  .tap-target {
+    position: relative;
+  }
+
+  .tap-target::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+  }
 }
 
 /*
