@@ -103,7 +103,7 @@ export function AppSelect({
             align={align === 'right' ? 'end' : 'start'}
             side="bottom"
             sideOffset={6}
-            collisionPadding={{ top: 76, right: 12, bottom: 12, left: 12 }}
+            collisionPadding={{ top: 76, right: 12, bottom: 80, left: 12 }}
           >
             <SelectPrimitive.Popup
               data-slot="app-select-content"
