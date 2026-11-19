@@ -343,7 +343,7 @@ export function DocumentsManager({
         >
           {(close) => (
             <>
-              <div className="max-h-[60vh] overflow-y-auto p-2">
+              <div className="flex max-h-[60vh] flex-col gap-1 overflow-y-auto p-2">
               <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">
                 Jenis berkas
               </p>

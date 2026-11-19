@@ -313,19 +313,21 @@
   }
 }
 
-html {
-  /* Thumb lebih tipis dan track transparan agar tidak ada pita abu-abu. */
-  scrollbar-width: thin;
-  scrollbar-color: #d6d3d1 transparent;
-}
-
-*::-webkit-scrollbar {
+/*
+ * Scrollbar global: tipis, track transparan, dan seragam di semua area scroll.
+ *
+ * Catatan penting: JANGAN menetapkan `scrollbar-color`/`scrollbar-width` untuk
+ * Chromium. Properti standar itu (warisan ke seluruh elemen) membuat Chromium
+ * mengabaikan kustomisasi `::-webkit-scrollbar`, sehingga scrollbar kembali ke
+ * lebar default 15px. Properti standar hanya dipakai Firefox lewat @supports.
+ */
+::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
-*::-webkit-scrollbar-track,
-*::-webkit-scrollbar-track-piece {
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-track-piece {
   background: transparent;
 }
 
@@ -334,15 +336,22 @@ html {
  * lebih kecil dan menjorok ke dalam, sehingga tidak menyentuh/keluar dari sudut
  * melengkung container.
  */
-*::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
   background-color: #d6d3d1;
   border: 1.5px solid transparent;
   border-radius: 9999px;
   background-clip: padding-box;
 }
 
-*::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover {
   background-color: #a8a29e;
+}
+
+@supports (-moz-appearance: none) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #d6d3d1 transparent;
+  }
 }
 
 @media print {
