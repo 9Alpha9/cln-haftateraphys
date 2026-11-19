@@ -238,6 +238,10 @@ export type MedicalRecordPdfData = {
   evaluation: string | null;
   followUpPlan: string | null;
   summary: string | null;
+  /** Nomor revisi rekam (1 = rekam awal, 2+ = hasil amandemen). */
+  revisionNumber?: number | null;
+  /** Alasan amandemen pada revisi, ikut dicetak agar riwayat koreksi terlihat. */
+  amendmentReason?: string | null;
   managementRows?: MedicalManagementRow[];
   therapyInfo?: MedicalRecordPdfTherapyInfo | null;
   treatmentPlan?: MedicalRecordPdfTreatmentPlan | null;
@@ -470,6 +474,12 @@ export const MedicalRecordDocument = ({
               penatalaksanaan, dan lampiran hasil pemeriksaan bila tersedia.
             </Text>
             <Text style={styles.pengesahanMeta}>Jenis laporan: Rekam Medis Fisioterapi · {visitLabel}</Text>
+            {record.revisionNumber && record.revisionNumber > 1 ? (
+              <Text style={styles.pengesahanMeta}>
+                Revisi ke-{record.revisionNumber}
+                {record.amendmentReason ? ` · Alasan amandemen: ${record.amendmentReason}` : ''}
+              </Text>
+            ) : null}
             <View style={styles.noteBox}>
               <Text style={styles.noteTitle}>Catatan Pengesahan</Text>
               <Text style={styles.noteText}>
@@ -730,6 +740,9 @@ export const MedicalRecordDocument = ({
               <Text style={styles.signaturePageMeta}>Pasien: {record.patientName}</Text>
               <Text style={styles.signaturePageMeta}>No. RM: {record.medicalRecordNumber || '-'}</Text>
               <Text style={styles.signaturePageMeta}>Tanggal pemeriksaan: {formattedDate}</Text>
+              {record.revisionNumber && record.revisionNumber > 1 ? (
+                <Text style={styles.signaturePageMeta}>Revisi ke-{record.revisionNumber}</Text>
+              ) : null}
             </View>
             {signatureBlock(record, printedAt)}
           </View>

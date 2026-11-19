@@ -98,6 +98,7 @@ export async function getRecordAttachmentImages(
 export type UnlinkedDocumentImage = {
   id: string;
   name: string;
+  mimeType: string;
   createdAt: Date;
 };
 
@@ -115,6 +116,7 @@ export async function listUnlinkedImages(patientId: string): Promise<UnlinkedDoc
     .select({
       id: patientDocuments.id,
       name: patientDocuments.originalFilename,
+      mimeType: patientDocuments.mimeType,
       createdAt: patientDocuments.createdAt,
     })
     .from(patientDocuments)
@@ -122,7 +124,9 @@ export async function listUnlinkedImages(patientId: string): Promise<UnlinkedDoc
       and(
         eq(patientDocuments.patientId, patientId),
         eq(patientDocuments.status, 'ACTIVE'),
-        inArray(patientDocuments.mimeType, PDF_IMAGE_MIME_TYPES),
+        // WebP ikut ditampilkan: saat dilampirkan, browser mengonversinya ke PNG
+        // lebih dulu karena @react-pdf tidak dapat menyematkan WebP.
+        inArray(patientDocuments.mimeType, [...PDF_IMAGE_MIME_TYPES, 'image/webp']),
         isNull(patientDocuments.therapyProgressRecordId),
       ),
     )
@@ -132,6 +136,41 @@ export async function listUnlinkedImages(patientId: string): Promise<UnlinkedDoc
   return rows.map((row) => ({
     id: row.id,
     name: row.name ?? 'Lampiran pemeriksaan',
+    mimeType: row.mimeType,
     createdAt: row.createdAt,
   }));
+}
+
+
+export type RecordAttachmentMeta = { id: string; name: string };
+
+/**
+ * Metadata lampiran rekam (tanpa mengunduh isi gambar dari storage). Dipakai
+ * form rekam agar daftar lampiran tampil cepat; isi gambar hanya diambil saat
+ * PDF benar-benar dirender.
+ */
+export async function listRecordAttachmentMeta(
+  recordId: string,
+  preloadedRecord?: { id: string; patientId: string },
+): Promise<RecordAttachmentMeta[]> {
+  const { role } = await requireSession({ redirectToLogin: false });
+  const record = preloadedRecord ?? (await getTherapyProgressById(recordId));
+  if (!record) return [];
+
+  const rows = await getDb()
+    .select({ id: patientDocuments.id, name: patientDocuments.originalFilename })
+    .from(patientDocuments)
+    .where(
+      and(
+        eq(patientDocuments.therapyProgressRecordId, record.id),
+        eq(patientDocuments.patientId, record.patientId),
+        eq(patientDocuments.status, 'ACTIVE'),
+        inArray(patientDocuments.mimeType, PDF_IMAGE_MIME_TYPES),
+        role === 'USER' ? eq(patientDocuments.patientVisible, 1) : undefined,
+      ),
+    )
+    .orderBy(asc(patientDocuments.createdAt))
+    .limit(MAX_ATTACHMENTS);
+
+  return rows.map((row) => ({ id: row.id, name: row.name ?? 'Lampiran pemeriksaan' }));
 }

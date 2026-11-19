@@ -7,6 +7,7 @@ import { Activity, ClipboardList, Eye, EyeOff, FilePenLine, ImagePlus, Loader2, 
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import { Progress } from '@/components/ui/progress';
 import { AppSelect } from '@/components/ui/app-select';
+import { LifelineLoader } from '@/components/animate-ui/lifeline-loader';
 import { useToast } from '@/components/ui/toast';
 import {
   finalizeTherapyProgress,
@@ -17,7 +18,7 @@ import type { TherapyProgressView } from '@/server/queries/therapy-progress';
 import { uploadDocument, removeOwnDocument } from '@/server/actions/documents';
 import {
   attachDocumentToRecord,
-  fetchRecordAttachmentImages,
+  fetchRecordAttachmentMeta,
   fetchUnlinkedImages,
 } from '@/server/actions/record-attachments';
 
@@ -176,9 +177,12 @@ function MedicalRecordForm({
   >([]);
   const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
   const [unlinkedImages, setUnlinkedImages] = useState<
-    Array<{ id: string; name: string; createdAt: Date }>
+    Array<{ id: string; name: string; mimeType: string; createdAt: Date }>
   >([]);
   const [attachingId, setAttachingId] = useState<string | null>(null);
+  const [photosLoadedFor, setPhotosLoadedFor] = useState<string | null>(null);
+  // Selama lampiran rekam ini belum selesai dimuat, tampilkan animasi lifeline.
+  const loadingPhotos = Boolean(record?.id) && photosLoadedFor !== record?.id;
   const fieldsDisabled = pending || uploading || !patientId;
 
   useEffect(() => {
@@ -195,7 +199,7 @@ function MedicalRecordForm({
     let active = true;
     if (!record?.id) return;
     void Promise.all([
-      fetchRecordAttachmentImages(record.id),
+      fetchRecordAttachmentMeta(record.id),
       fetchUnlinkedImages(record.patientId),
     ])
       .then(([images, unlinked]) => {
@@ -205,7 +209,10 @@ function MedicalRecordForm({
         }
         setUnlinkedImages(unlinked);
       })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => {
+        if (active && record?.id) setPhotosLoadedFor(record.id);
+      });
     return () => {
       active = false;
     };
@@ -259,21 +266,53 @@ function MedicalRecordForm({
 
   async function handleAttachExisting(documentId: string) {
     if (!record?.id) return;
+    const image = unlinkedImages.find((item) => item.id === documentId);
+    if (!image) return;
     setAttachingId(documentId);
     try {
+      // WebP tidak bisa disematkan ke PDF, jadi konversi dulu ke PNG di browser
+      // lalu unggah sebagai dokumen baru yang langsung terikat ke rekam ini.
+      if (image.mimeType === 'image/webp') {
+        const response = await fetch(`/api/documents/${documentId}`);
+        if (!response.ok) {
+          showToast('error', 'Foto tidak dapat diambil untuk dikonversi.');
+          return;
+        }
+        const blob = await response.blob();
+        const converted = await normalizeImageFile(
+          new File([blob], image.name, { type: 'image/webp' }),
+        );
+        const payload = new FormData();
+        payload.set('patientId', patientId);
+        payload.set('documentType', 'EXAM_RESULT');
+        payload.set('recordId', record.id);
+        if (patientVisible === '1') payload.set('patientVisible', 'on');
+        payload.set('file', converted);
+        const uploaded = await uploadDocument(payload);
+        if (!uploaded.ok) {
+          showToast('error', uploaded.error);
+          return;
+        }
+        setUnlinkedImages((current) => current.filter((item) => item.id !== documentId));
+        setAttachments((current) => [
+          ...current,
+          {
+            key: uploaded.documentId ?? documentId,
+            name: image.name.replace(/\.webp$/i, '.png'),
+            id: uploaded.documentId,
+          },
+        ]);
+        showToast('success', 'Foto WebP dikonversi ke PNG dan dilampirkan pada rekam ini.');
+        return;
+      }
+
       const result = await attachDocumentToRecord(documentId, record.id);
       if (!result.ok) {
         showToast('error', result.error);
         return;
       }
-      const image = unlinkedImages.find((item) => item.id === documentId);
       setUnlinkedImages((current) => current.filter((item) => item.id !== documentId));
-      if (image) {
-        setAttachments((current) => [
-          ...current,
-          { key: image.id, name: image.name, id: image.id },
-        ]);
-      }
+      setAttachments((current) => [...current, { key: image.id, name: image.name, id: image.id }]);
       showToast('success', 'Foto dilampirkan ke rekam medis ini.');
     } finally {
       setAttachingId(null);
@@ -623,7 +662,12 @@ function MedicalRecordForm({
                 Pilih pasien terlebih dahulu sebelum mengunggah foto.
               </p>
             ) : null}
-            {attachments.length > 0 ? (
+            {loadingPhotos ? (
+              <div className="mt-3 rounded-xl border border-border/70 bg-card/60 py-4">
+                <LifelineLoader label="Memuat foto pasien…" />
+              </div>
+            ) : null}
+            {!loadingPhotos && attachments.length > 0 ? (
               <ul className="mt-3 space-y-1 border-t border-border/60 pt-2">
                 {attachments.map((file) => (
                   <li
@@ -656,7 +700,7 @@ function MedicalRecordForm({
               Foto dilampirkan ke rekam medis ini dan otomatis muncul pada PDF-nya. Untuk rekam final,
               lampiran tetap dapat dilihat tanpa mengubah isi SOAP.
             </p>
-            {record?.id && unlinkedImages.length > 0 ? (
+            {!loadingPhotos && record?.id && unlinkedImages.length > 0 ? (
               <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50/70 p-2.5">
                 <p className="text-[10px] font-semibold text-amber-900">
                   Foto pasien yang belum terhubung ke rekam ini
@@ -676,7 +720,7 @@ function MedicalRecordForm({
                         ) : (
                           <ImagePlus className="h-3 w-3" />
                         )}
-                        Lampirkan
+                        {image.mimeType === 'image/webp' ? 'Konversi & lampirkan' : 'Lampirkan'}
                       </button>
                     </li>
                   ))}

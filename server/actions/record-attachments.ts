@@ -8,6 +8,7 @@ import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { requireSession } from '@/lib/auth/require-session';
 import {
   getRecordAttachmentImages,
+  listRecordAttachmentMeta,
   listUnlinkedImages,
   type RecordAttachmentImage,
   type UnlinkedDocumentImage,
@@ -114,6 +115,15 @@ export async function fetchRecordAttachmentImages(
 export async function fetchUnlinkedImages(patientId: string): Promise<UnlinkedDocumentImage[]> {
   try {
     return await listUnlinkedImages(patientId);
+  } catch {
+    return [];
+  }
+}
+
+
+export async function fetchRecordAttachmentMeta(recordId: string) {
+  try {
+    return await listRecordAttachmentMeta(recordId);
   } catch {
     return [];
   }
