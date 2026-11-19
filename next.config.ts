@@ -17,13 +17,9 @@ const nextConfig: NextConfig = {
     },
   },
   async headers() {
-    // React dev-mode tooling (callstack reconstruction) requires eval(); only
-    // enable 'unsafe-eval' in development so production CSP stays strict.
-    const isDev = process.env.NODE_ENV === 'development';
-    const scriptSrc = isDev
-      ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com"
-      : "script-src 'self' 'unsafe-inline' https://www.google.com";
-
+    // CSP tidak lagi di sini: header CSP dibuat per-request di `proxy.ts` agar
+    // memakai nonce. Header statis di sini akan bertabrakan (dua CSP = irisan)
+    // dan mematikan nonce.
     return [
       {
         source: '/(.*)',
@@ -47,15 +43,6 @@ const nextConfig: NextConfig = {
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
-          },
-          {
-            key: 'Content-Security-Policy',
-            // @react-pdf/renderer memuat WASM Yoga dari URL `data:` dan membuat
-            // worker dari `blob:`. Tanpa izin ini pratinjau PDF rekam medis macet
-            // di status "Menyiapkan dokumen PDF…". `object-src`/`frame-src` tetap
-            // dibatasi ke origin sendiri plus blob untuk viewer PDF, dan Google
-            // Maps pada halaman kontak.
-            value: `default-src 'self'; ${scriptSrc}; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' data: blob:; font-src 'self' data:; worker-src 'self' blob:; frame-src 'self' blob: https://www.google.com`,
           },
           ...(process.env.NODE_ENV !== 'development'
             ? [

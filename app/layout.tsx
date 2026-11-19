@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 import { Inter, Poppins, Satisfy } from 'next/font/google';
 import { FloatingWhatsApp } from '@/components/ui/floating-whatsapp';
 import { ToastProvider } from '@/components/ui/toast';
@@ -89,11 +90,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Nonce CSP hanya dapat disuntikkan ke HTML yang dirender per-request, jadi
+  // seluruh halaman dipaksa dinamis (aplikasi ini sudah bergantung pada sesi).
+  await connection();
+
   return (
     <html lang="id" className={`${inter.variable} ${satisfy.variable} ${poppins.variable} bg-background`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">

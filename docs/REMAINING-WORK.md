@@ -46,10 +46,19 @@ pekerjaan lanjutan.
 
 ### 2. Content-Security-Policy
 
-- [ ] Terapkan CSP di staging dengan nonce/hash untuk Next.js.
-- [ ] Uji Better Auth, Google Maps iframe, gambar eksternal, dan PDF/blob.
-- [ ] Jangan memakai `unsafe-inline` tanpa kajian.
+- [x] CSP per-request dengan **nonce** dibuat di `proxy.ts`
+      (`lib/security/csp.ts`), header statis di `next.config.ts` dihapus agar
+      tidak ada dua CSP yang saling mengiris.
+- [x] `script-src` tanpa `unsafe-inline` (nonce + `strict-dynamic`);
+      `unsafe-eval` hanya di development.
+- [x] Seluruh halaman dipaksa dinamis (`connection()` di root layout) karena
+      nonce hanya bisa disuntikkan pada render per-request.
+- [x] Diuji tanpa pelanggaran: login, dashboard, pratinjau PDF (blob/self),
+      pratinjau dokumen (blob), Google Maps iframe, avatar ulasan.
+- [ ] `style-src` masih `'unsafe-inline'` — framer-motion & style inline
+      membutuhkannya; perlu kajian lanjutan untuk menghapus.
 - Acceptance: tidak ada pelanggaran CSP pada alur login, dashboard, dan cetak PDF.
+  **Tercapai** (lihat hasil uji di atas).
 
 ### 3. Backup, restore, dan retensi rekam medis
 
