@@ -527,7 +527,7 @@ export const MedicalRecordDocument = ({
                   <Text style={styles.identityValue}>{record.occupation || '-'}</Text>
                 </View>
               </View>
-              <View style={styles.identityRowLast}>
+              <View style={styles.identityRowLast} wrap={false}>
                 <View style={styles.identityCellLast}>
                   <Text style={styles.identityLabel}>Tanggal Pemeriksaan</Text>
                   <Text style={styles.identityValue}>{formattedDate}</Text>
@@ -565,7 +565,7 @@ export const MedicalRecordDocument = ({
                   <Text style={styles.identityValue}>{record.therapyInfo?.frequencyText || '-'}</Text>
                 </View>
               </View>
-              <View style={styles.identityRowLast}>
+              <View style={styles.identityRowLast} wrap={false}>
                 <View style={styles.identityCell}>
                   <Text style={styles.identityLabel}>Tujuan Terapi</Text>
                   <Text style={styles.identityValue}>{record.therapyInfo?.therapyGoal || '-'}</Text>
@@ -619,7 +619,7 @@ export const MedicalRecordDocument = ({
                   </View>
                 </View>
                 {record.treatmentPlan.precautions ? (
-                  <View style={styles.identityRowLast}>
+                  <View style={styles.identityRowLast} wrap={false}>
                     <View style={styles.identityCellLast}>
                       <Text style={styles.identityLabel}>Perhatian / Precaution</Text>
                       <Text style={styles.identityValue}>{record.treatmentPlan.precautions}</Text>
@@ -634,7 +634,7 @@ export const MedicalRecordDocument = ({
             <View style={styles.section}>
               <SectionTitle>13. PROGRAM LATIHAN MANDIRI</SectionTitle>
               <View style={styles.table}>
-                <View style={styles.tableHeader}>
+                <View style={styles.tableHeader} wrap={false} minPresenceAhead={40}>
                   <Text style={[styles.tableHeaderCell, { flex: 1.5 }]}>Latihan</Text>
                   <Text style={[styles.tableHeaderCell, { flex: 1.8 }]}>Instruksi</Text>
                   <Text style={[styles.tableHeaderCell, { flex: 0.8 }]}>Dosis</Text>
@@ -649,7 +649,7 @@ export const MedicalRecordDocument = ({
                     .filter(Boolean)
                     .join(' · ');
                   return (
-                    <View key={`${item.name}-${index}`} style={styles.tableRow}>
+                    <View key={`${item.name}-${index}`} style={styles.tableRow} wrap={false}>
                       <Text style={[styles.tableCell, { flex: 1.5 }]}>{item.name}</Text>
                       <Text style={[styles.tableCell, { flex: 1.8 }]}>{item.instruction || '-'}</Text>
                       <Text style={[styles.tableCell, { flex: 0.8 }]}>{dose || '-'}</Text>
@@ -664,14 +664,14 @@ export const MedicalRecordDocument = ({
           <View style={styles.section}>
             <SectionTitle>14. PENATALAKSANAAN</SectionTitle>
             <View style={styles.table}>
-              <View style={styles.tableHeader}>
+              <View style={styles.tableHeader} wrap={false} minPresenceAhead={40}>
                 <Text style={[styles.tableHeaderCell, { flex: 0.9 }]}>Tanggal</Text>
                 <Text style={[styles.tableHeaderCell, { flex: 1.6 }]}>Terapi</Text>
                 <Text style={[styles.tableHeaderCell, { flex: 1.6 }]}>Evaluasi</Text>
                 <Text style={[styles.tableHeaderCell, { flex: 1.2, borderRightWidth: 0 }]}>Keterangan</Text>
               </View>
               {rows.map((row, index) => (
-                <View key={`${row.date}-${index}`} style={styles.tableRow}>
+                <View key={`${row.date}-${index}`} style={styles.tableRow} wrap={false}>
                   <Text style={[styles.tableCell, { flex: 0.9 }]}>{row.date}</Text>
                   <Text style={[styles.tableCell, { flex: 1.6 }]}>{row.therapy}</Text>
                   <Text style={[styles.tableCell, { flex: 1.6 }]}>{row.evaluation}</Text>
