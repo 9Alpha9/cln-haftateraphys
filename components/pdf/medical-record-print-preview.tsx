@@ -3,6 +3,17 @@
 import type { MedicalRecordPdfData } from './medical-record-document';
 import { medicalRecordFileName } from './medical-record-filename';
 import { PdfCanvasViewer } from './pdf-canvas-viewer';
+// `?url` memberi URL aset statis dari salinan legacy pdf.js. Berkasnya disalin
+// apa adanya (tidak ditransformasi Turbopack), lalu dimuat viewer sebagai blob
+// worker agar tetap jalan di browser lama — lihat `loadPdfWorkerUrl`.
+// `import.meta.glob` dipakai karena Turbopack tidak mendukung import `?url`
+// langsung untuk berkas .mjs di node_modules.
+const workerModules = import.meta.glob('pdfjs-dist/legacy/build/pdf.worker.min.mjs', {
+  query: '?url',
+  import: 'default',
+  eager: true,
+});
+const legacyWorkerUrl = (Object.values(workerModules)[0] as string | undefined) ?? null;
 
 /**
  * Pratinjau PDF rekam medis.
@@ -18,6 +29,7 @@ export function MedicalRecordPrintPreview({ record }: { record: MedicalRecordPdf
     <PdfCanvasViewer
       src={`/dashboard/progress/${record.id}/pdf`}
       fileName={medicalRecordFileName(record)}
+      workerSrc={legacyWorkerUrl}
     />
   );
 }

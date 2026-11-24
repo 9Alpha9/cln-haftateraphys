@@ -1,5 +1,6 @@
 'use client';
 
+import { useId } from 'react';
 import { motion } from 'motion/react';
 
 // Jalur diberi margin 10 unit di kiri/kanan agar titik denyut (r=3.5) dan ujung
@@ -23,12 +24,18 @@ export function LifelineLoader({
   label?: string;
   className?: string;
 }) {
+  const idPrefix = useId().replace(/:/g, '');
+  const gradientId = `lifeline-glow-${idPrefix}`;
+  const maskId = `lifeline-glow-mask-${idPrefix}`;
+
   return (
     <div
       className={`flex flex-col items-center justify-center gap-3 ${className ?? ''}`}
       role="status"
       aria-live="polite"
     >
+      {/* Satu-satunya lapisan pemotong: container ini. Kilau diletakkan di dalam
+          svg (bukan elemen absolut), jadi ikut terpotong oleh tepi yang sama. */}
       <div className="relative w-44 overflow-hidden text-[var(--hafta-900)] sm:w-52">
         <svg viewBox="0 0 200 56" fill="none" aria-hidden="true" className="h-14 w-full">
           {/* Jalur dasar samar agar garis terlihat utuh saat animasi berjalan */}
@@ -55,6 +62,36 @@ export function LifelineLoader({
               repeat: Infinity,
             }}
           />
+          <defs>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="white" stopOpacity={0} />
+              <stop offset="50%" stopColor="white" stopOpacity={0.9} />
+              <stop offset="100%" stopColor="white" stopOpacity={0} />
+            </linearGradient>
+            {/* Kilau hanya muncul di sepanjang jalur: jalur dipakai sebagai mask
+                gradien, sehingga tidak ada persegi cahaya di luar garis EKG. */}
+            <mask id={maskId} maskUnits="userSpaceOnUse" x={0} y={0} width={200} height={56}>
+              <path
+                d={LIFELINE_PATH}
+                stroke="white"
+                strokeWidth={4}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </mask>
+          </defs>
+          <g mask={`url(#${maskId})`}>
+            <motion.rect
+              x={-28}
+              y={0}
+              width={28}
+              height={56}
+              fill={`url(#${gradientId})`}
+              initial={{ x: -28 }}
+              animate={{ x: 200 }}
+              transition={{ duration: CYCLE_SECONDS, ease: 'linear', repeat: Infinity }}
+            />
+          </g>
           {/* Titik denyut: mengikuti jalur yang sama, termasuk puncak gelombang.
               Berhenti di x=190 sehingga tidak menyentuh tepi mask. */}
           <circle r={3.5} fill="currentColor">
@@ -75,13 +112,6 @@ export function LifelineLoader({
             />
           </circle>
         </svg>
-        <motion.span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 w-16 bg-gradient-to-r from-transparent via-white/70 to-transparent"
-          initial={{ x: '-60%' }}
-          animate={{ x: '160%' }}
-          transition={{ duration: CYCLE_SECONDS, ease: 'linear', repeat: Infinity }}
-        />
       </div>
       <p className="text-xs font-semibold text-stone-600">{label}</p>
     </div>

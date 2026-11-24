@@ -62,8 +62,10 @@ export async function getRecordAttachmentImages(
         role === 'USER' ? eq(patientDocuments.patientVisible, 1) : undefined,
       ),
     )
+    // Ambil satu baris berlebih: bila cap lampiran tercapai, pemanggil tetap
+    // dapat memastikan file tertentu sudah terikat (lihat isFileLinkedToRecord).
     .orderBy(asc(patientDocuments.createdAt))
-    .limit(MAX_ATTACHMENTS);
+    .limit(MAX_ATTACHMENTS + 1);
 
   // Hitung kuota byte lebih dulu (data ukuran sudah ada di DB), lalu ambil semua
   // objek secara paralel agar tidak menunggu satu per satu.
@@ -138,8 +140,9 @@ export async function listUnlinkedImages(patientId: string): Promise<UnlinkedDoc
         isNull(patientDocuments.therapyProgressRecordId),
       ),
     )
+    // Satu baris berlebih supaya "sudah terlampir" tetap terbaca saat cap 12 terisi.
     .orderBy(desc(patientDocuments.createdAt))
-    .limit(12);
+    .limit(13);
 
   return rows.map((row) => ({
     id: row.id,
@@ -151,6 +154,20 @@ export async function listUnlinkedImages(patientId: string): Promise<UnlinkedDoc
 
 
 export type RecordAttachmentMeta = { id: string; name: string };
+
+/**
+ * Apakah sebuah dokumen sudah terikat ke rekam medis (`therapy_progress_record_id`
+ * terisi)? Dipakai untuk menyembunyikan foto yang sudah dilampirkan dari daftar
+ * "belum terhubung" tanpa harus mengunduh isi berkasnya.
+ */
+export async function isFileLinkedToRecord(documentId: string): Promise<boolean> {
+  const [row] = await getDb()
+    .select({ recordId: patientDocuments.therapyProgressRecordId })
+    .from(patientDocuments)
+    .where(eq(patientDocuments.id, documentId))
+    .limit(1);
+  return Boolean(row?.recordId);
+}
 
 /**
  * Metadata lampiran rekam (tanpa mengunduh isi gambar dari storage). Dipakai

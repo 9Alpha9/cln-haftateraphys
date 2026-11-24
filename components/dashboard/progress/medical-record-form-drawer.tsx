@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useState, useTransition } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Activity, ClipboardList, Eye, EyeOff, FilePenLine, ImagePlus, Loader2, Lock, Save, Stethoscope, Trash2, UserRound } from 'lucide-react';
@@ -19,6 +19,7 @@ import { uploadDocument, removeOwnDocument } from '@/server/actions/documents';
 import {
   attachDocumentToRecord,
   fetchRecordAttachmentMeta,
+  fetchLinkedDocumentIds,
   fetchUnlinkedImages,
 } from '@/server/actions/record-attachments';
 
@@ -55,6 +56,27 @@ function SectionHeading({
       </div>
     </div>
   );
+}
+
+/**
+ * Memuat lampiran rekam beserta foto pasien yang belum terhubung. Foto yang
+ * sudah dilampirkan (punya `therapy_progress_record_id`) selalu disaring,
+ * termasuk yang sudah tidak muncul lagi di jendela daftar karena cap jumlah.
+ */
+async function fetchRecordPhotos(recordId: string, patientId: string) {
+  const [images, unlinked] = await Promise.all([
+    fetchRecordAttachmentMeta(recordId),
+    fetchUnlinkedImages(patientId),
+  ]);
+  const linkedIds = new Set(images.map((image) => image.id));
+  if (unlinked.length > 0) {
+    const linkedFromList = await fetchLinkedDocumentIds(unlinked.map((image) => image.id));
+    for (const id of linkedFromList) linkedIds.add(id);
+  }
+  return {
+    attachments: images.map((image) => ({ key: image.id, name: image.name, id: image.id })),
+    unlinkedImages: unlinked.filter((image) => !linkedIds.has(image.id)),
+  };
 }
 
 const SCORE_FIELDS = [
@@ -170,6 +192,8 @@ function MedicalRecordForm({
   );
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  /** Dipakai untuk memuat ulang daftar foto "belum terhubung" setelah unggah. */
+  const recordsPhotosRef = useRef<{ recordId: string; patientId: string } | null>(null);
   // `file` terisi untuk lampiran yang menunggu rekam disimpan lebih dulu
   // (rekam baru belum punya id), `id` terisi setelah berhasil diunggah.
   const [attachments, setAttachments] = useState<
@@ -194,29 +218,56 @@ function MedicalRecordForm({
   }, [onPatientReadyChange, patientId]);
 
   // Tampilkan lampiran yang sudah tersimpan pada rekam ini agar terapis tahu
-  // foto mana yang ikut tercetak di PDF.
+  // foto mana yang ikut tercetak di PDF, sekaligus saring foto yang sudah
+  // terlampir dari daftar "belum terhubung".
+  const loadRecordPhotos = useCallback(
+    async (recordId: string, patientId: string, active: () => boolean) => {
+      return fetchRecordPhotos(recordId, patientId).then((photos) => {
+        if (!active()) return;
+        setAttachments(photos.attachments);
+        setUnlinkedImages(photos.unlinkedImages);
+        setPhotosLoadedFor(recordId);
+      });
+    },
+    [],
+  );
+
+  async function refreshRecordPhotos() {
+    const target = recordsPhotosRef.current;
+    if (!target) return;
+    try {
+      await loadRecordPhotos(target.recordId, target.patientId, () => true);
+    } catch {
+      // Daftar foto bersifat pelengkap; daftar lampiran tetap tampil dari state.
+    }
+  }
+
+  function hideUnlinkedImage(documentId: string) {
+    setUnlinkedImages((current) => current.filter((item) => item.id !== documentId));
+  }
+
   useEffect(() => {
     let active = true;
-    if (!record?.id) return;
-    void Promise.all([
-      fetchRecordAttachmentMeta(record.id),
-      fetchUnlinkedImages(record.patientId),
-    ])
-      .then(([images, unlinked]) => {
-        if (!active) return;
-        if (images.length > 0) {
-          setAttachments(images.map((image) => ({ key: image.id, name: image.name, id: image.id })));
-        }
-        setUnlinkedImages(unlinked);
-      })
+    if (!record?.id) {
+      recordsPhotosRef.current = null;
+      return;
+    }
+    recordsPhotosRef.current = { recordId: record.id, patientId: record.patientId };
+    void loadRecordPhotos(record.id, record.patientId, () => active)
       .catch(() => {})
       .finally(() => {
-        if (active && record?.id) setPhotosLoadedFor(record.id);
+        if (active) setPhotosLoadedFor(record.id);
       });
     return () => {
       active = false;
     };
-  }, [record?.id, record?.patientId]);
+  }, [loadRecordPhotos, record?.id, record?.patientId]);
+
+  /**
+   * Setelah unggah berhasil, foto yang baru dilampirkan harus langsung hilang
+   * dari daftar "belum terhubung" (dan rekam final yang terikat bisa kosong
+   * dari jalur ini), jadi muat ulang dari server.
+   */
 
   /**
    * `@react-pdf/renderer` hanya dapat menyematkan PNG/JPEG, jadi WebP (yang
@@ -293,7 +344,6 @@ function MedicalRecordForm({
           showToast('error', uploaded.error);
           return;
         }
-        setUnlinkedImages((current) => current.filter((item) => item.id !== documentId));
         setAttachments((current) => [
           ...current,
           {
@@ -302,7 +352,11 @@ function MedicalRecordForm({
             id: uploaded.documentId,
           },
         ]);
+        // Sumber WebP-nya kini salinan lampiran rekam dan tidak boleh lagi
+        // muncul sebagai foto yang belum terhubung.
+        hideUnlinkedImage(documentId);
         showToast('success', 'Foto WebP dikonversi ke PNG dan dilampirkan pada rekam ini.');
+        await refreshRecordPhotos();
         return;
       }
 
@@ -311,9 +365,12 @@ function MedicalRecordForm({
         showToast('error', result.error);
         return;
       }
-      setUnlinkedImages((current) => current.filter((item) => item.id !== documentId));
       setAttachments((current) => [...current, { key: image.id, name: image.name, id: image.id }]);
+      hideUnlinkedImage(documentId);
       showToast('success', 'Foto dilampirkan ke rekam medis ini.');
+      // Tarik ulang dari server agar foto ini (dan foto lain yang sudah
+      // terlampir) tidak pernah tampil lagi di daftar "belum terhubung".
+      await refreshRecordPhotos();
     } finally {
       setAttachingId(null);
     }
@@ -652,6 +709,7 @@ function MedicalRecordForm({
                 }
                 setUploading(false);
                 if (success > 0) {
+                  await refreshRecordPhotos();
                   showToast('success', `${success} foto berhasil dilampirkan pada rekam medis ini.`);
                 }
               }}

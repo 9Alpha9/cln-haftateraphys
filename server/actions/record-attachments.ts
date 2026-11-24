@@ -8,6 +8,7 @@ import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { requireSession } from '@/lib/auth/require-session';
 import {
   getRecordAttachmentImages,
+  isFileLinkedToRecord,
   listRecordAttachmentMeta,
   listUnlinkedImages,
   type RecordAttachmentImage,
@@ -37,7 +38,7 @@ export async function attachDocumentToRecord(
       .select({
         id: patientDocuments.id,
         patientId: patientDocuments.patientId,
-        recordId: patientDocuments.therapyProgressRecordId,
+        linkedRecordId: patientDocuments.therapyProgressRecordId,
       })
       .from(patientDocuments)
       .where(eq(patientDocuments.id, documentId))
@@ -46,7 +47,9 @@ export async function attachDocumentToRecord(
     if (document.patientId !== record.patientId) {
       return { ok: false, error: 'Dokumen bukan milik pasien pada rekam ini.' };
     }
-    if (document.recordId && document.recordId !== recordId) {
+    // Sudah terikat ke rekam ini = tidak ada yang perlu diubah.
+    if (document.linkedRecordId && document.linkedRecordId === recordId) return { ok: true };
+    if (document.linkedRecordId) {
       return { ok: false, error: 'Dokumen sudah dilampirkan pada rekam lain.' };
     }
 
@@ -124,6 +127,24 @@ export async function fetchUnlinkedImages(patientId: string): Promise<UnlinkedDo
 export async function fetchRecordAttachmentMeta(recordId: string) {
   try {
     return await listRecordAttachmentMeta(recordId);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Cek status tautan beberapa dokumen sekaligus. Dipakai form rekam agar foto
+ * yang baru saja dilampirkan langsung hilang dari daftar "belum terhubung",
+ * termasuk foto yang berada di luar jendela daftar karena cap jumlah.
+ */
+export async function fetchLinkedDocumentIds(documentIds: string[]): Promise<string[]> {
+  const ids = [...new Set(documentIds.filter(Boolean))].slice(0, 24);
+  if (ids.length === 0) return [];
+  try {
+    const results = await Promise.all(
+      ids.map(async (id) => ({ id, linked: await isFileLinkedToRecord(id) })),
+    );
+    return results.filter((item) => item.linked).map((item) => item.id);
   } catch {
     return [];
   }

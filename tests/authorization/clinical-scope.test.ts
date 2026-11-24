@@ -100,6 +100,11 @@ vi.mock('@/lib/audit', () => ({
   createAuditLog: vi.fn(async () => undefined),
 }));
 
+// Tanpa R2, `listRecordAttachmentMeta`/`attachDocumentToRecord` tidak menyentuh storage.
+vi.mock('@/lib/storage/r2', () => ({
+  isR2Configured: vi.fn(() => false),
+}));
+
 vi.mock('next/cache', () => ({
   revalidatePath: vi.fn(),
 }));
@@ -592,5 +597,23 @@ describe('S5 — scope baca rekam medis dan lampiran rekam', () => {
     });
     // Tidak ada baris dokumen yang diubah.
     expect(mocks.state.updateCalls.filter((c) => c.tableName === 'patient_documents')).toHaveLength(0);
+  });
+
+  it('dokumen yang sudah terikat ke rekam ini dianggap berhasil tanpa update ulang', async () => {
+    mocks.state.currentRole = 'ADMIN';
+    mocks.state.rows.therapy_progress_records = [
+      { id: RECORD_ID, patientId: PATIENT_ID, status: 'DRAFT' },
+    ];
+    mocks.state.rows.patient_documents = [
+      { id: DOCUMENT_ID, patientId: PATIENT_ID, linkedRecordId: RECORD_ID },
+    ];
+    mocks.state.updateCalls.length = 0;
+    const before = mocks.state.updateCalls.filter((c) => c.tableName === 'patient_documents').length;
+
+    const result = await attachDocumentToRecord(DOCUMENT_ID, RECORD_ID);
+    console.log('DBG', JSON.stringify(result), JSON.stringify(mocks.state.updateCalls));
+    expect(result).toEqual({ ok: true });
+    const after = mocks.state.updateCalls.filter((c) => c.tableName === 'patient_documents').length;
+    expect(after).toBe(before);
   });
 });
