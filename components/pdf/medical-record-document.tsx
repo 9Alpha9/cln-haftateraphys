@@ -134,8 +134,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    borderTopWidth: 1,
-    borderTopColor: '#e7e5e4',
     paddingTop: 10,
     minHeight: 96,
   },
