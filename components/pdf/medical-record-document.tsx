@@ -423,7 +423,7 @@ export const MedicalRecordDocument = ({
   const formattedDate = formatDate(record.recordedAt);
   const printedAt = new Date().toLocaleString('id-ID', { dateStyle: 'long', timeStyle: 'short' });
   const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
-  const resolvedLogoUrl = logoUrl ?? `${origin}/images/logos/logos-text.png`;
+  const resolvedLogoUrl = logoUrl ?? `${origin}/images/logos/logos-text-pdf.png`;
   // @react-pdf/renderer hanya dapat menyematkan PNG/JPEG. Format lain (mis. WebP)
   // dirender sebagai kotak kosong, jadi disaring agar tidak muncul kotak hampa.
   const renderableAttachments = (record.attachmentImages ?? []).filter((attachment) =>

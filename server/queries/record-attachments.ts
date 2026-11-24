@@ -65,33 +65,41 @@ export async function getRecordAttachmentImages(
     .orderBy(asc(patientDocuments.createdAt))
     .limit(MAX_ATTACHMENTS);
 
-  const images: RecordAttachmentImage[] = [];
+  // Hitung kuota byte lebih dulu (data ukuran sudah ada di DB), lalu ambil semua
+  // objek secara paralel agar tidak menunggu satu per satu.
   let totalBytes = 0;
+  const selected = rows.filter((row) => {
+    if (!row.storageKey) return false;
+    if (totalBytes + row.sizeBytes > MAX_TOTAL_BYTES) return false;
+    totalBytes += row.sizeBytes;
+    return true;
+  });
 
-  for (const row of rows) {
-    if (!row.storageKey || totalBytes + row.sizeBytes > MAX_TOTAL_BYTES) continue;
-    try {
-      const object = await getObject(row.storageKey);
-      const buffer = Buffer.from(await object.arrayBuffer());
-      totalBytes += buffer.byteLength;
-      const typeLabel = DOCUMENT_TYPE_LABELS[row.documentType] ?? 'Hasil Pemeriksaan';
-      const date = new Date(row.createdAt).toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      });
-      images.push({
-        id: row.id,
-        name: row.originalFilename ?? 'Lampiran pemeriksaan',
-        caption: `${typeLabel} — ${row.originalFilename ?? 'Lampiran'} · diunggah ${date}`,
-        dataUrl: `data:${row.mimeType};base64,${buffer.toString('base64')}`,
-      });
-    } catch {
-      // Lampiran yang gagal diambil tidak boleh menggagalkan pembuatan PDF.
-    }
-  }
+  const images = await Promise.all(
+    selected.map(async (row): Promise<RecordAttachmentImage | null> => {
+      try {
+        const object = await getObject(row.storageKey as string);
+        const buffer = Buffer.from(await object.arrayBuffer());
+        const typeLabel = DOCUMENT_TYPE_LABELS[row.documentType] ?? 'Hasil Pemeriksaan';
+        const date = new Date(row.createdAt).toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        });
+        return {
+          id: row.id,
+          name: row.originalFilename ?? 'Lampiran pemeriksaan',
+          caption: `${typeLabel} — ${row.originalFilename ?? 'Lampiran'} · diunggah ${date}`,
+          dataUrl: `data:${row.mimeType};base64,${buffer.toString('base64')}`,
+        };
+      } catch {
+        // Lampiran yang gagal diambil tidak boleh menggagalkan pembuatan PDF.
+        return null;
+      }
+    }),
+  );
 
-  return images;
+  return images.filter((image): image is RecordAttachmentImage => image !== null);
 }
 
 

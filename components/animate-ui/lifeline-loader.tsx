@@ -2,7 +2,9 @@
 
 import { motion } from 'motion/react';
 
-const LIFELINE_PATH = 'M0 30 H44 l7 0 6 -16 8 32 8 -26 7 10 H200';
+// Jalur diberi margin 10 unit di kiri/kanan agar titik denyut (r=3.5) dan ujung
+// garis tidak terpotong oleh mask (overflow-hidden) container.
+const LIFELINE_PATH = 'M10 30 H50 l7 0 6 -16 8 32 8 -26 7 10 H190';
 const CYCLE_SECONDS = 2.1;
 
 /**
@@ -53,7 +55,8 @@ export function LifelineLoader({
               repeat: Infinity,
             }}
           />
-          {/* Titik denyut: mengikuti jalur yang sama, termasuk puncak gelombang */}
+          {/* Titik denyut: mengikuti jalur yang sama, termasuk puncak gelombang.
+              Berhenti di x=190 sehingga tidak menyentuh tepi mask. */}
           <circle r={3.5} fill="currentColor">
             <animateMotion
               dur={`${CYCLE_SECONDS}s`}

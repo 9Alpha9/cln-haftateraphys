@@ -28,7 +28,10 @@ export function LoginForm({ reason }: LoginFormProps) {
   const [isPending, startTransition] = useTransition();
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
-  const [email, setEmail] = useState('');
+  // `null` berarti pengguna belum menyentuh field; selama itu email tersimpan
+  // dipakai sebagai prefill. Setelah diubah (termasuk dikosongkan), nilai state
+  // yang menang — sehingga menghapus email tidak memunculkannya kembali.
+  const [email, setEmail] = useState<string | null>(null);
   // Simpan "ingat email" di localStorage; baca via useSyncExternalStore agar
   // konsisten antara render server (snapshot '') dan client, mencegah error hidrasi.
   const savedEmail = useSyncExternalStore(
@@ -278,9 +281,6 @@ export function LoginForm({ reason }: LoginFormProps) {
 
       {/* ── FORM INPUT ── */}
       <form onSubmit={handleSubmit} method="post" className="space-y-4" noValidate>
-        {/* `savedEmail` dipakai sebagai nilai awal non-kontrol agar field tetap
-            terkontrol (`email`) tanpa setState di effect. */}
-        <input type="hidden" name="__savedEmail" value={savedEmail} readOnly />
         {/* Email */}
         <div className="space-y-1.5">
           <Label htmlFor="email" className="text-xs font-semibold text-stone-700">
@@ -296,7 +296,7 @@ export function LoginForm({ reason }: LoginFormProps) {
             placeholder="nama@email.com"
             required
             autoComplete="email"
-            value={email || savedEmail}
+            value={email ?? savedEmail}
             onChange={(event) => {
               setEmail(event.target.value);
               clearFieldError('email');

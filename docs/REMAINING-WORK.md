@@ -147,10 +147,22 @@ pekerjaan lanjutan.
 - Catatan CSP: `connect-src` wajib memuat `data:`/`blob:` dan `worker-src` wajib
       memuat `blob:`; tanpa itu `@react-pdf/renderer` (WASM Yoga + worker) macet
       di status "Menyiapkan dokumen PDF…". Lihat `next.config.ts`.
-- iOS Safari tidak punya toolbar PDF di dalam iframe (hanya merender isi), jadi
-  pratinjau menampilkan bilah aksi sendiri di layar kecil: **Unduh PDF** dan
-  **Cetak / Bagikan** (buka PDF di tab baru → menu bagikan iOS). Modal pratinjau
-  dibuat **full screen** di mobile (`100dvh`, tanpa radius, safe-area atas).
+- **Iframe PDF diganti penampil canvas (pdf.js).** Iframe hanya bekerja bila
+  browser punya viewer PDF internal; iOS Safari tidak punya toolbar, dan sebagian
+  browser Android (Firefox, Samsung Internet) tidak merender PDF di iframe sama
+  sekali. Sekarang halaman PDF digambar ke `<canvas>` lewat `pdfjs-dist`
+  (`components/pdf/pdf-canvas-viewer.tsx`) sehingga tampil di semua browser,
+  dengan toolbar sendiri (**Unduh PDF**, **Cetak**) dan cetak via `window.print`
+  (CSS `body:has(.pdf-print-root)` hanya mencetak kanvas dokumen). Modal pratinjau
+  full screen di mobile (`100dvh`, safe-area atas).
+- Kinerja render PDF:
+  - logo PDF memakai aset ringan `logos-text-pdf.png` (59 KB) — render 3,8 s → ~1,2 s
+    dan ukuran PDF 1,39 MB → 72 KB;
+  - lampiran R2 diambil paralel (bukan berurutan);
+  - cache render server 60 detik (kunci `id + updatedAt + jumlah lampiran`);
+  - halaman dirender bertahap (canvas placeholder + IntersectionObserver);
+  - cache byte PDF di klien 20 detik.
+  Hasil ukur (dev): buka pertama ~1,9 s, buka ulang ~0,7 s.
 
 ### 11. Rate limit/cache endpoint publik
 

@@ -39,6 +39,8 @@ export type TherapyProgressView = {
 };
 
 export type TherapyProgressDetail = TherapyProgressView & {
+  /** Versi data; dipakai untuk cache render PDF. */
+  updatedAt: Date;
   medicalRecordNumber: string | null;
   gender: string | null;
   patientDob: Date | null;
@@ -100,6 +102,7 @@ export async function getTherapyProgressById(id: string): Promise<TherapyProgres
       revisionNumber: therapyProgressRecords.revisionNumber,
       amendmentReason: therapyProgressRecords.amendmentReason,
       supersededAt: therapyProgressRecords.supersededAt,
+      updatedAt: therapyProgressRecords.updatedAt,
     })
     .from(therapyProgressRecords)
     .innerJoin(patients, eq(therapyProgressRecords.patientId, patients.id))

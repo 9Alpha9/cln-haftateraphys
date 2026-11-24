@@ -369,6 +369,34 @@
   }
 }
 
+/* Cetak pratinjau PDF berbasis canvas: hanya kanvas dokumen yang dicetak. */
+@media print {
+  body:has(.pdf-print-root) * {
+    visibility: hidden;
+  }
+
+  body:has(.pdf-print-root) .pdf-print-root,
+  body:has(.pdf-print-root) .pdf-print-root * {
+    visibility: visible;
+  }
+
+  body:has(.pdf-print-root) .pdf-print-root {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+  }
+
+  body:has(.pdf-print-root) .pdf-print-root canvas {
+    width: 100% !important;
+    height: auto !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    break-after: page;
+  }
+}
+
 @media print {
   *,
   *::before,

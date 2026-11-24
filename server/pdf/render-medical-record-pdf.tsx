@@ -8,7 +8,7 @@ let cachedLogo: string | null = null;
 /** Logo klinik sebagai data URI agar server tidak perlu request ke dirinya sendiri. */
 async function loadLogoDataUri(): Promise<string> {
   if (cachedLogo) return cachedLogo;
-  const filePath = path.join(process.cwd(), 'public', 'images', 'logos', 'logos-text.png');
+  const filePath = path.join(process.cwd(), 'public', 'images', 'logos', 'logos-text-pdf.png');
   const buffer = await readFile(filePath);
   cachedLogo = `data:image/png;base64,${buffer.toString('base64')}`;
   return cachedLogo;
