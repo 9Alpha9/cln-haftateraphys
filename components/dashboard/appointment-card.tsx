@@ -24,7 +24,7 @@ import type { Role } from '@/lib/permissions/roles';
 import { deleteAppointment } from '@/server/actions/appointments';
 import { markCalendarAppointmentsRead } from '@/server/actions/appointment-notifications';
 import { cn } from '@/lib/utils';
-import { openPrintPreview } from '@/components/print/print-iframe';
+import { AppointmentPrintDialog } from '@/components/pdf/appointment-print-dialog';
 import type { AppointmentView } from '@/server/queries/appointments';
 import { AppointmentEditButton } from '@/components/dashboard/appointments/appointment-edit-button';
 import { AppointmentEditDrawer, useAppointmentEditDrawer } from '@/components/dashboard/appointments/appointment-edit-drawer';
@@ -89,6 +89,7 @@ export function AppointmentCard({
   const { showToast } = useToast();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [printOpen, setPrintOpen] = useState(false);
   const editor = useAppointmentEditDrawer();
 
   const canEdit = hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE);
@@ -227,6 +228,7 @@ export function AppointmentCard({
             <AppointmentDropdown
               appointment={appointment}
               onDelete={() => setShowDeleteDialog(true)}
+              onPrint={() => setPrintOpen(true)}
             />
           </div>
         </div>
@@ -248,6 +250,11 @@ export function AppointmentCard({
         data={editor.data}
         onClose={editor.closeEdit}
       />
+      <AppointmentPrintDialog
+        appointmentId={appointment.id}
+        open={printOpen}
+        onOpenChange={setPrintOpen}
+      />
     </>
   );
 }
@@ -255,9 +262,11 @@ export function AppointmentCard({
 function AppointmentDropdown({
   appointment,
   onDelete,
+  onPrint,
 }: {
   appointment: AppointmentView;
   onDelete: () => void;
+  onPrint?: () => void;
 }) {
   return (
     <DropdownMenu>
@@ -270,7 +279,7 @@ function AppointmentDropdown({
 
       <DropdownMenuContent align="end" sideOffset={8} className="w-48">
         <DropdownMenuItem
-          onClick={() => openPrintPreview(`/dashboard/appointments/${appointment.id}/print`)}
+          onClick={() => onPrint?.()}
           className="min-h-[44px] gap-2.5 text-xs text-muted-foreground"
         >
           <Printer className="h-3.5 w-3.5 shrink-0" />

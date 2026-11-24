@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { CalendarDays, History, Printer } from 'lucide-react';
-import { openPrintPreview } from '@/components/print/print-iframe';
+import { AppointmentPrintDialog } from '@/components/pdf/appointment-print-dialog';
 import { PaginationBar } from '@/components/ui/pagination-bar';
 import type { PatientPortalAppointment } from '@/server/queries/patient-portal';
 
@@ -45,6 +45,7 @@ function formatDate(value: Date | string) {
 
 function SessionRow({ appointment }: { appointment: PatientPortalAppointment }) {
   const canPrint = appointment.status === 'SCHEDULED' || appointment.status === 'CONFIRMED';
+  const [printOpen, setPrintOpen] = useState(false);
 
   return (
     <li className="flex flex-col gap-2.5 py-3.5 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between">
@@ -68,7 +69,7 @@ function SessionRow({ appointment }: { appointment: PatientPortalAppointment }) 
         {canPrint ? (
           <button
             type="button"
-            onClick={() => openPrintPreview(`/dashboard/appointments/${appointment.id}/print`)}
+            onClick={() => setPrintOpen(true)}
             className="inline-flex h-9 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
           >
             <Printer className="h-3.5 w-3.5" />
@@ -76,6 +77,11 @@ function SessionRow({ appointment }: { appointment: PatientPortalAppointment }) 
           </button>
         ) : null}
       </div>
+      <AppointmentPrintDialog
+        appointmentId={appointment.id}
+        open={printOpen}
+        onOpenChange={setPrintOpen}
+      />
     </li>
   );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { LifelineLoader } from '@/components/animate-ui/lifeline-loader';
 
 /** Lokasi aset resmi PDF.js Generic Viewer yang disajikan dari origin aplikasi. */
@@ -36,6 +36,13 @@ export function HaftaPdfjsViewer({
   const viewerSrc = `${GENERIC_VIEWER_URL}?file=${encodeURIComponent(src)}`;
 
   const handleLoad = useCallback(() => setLoaded(true), []);
+
+  // Timer pengaman agar loader tidak tertahan terus apabila onLoad iframe
+  // tertunda atau ter-reset oleh PDF.js worker.
+  useEffect(() => {
+    const timer = window.setTimeout(() => setLoaded(true), 1500);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   return (
     <div className="relative flex h-full min-h-0 flex-col bg-stone-200">
