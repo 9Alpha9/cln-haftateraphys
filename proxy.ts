@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildContentSecurityPolicy } from '@/lib/security/csp';
+import {
+  buildPdfViewerContentSecurityPolicy,
+  isPdfViewerAssetPath,
+} from '@/lib/security/pdfjs-csp';
 import { shouldHideDashboardOnHost } from '@/lib/security/host-routing';
 import {
   buildAuthRateLimitKey,
@@ -75,6 +79,15 @@ export async function proxy(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const host = request.headers.get('host') ?? '';
   const pathname = request.nextUrl.pathname;
+
+  // Aset PDF.js Generic Viewer (`/pdfjs/**`) adalah dokumen terpisah dengan
+  // kebutuhan CSP sendiri: module script tanpa nonce + WASM. Beri header CSP
+  // khusus viewer, bukan CSP aplikasi (yang berbasis nonce & strict-dynamic).
+  if (isPdfViewerAssetPath(pathname)) {
+    const response = NextResponse.next();
+    response.headers.set('Content-Security-Policy', buildPdfViewerContentSecurityPolicy());
+    return response;
+  }
 
   // Rate limiting check (backing store database)
   const rateLimitResponse = await checkRateLimit(request, pathname);

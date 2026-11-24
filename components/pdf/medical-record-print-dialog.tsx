@@ -15,13 +15,9 @@ import { MedicalRecordPrintPreview } from './medical-record-print-preview';
 /**
  * Pop up pratinjau cetak rekam medis.
  *
- * Seluruh alur cetak/unduh terjadi di dalam modal ini: viewer PDF bawaan sudah
- * menyediakan tombol cetak dan unduh sendiri, jadi tidak ada tombol tambahan
- * maupun alur "buka di tab". PDF dirender pada iframe satu tingkat agar tidak
- * kosong seperti saat dibungkus iframe halaman print.
- *
- * Area dokumen dibuat edge-to-edge (tanpa padding kiri/kanan/bawah) supaya
- * viewer PDF memakai seluruh ruang modal.
+ * Shell Hafta hanya menyediakan judul, identitas pasien, dan tombol tutup.
+ * Seluruh kontrol dokumen (navigasi halaman, zoom, pencarian, sidebar, cetak,
+ * unduh) berasal dari PDF.js Generic Viewer resmi di dalam iframe.
  */
 export function MedicalRecordPrintDialog({
   record,
@@ -45,7 +41,7 @@ export function MedicalRecordPrintDialog({
             </DialogTitle>
             <DialogDescription className="truncate text-[11px] leading-snug text-muted-foreground">
               {record
-                ? `${record.patientName} · Cetak atau unduh lewat tombol pada pratinjau PDF.`
+                ? `${record.patientName} · Gunakan toolbar PDF untuk mencari, memperbesar, mencetak, atau mengunduh.`
                 : 'Rekam medis'}
             </DialogDescription>
           </div>
