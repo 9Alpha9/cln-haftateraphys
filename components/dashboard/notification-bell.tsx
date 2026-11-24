@@ -134,6 +134,7 @@ export function NotificationBell({
       {/* Topbar Bell Icon Button */}
       <Button
         size="icon"
+        variant="ghost"
         onClick={() => {
           if (pathname !== '/dashboard/notifications') setOpen(true);
         }}
