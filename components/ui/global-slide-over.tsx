@@ -7,6 +7,7 @@ import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useOverlayLayer } from '@/components/ui/use-overlay-layer';
 import { useBodyScrollLock } from '@/components/ui/use-body-scroll-lock';
+import { DRAWER_ANIMATION } from '@/lib/animation/drawer-animation';
 
 export type SlideOverSize = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -54,8 +55,24 @@ export function GlobalSlideOver({
     () => true,
     () => false
   );
-  const { isTopmost, zIndex } = useOverlayLayer(isOpen, zIndexBase);
-  useBodyScrollLock(isOpen);
+  /**
+   * `isOpen` adalah intent aplikasi; `closing` menahan scroll lock, layer
+   * z-index, dan focus trap tetap aktif selama exit animation berjalan.
+   * `closing` TIDAK boleh menjadi render gate — kalau ia digating dan baru
+   * dimatikan di `onExitComplete`, exit animation tidak pernah dipicu sehingga
+   * drawer tidak pernah hilang (deadlock).
+   */
+  const [previousOpen, setPreviousOpen] = React.useState(isOpen);
+  const [closing, setClosing] = React.useState(false);
+  if (isOpen !== previousOpen) {
+    setPreviousOpen(isOpen);
+    setClosing(!isOpen);
+  }
+
+  const active = isOpen || closing;
+
+  const { isTopmost, zIndex } = useOverlayLayer(active, zIndexBase);
+  useBodyScrollLock(active);
   const titleId = React.useId();
   const panelRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -65,20 +82,27 @@ export function GlobalSlideOver({
     onCloseRef.current = onClose;
   }, [onClose]);
 
-  useEffect(() => {
-    if (!isOpen) return;
-    // Let page-level dropdown menus (e.g. SmartFilterMenu) close when a drawer opens.
-    window.dispatchEvent(new Event('hafta:overlay-open'));
-    const previouslyFocused = document.activeElement as HTMLElement | null;
-    const frame = window.requestAnimationFrame(() => panelRef.current?.focus());
-    return () => {
-      window.cancelAnimationFrame(frame);
-      previouslyFocused?.focus?.();
-    };
-  }, [isOpen]);
+  const previousFocusRef = React.useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!active) return;
+    // Let page-level dropdown menus (e.g. SmartFilterMenu) close when a drawer opens.
+    window.dispatchEvent(new Event('hafta:overlay-open'));
+    previousFocusRef.current = document.activeElement as HTMLElement | null;
+    const frame = window.requestAnimationFrame(() => panelRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [active]);
+
+  // Focus dikembalikan SETELAH exit animation selesai (`onExitComplete`), bukan
+  // saat `isOpen` menjadi false. Mengembalikan fokus di awal closing membuat
+  // browser men-scroll ke elemen pemicu saat panel masih terlihat.
+  const restoreFocus = React.useCallback(() => {
+    previousFocusRef.current?.focus?.();
+    previousFocusRef.current = null;
+  }, []);
+
+  useEffect(() => {
+    if (!active) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isTopmost) return;
@@ -113,12 +137,17 @@ export function GlobalSlideOver({
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('hafta:close-all-slide-overs', handleCloseAllSlideOvers);
     };
-  }, [isOpen, isTopmost]);
+  }, [active, isTopmost]);
 
   if (!mounted) return null;
 
   return createPortal(
-    <AnimatePresence>
+    <AnimatePresence
+      onExitComplete={() => {
+        setClosing(false);
+        restoreFocus();
+      }}
+    >
       {isOpen && (
         <motion.div
           key="global-slide-over"
@@ -127,8 +156,11 @@ export function GlobalSlideOver({
           aria-labelledby={titleId}
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0.99 }}
-          transition={{ duration: 0.32 }}
+          exit={{ opacity: 0 }}
+          transition={{
+            duration: DRAWER_ANIMATION.duration,
+            ease: DRAWER_ANIMATION.easing,
+          }}
         >
           {/* ── 1. STATIC BACKDROP OVERLAY (LOCKED SCREEN BLUR) ── */}
           <motion.div
@@ -136,7 +168,10 @@ export function GlobalSlideOver({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
+            transition={{
+              duration: DRAWER_ANIMATION.backdropDuration,
+              ease: DRAWER_ANIMATION.backdropEasing,
+            }}
             onClick={onClose}
             aria-hidden="true"
             className="fixed inset-0 bg-[#181700]/45 backdrop-blur-[2px]"
@@ -148,10 +183,13 @@ export function GlobalSlideOver({
             key="slide-over-panel"
             ref={panelRef}
             tabIndex={-1}
-            initial={{ x: '100%' }}
+            initial={{ x: DRAWER_ANIMATION.slideFrom }}
             animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 280, mass: 0.8 }}
+            exit={{ x: DRAWER_ANIMATION.slideFrom }}
+            transition={{
+              duration: DRAWER_ANIMATION.duration,
+              ease: DRAWER_ANIMATION.easing,
+            }}
             className={cn(
               // `overflow-x-clip` clips horizontal overflow WITHOUT turning the
               // panel into a vertical scroll container (which `overflow-x-hidden`

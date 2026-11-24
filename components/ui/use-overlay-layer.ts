@@ -48,6 +48,7 @@ export function useOverlayLayer(isOpen: boolean, baseZIndex = 60) {
     }
     // Keep the layer registered briefly so the exit animation stays above
     // headers/dropdowns instead of dropping to the base z-index mid-close.
+    // Nilai ini harus >= durasi exit animation drawer (lihat DRAWER_ANIMATION).
     const timer = window.setTimeout(() => unregister(id), 450);
     return () => window.clearTimeout(timer);
   }, [id, isOpen]);

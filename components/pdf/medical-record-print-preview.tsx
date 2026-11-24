@@ -1,7 +1,6 @@
 'use client';
 
 import type { MedicalRecordPdfData } from './medical-record-document';
-import { medicalRecordFileName } from './medical-record-filename';
 import { HaftaPdfjsViewer } from './hafta-pdfjs-viewer';
 
 /**
@@ -17,7 +16,6 @@ export function MedicalRecordPrintPreview({ record }: { record: MedicalRecordPdf
   return (
     <HaftaPdfjsViewer
       src={`/dashboard/progress/${record.id}/pdf`}
-      fileName={medicalRecordFileName(record)}
       title={`Rekam medis ${record.patientName}`}
     />
   );
