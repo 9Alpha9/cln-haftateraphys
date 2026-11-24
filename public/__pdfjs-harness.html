@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <title>Hafta PDF.js bridge harness</title>
+    <style>
+      html, body { margin: 0; height: 100%; }
+      iframe { width: 100%; height: calc(100% - 28px); border: 0; }
+      #status { font: 12px system-ui; padding: 4px 8px; background: #111; color: #eee; }
+    </style>
+  </head>
+  <body>
+    <div id="status">waiting…</div>
+    <iframe id="f" src="/pdfjs/web/viewer.html" title="preview"></iframe>
+    <script type="module" src="/__pdfjs-harness.mjs"></script>
+  </body>
+</html>
