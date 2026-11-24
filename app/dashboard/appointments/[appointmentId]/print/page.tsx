@@ -12,6 +12,10 @@ import { AppointmentPrintPreview } from '@/components/pdf/appointment-print-prev
  * `/dashboard/appointments/[appointmentId]/pdf`, lalu ditampilkan dengan PDF.js
  * Generic Viewer resmi — sehingga navigasi halaman, zoom, pencarian, sidebar,
  * cetak, dan unduh memakai kontrol bawaan PDF.js, bukan toolbar buatan aplikasi.
+ *
+ * Shell sengaja identik dengan `MedicalRecordPrintClient`: viewer langsung di
+ * dalam satu kartu tanpa header/toolbar tambahan, supaya tidak pernah muncul
+ * pratinjau di dalam pratinjau.
  */
 export default async function PrintAppointmentPage({
   params,
@@ -38,18 +42,9 @@ export default async function PrintAppointmentPage({
   });
 
   return (
-    <div className="min-h-screen bg-stone-50 p-4 sm:p-8">
-      <div className="mx-auto flex h-[calc(100dvh-2rem)] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-border bg-background sm:h-[calc(100dvh-4rem)]">
-        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-4 py-3">
-          <div className="min-w-0">
-            <p className="truncate text-sm font-bold text-foreground">Pratinjau Cetak Jadwal</p>
-            <p className="truncate text-[10.5px] text-muted-foreground">
-              {appointment.patientName} · Gunakan toolbar PDF untuk mencari, memperbesar, mencetak,
-              atau mengunduh.
-            </p>
-          </div>
-        </div>
-        <div className="min-h-0 flex-1 overflow-hidden bg-white">
+    <div className="flex min-h-dvh flex-col bg-stone-100 print:block print:bg-white">
+      <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col px-3 py-3 sm:px-5 sm:py-5 print:block print:p-0">
+        <div className="flex min-h-[70vh] flex-1 flex-col overflow-hidden rounded-xl border border-stone-200 bg-white">
           <AppointmentPrintPreview appointmentId={appointment.id} />
         </div>
       </div>
