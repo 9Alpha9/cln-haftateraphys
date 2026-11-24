@@ -32,7 +32,7 @@ export function AppointmentPrintDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="flex h-[100dvh] w-screen max-w-none flex-col gap-0 overflow-hidden rounded-none p-0 sm:h-[94vh] sm:w-[96vw] sm:max-w-[1400px] sm:rounded-xl sm:p-0"
+        className="flex h-[100dvh] w-screen max-w-none flex-col gap-0 overflow-hidden rounded-none p-0 sm:h-[90vh] sm:w-[92vw] sm:max-w-[1200px] sm:rounded-xl sm:p-0"
       >
         <DialogHeader className="flex shrink-0 flex-row items-center justify-between gap-3 space-y-0 border-b border-border px-4 py-2 pr-2.5 pt-[calc(env(safe-area-inset-top)+0.5rem)] text-left sm:px-5 sm:pt-2">
           <div className="min-w-0">
