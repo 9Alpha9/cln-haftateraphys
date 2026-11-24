@@ -154,19 +154,18 @@ export function TreatmentPlanPanel({
         </div>
       )}
 
-      {formOpen ? (
-        <TreatmentPlanForm
-          key={plan?.id ?? 'new'}
-          patientId={patientId}
-          patientName={patientName}
-          plan={plan}
-          onClose={() => setFormOpen(false)}
-          onSaved={() => {
-            setFormOpen(false);
-            onSaved?.();
-          }}
-        />
-      ) : null}
+      <TreatmentPlanForm
+        key={plan?.id ?? 'new'}
+        patientId={patientId}
+        patientName={patientName}
+        plan={plan}
+        isOpen={formOpen}
+        onClose={() => setFormOpen(false)}
+        onSaved={() => {
+          setFormOpen(false);
+          onSaved?.();
+        }}
+      />
     </>
   );
 }
@@ -175,12 +174,14 @@ function TreatmentPlanForm({
   patientId,
   patientName,
   plan,
+  isOpen,
   onClose,
   onSaved,
 }: {
   patientId: string;
   patientName: string;
   plan: TreatmentPlanView | null;
+  isOpen: boolean;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -230,7 +231,7 @@ function TreatmentPlanForm({
 
   return (
     <GlobalSlideOver
-      isOpen
+      isOpen={isOpen}
       onClose={onClose}
       size="lg"
       icon={<ClipboardList className="h-5 w-5" />}

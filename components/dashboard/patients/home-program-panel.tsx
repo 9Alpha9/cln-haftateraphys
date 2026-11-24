@@ -192,19 +192,18 @@ export function HomeProgramPanel({
         </div>
       )}
 
-      {formOpen ? (
-        <HomeProgramForm
+<HomeProgramForm
           key={program?.id ?? 'new'}
           patientId={patientId}
           patientName={patientName}
           program={program}
+          isOpen={formOpen}
           onClose={() => setFormOpen(false)}
           onSaved={() => {
             setFormOpen(false);
             onSaved?.();
           }}
         />
-      ) : null}
     </>
   );
 }
@@ -213,12 +212,14 @@ function HomeProgramForm({
   patientId,
   patientName,
   program,
+  isOpen,
   onClose,
   onSaved,
 }: {
   patientId: string;
   patientName: string;
   program: HomeProgramView | null;
+  isOpen: boolean;
   onClose: () => void;
   onSaved: () => void;
 }) {
@@ -279,7 +280,7 @@ function HomeProgramForm({
 
   return (
     <GlobalSlideOver
-      isOpen
+      isOpen={isOpen}
       onClose={onClose}
       size="lg"
       icon={<Dumbbell className="h-5 w-5" />}

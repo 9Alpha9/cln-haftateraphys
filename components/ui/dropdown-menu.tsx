@@ -6,6 +6,12 @@ import { Check, ChevronRight } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 
+/**
+ * Tinggi topbar aplikasi (68px) + jarak aman 8px. Panel dropdown tidak boleh
+ * tergambar di atas garis ini supaya topbar tetap utuh saat menu dibuka.
+ */
+export const TOPBAR_SAFE_AREA_PX = 76;
+
 function DropdownMenu({
   modal = false,
   open: openProp,
@@ -64,7 +70,7 @@ function DropdownMenuContent({
         alignOffset={alignOffset}
         side={side}
         sideOffset={sideOffset}
-        collisionPadding={{ top: 76, right: 12, bottom: 80, left: 12 }}
+        collisionPadding={{ top: TOPBAR_SAFE_AREA_PX, right: 12, bottom: 80, left: 12 }}
       >
         <MenuPrimitive.Popup
           data-slot="dropdown-menu-content"
