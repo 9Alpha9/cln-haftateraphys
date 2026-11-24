@@ -61,7 +61,7 @@ function DropdownMenuContent({
   className,
   ...props
 }: MenuPrimitive.Popup.Props &
-  Pick<MenuPrimitive.Positioner.Props, 'align' | 'alignOffset' | 'side' | 'sideOffset'>) {
+  Pick<MenuPrimitive.Positioner.Props, 'align' | 'alignOffset' | 'side' | 'sideOffset' | 'sticky'>) {
   return (
     <MenuPrimitive.Portal>
       <MenuPrimitive.Positioner
@@ -71,6 +71,7 @@ function DropdownMenuContent({
         side={side}
         sideOffset={sideOffset}
         collisionPadding={{ top: TOPBAR_SAFE_AREA_PX, right: 12, bottom: 80, left: 12 }}
+        sticky={true}
       >
         <MenuPrimitive.Popup
           data-slot="dropdown-menu-content"
