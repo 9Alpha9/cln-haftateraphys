@@ -292,8 +292,63 @@ describe('S3 — pasien tidak dapat membuka data pasien lain (IDOR)', () => {
     expect(patient.id).toBe(PATIENT_ID);
   });
 
-  it('USER tidak punya izin unduh dokumen sama sekali', async () => {
+  it('USER dapat mengunduh dokumen miliknya yang dibagikan', async () => {
     mocks.state.currentRole = 'USER';
+    mocks.state.currentUserId = 'patient-user';
+    mocks.state.rows.patient_documents = [
+      {
+        id: DOCUMENT_ID,
+        patientId: PATIENT_ID,
+        patientUserId: 'patient-user',
+        patientVisible: 1,
+        storageKey: `patients/${PATIENT_ID}/foto.png`,
+        originalFilename: 'foto.png',
+        mimeType: 'image/png',
+        sizeBytes: 1024,
+        status: 'ACTIVE',
+      },
+    ];
+
+    const doc = await getDocumentForDownload(DOCUMENT_ID);
+    expect(doc.id).toBe(DOCUMENT_ID);
+  });
+
+  it('USER tidak dapat mengunduh dokumen milik pasien lain', async () => {
+    mocks.state.currentRole = 'USER';
+    mocks.state.currentUserId = 'intruder-user';
+    mocks.state.rows.patient_documents = [
+      {
+        id: DOCUMENT_ID,
+        patientId: PATIENT_ID,
+        patientUserId: 'patient-user',
+        patientVisible: 1,
+        storageKey: `patients/${PATIENT_ID}/foto.png`,
+        originalFilename: 'foto.png',
+        mimeType: 'image/png',
+        sizeBytes: 1024,
+        status: 'ACTIVE',
+      },
+    ];
+
+    await expect(getDocumentForDownload(DOCUMENT_ID)).rejects.toThrow(ForbiddenError);
+  });
+
+  it('USER tidak dapat mengunduh dokumen internal (belum dibagikan)', async () => {
+    mocks.state.currentRole = 'USER';
+    mocks.state.currentUserId = 'patient-user';
+    mocks.state.rows.patient_documents = [
+      {
+        id: DOCUMENT_ID,
+        patientId: PATIENT_ID,
+        patientUserId: 'patient-user',
+        patientVisible: 0,
+        storageKey: `patients/${PATIENT_ID}/internal.pdf`,
+        originalFilename: 'internal.pdf',
+        mimeType: 'application/pdf',
+        sizeBytes: 2048,
+        status: 'ACTIVE',
+      },
+    ];
 
     await expect(getDocumentForDownload(DOCUMENT_ID)).rejects.toThrow(ForbiddenError);
   });

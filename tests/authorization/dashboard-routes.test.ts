@@ -77,10 +77,9 @@ describe('dashboard route access policy', () => {
     }
   });
 
-  it('allows clinical documents for staff roles only', () => {
-    for (const role of ['SUPER_ADMIN', 'ADMIN', 'THERAPIST', 'STAFF'] as const) {
-      expect(canAccessDashboardPath(role, '/dashboard/documents')).toBe(true);
+  it('allows the documents route for staff and patients (scope enforced in query)', () => {
+    for (const role of ['SUPER_ADMIN', 'ADMIN', 'THERAPIST', 'STAFF', 'USER'] as const) {
+      expect(canAccessDashboardPath(role, '/dashboard/documents'), role).toBe(true);
     }
-    expect(canAccessDashboardPath('USER', '/dashboard/documents')).toBe(false);
   });
 });

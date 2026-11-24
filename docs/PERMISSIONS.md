@@ -74,6 +74,7 @@ Default = DENY.
 - `document:list`
 - `document:upload`
 - `document:read`
+- `document:read-own` (pasien: dokumen miliknya yang `patient_visible`)
 - `document:download`
 - `document:archive`
 
@@ -136,6 +137,7 @@ Legend:
 | document:list | N | Y | Y | Y | N |
 | document:upload | N | Y | Y | N | N |
 | document:read | N | Y | Y | Y | N |
+| document:read-own | N | N | N | N | owned+visible |
 | document:download | N | Y | Y | N | N |
 | document:archive | N | Y | N | N | N |
 | appointment:list | Y | Y | Y | Y | own |

@@ -188,6 +188,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     PERMISSIONS.TREATMENT_PLAN_READ,
     // Sessions (visible own)
     PERMISSIONS.SESSION_READ,
+    // Dokumen milik sendiri yang dibagikan ke pasien
+    PERMISSIONS.DOCUMENT_READ_OWN,
     // Consent lifecycle (own only)
     PERMISSIONS.CONSENT_READ_OWN,
     PERMISSIONS.CONSENT_GRANT_OWN,

@@ -718,7 +718,7 @@ export function DocumentsManager({
       <Dialog open={Boolean(previewDoc)} onOpenChange={closePreview}>
         <DialogContent
           showCloseButton={false}
-          className="flex h-[96dvh] w-[96vw] max-w-[1400px] flex-col gap-0 overflow-hidden p-0 sm:h-[94vh] sm:rounded-xl sm:p-0"
+          className="flex h-[100dvh] w-screen max-w-none flex-col gap-0 overflow-hidden rounded-none p-0 sm:h-[94vh] sm:w-[96vw] sm:max-w-[1400px] sm:rounded-xl sm:p-0"
         >
           <DialogHeader className="flex shrink-0 flex-row items-center justify-between gap-3 space-y-0 border-b border-border px-4 py-2 pr-2.5 text-left sm:px-5">
             <div className="min-w-0">
@@ -836,8 +836,9 @@ export function DocumentsManager({
       />
 
       <p className={cn('text-[10px] leading-relaxed text-muted-foreground')}>
-        Semua unggahan dan unduhan dokumen dicatat pada log audit. Jangan mengunggah dokumen yang
-        tidak relevan dengan layanan pasien.
+        {canUpload
+          ? 'Semua unggahan dan unduhan dokumen dicatat pada log audit. Jangan mengunggah dokumen yang tidak relevan dengan layanan pasien.'
+          : 'Setiap akses dan unduhan dokumen dicatat pada log audit demi keamanan data Anda.'}
       </p>
     </div>
   );

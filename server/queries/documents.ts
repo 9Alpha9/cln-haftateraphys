@@ -36,15 +36,28 @@ export async function listDocuments(params?: {
   type?: string;
 }): Promise<DocumentView[]> {
   const { session, role } = await requireSession({ redirectToLogin: true });
-  if (!hasPermission(role, PERMISSIONS.DOCUMENT_LIST)) throw new ForbiddenError();
+  const isPatient = role === 'USER';
+  const permission = isPatient ? PERMISSIONS.DOCUMENT_READ_OWN : PERMISSIONS.DOCUMENT_LIST;
+  if (!hasPermission(role, permission)) throw new ForbiddenError();
 
   const db = getDb();
   const search = params?.search?.trim();
   const type = params?.type?.trim();
   const scope = therapistScope(role, session.user.id);
 
+  // Pasien: hanya dokumen miliknya sendiri yang dibagikan (patient_visible)
+  // dan masih aktif.
+  const patientScope = isPatient
+    ? and(
+        eq(patients.userId, session.user.id),
+        eq(patientDocuments.patientVisible, 1),
+        eq(patientDocuments.status, 'ACTIVE'),
+      )
+    : undefined;
+
   const conditions = [
     scope,
+    patientScope,
     type && type !== 'ALL' ? eq(patientDocuments.documentType, type as never) : undefined,
     search
       ? or(
@@ -94,13 +107,17 @@ export type DocumentDownload = {
 
 export async function getDocumentForDownload(documentId: string): Promise<DocumentDownload> {
   const { session, role } = await requireSession({ redirectToLogin: false });
-  if (!hasPermission(role, PERMISSIONS.DOCUMENT_DOWNLOAD)) throw new ForbiddenError();
+  const isPatient = role === 'USER';
+  const permission = isPatient ? PERMISSIONS.DOCUMENT_READ_OWN : PERMISSIONS.DOCUMENT_DOWNLOAD;
+  if (!hasPermission(role, permission)) throw new ForbiddenError();
 
   const db = getDb();
   const [document] = await db
     .select({
       id: patientDocuments.id,
       patientId: patientDocuments.patientId,
+      patientUserId: patients.userId,
+      patientVisible: patientDocuments.patientVisible,
       storageKey: patientDocuments.storageKey,
       originalFilename: patientDocuments.originalFilename,
       mimeType: patientDocuments.mimeType,
@@ -108,11 +125,21 @@ export async function getDocumentForDownload(documentId: string): Promise<Docume
       status: patientDocuments.status,
     })
     .from(patientDocuments)
+    .innerJoin(patients, eq(patients.id, patientDocuments.patientId))
     .where(eq(patientDocuments.id, documentId))
     .limit(1);
 
   if (!document || document.status === 'ARCHIVED') {
     throw new Error('Dokumen tidak ditemukan.');
+  }
+
+  if (isPatient) {
+    // Milik sendiri + sudah dibagikan ke portal.
+    if (document.patientUserId !== session.user.id || document.patientVisible !== 1) {
+      throw new ForbiddenError();
+    }
+    const { patientUserId: _owner, patientVisible: _visible, ...patientDocument } = document;
+    return patientDocument;
   }
 
   if (role === 'THERAPIST') {

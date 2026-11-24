@@ -32,7 +32,8 @@ const ROUTE_RULES: readonly DashboardRouteRule[] = [
   { pattern: /^\/dashboard\/notifications(?:\/|$)/, roles: ALL_ROLES },
   { pattern: /^\/dashboard\/consent(?:\/|$)/, roles: ['USER'] },
   { pattern: /^\/dashboard\/exercises(?:\/|$)/, roles: ['USER'] },
-  { pattern: /^\/dashboard\/documents(?:\/|$)/, roles: STAFF_ROLES },
+  // Pasien hanya melihat dokumennya yang dibagikan; scope ditegakkan di query.
+  { pattern: /^\/dashboard\/documents(?:\/|$)/, roles: ALL_ROLES },
   { pattern: /^\/dashboard\/security(?:\/|$)/, roles: ALL_ROLES },
 ];
 

@@ -36,9 +36,9 @@ export function MedicalRecordPrintDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         showCloseButton={false}
-        className="flex h-[96dvh] w-[96vw] max-w-[1400px] flex-col gap-0 overflow-hidden p-0 sm:h-[94vh] sm:rounded-xl sm:p-0"
+        className="flex h-[100dvh] w-screen max-w-none flex-col gap-0 overflow-hidden rounded-none p-0 sm:h-[94vh] sm:w-[96vw] sm:max-w-[1400px] sm:rounded-xl sm:p-0"
       >
-        <DialogHeader className="flex shrink-0 flex-row items-center justify-between gap-3 space-y-0 border-b border-border px-4 py-2 pr-2.5 text-left sm:px-5">
+        <DialogHeader className="flex shrink-0 flex-row items-center justify-between gap-3 space-y-0 border-b border-border px-4 py-2 pr-2.5 pt-[calc(env(safe-area-inset-top)+0.5rem)] text-left sm:px-5 sm:pt-2">
           <div className="min-w-0">
             <DialogTitle className="truncate text-sm font-bold leading-tight text-foreground">
               Pratinjau Cetak Rekam Medis

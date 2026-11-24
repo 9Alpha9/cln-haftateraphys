@@ -170,6 +170,12 @@ const patientNavigation: DashboardNavGroup[] = [
             icon: Dumbbell,
             requiredPermission: PERMISSIONS.PROGRESS_READ_OWN,
           },
+          {
+            label: 'Dokumen',
+            href: '/dashboard/documents',
+            icon: FolderOpen,
+            requiredPermission: PERMISSIONS.DOCUMENT_READ_OWN,
+          },
         ],
       },
       {

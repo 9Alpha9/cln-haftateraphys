@@ -14,15 +14,24 @@ export const dynamic = 'force-dynamic';
 export default async function DocumentsPage() {
   const { role } = await requireSession({ redirectToLogin: true });
 
-  const canList = hasPermission(role, PERMISSIONS.DOCUMENT_LIST);
+  const canList = hasPermission(
+    role,
+    role === 'USER' ? PERMISSIONS.DOCUMENT_READ_OWN : PERMISSIONS.DOCUMENT_LIST,
+  );
   if (!canList) notFound();
   return <DocumentsContent role={role} />;
 }
 
 async function DocumentsContent({ role }: { role: Role }) {
   const canUpload = hasPermission(role, PERMISSIONS.DOCUMENT_UPLOAD);
-  const canDownload = hasPermission(role, PERMISSIONS.DOCUMENT_DOWNLOAD);
+  // Pasien boleh mengunduh dokumennya yang dibagikan (patient_visible).
+  const canDownload = hasPermission(
+    role,
+    role === 'USER' ? PERMISSIONS.DOCUMENT_READ_OWN : PERMISSIONS.DOCUMENT_DOWNLOAD,
+  );
   const canArchive = hasPermission(role, PERMISSIONS.DOCUMENT_ARCHIVE);
+
+  const isPatient = role === 'USER';
 
   const [documents, patientOptions] = await Promise.all([
     listDocuments(),
@@ -33,7 +42,11 @@ async function DocumentsContent({ role }: { role: Role }) {
     <div className="space-y-4 pb-8 sm:space-y-5">
       <DashboardPageHeader
         title="Dokumen"
-        description="Kelola dokumen pendukung pasien dengan penyimpanan privat dan akses terbatas."
+        description={
+          isPatient
+            ? 'Dokumen pendukung yang dibagikan fisioterapis untuk Anda.'
+            : 'Kelola dokumen pendukung pasien dengan penyimpanan privat dan akses terbatas.'
+        }
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Dokumen' }]}
         icon={<Paperclip className="h-6 w-6" />}
       />
@@ -43,7 +56,7 @@ async function DocumentsContent({ role }: { role: Role }) {
         canUpload={canUpload}
         canDownload={canDownload}
         canArchive={canArchive}
-        storageReady={isR2Configured()}
+        storageReady={canUpload ? isR2Configured() : true}
       />
     </div>
   );

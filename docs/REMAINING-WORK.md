@@ -102,9 +102,16 @@ pekerjaan lanjutan.
 
 ### 6. Halaman dokumen pasien
 
-- [ ] Route `/dashboard/documents` untuk USER.
-- [ ] Hanya dokumen `patient_visible` milik pasien sendiri.
-- [ ] Unduh melalui endpoint terproteksi + audit.
+- [x] Route `/dashboard/documents` untuk USER (aturan route `ALL_ROLES`,
+      guard halaman memakai `document:read-own`).
+- [x] Hanya dokumen `patient_visible` milik pasien sendiri (filter query pada
+      `patients.user_id`, `patient_visible = 1`, status `ACTIVE`).
+- [x] Unduh lewat `/api/documents/[id]` yang diproteksi + audit
+      (`document.download`).
+- [x] Navigasi pasien: menu **Terapi → Dokumen**.
+- Bukti uji: pasien Budi melihat 8 dokumen miliknya; unduh dokumen sendiri
+  `200 image/png`; dokumen pasien lain `403`; dokumen internal tidak muncul.
+- Catatan: tombol unggah/hapus otomatis tidak tampil untuk pasien.
 - Acceptance: object-level authorization diuji untuk pasien lain.
 
 ### 7. Halaman Super Admin yang belum ada
@@ -140,6 +147,10 @@ pekerjaan lanjutan.
 - Catatan CSP: `connect-src` wajib memuat `data:`/`blob:` dan `worker-src` wajib
       memuat `blob:`; tanpa itu `@react-pdf/renderer` (WASM Yoga + worker) macet
       di status "Menyiapkan dokumen PDF…". Lihat `next.config.ts`.
+- iOS Safari tidak punya toolbar PDF di dalam iframe (hanya merender isi), jadi
+  pratinjau menampilkan bilah aksi sendiri di layar kecil: **Unduh PDF** dan
+  **Cetak / Bagikan** (buka PDF di tab baru → menu bagikan iOS). Modal pratinjau
+  dibuat **full screen** di mobile (`100dvh`, tanpa radius, safe-area atas).
 
 ### 11. Rate limit/cache endpoint publik
 

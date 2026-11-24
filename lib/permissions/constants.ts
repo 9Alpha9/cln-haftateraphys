@@ -43,6 +43,8 @@ export const PERMISSIONS = {
   DOCUMENT_LIST: 'document:list',
   DOCUMENT_UPLOAD: 'document:upload',
   DOCUMENT_READ: 'document:read',
+  /** Pasien membaca/mengunduh dokumen miliknya yang dibagikan (patient_visible). */
+  DOCUMENT_READ_OWN: 'document:read-own',
   DOCUMENT_DOWNLOAD: 'document:download',
   DOCUMENT_ARCHIVE: 'document:archive',
 
