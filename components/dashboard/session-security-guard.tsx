@@ -283,7 +283,7 @@ export function SessionSecurityGuard({
     <>
       <div
         className={cn(
-          'fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-5 transition-opacity duration-200 ease-in-out',
+          'fixed inset-0 z-[100] flex items-center justify-center overflow-x-clip p-4 sm:p-5 transition-opacity duration-200 ease-in-out',
           warningVisible
             ? 'opacity-100 pointer-events-auto bg-[#181700]/45 backdrop-blur-[2px]'
             : 'opacity-0 pointer-events-none',
@@ -295,8 +295,12 @@ export function SessionSecurityGuard({
         inert={!warningVisible}
       >
         <div
+          // `transition-[opacity,transform]` (bukan `transition-all`) supaya state
+          // `translate-y-4` saat hidden tidak ikut ter-animasi; panel yang sudah
+          // invisible tidak boleh menambah tinggi halaman (overlay tetap
+          // `fixed`). Tanpa ini halaman dashboard bisa terdorong ~16px ke bawah.
           className={cn(
-            'mx-4 w-full max-w-md rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_18px_50px_rgba(24,23,0,0.18)] transition-all duration-200 ease-in-out sm:mx-0 sm:p-5',
+            'mx-4 w-full max-w-md rounded-3xl border border-stone-200/70 bg-white p-4 shadow-[0_18px_50px_rgba(24,23,0,0.18)] transition-[opacity,transform] duration-200 ease-in-out sm:mx-0 sm:p-5',
             warningVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95 translate-y-4',
           )}
         >

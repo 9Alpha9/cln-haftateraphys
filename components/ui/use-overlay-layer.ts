@@ -52,6 +52,9 @@ export function useOverlayLayer(isOpen: boolean, baseZIndex = 60) {
     return () => window.clearTimeout(timer);
   }, [id, isOpen]);
 
+  // Unregister immediately on unmount: a stacked overlay that is replaced in the
+  // same render (e.g. detail drawer -> form drawer) must hand the topmost layer
+  // back to the overlay that stays open, so Escape/focus trap targets it again.
   useIsomorphicLayoutEffect(() => () => unregister(id), [id]);
 
   const index = openOverlays.indexOf(id);

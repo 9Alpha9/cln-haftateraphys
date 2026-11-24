@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { connection } from 'next/server';
 import { Inter, Poppins, Satisfy } from 'next/font/google';
 import { FloatingWhatsApp } from '@/components/ui/floating-whatsapp';
+import { BaseUiScrollLock } from '@/components/ui/base-ui-scroll-lock';
 import { ToastProvider } from '@/components/ui/toast';
 import { Sonner } from '@/components/ui/sonner';
 import './globals.css';
@@ -107,6 +108,7 @@ export default async function RootLayout({
         </ToastProvider>
         <Sonner />
         <FloatingWhatsApp />
+        <BaseUiScrollLock />
       </body>
     </html>
   );
