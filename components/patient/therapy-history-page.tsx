@@ -129,9 +129,9 @@ export function TherapyHistoryPage({
   }, [allRecords]);
 
   return (
-    <div className="space-y-4 pb-6 sm:space-y-5">
+    <div className="flex min-h-[calc(100vh-140px)] flex-col justify-between pb-6">
+      <div className="space-y-4 sm:space-y-5">
       <DashboardPageHeader
-        title="Riwayat Rekam Medis"
         description="Riwayat pemeriksaan dan evaluasi terapi Anda."
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Riwayat' }]}
         icon={<Activity className="h-6 w-6 text-[var(--hafta-org-100)]" />}
@@ -215,14 +215,14 @@ export function TherapyHistoryPage({
         </SmartFilterMenu>
       </div>
 
-      {/* Results count */}
+      {/* Results count + Pagination wrapper or sticky bottom */}
       {visibleRecords.length > 0 && (
         <p className="text-xs text-muted-foreground">
           <span className="font-bold text-foreground">{filtered.length}</span> rekam medis ditemukan
         </p>
       )}
 
-      {/* Cards */}
+      {/* Cards & Pagination container */}
       {visibleRecords.length === 0 ? (
         <div className="flex min-h-[260px] flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card p-3.5 text-center sm:p-5">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-foreground">
@@ -241,6 +241,8 @@ export function TherapyHistoryPage({
         </div>
       ) : (
         <div className="space-y-4 sm:space-y-5">
+          {/* Cards 2-column on desktop */}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
           {visibleRecords.map((record) => {
             const isFinal = record.status === 'FINALIZED';
             const isAmendment = Boolean(record.amendedFromId);
@@ -355,8 +357,8 @@ export function TherapyHistoryPage({
               </article>
             );
           })}
+          </div>
 
-          {/* Pagination */}
           <PaginationBar
             page={safePage}
             pageCount={pageCount}
