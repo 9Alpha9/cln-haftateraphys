@@ -11,6 +11,7 @@ import {
   FileText,
   FilePenLine,
   Filter,
+  Gauge,
   History,
   LayoutList,
   Lock,
@@ -682,31 +683,61 @@ export function ProgressManagementView({
           ) : null
         }
         headerTabs={
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setActiveTab('soap')}
-              className={cn(
-                'rounded-full px-3.5 py-1 text-xs font-bold transition-all cursor-pointer',
-                activeTab === 'soap'
-                  ? 'bg-[var(--hafta-org-100)] text-foreground'
-                  : 'bg-[var(--hafta-50)] text-muted-foreground hover:bg-muted'
-              )}
-            >
-              Catatan SOAP &amp; Terapi
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab('metrics')}
-              className={cn(
-                'rounded-full px-3.5 py-1 text-xs font-bold transition-all cursor-pointer',
-                activeTab === 'metrics'
-                  ? 'bg-[var(--hafta-org-100)] text-foreground'
-                  : 'bg-[var(--hafta-50)] text-muted-foreground hover:bg-muted'
-              )}
-            >
-              Indikator Fungsional
-            </button>
+          <div
+            className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-0.5 no-scrollbar"
+            role="tablist"
+            aria-label="Isi rekam medis"
+          >
+            {[
+              {
+                key: 'soap' as const,
+                label: 'Catatan SOAP & Terapi',
+                description: 'Subjective, Objective, Assessment, dan Plan.',
+                icon: Activity,
+              },
+              {
+                key: 'metrics' as const,
+                label: 'Indikator Fungsional',
+                description: 'Skor nyeri, ROM, kekuatan, dan fungsi.',
+                icon: Gauge,
+              },
+            ].map((tab) => {
+              const Icon = tab.icon;
+              const active = activeTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={cn(
+                    'flex min-w-[148px] max-w-[190px] shrink-0 snap-start cursor-pointer flex-col items-start gap-1 rounded-2xl border px-3 py-2 text-left transition-colors',
+                    active
+                      ? 'border-[var(--hafta-900)] bg-[var(--hafta-900)] text-white'
+                      : 'border-border bg-card text-muted-foreground hover:bg-[var(--hafta-50)]',
+                  )}
+                >
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold leading-tight">
+                    <Icon
+                      className={cn(
+                        'h-3.5 w-3.5 shrink-0',
+                        active ? 'text-[var(--hafta-org-100)]' : 'text-muted-foreground',
+                      )}
+                    />
+                    {tab.label}
+                  </span>
+                  <span
+                    className={cn(
+                      'text-[10px] leading-snug',
+                      active ? 'text-white/70' : 'text-muted-foreground',
+                    )}
+                  >
+                    {tab.description}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         }
         footer={
@@ -780,6 +811,18 @@ export function ProgressManagementView({
                     </p>
                   </div>
 
+                  {/* Riwayat Penyakit */}
+                  <div className="rounded-2xl border border-border bg-card p-3 sm:p-4 space-y-1.5">
+                    <span className="font-bold text-xs text-foreground block">
+                      Riwayat Penyakit
+                    </span>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                      {selectedRecord.medicalHistory || (
+                        <span className="text-muted-foreground/50 italic">Tidak ada catatan</span>
+                      )}
+                    </p>
+                  </div>
+
                   {/* Assessment */}
                   <div className="rounded-2xl border border-[var(--hafta-org-200)]/80 bg-[var(--hafta-org-50)]/30 p-4.5 space-y-1.5">
                     <span className="font-bold text-xs text-[var(--hafta-org-950)] block">
@@ -800,6 +843,16 @@ export function ProgressManagementView({
                     </p>
                   </div>
 
+                  {/* Evaluasi */}
+                  <div className="rounded-2xl border border-border bg-card p-3 sm:p-4 space-y-1.5">
+                    <span className="font-bold text-xs text-foreground block">
+                      Evaluasi
+                    </span>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                      {selectedRecord.evaluation || <span className="text-muted-foreground/50 italic">Tidak ada catatan</span>}
+                    </p>
+                  </div>
+
                   {/* Home Exercise & Follow up */}
                   <div className="rounded-2xl border border-border bg-card p-3 sm:p-4 space-y-1.5">
                     <span className="font-bold text-xs text-foreground block">
@@ -807,6 +860,16 @@ export function ProgressManagementView({
                     </span>
                     <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
                       {selectedRecord.followUpPlan || <span className="text-muted-foreground/50 italic">Tidak ada catatan</span>}
+                    </p>
+                  </div>
+
+                  {/* Catatan Klinis */}
+                  <div className="rounded-2xl border border-border bg-card p-3 sm:p-4 space-y-1.5">
+                    <span className="font-bold text-xs text-foreground block">
+                      Catatan Klinis
+                    </span>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                      {selectedRecord.summary || <span className="text-muted-foreground/50 italic">Tidak ada catatan</span>}
                     </p>
                   </div>
                 </>

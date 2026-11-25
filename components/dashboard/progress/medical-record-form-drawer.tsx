@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Activity, ClipboardList, Eye, EyeOff, FilePenLine, ImagePlus, Loader2, Lock, Save, Stethoscope, Trash2, UserRound } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
+import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { AppSelect } from '@/components/ui/app-select';
 import { LifelineLoader } from '@/components/animate-ui/lifeline-loader';
@@ -86,6 +87,40 @@ const SCORE_FIELDS = [
   { name: 'functionScore', label: 'Fungsi', hint: '0 = tidak berfungsi, 10 = fungsi penuh' },
 ] as const;
 
+/**
+ * Tab bagian form dalam drawer — form panjang dipecah per bagian agar tidak
+ * terlalu panjang saat di-scroll, tetap di drawer yang sama (bukan halaman
+ * baru). Gaya kartu tab mengikuti tab di PatientDetailDrawer agar konsisten.
+ */
+const MEDICAL_RECORD_TABS = [
+  {
+    key: 'soap',
+    label: 'Catatan SOAP',
+    description: 'Anamnesa, pemeriksaan, diagnosis, dan terapi.',
+    icon: ClipboardList,
+  },
+  {
+    key: 'scores',
+    label: 'Indikator Klinis',
+    description: 'Skor nyeri, ROM, kekuatan, dan fungsi.',
+    icon: Stethoscope,
+  },
+  {
+    key: 'status',
+    label: 'Status & Visibilitas',
+    description: 'Draft/final dan akses laporan pasien.',
+    icon: Lock,
+  },
+  {
+    key: 'photos',
+    label: 'Foto Analisa',
+    description: 'Unggah hasil pemeriksaan dan analisa.',
+    icon: ImagePlus,
+  },
+] as const;
+
+type MedicalRecordTab = (typeof MEDICAL_RECORD_TABS)[number]['key'];
+
 export function MedicalRecordFormDrawer({
   isOpen,
   onClose,
@@ -101,6 +136,13 @@ export function MedicalRecordFormDrawer({
     Boolean(record ?? defaultPatientId ?? (patientOptions.length === 1 ? patientOptions[0].id : '')),
   );
   const formId = useId();
+  const [activeTab, setActiveTab] = useState<MedicalRecordTab>('soap');
+  // Kembali ke tab utama setiap kali drawer dibuka (pola render-adjust, aman lint).
+  const [previousOpen, setPreviousOpen] = useState(isOpen);
+  if (isOpen !== previousOpen) {
+    setPreviousOpen(isOpen);
+    if (isOpen) setActiveTab('soap');
+  }
 
   function handleClose() {
     setIsSaving(false);
@@ -118,6 +160,53 @@ export function MedicalRecordFormDrawer({
         record
           ? `${record.patientName}${record.amendedFromId ? ` · Amandemen R${record.revisionNumber ?? 2}` : ''}`
           : 'Lengkapi indikator klinis dan catatan SOAP'
+      }
+      headerTabs={
+        <div
+          className="flex snap-x snap-mandatory gap-2 overflow-x-auto pb-0.5 no-scrollbar"
+          role="tablist"
+          aria-label="Bagian form rekam medis"
+        >
+          {MEDICAL_RECORD_TABS.map((tab) => {
+            const Icon = tab.icon;
+            const active = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                id={`medical-record-tab-${tab.key}`}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                aria-controls={`medical-record-panel-${tab.key}`}
+                onClick={() => setActiveTab(tab.key)}
+                className={cn(
+                  'flex min-w-[148px] max-w-[190px] shrink-0 snap-start cursor-pointer flex-col items-start gap-1 rounded-2xl border px-3 py-2 text-left transition-colors',
+                  active
+                    ? 'border-[var(--hafta-900)] bg-[var(--hafta-900)] text-white'
+                    : 'border-border bg-card text-muted-foreground hover:bg-[var(--hafta-50)]',
+                )}
+              >
+                <span className="flex items-center gap-1.5 text-[11px] font-bold leading-tight">
+                  <Icon
+                    className={cn(
+                      'h-3.5 w-3.5 shrink-0',
+                      active ? 'text-[var(--hafta-org-100)]' : 'text-muted-foreground',
+                    )}
+                  />
+                  {tab.label}
+                </span>
+                <span
+                  className={cn(
+                    'text-[10px] leading-snug',
+                    active ? 'text-white/70' : 'text-muted-foreground',
+                  )}
+                >
+                  {tab.description}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       }
       footer={
         <div className="flex items-center justify-between gap-3 w-full">
@@ -145,6 +234,7 @@ export function MedicalRecordFormDrawer({
         <MedicalRecordForm
           key={record?.id ?? `new-${defaultPatientId ?? 'record'}`}
           formId={formId}
+          activeTab={activeTab}
           onPendingChange={setIsSaving}
           onPatientReadyChange={setCanSubmit}
           onClose={handleClose}
@@ -169,10 +259,12 @@ function MedicalRecordForm({
   defaultStatus = 'DRAFT',
   onSaved,
   formId,
+  activeTab,
   onPendingChange,
   onPatientReadyChange,
 }: Omit<Props, 'isOpen'> & {
   formId: string;
+  activeTab: MedicalRecordTab;
   onPendingChange?: (pending: boolean) => void;
   onPatientReadyChange?: (ready: boolean) => void;
 }) {
@@ -529,7 +621,52 @@ function MedicalRecordForm({
           </div>
         )}
 
-        <section className="space-y-3">
+        <section
+          id="medical-record-panel-soap"
+          role="tabpanel"
+          aria-labelledby="medical-record-tab-soap"
+          hidden={activeTab !== 'soap'}
+          className="space-y-3"
+        >
+          <SectionHeading
+            icon={<ClipboardList className="h-3.5 w-3.5" />}
+            title="Catatan SOAP"
+            description="SOAP = Subjective (keluhan), Objective (pemeriksaan), Assessment (diagnosa/evaluasi), Plan (tindakan/rencana). Isi sesuai kondisi pasien."
+          />
+        {[
+          { name: 'anamnesis', label: 'Anamnesa Fisioterapi', placeholder: 'Keluhan utama, riwayat, dan faktor pemicu...' },
+          { name: 'physicalExamination', label: 'Pemeriksaan Fisik', placeholder: 'Tanda vital, palpasi, ROM, dan tes spesifik...' },
+          { name: 'medicalHistory', label: 'Riwayat Penyakit', placeholder: 'Riwayat penyakit, cedera, operasi, obat, dan alergi...' },
+          { name: 'diagnosis', label: 'Diagnosa', placeholder: 'Kesimpulan klinis dan diagnosis fisioterapi...' },
+          { name: 'treatment', label: 'Terapi / Tindakan', placeholder: 'Modalitas, terapi manual, dan latihan yang diberikan...' },
+          { name: 'evaluation', label: 'Evaluasi', placeholder: 'Perkembangan kondisi dan hasil evaluasi terapi...' },
+          { name: 'followUpPlan', label: 'Keterangan / Rencana Tindak Lanjut', placeholder: 'Edukasi, HEP, dan jadwal kontrol berikutnya...' },
+          { name: 'summary', label: 'Catatan Klinis', placeholder: 'Catatan klinis tambahan yang perlu diketahui...' },
+        ].map((field) => (
+          <div key={field.name} className="space-y-2">
+            <label htmlFor={field.name} className="text-xs font-semibold text-foreground">
+              {field.label}
+            </label>
+            <textarea
+              id={field.name}
+              name={field.name}
+              rows={['anamnesis', 'physicalExamination', 'medicalHistory', 'summary'].includes(field.name) ? 4 : 3}
+              defaultValue={record?.[field.name as keyof TherapyProgressView] as string | null | undefined ?? ''}
+              placeholder={field.placeholder}
+              disabled={fieldsDisabled}
+              className="w-full resize-y rounded-xl border border-border bg-[var(--hafta-50)]/40 px-3.5 py-3 text-sm leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:bg-card focus:ring-4 focus:ring-[var(--hafta-org-100)]"
+            />
+          </div>
+        ))}
+        </section>
+
+        <section
+          id="medical-record-panel-scores"
+          role="tabpanel"
+          aria-labelledby="medical-record-tab-scores"
+          hidden={activeTab !== 'scores'}
+          className="space-y-3"
+        >
           <SectionHeading
             icon={<Stethoscope className="h-3.5 w-3.5" />}
             title="Indikator Klinis"
@@ -569,7 +706,13 @@ function MedicalRecordForm({
         </div>
         </section>
 
-        <section className="space-y-3">
+        <section
+          id="medical-record-panel-status"
+          role="tabpanel"
+          aria-labelledby="medical-record-tab-status"
+          hidden={activeTab !== 'status'}
+          className="space-y-3"
+        >
           <SectionHeading
             icon={<Lock className="h-3.5 w-3.5" />}
             title="Status & Visibilitas"
@@ -633,7 +776,13 @@ function MedicalRecordForm({
           </div>
         </section>
 
-        <section className="space-y-3">
+        <section
+          id="medical-record-panel-photos"
+          role="tabpanel"
+          aria-labelledby="medical-record-tab-photos"
+          hidden={activeTab !== 'photos'}
+          className="space-y-3"
+        >
           <SectionHeading
             icon={<ImagePlus className="h-3.5 w-3.5" />}
             title="Foto Analisa / Hasil Pemeriksaan"
@@ -788,38 +937,6 @@ function MedicalRecordForm({
           </div>
         </section>
 
-        <section className="space-y-3">
-          <SectionHeading
-            icon={<ClipboardList className="h-3.5 w-3.5" />}
-            title="Catatan SOAP"
-            description="SOAP = Subjective (keluhan), Objective (pemeriksaan), Assessment (diagnosa/evaluasi), Plan (tindakan/rencana). Isi sesuai kondisi pasien."
-          />
-        {[
-          { name: 'anamnesis', label: 'Anamnesa Fisioterapi', placeholder: 'Keluhan utama, riwayat, dan faktor pemicu...' },
-          { name: 'physicalExamination', label: 'Pemeriksaan Fisik', placeholder: 'Tanda vital, palpasi, ROM, dan tes spesifik...' },
-          { name: 'medicalHistory', label: 'Riwayat Penyakit', placeholder: 'Riwayat penyakit, cedera, operasi, obat, dan alergi...' },
-          { name: 'diagnosis', label: 'Diagnosa', placeholder: 'Kesimpulan klinis dan diagnosis fisioterapi...' },
-          { name: 'treatment', label: 'Terapi / Tindakan', placeholder: 'Modalitas, terapi manual, dan latihan yang diberikan...' },
-          { name: 'evaluation', label: 'Evaluasi', placeholder: 'Perkembangan kondisi dan hasil evaluasi terapi...' },
-          { name: 'followUpPlan', label: 'Keterangan / Rencana Tindak Lanjut', placeholder: 'Edukasi, HEP, dan jadwal kontrol berikutnya...' },
-          { name: 'summary', label: 'Catatan Klinis', placeholder: 'Catatan klinis tambahan yang perlu diketahui...' },
-        ].map((field) => (
-          <div key={field.name} className="space-y-2">
-            <label htmlFor={field.name} className="text-xs font-semibold text-foreground">
-              {field.label}
-            </label>
-            <textarea
-              id={field.name}
-              name={field.name}
-              rows={['anamnesis', 'physicalExamination', 'medicalHistory', 'summary'].includes(field.name) ? 4 : 3}
-              defaultValue={record?.[field.name as keyof TherapyProgressView] as string | null | undefined ?? ''}
-              placeholder={field.placeholder}
-              disabled={fieldsDisabled}
-              className="w-full resize-y rounded-xl border border-border bg-[var(--hafta-50)]/40 px-3.5 py-3 text-sm leading-relaxed text-foreground outline-none transition-colors placeholder:text-muted-foreground focus:border-[var(--hafta-950)] focus:bg-card focus:ring-4 focus:ring-[var(--hafta-org-100)]"
-            />
-          </div>
-        ))}
-        </section>
     </form>
   );
 }

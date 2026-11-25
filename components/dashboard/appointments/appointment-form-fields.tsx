@@ -142,6 +142,7 @@ export function AppointmentFormFields({
           name="administrativeNote"
           disabled={pending}
           defaultValue={defaultNote}
+          placeholder="Contoh: permintaan jadwal khusus, koordinasi dengan pihak lain, atau catatan billing (opsional)"
           className={
             noteClassName ??
             'flex min-h-28 w-full resize-none rounded-xl border border-border bg-card px-3 py-2 text-sm leading-relaxed text-foreground focus:outline-none focus:border-[var(--hafta-950)] focus:ring-4 focus:ring-[var(--hafta-org-200)]/35'
