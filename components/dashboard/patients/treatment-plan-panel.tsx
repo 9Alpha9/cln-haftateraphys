@@ -157,7 +157,6 @@ export function TreatmentPlanPanel({
       )}
 
       <TreatmentPlanForm
-        key={plan?.id ?? 'new-plan'}
         patientId={patientId}
         patientName={patientName}
         plan={plan}
@@ -204,8 +203,27 @@ function TreatmentPlanForm({
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Menggunakan key berbasis plan ID atau isOpen reset untuk menghindari sync effect state.
+   * Sinkronkan state form saat `plan` berubah (mis. setelah reload data) TANPA
+   * remount dan TANPA setState di dalam effect. Pola "adjusting state during
+   * render" dari React docs: dijaga guard `plan !== previousPlan` sehingga
+   * hanya berjalan sekali per perubahan plan.
+   *
+   * Remount lewat `key` DILARANG di sini: kalau key berubah di tengah proses
+   * simpan, komponen unmount sebelum GlobalSlideOver sempat menjalankan exit
+   * animation — itulah bug "cut unmount".
    */
+  const [previousPlan, setPreviousPlan] = useState(plan);
+  if (plan !== previousPlan) {
+    setPreviousPlan(plan);
+    setGoals(plan?.goals ?? '');
+    setInterventions(plan?.interventions ?? '');
+    setReviewIntervalText(plan?.reviewIntervalText ?? '');
+    setReviewAt(plan?.reviewAt ? new Date(plan.reviewAt).toISOString().slice(0, 10) : '');
+    setPrecautions(plan?.precautions ?? '');
+    setStatus(plan?.status === 'ACTIVE' ? 'ACTIVE' : 'DRAFT');
+    setPatientVisible(plan?.patientVisible ?? true);
+    setError(null);
+  }
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();

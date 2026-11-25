@@ -120,6 +120,7 @@ MUST NOT:
 - Mengirim data pasien nyata ke AI provider, 9Router, logging eksternal, analytics, atau prompt coding agent.
 - Menaruh query database langsung di presentational client component.
 - Menggunakan hard delete untuk assessment, treatment plan, therapy session, progress note, consent, atau audit log.
+- Me-remount komponen yang membungkus `GlobalSlideOver` lewat `key` atau conditional rendering saat data berubah (bug "cut unmount": drawer hilang tanpa exit animation). Sinkronkan state dengan pola render-adjust (guard saat prop berubah), dan tunda efek samping yang memicu reload data (mis. `router.refresh()` setelah sukses) lewat prop `onExitComplete` `GlobalSlideOver`.
 - Mengubah database schema tanpa migration.
 - Mengabaikan lint/typecheck/tests agar build lolos.
 

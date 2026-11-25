@@ -192,8 +192,7 @@ export function HomeProgramPanel({
         </div>
       )}
 
-<HomeProgramForm
-          key={program?.id ?? 'new'}
+        <HomeProgramForm
           patientId={patientId}
           patientName={patientName}
           program={program}
@@ -235,6 +234,23 @@ function HomeProgramForm({
   );
   const [patientVisible, setPatientVisible] = useState(program?.patientVisible ?? true);
   const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Sinkronkan state form saat `program` berubah (mis. setelah reload data)
+   * TANPA remount dan TANPA setState di dalam effect — pola "adjusting state
+   * during render" dengan guard. Remount lewat `key` dilarang: key berubah di
+   * tengah proses simpan membuat komponen unmount sebelum exit animation
+   * GlobalSlideOver berjalan (bug "cut unmount").
+   */
+  const [previousProgram, setPreviousProgram] = useState(program);
+  if (program !== previousProgram) {
+    setPreviousProgram(program);
+    setItems(toDraftItems(program));
+    setStartsAt(program?.startsAt ? new Date(program.startsAt).toISOString().slice(0, 10) : '');
+    setEndsAt(program?.endsAt ? new Date(program.endsAt).toISOString().slice(0, 10) : '');
+    setPatientVisible(program?.patientVisible ?? true);
+    setError(null);
+  }
 
   function updateItem(key: string, field: keyof ItemDraft, value: string) {
     setItems((current) =>

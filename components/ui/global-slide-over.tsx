@@ -26,6 +26,12 @@ export interface GlobalSlideOverProps {
   className?: string;
   /** Custom base z-index, useful when the sheet must sit above page-level dropdowns. */
   zIndexBase?: number;
+  /**
+   * Dipanggil SETELAH exit animation selesai (drawer benar-benar unmount).
+   * Gunakan untuk menunda perubahan data yang bisa me-unmount komponen induk
+   * (mis. router.refresh setelah sukses) agar animasi penutupan tidak terpotong.
+   */
+  onExitComplete?: () => void;
 }
 
 const sizeWidthMap: Record<SlideOverSize, string> = {
@@ -49,6 +55,7 @@ export function GlobalSlideOver({
   footerClassName,
   className,
   zIndexBase,
+  onExitComplete,
 }: GlobalSlideOverProps) {
   const mounted = React.useSyncExternalStore(
     () => () => {},
@@ -84,6 +91,12 @@ export function GlobalSlideOver({
   useEffect(() => {
     onCloseRef.current = onClose;
   }, [onClose]);
+
+  const onExitCompleteRef = React.useRef(onExitComplete);
+
+  useEffect(() => {
+    onExitCompleteRef.current = onExitComplete;
+  }, [onExitComplete]);
 
   const previousFocusRef = React.useRef<HTMLElement | null>(null);
 
@@ -150,6 +163,7 @@ export function GlobalSlideOver({
       onExitComplete={() => {
         setClosing(false);
         restoreFocus();
+        onExitCompleteRef.current?.();
       }}
     >
       {isOpen && (

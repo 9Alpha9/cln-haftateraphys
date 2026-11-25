@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Loader2 } from 'lucide-react';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
@@ -23,6 +23,13 @@ export function CompleteProgramButton({
   const [pending, startTransition] = useTransition();
   const router = useRouter();
   const { showToast } = useToast();
+  /**
+   * Menandai bahwa program sudah selesai disimpan. Efek sampingnya (reload data
+   * yang bisa mengubah `caseStatus` dan me-unmount komponen ini) DITUNDA sampai
+   * exit animation GlobalSlideOver selesai — kalau tidak, drawer terpotong
+   * (unmount tanpa animasi) di tengah proses simpan.
+   */
+  const completedRef = useRef(false);
 
   function handleClose() {
     if (pending) return;
@@ -36,10 +43,8 @@ export function CompleteProgramButton({
       try {
         await completeTherapyProgram({ patientId, summary });
         showToast('success', 'Program terapi pasien ditandai selesai.');
+        completedRef.current = true;
         setIsOpen(false);
-        setSummary('');
-        onCompleted?.();
-        router.refresh();
       } catch (error) {
         showToast(
           'error',
@@ -49,6 +54,14 @@ export function CompleteProgramButton({
         );
       }
     });
+  }
+
+  function handleExitComplete() {
+    if (!completedRef.current) return;
+    completedRef.current = false;
+    setSummary('');
+    onCompleted?.();
+    router.refresh();
   }
 
   return (
@@ -61,6 +74,7 @@ export function CompleteProgramButton({
       <GlobalSlideOver
         isOpen={isOpen}
         onClose={handleClose}
+        onExitComplete={handleExitComplete}
         size="md"
         icon={<CheckCircle2 className="h-5 w-5" />}
         title="Selesaikan Program Terapi"
