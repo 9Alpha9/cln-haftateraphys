@@ -58,11 +58,13 @@ const METRICS: {
   short: string;
   field: keyof TherapyProgressView;
   icon: typeof HeartPulse;
+  /** Petunjuk arah skala agar pasien paham ke mana angka yang baik. */
+  hint: string;
 }[] = [
-  { key: 'pain', label: 'Nyeri', short: 'Nyeri', field: 'painScore', icon: HeartPulse },
-  { key: 'rom', label: 'Rentang Gerak', short: 'ROM', field: 'rangeOfMotionScore', icon: Activity },
-  { key: 'strength', label: 'Kekuatan', short: 'Kekuatan', field: 'strengthScore', icon: TrendingUp },
-  { key: 'function', label: 'Fungsi', short: 'Fungsi', field: 'functionScore', icon: Activity },
+  { key: 'pain', label: 'Nyeri', short: 'Nyeri', field: 'painScore', icon: HeartPulse, hint: 'makin rendah makin baik' },
+  { key: 'rom', label: 'Rentang Gerak', short: 'ROM', field: 'rangeOfMotionScore', icon: Activity, hint: 'makin tinggi makin baik' },
+  { key: 'strength', label: 'Kekuatan', short: 'Kekuatan', field: 'strengthScore', icon: TrendingUp, hint: 'makin tinggi makin baik' },
+  { key: 'function', label: 'Fungsi', short: 'Fungsi', field: 'functionScore', icon: Activity, hint: 'makin tinggi makin baik' },
 ];
 
 type Tone = 'good' | 'watch' | 'alert';
@@ -83,6 +85,13 @@ const TONE_PILL: Record<Tone, string> = {
   good: 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]',
   watch: 'bg-[var(--hafta-50)] text-[var(--hafta-700)]',
   alert: 'bg-[var(--hafta-red-50)] text-[var(--hafta-red-700)]',
+};
+
+/** Warna isi jalur skor 0–10 pada tile Kondisi Terkini (mengikuti nada hasil). */
+const TONE_TRACK: Record<Tone, string> = {
+  good: 'bg-[var(--hafta-grn-500)]',
+  watch: 'bg-[var(--hafta-300)]',
+  alert: 'bg-[var(--hafta-red-500)]',
 };
 
 const TONE_DELTA: Record<'up' | 'down', string> = {
@@ -136,7 +145,7 @@ const clockTime = (value: Date) =>
   value.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
 
 function formatAge(dateOfBirth: Date | null) {
-  if (!dateOfBirth) return '-';
+  if (!dateOfBirth) return '—';
   const today = new Date();
   let age = today.getFullYear() - dateOfBirth.getFullYear();
   const month = today.getMonth() - dateOfBirth.getMonth();
@@ -596,7 +605,12 @@ export function PatientMedicalRecordView({
             icon: CalendarDays,
             label: 'Berikutnya',
             value: patient?.nextTherapyAt ? shortDate(patient.nextTherapyAt) : '—',
-            detail: patient?.therapyFrequencyText ?? 'belum dijadwalkan',
+            // Detail harus konsisten dengan value: tanggal hanya tampil bila
+            // jadwal benar-benar ada; tanpa jadwal jangan menampilkan frekuensi
+            // seolah-olah sudah terjadwal.
+            detail: patient?.nextTherapyAt
+              ? (patient.therapyFrequencyText ?? 'jadwal terapi terdekat')
+              : 'belum dijadwalkan',
           },
         ].map((stat) => (
           <div key={stat.label} className="hafta-card p-2.5 sm:p-3.5">
@@ -678,12 +692,11 @@ export function PatientMedicalRecordView({
             </div>
 
             <div className="mt-4 grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-4">
-              {METRICS.map(({ key, label, short, field, icon: Icon }) => {
+              {METRICS.map(({ key, label, short, field, icon: Icon, hint }) => {
                 const value = Number(selectedRecord[field] ?? 0);
                 const previous = previousRecord ? Number(previousRecord[field] ?? 0) : null;
                 const change = deltaForMetric(key, value, previous);
                 const tone = metricTone(key, value);
-                const history = chronological.slice(-6).map((record) => Number(record[field] ?? 0));
                 return (
                   <div key={key} className="hafta-tint p-3">
                     <div className="flex items-center justify-between gap-1">
@@ -713,24 +726,24 @@ export function PatientMedicalRecordView({
                         <span className="ml-auto text-[10px] text-muted-foreground">tetap</span>
                       )}
                     </div>
-                    <div className="mt-2 flex h-5 items-end gap-1">
-                      {history.map((score, index) => {
-                        const height = Math.max(14, Math.min(100, key === 'pain' ? (10 - score) * 10 : score * 10));
-                        return (
-                          <span
-                            key={`${key}-${index}`}
-                            className={cn(
-                              'flex-1 rounded-sm',
-                              index === history.length - 1
-                                ? 'bg-[var(--hafta-300)]'
-                                : 'bg-[var(--hafta-200)]/40',
-                            )}
-                            style={{ height: `${height}%` }}
-                          />
-                        );
-                      })}
+                    {/* Jalur skor 0–10 — pasien langsung melihat posisi nilai
+                        terhadap skala penuh, diwarnai sesuai nada hasil. */}
+                    <div className="mt-2.5">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-stone-200/70">
+                        <div
+                          className={cn('h-full rounded-full', TONE_TRACK[tone.tone])}
+                          style={{ width: `${Math.max(4, value * 10)}%` }}
+                        />
+                      </div>
+                      <div className="mt-1 flex justify-between font-mono text-[9px] tabular-nums text-muted-foreground">
+                        <span>0</span>
+                        <span>10</span>
+                      </div>
                     </div>
-                    <p className="sr-only">{short} sesi ini {value} dari 10.</p>
+                    <p className="mt-1 text-[9px] leading-snug text-muted-foreground">{hint}</p>
+                    <p className="sr-only">
+                      {short} sesi ini {value} dari 10. Skor {hint}.
+                    </p>
                   </div>
                 );
               })}
@@ -778,7 +791,29 @@ export function PatientMedicalRecordView({
                 <MemoRecoveryChart data={chartData} onSelectSession={selectSessionByNumber} />
               </div>
             </section>
-          ) : null}
+          ) : (
+            <section className="hafta-card p-4 sm:p-5">
+              <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                <TrendingUp className="h-3 w-3 text-[var(--hafta-300)]" />
+                Grafik Pemulihan Klinis
+              </p>
+              <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground sm:text-base">
+                Penurunan Nyeri (VAS 0–10) &amp; Kenaikan Gerak (ROM %)
+              </h2>
+              <div className="mt-3 flex items-start gap-3 rounded-2xl border border-dashed border-border bg-[var(--hafta-50)]/60 p-4">
+                <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-[var(--hafta-300)]" />
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-foreground">
+                    Grafik mulai tampil setelah 2 evaluasi
+                  </p>
+                  <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+                    Setelah sesi berikutnya selesai dinilai, garis progres nyeri dan gerak Anda akan
+                    tampil di sini sehingga perkembangan terlihat jelas dari waktu ke waktu.
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
 
           {/* 3. kalender terapi */}
           {records.length > 0 ? (

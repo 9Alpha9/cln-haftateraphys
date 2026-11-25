@@ -7,6 +7,7 @@ import { appointments, appointmentNotificationReads, patients } from '@/db/schem
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { assertPatientSchedulingScope, getAppointmentById } from '@/server/queries/appointments';
+import { syncNextTherapyAt } from '@/server/queries/next-therapy-sync';
 import { getAppointmentFormOptions } from '@/server/queries/appointment-form-options';
 import { notifyUser } from '@/server/notify';
 import { createAuditLog } from '@/lib/audit';
@@ -144,6 +145,9 @@ export async function createAppointment(
     });
   }
 
+  // Selaraskan "Berikutnya" di portal pasien dengan appointment yang baru dibuat.
+  await syncNextTherapyAt(input.patientId);
+
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/appointments');
   revalidatePath('/dashboard/notifications');
@@ -233,6 +237,9 @@ export async function updateAppointment(input: UpdateAppointmentInput) {
     userId: session.user.id,
   });
 
+  // Tanggal/jam berubah → selaraskan kartu "Berikutnya" portal pasien.
+  await syncNextTherapyAt(input.patientId);
+
   revalidatePath('/dashboard/appointments');
 }
 
@@ -244,7 +251,7 @@ export async function deleteAppointment(appointmentId: string) {
 
   const db = getDb();
   const [appointment] = await db
-    .select({ id: appointments.id, createdBy: appointments.createdBy })
+    .select({ id: appointments.id, createdBy: appointments.createdBy, patientId: appointments.patientId })
     .from(appointments)
     .where(eq(appointments.id, appointmentId))
     .limit(1);
@@ -263,6 +270,9 @@ export async function deleteAppointment(appointmentId: string) {
     meta: { deletedBy: session.user.id },
     userId: session.user.id,
   });
+
+  // Jadwal dihapus → "Berikutnya" portal pasien dihitung ulang (bisa jadi NULL).
+  await syncNextTherapyAt(appointment.patientId);
 
   revalidatePath('/dashboard/appointments');
 }

@@ -9,6 +9,7 @@ import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { createAuditLog } from '@/lib/audit';
 import { completeProgramSchema, completeSessionSchema } from '@/lib/validators/therapy-completion';
 import { notifyUser } from '@/server/notify';
+import { syncNextTherapyAt } from '@/server/queries/next-therapy-sync';
 
 const ACTIVE_APPOINTMENT_STATUSES = ['SCHEDULED', 'CONFIRMED'] as const;
 
@@ -89,6 +90,10 @@ export async function completeAppointmentSession(input: unknown) {
     )
     .returning({ id: appointments.id });
   if (!updated) throw new Error('Sesi terapi ini sudah diproses oleh pengguna lain.');
+
+  // Sesi selesai keluar dari daftar mendatang → "Berikutnya" portal pasien
+  // berpindah ke sesi aktif terdekat berikutnya (atau NULL bila tidak ada).
+  await syncNextTherapyAt(appointment.patientId);
 
   await createAuditLog({
     action: 'appointment.complete',

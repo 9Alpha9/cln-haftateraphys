@@ -12,6 +12,7 @@ import { createAppointment } from '@/server/actions/appointments';
 import { getIndonesianHolidays } from '@/server/queries/indonesian-holidays';
 import { getAvailabilityRules } from '@/server/queries/therapist-schedules';
 import { ensurePatientProfileForUser } from '@/server/queries/patient-portal';
+import { syncNextTherapyAt } from '@/server/queries/next-therapy-sync';
 
 const ACTIVE_APPOINTMENT_STATUSES = ['SCHEDULED', 'CONFIRMED'] as const;
 const SLOT_MINUTES = 60;
@@ -524,30 +525,8 @@ export async function reviewPatientAppointmentRequest({
         })
         .where(and(eq(appointments.id, sourceAppointment.id), eq(appointments.patientId, request.patientId)));
 
-      const todayKey = localDateKey(new Date());
-      const [nextSession] = await db
-        .select({
-          scheduledDate: appointments.scheduledDate,
-          startTime: appointments.startTime,
-        })
-        .from(appointments)
-        .where(
-          and(
-            eq(appointments.patientId, request.patientId),
-            inArray(appointments.status, [...ACTIVE_APPOINTMENT_STATUSES]),
-            gte(appointments.scheduledDate, todayKey),
-          ),
-        )
-        .orderBy(asc(appointments.scheduledDate), asc(appointments.startTime))
-        .limit(1);
-      if (nextSession) {
-        const [year, month, day] = nextSession.scheduledDate.slice(0, 10).split('-').map(Number);
-        const [hours, minutes] = nextSession.startTime.split(':').map(Number);
-        await db
-          .update(patients)
-          .set({ nextTherapyAt: new Date(year, (month ?? 1) - 1, day ?? 1, hours ?? 0, minutes ?? 0) })
-          .where(eq(patients.id, request.patientId));
-      }
+      // Sinkronkan kartu "Berikutnya" portal pasien dengan sesi mendatang terbaru.
+      await syncNextTherapyAt(request.patientId);
 
       await db
         .update(appointmentRequests)
@@ -598,6 +577,9 @@ export async function reviewPatientAppointmentRequest({
           updatedAt: new Date(),
         })
         .where(eq(appointmentRequests.id, requestId));
+
+      // Pengajuan baru disetujui: "Berikutnya" portal pasien ikut terisi.
+      await syncNextTherapyAt(request.patientId);
     }
 
     if (request.patientUserId) {

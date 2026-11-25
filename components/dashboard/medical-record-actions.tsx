@@ -94,7 +94,6 @@ export function MedicalRecordActions({
   record,
   extras,
   className,
-  tone = 'light',
   layout = 'menu',
   menuPlacement = 'up',
 }: {
@@ -102,7 +101,6 @@ export function MedicalRecordActions({
   /** Informasi terapi/rencana/program agar PDF identik dengan tampilan pasien. */
   extras?: Partial<MedicalRecordPdfData>;
   className?: string;
-  tone?: 'light' | 'dark';
   /** 'menu': kebab dropdown; 'split': 2 tombol eksplisit (untuk footer drawer). */
   layout?: 'menu' | 'split';
   /** Arah panel dropdown: 'down' untuk pemicu di bagian atas kartu. */
@@ -163,56 +161,25 @@ export function MedicalRecordActions({
         <DropdownMenuTrigger
           disabled={loading || printing}
           aria-label="Aksi rekam medis"
-          className={
-            tone === 'dark'
-              ? 'flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/[0.06] p-0 text-white/80 transition-[background-color,color,box-shadow,transform] duration-200 ease-out hover:bg-white/[0.12] hover:text-white hover:shadow-[0_2px_10px_rgba(0,0,0,0.45)] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
-              : 'flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full p-0 text-muted-foreground transition-[background-color,color,box-shadow,transform] duration-200 ease-out hover:bg-accent hover:text-foreground hover:shadow-[0_2px_10px_rgba(28,25,23,0.10)] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60'
-          }
+          className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full p-0 text-muted-foreground transition-[background-color,color,box-shadow,transform] duration-200 ease-out hover:bg-accent hover:text-foreground hover:shadow-[0_2px_10px_rgba(28,25,23,0.10)] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60"
         >
           <MoreVertical className="w-4 h-4 shrink-0" />
         </DropdownMenuTrigger>
 
+        {/* Konten dan item memakai gaya standar shadcn/ui global
+            (`components/ui/dropdown-menu`) tanpa kustom warna/ukuran lagi. */}
         <DropdownMenuContent
           align="end"
           side={menuPlacement === 'down' ? 'bottom' : 'top'}
           sideOffset={8}
-          className={
-            tone === 'dark'
-              ? 'w-48 border-white/10 bg-[#191817] p-1.5 text-white shadow-[0_12px_32px_rgba(0,0,0,0.55)]'
-              : 'w-48 p-1.5'
-          }
         >
-          <DropdownMenuItem
-            disabled={printing}
-            onClick={() => void openPrintPage()}
-            className={
-              tone === 'dark'
-                ? 'min-h-[44px] gap-2.5 text-xs text-white/70 focus:bg-white/[0.08] focus:text-white'
-                : 'min-h-[44px] gap-2.5 text-xs text-muted-foreground'
-            }
-          >
-            {printing ? (
-              <Loader2 className={tone === 'dark' ? 'h-3.5 w-3.5 animate-spin shrink-0 text-white/50' : 'h-3.5 w-3.5 animate-spin shrink-0 text-muted-foreground'} />
-            ) : (
-              <Printer className={tone === 'dark' ? 'h-3.5 w-3.5 shrink-0 text-white/50' : 'h-3.5 w-3.5 shrink-0 text-muted-foreground'} />
-            )}
-            <span className="font-medium text-xs">{printing ? 'Mencetak...' : 'Cetak Dokumen'}</span>
+          <DropdownMenuItem disabled={printing} onClick={() => void openPrintPage()}>
+            {printing ? <Loader2 className="animate-spin" /> : <Printer />}
+            {printing ? 'Mencetak...' : 'Cetak Dokumen'}
           </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled={loading}
-            onClick={() => void downloadPdf()}
-            className={
-              tone === 'dark'
-                ? 'min-h-[44px] gap-2.5 text-xs text-white/70 focus:bg-white/[0.08] focus:text-white'
-                : 'min-h-[44px] gap-2.5 text-xs text-muted-foreground'
-            }
-          >
-            {loading ? (
-              <Loader2 className={tone === 'dark' ? 'h-3.5 w-3.5 animate-spin shrink-0 text-white/50' : 'h-3.5 w-3.5 animate-spin shrink-0 text-muted-foreground'} />
-            ) : (
-              <FileDown className={tone === 'dark' ? 'h-3.5 w-3.5 shrink-0 text-white/50' : 'h-3.5 w-3.5 shrink-0 text-muted-foreground'} />
-            )}
-            <span className="font-medium text-xs">{loading ? 'Memproses...' : 'Unduh PDF'}</span>
+          <DropdownMenuItem disabled={loading} onClick={() => void downloadPdf()}>
+            {loading ? <Loader2 className="animate-spin" /> : <FileDown />}
+            {loading ? 'Memproses...' : 'Unduh PDF'}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
