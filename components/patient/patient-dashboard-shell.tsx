@@ -331,12 +331,7 @@ export function PatientDashboardShell({
 
                     if (children.length > 0) {
                       return (
-                        <li
-                          key={key}
-                          className="relative"
-                          onMouseEnter={() => collapsed && setHoveredGroupId(key)}
-                          onMouseLeave={() => collapsed && setHoveredGroupId(null)}
-                        >
+                        <li key={key} className="group/nav relative">
                           <button
                             type="button"
                             aria-expanded={collapsed ? undefined : open}
@@ -355,9 +350,9 @@ export function PatientDashboardShell({
                               collapsed
                                 ? cn(
                                     'mx-auto flex h-11 w-11 items-center justify-center rounded-xl p-0',
-                                    hoveredGroupId === key || hasActiveChild
+                                    hasActiveChild
                                       ? 'bg-[var(--hafta-800)] text-[var(--hafta-50)]'
-                                      : 'bg-transparent text-white/60 hover:text-white/85',
+                                      : 'bg-transparent text-white/60 hover:text-white/85 group-hover/nav:bg-[var(--hafta-800)] group-hover/nav:text-[var(--hafta-50)]',
                                   )
                                 : cn(
                                     'flex h-11 w-full items-center justify-between rounded-xl px-3.5 text-xs font-bold',
@@ -429,39 +424,31 @@ export function PatientDashboardShell({
                             ) : null}
                           </AnimatePresence>
 
-                          {/* Collapsed Mode: Floating Label + Tree Card */}
-                          {collapsed && hoveredGroupId === key && (
-                            <div className="absolute left-[calc(100%+8px)] top-1/2 z-[80] -translate-y-1/2 whitespace-nowrap rounded-lg border border-[#2E2D1D] bg-sidebar px-3 py-1 text-xs font-bold text-white shadow-lg">
+                          {/* Collapsed Mode: Floating Label — CSS hover, no gap */}
+                          {collapsed && (
+                            <div className="pointer-events-none absolute left-full top-1/2 z-[80] ml-2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-[#2E2D1D] bg-sidebar px-3 py-1 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity duration-150 group-hover/nav:opacity-100">
                               {item.label}
                             </div>
                           )}
-                          <AnimatePresence>
-                            {collapsed && hoveredGroupId === key ? (
-                              <motion.div
-                                key={`floating-tree-${key}`}
-                                initial={{ opacity: 0, y: -6, scale: 0.98 }}
-                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                exit={{ opacity: 0, y: -6, scale: 0.98 }}
-                                transition={{ duration: 0.16, ease: 'easeOut' }}
-                                className="absolute left-3 top-[calc(100%+6px)] z-[80] w-52 rounded-2xl border border-[#2E2D1D] bg-sidebar p-3 shadow-[0_16px_40px_rgba(0,0,0,0.45)]"
-                              >
-                                <p className="px-1 pb-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-white/60">
-                                  {item.label}
-                                </p>
-                                <SubmenuTreeList
-                                  items={children
-                                    .filter((child) => child.href)
-                                    .map((child) => ({
-                                  label: child.label,
-                                  href: child.href!,
-                                  badge: badgeCountFor(child.href),
-                                }))}
-                                  pathname={pathname}
-                                  onNavigate={() => setHoveredGroupId(null)}
-                                />
-                              </motion.div>
-                            ) : null}
-                          </AnimatePresence>
+                          {/* Collapsed Mode: Floating Tree Card — CSS hover */}
+                          {collapsed && (
+                            <div className="pointer-events-none absolute left-full top-0 z-[80] ml-2 w-52 rounded-2xl border border-[#2E2D1D] bg-sidebar p-3 opacity-0 shadow-[0_16px_40px_rgba(0,0,0,0.45)] transition-opacity duration-150 group-hover/nav:pointer-events-auto group-hover/nav:opacity-100">
+                              <p className="px-1 pb-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-white/60">
+                                {item.label}
+                              </p>
+                              <SubmenuTreeList
+                                items={children
+                                  .filter((child) => child.href)
+                                  .map((child) => ({
+                                label: child.label,
+                                href: child.href!,
+                                badge: badgeCountFor(child.href),
+                              }))}
+                                pathname={pathname}
+                                onNavigate={() => {}}
+                              />
+                            </div>
+                          )}
                         </li>
                       );
                     }
@@ -469,9 +456,7 @@ export function PatientDashboardShell({
                     return (
                       <li
                         key={key}
-                        className="relative"
-                        onMouseEnter={() => collapsed && setHoveredGroupId(key)}
-                        onMouseLeave={() => collapsed && setHoveredGroupId(null)}
+                        className="group/nav relative"
                       >
                         <Link
                           href={item.href ?? '#'}
@@ -522,8 +507,8 @@ export function PatientDashboardShell({
                         ) : null}
 
                         {/* Collapsed Mode Popover */}
-                        {collapsed && hoveredGroupId === key && (
-                          <div className="absolute left-full top-1/2 z-50 ml-3 -translate-y-1/2 whitespace-nowrap rounded-xl border border-stone-800 bg-sidebar px-3 py-2 text-xs font-bold text-white shadow-2xl animate-in fade-in-50 duration-150">
+                        {collapsed && (
+                          <div className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-xl border border-stone-800 bg-sidebar px-3 py-2 text-xs font-bold text-white opacity-0 shadow-2xl transition-opacity duration-150 group-hover/nav:opacity-100">
                             <span>{item.label}</span>
                           </div>
                         )}
