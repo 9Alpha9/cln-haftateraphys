@@ -36,7 +36,7 @@ export function TopbarAccountMenu({
   const [open, setOpen] = React.useState(false);
 
   return (
-    <DropdownMenuPrimitive.Root open={open} onOpenChange={setOpen}>
+    <DropdownMenuPrimitive.Root modal={false} open={open} onOpenChange={setOpen}>
       <DropdownMenuPrimitive.Trigger
         aria-label="Menu akun"
         className="hidden items-center gap-2.5 rounded-xl p-1.5 transition-colors hover:bg-[var(--hafta-50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-200)] md:flex data-[state=open]:bg-[var(--hafta-50)]"
@@ -59,6 +59,7 @@ export function TopbarAccountMenu({
         <DropdownMenuPrimitive.Content
           align="end"
           sideOffset={8}
+          collisionPadding={{ top: 76, right: 12, bottom: 80, left: 12 }}
           className="z-[60] w-56 rounded-2xl bg-popover p-1.5 text-popover-foreground shadow-[0_12px_32px_rgba(24,23,0,0.14)] ring-1 ring-foreground/10 outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=top]:slide-in-from-bottom-2"
         >
           <div className="px-3 py-2">
