@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { MoreVertical, FileDown, Loader2, Printer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/components/ui/toast';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -158,12 +159,17 @@ export function MedicalRecordActions({
         className="hidden"
       />
       <DropdownMenu>
-        <DropdownMenuTrigger
-          disabled={loading || printing}
-          aria-label="Aksi rekam medis"
-          className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full p-0 text-muted-foreground transition-[background-color,color,box-shadow,transform] duration-200 ease-out hover:bg-accent hover:text-foreground hover:shadow-[0_2px_10px_rgba(28,25,23,0.10)] active:scale-95 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <MoreVertical className="w-4 h-4 shrink-0" />
+        <DropdownMenuTrigger asChild>
+          {/* Pola shadcn global yang sama dengan trigger topbar lain
+              (notification-inbox-popover): Trigger asChild + Button ikon. */}
+          <Button
+            variant="outline"
+            size="icon"
+            disabled={loading || printing}
+            aria-label="Aksi rekam medis"
+          >
+            <MoreVertical />
+          </Button>
         </DropdownMenuTrigger>
 
         {/* Konten dan item memakai gaya standar shadcn/ui global
