@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   chartFill: { height: 7, borderRadius: 3.5 },
-  chartValue: { width: 68, textAlign: 'right', fontSize: FONT_META, fontFamily: 'Helvetica-Bold', color: '#181700' },
+  chartValue: { width: 95, textAlign: 'right', fontSize: FONT_META, fontFamily: 'Helvetica-Bold', color: '#181700' },
   chartScaleRow: { flexDirection: 'row', alignItems: 'center', marginTop: 1 },
   chartScaleSpacer: { width: 86 },
   chartScale: { flex: 1, flexDirection: 'row', justifyContent: 'space-between', marginRight: 8 },
@@ -368,7 +368,7 @@ function FunctionalChart({ record }: { record: MedicalRecordPdfData }) {
             <Text style={styles.chartScaleText}>5</Text>
             <Text style={styles.chartScaleText}>10</Text>
           </View>
-          <View style={{ width: 68 }} />
+          <View style={{ width: 95 }} />
         </View>
       </View>
       <Text style={styles.chartNote}>{FUNCTIONAL_SCALE_NOTE}</Text>

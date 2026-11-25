@@ -173,6 +173,9 @@ export function PatientDashboardOverview({
         </p>
       </header>
 
+      {/* ── 2 & 3: 2-column grid on desktop, 1 column on mobile ── */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2 lg:gap-6">
+
       {/* ── 2. JADWAL TERAPI (SMART STATE) ── */}
       <section aria-label="Jadwal terapi">
         {showBookingPanel ? (
@@ -364,6 +367,8 @@ export function PatientDashboardOverview({
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </section>
+
+      </div>{/* end 2-column grid */}
 
       {/* ── MODAL GLOBAL: detail jadwal ── */}
       <GlobalModal

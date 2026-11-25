@@ -250,112 +250,107 @@ export function TherapyHistoryPage({
             return (
               <article
                 key={record.id}
-                className="rounded-3xl border border-stone-200 bg-white p-4 transition-all sm:p-5"
+                className="group relative flex items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 transition-all hover:border-[var(--hafta-300)] sm:gap-4 sm:px-5 sm:py-3.5"
               >
-                <div className="flex items-start gap-4">
-                  {/* Date badge */}
-                  <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-[var(--hafta-org-50)] text-[#181700]">
-                    <span className="text-lg font-extrabold leading-none">{date.getDate()}</span>
-                    <span className="text-[9px] font-bold uppercase">
-                      {date.toLocaleDateString('id-ID', { month: 'short' })}
+                {/* Date badge */}
+                <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-xl bg-[var(--hafta-org-50)] text-[#181700]">
+                  <span className="text-base font-extrabold leading-none">{date.getDate()}</span>
+                  <span className="text-[8px] font-bold uppercase">
+                    {date.toLocaleDateString('id-ID', { month: 'short' })}
+                  </span>
+                </div>
+
+                {/* Content — compact */}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <h3 className="text-sm font-bold text-[#181700]">
+                      Evaluasi Sesi {visitNum}
+                    </h3>
+                    <span
+                      className={cn(
+                        'inline-flex rounded-full px-2 py-0.5 text-[9.5px] font-semibold',
+                        isFinal
+                          ? 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]'
+                          : 'bg-stone-100 text-stone-600',
+                      )}
+                    >
+                      {isFinal ? 'Final' : 'Draft'}
+                    </span>
+                    {isAmendment ? (
+                      <span className="inline-flex rounded-full bg-amber-50 px-2 py-0.5 text-[9.5px] font-semibold text-amber-800">
+                        Amandemen
+                      </span>
+                    ) : null}
+                    <span className="text-[11px] text-stone-400">
+                      · {formatShortDate(date)}
+                      {record.therapistName ? ` · ${record.therapistName}` : ''}
                     </span>
                   </div>
 
-                  {/* Content */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="text-sm font-bold text-[#181700]">
-                        Evaluasi Sesi {visitNum}
-                      </h3>
-                      <span
-                        className={cn(
-                          'inline-flex rounded-full border px-2.5 py-0.5 text-[10px] font-semibold',
-                          isFinal
-                            ? 'border-[var(--hafta-grn-200)] bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]'
-                            : 'border-stone-200 bg-white text-stone-600',
-                        )}
-                      >
-                        {isFinal ? 'Final' : 'Draft'}
-                      </span>
-                      {isAmendment ? (
-                        <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold text-amber-800">
-                          Amandemen
-                        </span>
-                      ) : null}
-                    </div>
-
-                    <p className="mt-1 flex items-center gap-1.5 text-[11px] text-stone-400">
-                      <CalendarDays className="h-3 w-3" />
-                      {formatShortDate(date)}
-                      {record.therapistName ? ` · ${record.therapistName}` : ''}
+                  {/* Diagnosis — single line preview */}
+                  {record.diagnosis ? (
+                    <p className="mt-0.5 truncate text-xs text-stone-500">
+                      {record.diagnosis}
                     </p>
+                  ) : null}
 
-                    {/* Clinical indicators */}
-                    <div className="mt-3 grid grid-cols-4 gap-2">
-                      {METRICS.map(({ key, label, field }) => {
-                        const value = Number(record[field] ?? 0);
-                        return (
-                          <div
-                            key={key}
-                            className={cn(
-                              'rounded-2xl bg-[var(--hafta-50)] p-2.5 text-center sm:p-3',
-                            )}
-                          >
-                            <span className="block text-[10px] font-medium text-muted-foreground">
-                              {label}
-                            </span>
-                            <span className="block text-lg font-bold tabular-nums text-[#181700]">
-                              {value}/10
-                            </span>
-                            <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-stone-200">
-                              <div
-                                className={cn('h-full rounded-full transition-all', metricColor(key, value))}
-                                style={{ width: `${value * 10}%` }}
-                              />
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Diagnosis & Treatment */}
-                    {(record.diagnosis || record.treatment) && (
-                      <div className="mt-3 space-y-1">
-                        {record.diagnosis && (
-                          <p className="truncate text-xs text-stone-500">
-                            <span className="font-semibold text-stone-700">Diagnosis:</span>{' '}
-                            {record.diagnosis}
-                          </p>
-                        )}
-                        {record.treatment && (
-                          <p className="truncate text-xs text-stone-500">
-                            <span className="font-semibold text-stone-700">Tindakan:</span>{' '}
-                            {record.treatment}
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Actions */}
-                    <div className="mt-3 flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setDetailRecord(record)}
-                        className="inline-flex h-10 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full border border-border bg-card px-4 text-xs font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                        Lihat Detail
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setPrintRecord(record)}
-                        className="inline-flex h-10 shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-300)] px-4 text-xs font-bold text-foreground transition-colors hover:bg-[var(--hafta-400)]"
-                      >
-                        <Download className="h-3.5 w-3.5" />
-                        Unduh PDF
-                      </button>
-                    </div>
+                  {/* Metric mini-row — mobile only */}
+                  <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 lg:hidden">
+                    {METRICS.map(({ key, label, field }) => {
+                      const value = Number(record[field] ?? 0);
+                      return (
+                        <span key={key} className="inline-flex items-center gap-1 text-[10px]">
+                          <span className="text-stone-400">{label}</span>
+                          <span className={cn('font-bold tabular-nums', metricText(key, value))}>
+                            {value}/10
+                          </span>
+                        </span>
+                      );
+                    })}
                   </div>
+                </div>
+
+                {/* Metric pills — inline, desktop only */}
+                <div className="hidden shrink-0 items-center gap-1.5 lg:flex">
+                  {METRICS.map(({ key, label, field }) => {
+                    const value = Number(record[field] ?? 0);
+                    return (
+                      <div
+                        key={key}
+                        className={cn(
+                          'flex min-w-[62px] flex-col items-center rounded-lg px-2 py-1.5',
+                          metricBg(key, value),
+                        )}
+                      >
+                        <span className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
+                          {label}
+                        </span>
+                        <span className={cn('text-xs font-bold tabular-nums', metricText(key, value))}>
+                          {value}/10
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Actions — icon buttons, always visible */}
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <button
+                    type="button"
+                    aria-label="Lihat detail"
+                    onClick={() => setDetailRecord(record)}
+                    className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:bg-[var(--hafta-50)]"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Unduh PDF"
+                    onClick={() => setPrintRecord(record)}
+                    className="inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-300)] text-foreground transition-colors hover:bg-[var(--hafta-400)]"
+                  >
+                    <Download className="h-4 w-4" />
+                  </button>
                 </div>
               </article>
             );
@@ -401,47 +396,61 @@ export function TherapyHistoryPage({
         }
       >
         {detailRecord ? (
-          <div className="space-y-4">
-            {METRICS.map(({ key, label, field }) => {
-              const value = Number(detailRecord[field] ?? 0);
-              return (
-                <div key={key} className={cn('rounded-2xl p-3', metricBg(key, value))}>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-muted-foreground">{label}</span>
-                    <span className={cn('text-lg font-bold', metricText(key, value))}>{value}/10</span>
+          <div className="space-y-5">
+            {/* Clinical indicators — inline grid, no cards */}
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                Indikator Klinis
+              </p>
+              <div className="mt-2.5 grid grid-cols-2 gap-x-4 gap-y-3">
+                {METRICS.map(({ key, label, field }) => {
+                  const value = Number(detailRecord[field] ?? 0);
+                  return (
+                    <div key={key}>
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-xs font-medium text-muted-foreground">{label}</span>
+                        <span className={cn('text-sm font-bold tabular-nums', metricText(key, value))}>
+                          {value}<span className="text-[10px] font-normal text-muted-foreground">/10</span>
+                        </span>
+                      </div>
+                      <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-stone-200">
+                        <div
+                          className={cn('h-full rounded-full transition-all', metricColor(key, value))}
+                          style={{ width: `${value * 10}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Diagnosis & Treatment — flat list with divider */}
+            {(detailRecord.diagnosis || detailRecord.treatment || detailRecord.evaluation) && (
+              <div className="space-y-3 border-t border-border/60 pt-4">
+                {detailRecord.diagnosis && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Diagnosis</p>
+                    <p className="mt-1 text-sm leading-relaxed text-foreground">{detailRecord.diagnosis}</p>
                   </div>
-                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-white/50">
-                    <div
-                      className={cn('h-full rounded-full', metricColor(key, value))}
-                      style={{ width: `${value * 10}%` }}
-                    />
+                )}
+                {detailRecord.treatment && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tindakan</p>
+                    <p className="mt-1 text-sm leading-relaxed text-foreground">{detailRecord.treatment}</p>
                   </div>
-                </div>
-              );
-            })}
-
-            {detailRecord.diagnosis && (
-              <div className="rounded-2xl border border-border bg-card p-3">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Diagnosis</p>
-                <p className="mt-1 text-sm leading-relaxed text-foreground">{detailRecord.diagnosis}</p>
+                )}
+                {detailRecord.evaluation && (
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Evaluasi</p>
+                    <p className="mt-1 text-sm leading-relaxed text-foreground">{detailRecord.evaluation}</p>
+                  </div>
+                )}
               </div>
             )}
 
-            {detailRecord.treatment && (
-              <div className="rounded-2xl border border-border bg-card p-3">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Tindakan</p>
-                <p className="mt-1 text-sm leading-relaxed text-foreground">{detailRecord.treatment}</p>
-              </div>
-            )}
-
-            {detailRecord.evaluation && (
-              <div className="rounded-2xl border border-border bg-card p-3">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Evaluasi</p>
-                <p className="mt-1 text-sm leading-relaxed text-foreground">{detailRecord.evaluation}</p>
-              </div>
-            )}
-
-            <div className="rounded-2xl border border-border bg-card p-3">
+            {/* Terapis — simple line */}
+            <div className="border-t border-border/60 pt-4">
               <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Terapis</p>
               <p className="mt-1 text-sm font-medium text-foreground">{detailRecord.therapistName || 'Fisioterapis Hafta'}</p>
             </div>
