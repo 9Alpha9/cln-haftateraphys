@@ -96,11 +96,13 @@ export function SmartFilterMenu({
         align={align === 'right' ? 'end' : 'start'}
         sideOffset={6}
         className={cn(
-          'flex max-h-[min(420px,calc(100dvh-4rem))] min-w-[232px] flex-col gap-1 overflow-y-auto overscroll-contain',
+          'flex max-h-[min(420px,calc(100dvh-4rem))] min-w-[232px] flex-col gap-1 overflow-hidden p-1.5',
           panelClassName,
         )}
       >
-        {content}
+        <div className="flex max-h-full flex-col gap-1 overflow-y-auto overscroll-contain pr-1">
+          {content}
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
