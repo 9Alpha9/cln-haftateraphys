@@ -18,7 +18,10 @@ const styles = StyleSheet.create({
   page: {
     paddingTop: 32,
     paddingHorizontal: 38,
-    paddingBottom: 88,
+    // 68pt menyisakan jarak aman antara isi dan baris "Halaman x dari y"
+    // (absolut pada top:793) sekaligus memberi ruang bagi blok tanda tangan
+    // agar tetap muat dan menempel di dasar halaman.
+    paddingBottom: 68,
     backgroundColor: '#ffffff',
     fontFamily: 'Helvetica',
     fontSize: FONT.body,
@@ -130,13 +133,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-end',
     paddingTop: 10,
-    minHeight: 96,
+    minHeight: 80,
   },
   footerInfo: { fontSize: FONT_META, color: '#a8a29e', maxWidth: 300, lineHeight: FONT.lineHeight },
   signatureBox: { width: 180, alignItems: 'center' },
   signatureLabel: { fontSize: FONT_TABLE, color: '#57534e', lineHeight: FONT.lineHeight },
   signatureSpace: { height: 42, justifyContent: 'center' },
-  signaturePlaceholder: { fontSize: FONT_META, color: '#d6d3d1', fontStyle: 'italic' },
   signatureLine: { width: 120, borderTopWidth: 1, borderTopColor: '#d6d3d1', marginBottom: 4 },
   signatureName: { fontSize: FONT_SUB, fontFamily: 'Helvetica-Bold', color: '#181700', textAlign: 'center' },
   noteBox: {
@@ -214,9 +216,9 @@ function footerBlock(printedAt: string, documentId: string) {
       </View>
       <View style={styles.signatureBox}>
         <Text style={styles.signatureLabel}>Fisioterapis,</Text>
-        <View style={styles.signatureSpace}>
-          <Text style={styles.signaturePlaceholder}>[Tanda Tangan & Paraf]</Text>
-        </View>
+        {/* Ruang kosong dibiarkan agar tanda tangan digital terisi otomatis;
+            placeholder manual sudah dihapus. */}
+        <View style={styles.signatureSpace} />
         <View style={styles.signatureLine} />
         <Text style={styles.signatureName}>Hafta Fisioterapi</Text>
       </View>
@@ -258,6 +260,7 @@ export const AppointmentDocument = ({
           {/* ── Header ── */}
           <View style={styles.header}>
             <View style={styles.headerIdentity}>
+              {/* eslint-disable-next-line jsx-a11y/alt-text */}
               <Image src={resolvedLogoUrl} style={styles.headerLogo} />
               <View style={styles.headerClinic}>
                 <Text style={styles.clinicName}>HAFTA FISIOTERAPI</Text>
@@ -388,6 +391,13 @@ export const AppointmentDocument = ({
               <Text style={styles.noteText}>&bull; Hubungi klinik jika perlu mengubah atau membatalkan jadwal.</Text>
             </View>
           </View>
+
+          {/* Pendorong bawah: menyerap sisa ruang halaman sehingga blok
+              tanda tangan selalu berada di dasar halaman terakhir — sama
+              seperti penempatan tanda tangan pada dokumen rekam medis.
+              Bila isi meluber ke halaman lanjutan, spacer ini ikut tumbuh di
+              halaman lanjutan tersebut. */}
+          <View style={{ flexGrow: 1, minHeight: 8 }} />
 
           {/* ── Footer / Pengesahan ── */}
           {footerBlock(printedAt, record.id)}

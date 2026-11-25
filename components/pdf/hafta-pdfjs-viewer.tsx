@@ -50,7 +50,9 @@ export function HaftaPdfjsViewer({
         src={viewerSrc}
         title={title ?? 'Penampil PDF rekam medis'}
         className="h-full min-h-0 w-full flex-1 border-0 bg-white"
-        allow="fullscreen"
+        // `downloads` menjaga tombol unduh PDF.js tetap diizinkan bila browser
+        // memberlakukan Permissions-Policy pada konten iframe.
+        allow="fullscreen downloads"
         onLoad={handleLoad}
       />
 

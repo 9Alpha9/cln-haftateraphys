@@ -491,7 +491,7 @@ export const MedicalRecordDocument = ({
           <View style={styles.section}>
             <SectionTitle>1. IDENTITAS PASIEN</SectionTitle>
             <View style={styles.identityTable}>
-              <View style={styles.identityRow}>
+              <View style={styles.identityRow} minPresenceAhead={40}>
                 <View style={styles.identityCell}>
                   <Text style={styles.identityLabel}>No. RM</Text>
                   <Text style={styles.identityValue}>{record.medicalRecordNumber || '-'}</Text>
@@ -501,7 +501,7 @@ export const MedicalRecordDocument = ({
                   <Text style={styles.identityValue}>{record.patientName}</Text>
                 </View>
               </View>
-              <View style={styles.identityRow}>
+              <View style={styles.identityRow} minPresenceAhead={40}>
                 <View style={styles.identityCell}>
                   <Text style={styles.identityLabel}>Umur</Text>
                   <Text style={styles.identityValue}>{calculateAge(record.patientDob)}</Text>
@@ -511,13 +511,13 @@ export const MedicalRecordDocument = ({
                   <Text style={styles.identityValue}>{formatGender(record.gender)}</Text>
                 </View>
               </View>
-              <View style={styles.identityRow}>
+              <View style={styles.identityRow} minPresenceAhead={40}>
                 <View style={styles.identityCellLast}>
                   <Text style={styles.identityLabel}>Alamat</Text>
                   <Text style={styles.identityValue}>{record.patientAddress || '-'}</Text>
                 </View>
               </View>
-              <View style={styles.identityRow}>
+              <View style={styles.identityRow} minPresenceAhead={40}>
                 <View style={styles.identityCell}>
                   <Text style={styles.identityLabel}>Nomor HP</Text>
                   <Text style={styles.identityValue}>{record.patientPhone || '-'}</Text>
@@ -527,7 +527,7 @@ export const MedicalRecordDocument = ({
                   <Text style={styles.identityValue}>{record.occupation || '-'}</Text>
                 </View>
               </View>
-              <View style={styles.identityRowLast} wrap={false}>
+              <View style={styles.identityRowLast} minPresenceAhead={44}>
                 <View style={styles.identityCellLast}>
                   <Text style={styles.identityLabel}>Tanggal Pemeriksaan</Text>
                   <Text style={styles.identityValue}>{formattedDate}</Text>
@@ -539,7 +539,7 @@ export const MedicalRecordDocument = ({
           <View style={styles.section}>
             <SectionTitle>2. INFORMASI TERAPI</SectionTitle>
             <View style={styles.identityTable}>
-              <View style={styles.identityRow}>
+              <View style={styles.identityRow} minPresenceAhead={40}>
                 <View style={styles.identityCell}>
                   <Text style={styles.identityLabel}>Sesi</Text>
                   <Text style={styles.identityValue}>{visitLabel}</Text>
@@ -555,7 +555,7 @@ export const MedicalRecordDocument = ({
                   <Text style={styles.identityValue}>{record.therapistName || 'Terapis Hafta'}</Text>
                 </View>
               </View>
-              <View style={styles.identityRow}>
+              <View style={styles.identityRow} minPresenceAhead={40}>
                 <View style={styles.identityCell}>
                   <Text style={styles.identityLabel}>Jadwal Berikutnya</Text>
                   <Text style={styles.identityValue}>{formatDateTime(record.therapyInfo?.nextTherapyAt)}</Text>
@@ -565,7 +565,10 @@ export const MedicalRecordDocument = ({
                   <Text style={styles.identityValue}>{record.therapyInfo?.frequencyText || '-'}</Text>
                 </View>
               </View>
-              <View style={styles.identityRowLast} wrap={false}>
+              {/* Baris terakhir dibiarkan terpotong ke halaman berikutnya bila
+                  ruang tidak cukup (tanpa `wrap={false}`), dengan jarak minimum
+                  44pt agar tidak tersisa judul/label yatim di dasar halaman. */}
+              <View style={styles.identityRowLast} minPresenceAhead={44}>
                 <View style={styles.identityCell}>
                   <Text style={styles.identityLabel}>Tujuan Terapi</Text>
                   <Text style={styles.identityValue}>{record.therapyInfo?.therapyGoal || '-'}</Text>
@@ -596,7 +599,7 @@ export const MedicalRecordDocument = ({
             <View style={styles.section}>
               <SectionTitle>12. RENCANA TERAPI</SectionTitle>
               <View style={styles.identityTable}>
-                <View style={styles.identityRow}>
+                <View style={styles.identityRow} minPresenceAhead={40}>
                   <View style={styles.identityCell}>
                     <Text style={styles.identityLabel}>Status</Text>
                     <Text style={styles.identityValue}>{record.treatmentPlan.status || '-'}</Text>
@@ -606,20 +609,20 @@ export const MedicalRecordDocument = ({
                     <Text style={styles.identityValue}>{record.treatmentPlan.reviewIntervalText || '-'}</Text>
                   </View>
                 </View>
-                <View style={styles.identityRow}>
+                <View style={styles.identityRow} minPresenceAhead={40}>
                   <View style={styles.identityCellLast}>
                     <Text style={styles.identityLabel}>Tujuan</Text>
                     <Text style={styles.identityValue}>{record.treatmentPlan.goals || '-'}</Text>
                   </View>
                 </View>
-                <View style={styles.identityRow}>
+                <View style={styles.identityRow} minPresenceAhead={40}>
                   <View style={styles.identityCellLast}>
                     <Text style={styles.identityLabel}>Intervensi</Text>
                     <Text style={styles.identityValue}>{record.treatmentPlan.interventions || '-'}</Text>
                   </View>
                 </View>
                 {record.treatmentPlan.precautions ? (
-                  <View style={styles.identityRowLast} wrap={false}>
+                  <View style={styles.identityRowLast} minPresenceAhead={44}>
                     <View style={styles.identityCellLast}>
                       <Text style={styles.identityLabel}>Perhatian / Precaution</Text>
                       <Text style={styles.identityValue}>{record.treatmentPlan.precautions}</Text>
@@ -649,7 +652,7 @@ export const MedicalRecordDocument = ({
                     .filter(Boolean)
                     .join(' · ');
                   return (
-                    <View key={`${item.name}-${index}`} style={styles.tableRow} wrap={false}>
+                    <View key={`${item.name}-${index}`} style={styles.tableRow} minPresenceAhead={40}>
                       <Text style={[styles.tableCell, { flex: 1.5 }]}>{item.name}</Text>
                       <Text style={[styles.tableCell, { flex: 1.8 }]}>{item.instruction || '-'}</Text>
                       <Text style={[styles.tableCell, { flex: 0.8 }]}>{dose || '-'}</Text>
@@ -671,7 +674,7 @@ export const MedicalRecordDocument = ({
                 <Text style={[styles.tableHeaderCell, { flex: 1.2, borderRightWidth: 0 }]}>Keterangan</Text>
               </View>
               {rows.map((row, index) => (
-                <View key={`${row.date}-${index}`} style={styles.tableRow} wrap={false}>
+                <View key={`${row.date}-${index}`} style={styles.tableRow} minPresenceAhead={40}>
                   <Text style={[styles.tableCell, { flex: 0.9 }]}>{row.date}</Text>
                   <Text style={[styles.tableCell, { flex: 1.6 }]}>{row.therapy}</Text>
                   <Text style={[styles.tableCell, { flex: 1.6 }]}>{row.evaluation}</Text>
