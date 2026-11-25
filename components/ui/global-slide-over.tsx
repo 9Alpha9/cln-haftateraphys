@@ -64,13 +64,13 @@ export function GlobalSlideOver({
    */
   const [previousOpen, setPreviousOpen] = React.useState(isOpen);
   const [closing, setClosing] = React.useState(false);
-  
-  React.useEffect(() => {
+
+  if (isOpen !== previousOpen) {
+    setPreviousOpen(isOpen);
     if (previousOpen && !isOpen) {
       setClosing(true);
     }
-    setPreviousOpen(isOpen);
-  }, [isOpen, previousOpen]);
+  }
 
   const active = isOpen || closing;
 
