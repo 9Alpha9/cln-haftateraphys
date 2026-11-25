@@ -17,7 +17,6 @@ import {
 } from 'lucide-react';
 import { GlobalModal } from '@/components/ui/global-modal';
 import { Button } from '@/components/ui/button';
-import { MedicalRecordActions } from '@/components/dashboard/medical-record-actions';
 import { MedicalRecordPrintDialog } from '@/components/pdf/medical-record-print-dialog';
 import { PatientBookingPanel } from '@/components/patient/patient-booking-panel';
 import { useToast } from '@/components/ui/toast';
@@ -286,7 +285,6 @@ export function PatientDashboardOverview({
               Lihat Semua
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
-            {latestRecord ? <MedicalRecordActions record={latestRecord} menuPlacement="down" /> : null}
           </div>
         </div>
 
@@ -338,7 +336,7 @@ export function PatientDashboardOverview({
               ))}
             </dl>
 
-            <div className="mt-3 hidden justify-end sm:flex">
+            <div className="mt-3 flex justify-end">
               <button
                 type="button"
                 onClick={() => setPrintOpen(true)}

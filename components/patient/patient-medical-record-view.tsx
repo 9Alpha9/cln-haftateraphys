@@ -12,6 +12,7 @@ import {
   HeartPulse,
   NotebookPen,
   PenLine,
+  Printer,
   Stethoscope,
   TrendingUp,
 } from 'lucide-react';
@@ -25,7 +26,8 @@ import {
 } from 'recharts';
 import { GlobalModal } from '@/components/ui/global-modal';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
-import { MedicalRecordActions } from '@/components/dashboard/medical-record-actions';
+import { Button } from '@/components/ui/button';
+import { MedicalRecordPrintDialog } from '@/components/pdf/medical-record-print-dialog';
 import { PaginationBar } from '@/components/ui/pagination-bar';
 import { TherapyCalendar } from '@/components/patient/therapy-calendar';
 import { cn } from '@/lib/utils';
@@ -398,6 +400,8 @@ export function PatientMedicalRecordView({
   const [activeTab, setActiveTab] = useState<TabKey>('ringkasan');
   const [selectedRecordId, setSelectedRecordId] = useState(records[0]?.id ?? '');
   const [detailRecord, setDetailRecord] = useState<TherapyProgressView | null>(null);
+  /** Pratinjau cetak/unduh via PDF.js global (MedicalRecordPrintDialog). */
+  const [printRecord, setPrintRecord] = useState<TherapyProgressView | null>(null);
   const [programOpen, setProgramOpen] = useState(false);
   const [visitPage, setVisitPage] = useState(1);
   const [visitsPerPage, setVisitsPerPage] = useState(5);
@@ -436,50 +440,6 @@ export function PatientMedicalRecordView({
   const latestRecord = records[0] ?? null;
   const firstRecord = chronological[0] ?? null;
 
-  /**
-   * Data tambahan untuk PDF. Sumbernya sama dengan yang dirender di halaman
-   * pasien (informasi terapi, rencana terapi, program latihan) supaya isi PDF
-   * tidak berbeda dari tampilan.
-   */
-  const pdfExtrasFor = useCallback(
-    (record: TherapyProgressView) => ({
-      therapyInfo: {
-        visitNumber: visitNumberById.get(record.id) ?? null,
-        status: record.status,
-        patientVisible: record.patientVisible,
-        nextTherapyAt: patient?.nextTherapyAt ?? null,
-        frequencyText: patient?.therapyFrequencyText ?? null,
-        therapyGoal: patient?.therapyGoal ?? null,
-        diagnosisLabel: patient?.therapyDiagnosisLabel ?? null,
-      },
-      treatmentPlan: treatmentPlan
-        ? {
-            goals: treatmentPlan.goals,
-            interventions: treatmentPlan.interventions,
-            reviewIntervalText: treatmentPlan.reviewIntervalText,
-            precautions: treatmentPlan.precautions,
-            status: treatmentPlan.status,
-          }
-        : null,
-      homeProgram: homeProgram
-        ? {
-            status: homeProgram.status,
-            startsAt: homeProgram.startsAt,
-            endsAt: homeProgram.endsAt,
-            items: homeProgram.items.map((item) => ({
-              name: item.name,
-              instruction: item.instruction,
-              sets: item.sets,
-              repetitions: item.repetitions,
-              durationSeconds: item.durationSeconds,
-              frequencyText: item.frequencyText,
-              precaution: item.precaution,
-            })),
-          }
-        : null,
-    }),
-    [homeProgram, patient, treatmentPlan, visitNumberById],
-  );
   const chartData = useMemo<ChartPoint[]>(
     () =>
       chronological.map((record, index) => ({
@@ -687,7 +647,14 @@ export function PatientMedicalRecordView({
                 >
                   {labelRecordStatus(selectedRecord.status)}
                 </span>
-                <MedicalRecordActions record={selectedRecord} extras={pdfExtrasFor(selectedRecord)} />
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={() => setPrintRecord(selectedRecord)}
+                >
+                  <Printer />
+                  Cetak/Unduh
+                </Button>
               </div>
             </div>
 
@@ -845,7 +812,14 @@ export function PatientMedicalRecordView({
                 >
                   {labelRecordStatus(selectedRecord.status)}
                 </span>
-                <MedicalRecordActions record={selectedRecord} extras={pdfExtrasFor(selectedRecord)} />
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={() => setPrintRecord(selectedRecord)}
+                >
+                  <Printer />
+                  Cetak/Unduh
+                </Button>
               </div>
             </div>
 
@@ -1008,7 +982,15 @@ export function PatientMedicalRecordView({
                 Cetak atau simpan ringkasan sesi {visitNumberById.get(selectedRecord.id) ?? 1} sebagai PDF.
               </p>
               <div className="mt-3">
-                <MedicalRecordActions record={selectedRecord} extras={pdfExtrasFor(selectedRecord)} layout="split" className="sm:w-full" />
+                <Button
+                  variant="default"
+                  size="xs"
+                  className="w-full"
+                  onClick={() => setPrintRecord(selectedRecord)}
+                >
+                  <Printer />
+                  Cetak/Unduh
+                </Button>
               </div>
               <button
                 type="button"
@@ -1191,7 +1173,14 @@ export function PatientMedicalRecordView({
                     {shortDate(record.recordedAt)} · {labelRecordStatus(record.status)}
                   </span>
                 </span>
-                <MedicalRecordActions record={record} extras={pdfExtrasFor(record)} />
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={() => setPrintRecord(record)}
+                >
+                  <Printer />
+                  Cetak/Unduh
+                </Button>
               </li>
             ))}
           </ul>
@@ -1234,7 +1223,15 @@ export function PatientMedicalRecordView({
         size="md"
         footer={
           detailRecord ? (
-            <MedicalRecordActions record={detailRecord} extras={pdfExtrasFor(detailRecord)} layout="split" />
+            <Button
+              variant="default"
+              size="xs"
+              className="w-full"
+              onClick={() => setPrintRecord(detailRecord)}
+            >
+              <Printer />
+              Cetak/Unduh
+            </Button>
           ) : null
         }
       >
@@ -1338,6 +1335,15 @@ export function PatientMedicalRecordView({
           </ol>
         ) : null}
       </GlobalModal>
+
+      {/* Pratinjau cetak/unduh — PDF.js global; print & unduh dari toolbar pdf.js. */}
+      <MedicalRecordPrintDialog
+        record={printRecord}
+        open={printRecord !== null}
+        onOpenChange={(open) => {
+          if (!open) setPrintRecord(null);
+        }}
+      />
     </div>
   );
 }
