@@ -64,10 +64,13 @@ export function GlobalSlideOver({
    */
   const [previousOpen, setPreviousOpen] = React.useState(isOpen);
   const [closing, setClosing] = React.useState(false);
-  if (isOpen !== previousOpen) {
+  
+  React.useEffect(() => {
+    if (previousOpen && !isOpen) {
+      setClosing(true);
+    }
     setPreviousOpen(isOpen);
-    setClosing(!isOpen);
-  }
+  }, [isOpen, previousOpen]);
 
   const active = isOpen || closing;
 
@@ -143,6 +146,7 @@ export function GlobalSlideOver({
 
   return createPortal(
     <AnimatePresence
+      mode="wait"
       onExitComplete={() => {
         setClosing(false);
         restoreFocus();
