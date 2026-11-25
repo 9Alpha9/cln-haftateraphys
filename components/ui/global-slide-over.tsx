@@ -167,18 +167,16 @@ export function GlobalSlideOver({
       }}
     >
       {isOpen && (
+        // Wrapper sengaja TIDAK punya animasi opacity: fade pada wrapper membuat
+        // panel menghilang (fade) sebelum slide-nya selesai — terbaca sebagai
+        // "jump cut". Exit kini mirror dari in: panel slide-out opak penuh
+        // (motion.aside) + backdrop fade (motion.div backdrop), sama seperti saat
+        // membuka drawer.
         <motion.div
           key="global-slide-over"
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
-          initial={{ opacity: 1 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{
-            duration: DRAWER_ANIMATION.duration,
-            ease: DRAWER_ANIMATION.easing,
-          }}
         >
           {/* ── 1. STATIC BACKDROP OVERLAY (LOCKED SCREEN BLUR) ── */}
           <motion.div

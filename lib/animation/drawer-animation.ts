@@ -12,13 +12,13 @@
 
 export const DRAWER_ANIMATION = {
   /** Durasi buka dan tutup (detik). Sama untuk open dan close. */
-  duration: 0.25,
+  duration: 3,
 
   /** Easing buka dan tutup: ease-out cubic-bezier yang halus. */
   easing: [0.2, 0, 0, 1] as const,
 
   /** Backdrop fade sedikit lebih cepat dari panel agar terasa responsif. */
-  backdropDuration: 0.2,
+  backdropDuration: 1.5,
 
   /** Easing backdrop: easeOut standar. */
   backdropEasing: 'easeOut' as const,
