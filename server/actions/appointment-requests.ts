@@ -13,6 +13,7 @@ import { getIndonesianHolidays } from '@/server/queries/indonesian-holidays';
 import { getAvailabilityRules } from '@/server/queries/therapist-schedules';
 import { ensurePatientProfileForUser } from '@/server/queries/patient-portal';
 import { syncNextTherapyAt } from '@/server/queries/next-therapy-sync';
+import { isAppointmentStartPassed } from '@/server/appointment-status';
 
 const ACTIVE_APPOINTMENT_STATUSES = ['SCHEDULED', 'CONFIRMED'] as const;
 const SLOT_MINUTES = 60;
@@ -252,6 +253,13 @@ export async function reschedulePatientAppointment(input: RescheduleAppointmentI
     .limit(1);
   if (!appointment) throw new Error('Jadwal yang ingin diubah tidak ditemukan atau sudah tidak aktif.');
 
+  // Sesi hari ini yang jam mulainya sudah lewat tidak bisa diajukan diubah.
+  if (isAppointmentStartPassed(appointment.scheduledDate, appointment.startTime)) {
+    throw new Error(
+      'Sesi yang sudah melewati jam mulai tidak dapat diubah lagi. Silakan tandai tidak hadir atau selesaikan sesi.',
+    );
+  }
+
   const [pendingReschedule] = await db
     .select({ id: appointmentRequests.id })
     .from(appointmentRequests)
@@ -486,6 +494,14 @@ export async function reviewPatientAppointmentRequest({
         .limit(1);
       if (!sourceAppointment) {
         throw new Error('Jadwal asal pengajuan sudah tidak aktif. Minta pasien mengajukan ulang.');
+      }
+
+      // Persetujuan reschedule diblokir bila sesi asal sudah melewati jam mulai
+      // (misal pasien mengajukan sebelum jam mulai, terapis menyetujui sesudahnya).
+      if (isAppointmentStartPassed(sourceAppointment.scheduledDate, sourceAppointment.startTime)) {
+        throw new Error(
+          'Sesi asal sudah melewati jam mulai sehingga tidak dapat diubah. Tandai tidak hadir bila pasien tidak datang.',
+        );
       }
 
       const requestedStart = minutesSinceMidnight(request.startTime);

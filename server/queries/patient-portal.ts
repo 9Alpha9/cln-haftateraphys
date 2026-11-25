@@ -12,6 +12,7 @@ import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError } from '@/lib/permissions';
 import { getIndonesianHolidays } from '@/server/queries/indonesian-holidays';
 import { getAvailabilityRules } from '@/server/queries/therapist-schedules';
+import { expireMissedAppointments } from '@/server/queries/appointments';
 
 const ACTIVE_APPOINTMENT_STATUSES = ['SCHEDULED', 'CONFIRMED'] as const;
 const SLOT_MINUTES = 60;
@@ -132,6 +133,7 @@ async function getOwnPatient() {
 }
 
 export async function getPatientPortalAppointments(): Promise<PatientPortalAppointment[]> {
+  await expireMissedAppointments();
   const { patient } = await getOwnPatient();
   if (!patient) return [];
 

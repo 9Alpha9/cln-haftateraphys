@@ -1,8 +1,10 @@
-import { and, asc, count, desc, eq, ilike, inArray, isNull, or } from 'drizzle-orm';
+import { and, asc, count, desc, eq, ilike, inArray, isNull, lte, or } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { appointmentNotificationReads, appointments, patients, patientAssignments, profiles, users } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { isNoShowDue, localDateKey } from '@/server/appointment-status';
+import { syncNextTherapyAt } from '@/server/queries/next-therapy-sync';
 
 export type AppointmentView = {
   id: string;
@@ -66,6 +68,51 @@ export async function getAppointmentById(appointmentId: string): Promise<Appoint
   return appointment ?? null;
 }
 
+let lastNoShowSweepAt = 0;
+
+/**
+ * Sweep NO_SHOW otomatis: sesi berstatus SCHEDULED/CONFIRMED yang melewati
+ * jam mulai + 24 jam tanpa penyelesaian ditandai `NO_SHOW` (mangkir), dan
+ * kartu "Berikutnya" portal pasien ikut diselaraskan.
+ *
+ * Dibatasi maksimal sekali per 60 detik per proses agar beban query ringan;
+ * kegagalan sweep tidak menghalangi pembacaan jadwal (dicoba lagi nanti).
+ */
+export async function expireMissedAppointments(): Promise<void> {
+  const now = Date.now();
+  if (now - lastNoShowSweepAt < 60_000) return;
+  lastNoShowSweepAt = now;
+  try {
+    const db = getDb();
+    const candidates = await db
+      .select({
+        id: appointments.id,
+        patientId: appointments.patientId,
+        scheduledDate: appointments.scheduledDate,
+        startTime: appointments.startTime,
+      })
+      .from(appointments)
+      .where(
+        and(
+          inArray(appointments.status, ['SCHEDULED', 'CONFIRMED']),
+          lte(appointments.scheduledDate, localDateKey(new Date(now))),
+        ),
+      );
+    const expired = candidates.filter((row) => isNoShowDue(row.scheduledDate, row.startTime, new Date(now)));
+    if (expired.length === 0) return;
+    await db
+      .update(appointments)
+      .set({ status: 'NO_SHOW', updatedAt: new Date(now) })
+      .where(inArray(appointments.id, expired.map((row) => row.id)));
+    for (const patientId of new Set(expired.map((row) => row.patientId))) {
+      await syncNextTherapyAt(patientId);
+    }
+  } catch {
+    // Sweep bersifat non-kritis: bila gagal, pembacaan jadwal tetap jalan
+    // dan percobaan berikutnya dilakukan setelah jeda 60 detik.
+  }
+}
+
 export async function getScopedAppointments(
   page = 1,
   pageSize = 6,
@@ -81,6 +128,8 @@ export async function getScopedAppointments(
 ) {
   const { session, role } = await requireSession({ redirectToLogin: true });
   if (!hasPermission(role, PERMISSIONS.APPOINTMENT_LIST)) throw new ForbiddenError();
+
+  await expireMissedAppointments();
 
   const db = getDb();
   const baseWhere =

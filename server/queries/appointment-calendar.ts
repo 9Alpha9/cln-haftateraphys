@@ -4,6 +4,7 @@ import { getDb } from '@/db';
 import { appointmentNotificationReads, appointments, patients, users, profiles } from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
+import { expireMissedAppointments } from '@/server/queries/appointments';
 
 export type CalendarAppointment = {
   id: string;
@@ -21,6 +22,7 @@ export type CalendarAppointment = {
 export async function getCalendarAppointments(month: string): Promise<CalendarAppointment[]> {
   const { session, role } = await requireSession({ redirectToLogin: true });
   if (!hasPermission(role, PERMISSIONS.APPOINTMENT_LIST)) throw new ForbiddenError();
+  await expireMissedAppointments();
   const [year, monthNumber] = month.split('-').map(Number);
   if (!Number.isInteger(year) || !Number.isInteger(monthNumber) || monthNumber < 1 || monthNumber > 12) return [];
   const start = `${month}-01`;
@@ -81,6 +83,7 @@ export type ScheduleAppointment = {
 export async function getUpcomingScheduleAppointments(): Promise<ScheduleAppointment[]> {
   const { session, role } = await requireSession({ redirectToLogin: true });
   if (!hasPermission(role, PERMISSIONS.APPOINTMENT_LIST)) throw new ForbiddenError();
+  await expireMissedAppointments();
 
   const now = new Date();
   const start = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -121,6 +124,7 @@ export async function getUpcomingScheduleAppointments(): Promise<ScheduleAppoint
 export async function getCalendarAppointmentsRange(startDate: string, endDate: string): Promise<CalendarAppointment[]> {
   const { session, role } = await requireSession({ redirectToLogin: true });
   if (!hasPermission(role, PERMISSIONS.APPOINTMENT_LIST)) throw new ForbiddenError();
+  await expireMissedAppointments();
 
   const access =
     role === 'USER'

@@ -8,6 +8,7 @@ import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { assertPatientSchedulingScope, getAppointmentById } from '@/server/queries/appointments';
 import { syncNextTherapyAt } from '@/server/queries/next-therapy-sync';
+import { isAppointmentStartPassed } from '@/server/appointment-status';
 import { getAppointmentFormOptions } from '@/server/queries/appointment-form-options';
 import { notifyUser } from '@/server/notify';
 import { createAuditLog } from '@/lib/audit';
@@ -191,7 +192,13 @@ export async function updateAppointment(input: UpdateAppointmentInput) {
 
   const db = getDb();
   const [existing] = await db
-    .select({ id: appointments.id, therapistId: appointments.therapistId, status: appointments.status })
+    .select({
+      id: appointments.id,
+      therapistId: appointments.therapistId,
+      status: appointments.status,
+      scheduledDate: appointments.scheduledDate,
+      startTime: appointments.startTime,
+    })
     .from(appointments)
     .where(eq(appointments.id, input.appointmentId))
     .limit(1);
@@ -206,6 +213,14 @@ export async function updateAppointment(input: UpdateAppointmentInput) {
 
   if (existing.status === 'COMPLETED' || existing.status === 'CANCELLED' || existing.status === 'NO_SHOW') {
     throw new Error('Jadwal yang sudah selesai atau dibatalkan tidak dapat diubah.');
+  }
+
+  // Sesi yang jam mulainya sudah lewat dikunci: tidak boleh diubah lagi,
+  // hanya bisa diselesaikan atau ditandai tidak hadir.
+  if (isAppointmentStartPassed(existing.scheduledDate, existing.startTime)) {
+    throw new Error(
+      'Sesi yang sudah melewati jam mulai tidak dapat diubah. Selesaikan sesi atau tandai pasien tidak hadir.',
+    );
   }
 
   await assertPatientSchedulingScope(input.patientId);
@@ -275,4 +290,80 @@ export async function deleteAppointment(appointmentId: string) {
   await syncNextTherapyAt(appointment.patientId);
 
   revalidatePath('/dashboard/appointments');
+}
+
+/**
+ * Tandai sesi sebagai TIDAK HADIR (mangkir) oleh terapis.
+ *
+ * Hanya boleh setelah jam mulai sesi lewat dan selama statusnya masih aktif
+ * (SCHEDULED/CONFIRMED). Menulis audit dan menyelaraskan kartu "Berikutnya"
+ * portal pasien. Untuk sesi yang ditinggal lebih dari 24 jam tanpa tindakan,
+ * sweep `expireMissedAppointments` akan menandainya otomatis.
+ */
+export async function markAppointmentNoShow(appointmentId: string) {
+  const { session, role } = await requireSession({ redirectToLogin: false });
+  if (!hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE)) {
+    throw new ForbiddenError();
+  }
+
+  const db = getDb();
+  const [appointment] = await db
+    .select({
+      id: appointments.id,
+      therapistId: appointments.therapistId,
+      patientId: appointments.patientId,
+      status: appointments.status,
+      scheduledDate: appointments.scheduledDate,
+      startTime: appointments.startTime,
+    })
+    .from(appointments)
+    .where(eq(appointments.id, appointmentId))
+    .limit(1);
+
+  if (!appointment) {
+    throw new Error('Appointment tidak ditemukan.');
+  }
+
+  if (role === 'THERAPIST' && appointment.therapistId !== session.user.id) {
+    throw new ForbiddenError();
+  }
+
+  if (appointment.status !== 'SCHEDULED' && appointment.status !== 'CONFIRMED') {
+    throw new Error('Hanya jadwal aktif (Terjadwal/Terkonfirmasi) yang bisa ditandai tidak hadir.');
+  }
+
+  if (!isAppointmentStartPassed(appointment.scheduledDate, appointment.startTime)) {
+    throw new Error('Penandaan tidak hadir hanya bisa dilakukan setelah jam sesi dimulai.');
+  }
+
+  const now = new Date();
+  const [updated] = await db
+    .update(appointments)
+    .set({ status: 'NO_SHOW', updatedAt: now })
+    .where(
+      and(eq(appointments.id, appointment.id), inArray(appointments.status, [...activeStatuses])),
+    )
+    .returning({ id: appointments.id });
+  if (!updated) {
+    throw new Error('Jadwal telah berubah oleh pengguna lain. Muat ulang halaman.');
+  }
+
+  await createAuditLog({
+    action: 'appointment.no_show',
+    targetType: 'appointment',
+    targetId: appointment.id,
+    meta: {
+      patientId: appointment.patientId,
+      therapistId: appointment.therapistId,
+      scheduledDate: appointment.scheduledDate,
+      startTime: appointment.startTime,
+    },
+    userId: session.user.id,
+  });
+
+  // Sesi keluar dari daftar mendatang → kartu "Berikutnya" pasien ikut berubah.
+  await syncNextTherapyAt(appointment.patientId);
+
+  revalidatePath('/dashboard/appointments');
+  revalidatePath('/dashboard');
 }

@@ -15,6 +15,7 @@ import {
   Trash2,
   MoreVertical,
   Printer,
+  UserX,
 } from 'lucide-react';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { useToast } from '@/components/ui/toast';
@@ -22,6 +23,8 @@ import { hasPermission } from '@/lib/permissions/policy';
 import { PERMISSIONS } from '@/lib/permissions/constants';
 import type { Role } from '@/lib/permissions/roles';
 import { deleteAppointment } from '@/server/actions/appointments';
+import { markAppointmentNoShow } from '@/server/actions/appointments';
+import { isAppointmentStartPassed } from '@/server/appointment-status';
 import { markCalendarAppointmentsRead } from '@/server/actions/appointment-notifications';
 import { cn } from '@/lib/utils';
 import { AppointmentPrintDialog } from '@/components/pdf/appointment-print-dialog';
@@ -89,15 +92,24 @@ export function AppointmentCard({
   const { showToast } = useToast();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [markingNoShow, setMarkingNoShow] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
   const editor = useAppointmentEditDrawer();
 
   const canEdit = hasPermission(role, PERMISSIONS.APPOINTMENT_UPDATE);
+  // Lewat jam mulai → jadwal terkunci: tidak bisa diubah/dihapus lewat aksi edit,
+  // hanya bisa diselesaikan atau ditandai tidak hadir.
+  const isPastStart = isAppointmentStartPassed(appointment.scheduledDate, appointment.startTime);
   const isLocked =
     appointment.status === 'COMPLETED' ||
     appointment.status === 'CANCELLED' ||
-    appointment.status === 'NO_SHOW';
+    appointment.status === 'NO_SHOW' ||
+    isPastStart;
   const canModify = canEdit && !isLocked;
+  const canMarkNoShow =
+    canEdit &&
+    isPastStart &&
+    (appointment.status === 'SCHEDULED' || appointment.status === 'CONFIRMED');
   const canComplete =
     hasPermission(role, PERMISSIONS.APPOINTMENT_COMPLETE) &&
     (appointment.status === 'SCHEDULED' || appointment.status === 'CONFIRMED');
@@ -127,6 +139,24 @@ export function AppointmentCard({
     } finally {
       setDeleting(false);
       setShowDeleteDialog(false);
+    }
+  }
+
+  async function handleMarkNoShow() {
+    setMarkingNoShow(true);
+    try {
+      await markAppointmentNoShow(appointment.id);
+      showToast('success', 'Jadwal ditandai tidak hadir.');
+      router.refresh();
+    } catch (error) {
+      showToast(
+        'error',
+        error instanceof Error && error.message !== 'Forbidden'
+          ? error.message
+          : 'Gagal menandai jadwal tidak hadir.',
+      );
+    } finally {
+      setMarkingNoShow(false);
     }
   }
 
@@ -229,6 +259,9 @@ export function AppointmentCard({
               appointment={appointment}
               onDelete={() => setShowDeleteDialog(true)}
               onPrint={() => setPrintOpen(true)}
+              canMarkNoShow={canMarkNoShow}
+              markingNoShow={markingNoShow}
+              onMarkNoShow={() => void handleMarkNoShow()}
             />
           </div>
         </div>
@@ -264,10 +297,17 @@ function AppointmentDropdown({
   appointment,
   onDelete,
   onPrint,
+  canMarkNoShow = false,
+  markingNoShow = false,
+  onMarkNoShow,
 }: {
   appointment: AppointmentView;
   onDelete: () => void;
   onPrint?: () => void;
+  /** true bila sesi sudah melewati jam mulai dan masih berstatus aktif. */
+  canMarkNoShow?: boolean;
+  markingNoShow?: boolean;
+  onMarkNoShow?: () => void;
 }) {
   return (
     <DropdownMenu>
@@ -286,6 +326,18 @@ function AppointmentDropdown({
           <Printer className="h-3.5 w-3.5 shrink-0" />
           <span className="font-medium">Cetak Jadwal</span>
         </DropdownMenuItem>
+        {canMarkNoShow ? (
+          <DropdownMenuItem
+            disabled={markingNoShow}
+            onClick={() => onMarkNoShow?.()}
+            className="min-h-[44px] gap-2.5 text-xs text-muted-foreground"
+          >
+            <UserX className="h-3.5 w-3.5 shrink-0" />
+            <span className="font-medium">
+              {markingNoShow ? 'Menandai...' : 'Tandai Tidak Hadir'}
+            </span>
+          </DropdownMenuItem>
+        ) : null}
         <DropdownMenuItem
           onClick={onDelete}
           className="min-h-[44px] gap-2.5 text-xs text-muted-foreground"
