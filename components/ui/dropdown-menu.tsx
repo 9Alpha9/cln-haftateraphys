@@ -62,6 +62,19 @@ function DropdownMenuContent({
   ...props
 }: MenuPrimitive.Popup.Props &
   Pick<MenuPrimitive.Positioner.Props, 'align' | 'alignOffset' | 'side' | 'sideOffset' | 'sticky'>) {
+  React.useEffect(() => {
+    const handleScroll = () => {
+      const openTrigger = document.querySelector(
+        '[data-slot="dropdown-menu-trigger"][data-state="open"], [data-slot="dropdown-menu-trigger"][aria-expanded="true"]'
+      );
+      if (openTrigger) {
+        (openTrigger as HTMLElement).click();
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
+    return () => window.removeEventListener('scroll', handleScroll, { capture: true });
+  }, []);
+
   return (
     <MenuPrimitive.Portal>
       <MenuPrimitive.Positioner
