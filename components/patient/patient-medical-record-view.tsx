@@ -984,7 +984,7 @@ export function PatientMedicalRecordView({
               <div className="mt-3">
                 <Button
                   variant="default"
-                  size="xs"
+                  size="default"
                   className="w-full"
                   onClick={() => setPrintRecord(selectedRecord)}
                 >
@@ -1225,7 +1225,7 @@ export function PatientMedicalRecordView({
           detailRecord ? (
             <Button
               variant="default"
-              size="xs"
+              size="default"
               className="w-full"
               onClick={() => setPrintRecord(detailRecord)}
             >
