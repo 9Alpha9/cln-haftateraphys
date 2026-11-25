@@ -22,6 +22,7 @@ import {
   PanelLeftOpen,
   TrendingUp,
   Users,
+  User,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -654,19 +655,18 @@ export function PatientDashboardShell({
                   </div>
                   <ChevronDown className="hidden h-4 w-4 shrink-0 text-muted-foreground sm:block" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuContent align="end" sideOffset={8} className="w-56 max-h-[calc(100dvh-4rem)] overflow-y-auto rounded-2xl bg-popover p-1.5 text-popover-foreground shadow-md ring-1 ring-popover/10">
                   <div className="px-3 py-2">
                     <p className="text-sm font-semibold text-[#111827]">{userName || 'Pasien'}</p>
                     <p className="text-xs text-muted-foreground">{userEmail || 'pasien'}</p>
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => goTo('/dashboard/profile')}>
-                    Data Saya
+                    <User className="h-4 w-4" /> Data Saya
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Keluar
+                    <LogOut className="h-4 w-4 mr-2" /> Keluar
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
