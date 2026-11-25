@@ -9,6 +9,7 @@ import {
   FileText,
   FolderOpen,
   LayoutGrid,
+  Monitor,
   ShieldCheck,
   type LucideIcon,
   Settings,
@@ -130,7 +131,10 @@ const staffNavigation: DashboardNavGroup[] = [
   },
   {
     label: 'Akun',
-    items: [{ label: 'Data Saya', href: '/dashboard/profile', icon: UserRound }],
+    items: [
+      { label: 'Data Saya', href: '/dashboard/profile', icon: UserRound },
+      { label: 'Perangkat & Sesi', href: '/dashboard/sessions', icon: Monitor },
+    ],
   },
 ];
 
@@ -176,6 +180,11 @@ const patientNavigation: DashboardNavGroup[] = [
             icon: FolderOpen,
             requiredPermission: PERMISSIONS.DOCUMENT_READ_OWN,
           },
+          {
+            label: 'Riwayat',
+            href: '/dashboard/history',
+            icon: FileText,
+          },
         ],
       },
       {
@@ -188,9 +197,9 @@ const patientNavigation: DashboardNavGroup[] = [
             icon: UserRound,
           },
           {
-            label: 'Riwayat',
-            href: '/dashboard/history',
-            icon: FileText,
+            label: 'Perangkat & Sesi',
+            href: '/dashboard/sessions',
+            icon: Monitor,
           },
           {
             label: 'Notifikasi',

@@ -164,6 +164,7 @@ export function MaintenanceConsole({
               id="maintenance-title"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
+              placeholder="Contoh: Sistem dalam pemeliharaan"
               maxLength={120}
               required
               disabled={pending}
@@ -179,6 +180,7 @@ export function MaintenanceConsole({
               id="maintenance-message"
               value={message}
               onChange={(event) => setMessage(event.target.value)}
+              placeholder="Pesan yang tampil di halaman mode perawatan untuk pengguna"
               maxLength={600}
               rows={5}
               required

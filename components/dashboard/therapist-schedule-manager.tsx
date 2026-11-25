@@ -74,6 +74,7 @@ export function TherapistScheduleManager({
               <AppSelect
                 value={selected.therapistId}
                 onChange={(value) => setSelectedId(value)}
+                placeholder="Pilih fisioterapis"
                 options={therapists.map((therapist) => ({
                   value: therapist.therapistId,
                   label: therapist.therapistName,

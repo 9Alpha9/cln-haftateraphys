@@ -13,7 +13,7 @@ import {
 } from '@/server/actions/sessions';
 
 type ConfirmTarget =
-  | { type: 'one'; id: string; label: string }
+  | { type: 'one'; ids: string[]; label: string }
   | { type: 'others' }
   | null;
 
@@ -93,7 +93,7 @@ export function SessionManager() {
       const result =
         confirmTarget.type === 'others'
           ? await revokeOtherUserSessions()
-          : await revokeUserSession(confirmTarget.id);
+          : await revokeUserSession(confirmTarget.ids);
 
       if (!result.ok) {
         showToast('error', result.error);
@@ -114,12 +114,13 @@ export function SessionManager() {
   const otherSessions = sessions.filter((item) => !item.isCurrent);
 
   return (
-    <div className="mt-5 border-t border-border pt-4">
+    <div>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h3 className="text-sm font-bold text-foreground">Perangkat &amp; Sesi Aktif</h3>
           <p className="mt-0.5 text-[11px] text-muted-foreground">
-            Cabut sesi yang tidak Anda kenali untuk melindungi akun.
+            Dideteksi dari perangkat dan alamat IP — bukan hanya waktu login. Cabut sesi yang tidak
+            Anda kenali untuk melindungi akun.
           </p>
         </div>
         {otherSessions.length > 0 ? (
@@ -167,8 +168,9 @@ export function SessionManager() {
                     ) : null}
                   </p>
                   <p className="mt-0.5 truncate font-mono text-[10px] text-muted-foreground">
-                    {item.ipAddress ? `${item.ipAddress} · ` : ''}
-                    Masuk {formatDate(item.createdAt)}
+                    {item.ipAddress ? `IP ${item.ipAddress} · ` : ''}
+                    {item.sessionIds.length > 1 ? `${item.sessionIds.length} sesi · ` : ''}
+                    Terakhir masuk {formatDate(item.createdAt)}
                   </p>
                   <p className="text-[10px] text-muted-foreground">
                     Berlaku sampai {formatDate(item.expiresAt)}
@@ -182,7 +184,7 @@ export function SessionManager() {
                   onClick={() =>
                     setConfirmTarget({
                       type: 'one',
-                      id: item.id,
+                      ids: item.sessionIds,
                       label: describeAgent(item.userAgent),
                     })
                   }

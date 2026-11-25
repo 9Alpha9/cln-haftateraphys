@@ -21,6 +21,7 @@ import {
   Line,
   LineChart,
   ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
 } from 'recharts';
@@ -174,6 +175,18 @@ function deltaForMetric(key: string, current: number, previous: number | null) {
 
 type ChartPoint = { sesi: number; label: string; date: string; pain: number; rom: number };
 
+/**
+ * Satu KUNJUNGAN: rekam dasar (`base`) beserta seluruh amandemennya.
+ * Amandemen adalah REVISI data, bukan kunjungan baru — `latest` adalah versi
+ * terbaru yang dipakai untuk nilai terkini, sedangkan nomor & tanggal sesi
+ * diambil dari `base`.
+ */
+type TherapySession = {
+  base: TherapyProgressView;
+  latest: TherapyProgressView;
+  amendments: TherapyProgressView[];
+};
+
 function ChartBadge({
   cx,
   cy,
@@ -263,6 +276,9 @@ function ChartTick({
 }) {
   if (typeof x !== 'number' || typeof y !== 'number' || !payload) return null;
   const sesi = Number(payload.value);
+  // Buang tick pecahan (mis. 1.25) yang dibuat recharts pada sumbu numerik —
+  // palsu, tidak punya data, dan menciptakan zona klik hantu.
+  if (!Number.isInteger(sesi) || sesi < 1 || sesi > length) return null;
   const isLast = sesi === length;
   return (
     <g
@@ -293,6 +309,27 @@ function ChartTick({
   );
 }
 
+/** Tooltip hover grafik pemulihan — memberi info skor saat kursor di atas garis. */
+function RecoveryTooltip({
+  active,
+  payload,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload?: ChartPoint }>;
+}) {
+  if (!active || !payload?.length || !payload[0]?.payload) return null;
+  const point = payload[0].payload;
+  return (
+    <div className="pointer-events-none rounded-xl border border-border bg-card px-3 py-2 shadow-lg">
+      <p className="text-[11px] font-bold text-foreground">
+        {point.label} · {point.date}
+      </p>
+      <p className="text-[10.5px] tabular-nums text-muted-foreground">Nyeri VAS {point.pain}/10</p>
+      <p className="text-[10.5px] tabular-nums text-muted-foreground">ROM {point.rom}%</p>
+    </div>
+  );
+}
+
 function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelectSession?: (sesi: number) => void }) {  const tickDates = useMemo(
     () => new Map(data.map((point) => [point.sesi, point.date])),
     [data],
@@ -318,6 +355,13 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
     const uniqueX = Array.from(new Set(centers)).sort((a, b) => a - b);
     if (uniqueX.length === 0) return;
     const clickedX = event.clientX;
+    // Klik hanya valid di dalam rentang data (titik pertama–terakhir) dengan
+    // toleransi 24px untuk sentuhan. Klik di margin/tepi luar diabaikan agar
+    // tidak ada "kebocoran" event ke luar jangkauan informasi grafik.
+    const firstX = uniqueX[0];
+    const lastX = uniqueX[uniqueX.length - 1];
+    const edgeTolerance = 24;
+    if (clickedX < firstX - edgeTolerance || clickedX > lastX + edgeTolerance) return;
     let nearestIndex = 0;
     let nearestDistance = Number.POSITIVE_INFINITY;
     uniqueX.forEach((x, index) => {
@@ -354,6 +398,10 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
             tick={(props: { x?: number; y?: number; payload?: { value: number } }) => (
               <ChartTick {...props} length={data.length} dates={tickDates} onSelect={onSelectSession} />
             )}
+          />
+          <Tooltip
+            content={<RecoveryTooltip />}
+            wrapperStyle={{ outline: 'none' }}
           />
           <Line
             yAxisId="rom"
@@ -420,16 +468,91 @@ export function PatientMedicalRecordView({
     [records],
   );
 
+  /**
+   * Kelompokkan rekam per KUNJUNGAN (tanggal pemeriksaan):
+   * - Amandemen memakai `recordedAt` yang SAMA dengan rekam aslinya, jadi satu
+   *   tanggal = satu kunjungan; revisi tertinggi (`revisionNumber`) menjadi
+   *   nilai terbaru (`latest`) dan tetap diberi label amandemen.
+   * - Rekam lama yang sudah superseded disembunyikan dari pasien, sehingga
+   *   amandemen kadang datang tanpa rekam dasarnya — tetap dikelompokkan per
+   *   tanggal, bukan dihitung sebagai sesi baru.
+   * - Tab Dokumen tetap menampilkan SEMUA berkas (termasuk amandemen) secara
+   *   individual, jadi tidak ada data yang hilang.
+   * Amandemen TIDAK PERNAH menambah jumlah kunjungan.
+   */
+  const sessions = useMemo<TherapySession[]>(() => {
+    const dayKey = (record: TherapyProgressView) => {
+      const date = new Date(record.recordedAt);
+      return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+    };
+    const revisionOf = (record: TherapyProgressView) =>
+      record.amendedFromId ? (record.revisionNumber ?? 2) : 1;
+    const grouped = new Map<string, TherapyProgressView[]>();
+    for (const record of chronological) {
+      const key = dayKey(record);
+      const members = grouped.get(key) ?? [];
+      members.push(record);
+      grouped.set(key, members);
+    }
+    return Array.from(grouped.entries())
+      .map(([, members]) => {
+        const sorted = [...members].sort((a, b) => revisionOf(a) - revisionOf(b));
+        const bases = sorted.filter((member) => !member.amendedFromId);
+        const amendments = sorted.filter((member) => Boolean(member.amendedFromId));
+        const base = bases[0] ?? sorted[0];
+        const latest = sorted[sorted.length - 1];
+        return { base, latest, amendments };
+      })
+      .sort(
+        (a, b) => new Date(a.base.recordedAt).getTime() - new Date(b.base.recordedAt).getTime(),
+      );
+  }, [chronological]);
+
+  /** Rekam mana pun → sesinya (untuk badge & nomor yang konsisten). */
+  const sessionByRecordId = useMemo(() => {
+    const map = new Map<string, TherapySession>();
+    for (const session of sessions) {
+      map.set(session.base.id, session);
+      map.set(session.latest.id, session);
+      for (const amendment of session.amendments) map.set(amendment.id, session);
+    }
+    return map;
+  }, [sessions]);
+
+  /** Nomor sesi per rekam — amandemen memakai nomor sesi aslinya. */
+  const visitNumberById = useMemo(() => {
+    const map = new Map<string, number>();
+    sessions.forEach((session, index) => {
+      map.set(session.base.id, index + 1);
+      map.set(session.latest.id, index + 1);
+      for (const amendment of session.amendments) map.set(amendment.id, index + 1);
+    });
+    return map;
+  }, [sessions]);
+
+  /** Revisi amandemen terakhir per sesi (null bila belum pernah diamandemen). */
+  const amendedRevisionByRecordId = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const session of sessions) {
+      const last = session.amendments[session.amendments.length - 1];
+      if (last) map.set(session.latest.id, last.revisionNumber ?? session.amendments.length + 1);
+    }
+    return map;
+  }, [sessions]);
+
+  /** Delta selalu dibandingkan dengan KUNJUNGAN sebelumnya (versi terbarunya). */
   const previousRecord = useMemo(() => {
     if (!selectedRecord) return null;
-    const index = chronological.findIndex((record) => record.id === selectedRecord.id);
-    return index > 0 ? chronological[index - 1] : null;
-  }, [chronological, selectedRecord]);
-
-  const visitNumberById = useMemo(
-    () => new Map(chronological.map((record, index) => [record.id, index + 1])),
-    [chronological],
-  );
+    const index = sessions.findIndex((session) =>
+      session.base.id === selectedRecord.id ||
+      session.latest.id === selectedRecord.id ||
+      session.amendments.some((amendment) => amendment.id === selectedRecord.id),
+    );
+    if (index > 0) return sessions[index - 1].latest;
+    // Fallback: rekam tidak terkelompokkan (mis. dasarnya tidak ikut terkirim).
+    const fallbackIndex = chronological.findIndex((record) => record.id === selectedRecord.id);
+    return fallbackIndex > 0 ? chronological[fallbackIndex - 1] : null;
+  }, [chronological, sessions, selectedRecord]);
 
   /** Satu sumber aksi untuk grafik, kalender, dan daftar kunjungan. */
   const openSession = useCallback((record: TherapyProgressView) => {
@@ -438,39 +561,42 @@ export function PatientMedicalRecordView({
   }, []);
 
   const latestRecord = records[0] ?? null;
-  const firstRecord = chronological[0] ?? null;
+  const firstRecord = sessions[0]?.base ?? chronological[0] ?? null;
+
+  // Nilai terbaru per kunjungan (amandemen sudah menggantikan rekam lamanya).
+  const visitRecords = useMemo(() => sessions.map((session) => session.latest), [sessions]);
 
   const chartData = useMemo<ChartPoint[]>(
     () =>
-      chronological.map((record, index) => ({
+      sessions.map((session, index) => ({
         sesi: index + 1,
         label: `Sesi ${index + 1}`,
-        date: shortDate(record.recordedAt),
-        pain: Number(record.painScore),
-        rom: Number(record.rangeOfMotionScore) * 10,
+        date: shortDate(session.base.recordedAt),
+        pain: Number(session.latest.painScore),
+        rom: Number(session.latest.rangeOfMotionScore) * 10,
       })),
-    [chronological],
+    [sessions],
   );
   const latestChartPoint = chartData.length > 0 ? chartData[chartData.length - 1] : null;
 
   const calendarEntries = useMemo(
     () =>
-      chronological.map((record) => ({
-        id: record.id,
-        recordedAt: new Date(record.recordedAt),
-        painScore: record.painScore ?? null,
-        rangeOfMotionScore: record.rangeOfMotionScore ?? null,
-        status: record.status,
+      sessions.map((session) => ({
+        id: session.latest.id,
+        recordedAt: new Date(session.base.recordedAt),
+        painScore: session.latest.painScore ?? null,
+        rangeOfMotionScore: session.latest.rangeOfMotionScore ?? null,
+        status: session.latest.status,
       })),
-    [chronological],
+    [sessions],
   );
 
   const selectSessionByNumber = useCallback(
     (sesi: number) => {
-      const record = chronological[sesi - 1];
-      if (record) openSession(record);
+      const session = sessions[sesi - 1];
+      if (session) openSession(session.latest);
     },
-    [chronological, openSession],
+    [sessions, openSession],
   );
 
   const selectCalendarRecord = useCallback(
@@ -480,25 +606,28 @@ export function PatientMedicalRecordView({
     },
     [records, openSession],
   );
-  const visitPageCount = Math.max(1, Math.ceil(records.length / visitsPerPage));
+  // Kunjungan, Diagnosis, dan Tindakan dihitung per KUNJUNGAN (nilai terbaru),
+  // bukan per rekam — amandemen tidak menggandakan baris.
+  const visitPageCount = Math.max(1, Math.ceil(visitRecords.length / visitsPerPage));
   const safeVisitPage = Math.min(visitPage, visitPageCount);
-  const visibleVisits = records.slice((safeVisitPage - 1) * visitsPerPage, safeVisitPage * visitsPerPage);
+  const visibleVisits = visitRecords.slice((safeVisitPage - 1) * visitsPerPage, safeVisitPage * visitsPerPage);
   const docsPageCount = Math.max(1, Math.ceil(records.length / docsPerPage));
   const safeDocsPage = Math.min(docsPage, docsPageCount);
   const visibleDocs = records.slice((safeDocsPage - 1) * docsPerPage, safeDocsPage * docsPerPage);
   /** Diagnosis & tindakan: 6 baris per halaman agar tidak memanjang. */
-  const clinicalPageCount = Math.max(1, Math.ceil(records.length / 6));
+  const clinicalPageCount = Math.max(1, Math.ceil(visitRecords.length / 6));
   const safeDiagnosisPage = Math.min(diagnosisPage, clinicalPageCount);
   const safeTindakanPage = Math.min(tindakanPage, clinicalPageCount);
-  const visibleDiagnosis = records.slice((safeDiagnosisPage - 1) * 6, safeDiagnosisPage * 6);
-  const visibleTindakan = records.slice((safeTindakanPage - 1) * 6, safeTindakanPage * 6);
-  const averageScore = records.length
+  const visibleDiagnosis = visitRecords.slice((safeDiagnosisPage - 1) * 6, safeDiagnosisPage * 6);
+  const visibleTindakan = visitRecords.slice((safeTindakanPage - 1) * 6, safeTindakanPage * 6);
+  const averageScore = sessions.length
     ? Math.round(
-        (records.reduce(
-          (total, record) => total + record.rangeOfMotionScore + record.strengthScore + record.functionScore,
+        (sessions.reduce(
+          (total, session) =>
+            total + session.latest.rangeOfMotionScore + session.latest.strengthScore + session.latest.functionScore,
           0,
         ) /
-          (records.length * 30)) *
+          (sessions.length * 30)) *
           100,
       )
     : 0;
@@ -552,7 +681,7 @@ export function PatientMedicalRecordView({
           {
             icon: Activity,
             label: 'Total Sesi',
-            value: `${records.length}`,
+            value: `${sessions.length}`,
             detail: firstRecord ? `sejak ${shortDate(firstRecord.recordedAt)}` : 'belum ada sesi',
           },
           {
@@ -636,7 +765,12 @@ export function PatientMedicalRecordView({
                 </h2>
                 <p className="mt-0.5 text-xs text-muted-foreground">{longDate(selectedRecord.recordedAt)}</p>
               </div>
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                {selectedRecord.amendedFromId ? (
+                  <span className="rounded-full border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] px-2 py-0.5 text-[10px] font-semibold text-[var(--hafta-org-700)]">
+                    Amandemen R{selectedRecord.revisionNumber ?? 2} · Pembaruan data
+                  </span>
+                ) : null}
                 <span
                   className={cn(
                     'rounded-full px-2 py-0.5 text-[10px] font-semibold',
@@ -801,7 +935,12 @@ export function PatientMedicalRecordView({
                   {longDate(selectedRecord.recordedAt)} · Sesi {visitNumberById.get(selectedRecord.id) ?? 1}
                 </p>
               </div>
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                {selectedRecord.amendedFromId ? (
+                  <span className="rounded-full border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] px-2 py-0.5 text-[10px] font-semibold text-[var(--hafta-org-700)]">
+                    Amandemen R{selectedRecord.revisionNumber ?? 2} · Pembaruan data
+                  </span>
+                ) : null}
                 <span
                   className={cn(
                     'rounded-full px-2 py-0.5 text-[10px] font-semibold',
@@ -1013,7 +1152,7 @@ export function PatientMedicalRecordView({
               </p>
               <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground">Riwayat Kunjungan</h2>
             </div>
-            <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">{records.length} sesi</span>
+            <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">{visitRecords.length} sesi</span>
           </div>
 
           <ul className="mt-2 divide-y divide-border/70">
@@ -1038,6 +1177,11 @@ export function PatientMedicalRecordView({
                       <span className="ml-1.5 text-[11px] font-normal text-muted-foreground">
                         {record.therapistName ?? 'Fisioterapis Hafta'}
                       </span>
+                      {amendedRevisionByRecordId.get(record.id) ? (
+                        <span className="ml-1.5 rounded-full border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] px-1.5 py-0.5 text-[9px] font-semibold text-[var(--hafta-org-700)]">
+                          Diperbarui R{amendedRevisionByRecordId.get(record.id)} · Amandemen
+                        </span>
+                      ) : null}
                     </span>
                     <span className="mt-0.5 flex flex-wrap gap-x-2.5 text-[10.5px] tabular-nums text-muted-foreground">
                       <span>Nyeri {record.painScore}</span>
@@ -1075,7 +1219,7 @@ export function PatientMedicalRecordView({
               <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground">Diagnosis &amp; Anamnesis</h2>
             </div>
             <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
-              {records.length} catatan
+              {visitRecords.length} catatan
             </span>
           </div>
           <ul className="mt-2 divide-y divide-border/70">
@@ -1114,7 +1258,7 @@ export function PatientMedicalRecordView({
               <h2 className="mt-1 text-[15px] font-semibold tracking-tight text-foreground">Tindakan &amp; Pemeriksaan</h2>
             </div>
             <span className="shrink-0 text-[11px] tabular-nums text-muted-foreground">
-              {records.length} sesi
+              {visitRecords.length} sesi
             </span>
           </div>
           <ul className="mt-2 divide-y divide-border/70">
@@ -1167,7 +1311,9 @@ export function PatientMedicalRecordView({
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[12.5px] font-medium text-foreground">
-                    Rekam medis sesi {visitNumberById.get(record.id) ?? 0}
+                    {record.amendedFromId
+                      ? `Amandemen R${record.revisionNumber ?? 2} · Pembaruan Sesi ${visitNumberById.get(record.id) ?? 0}`
+                      : `Rekam medis sesi ${visitNumberById.get(record.id) ?? 0}`}
                   </span>
                   <span className="block text-[10.5px] tabular-nums text-muted-foreground">
                     {shortDate(record.recordedAt)} · {labelRecordStatus(record.status)}
@@ -1210,14 +1356,21 @@ export function PatientMedicalRecordView({
         subtitle={detailRecord ? longDate(detailRecord.recordedAt) : undefined}
         badge={
           detailRecord ? (
-            <span
-              className={cn(
-                'rounded-full px-2 py-0.5 text-[10px] font-semibold',
-                detailRecord.status === 'FINALIZED' ? TONE_PILL.good : 'bg-secondary/60 text-muted-foreground',
-              )}
-            >
-              {labelRecordStatus(detailRecord.status)}
-            </span>
+            <>
+              {detailRecord.amendedFromId ? (
+                <span className="rounded-full border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] px-2 py-0.5 text-[10px] font-semibold text-[var(--hafta-org-700)]">
+                  Amandemen R{detailRecord.revisionNumber ?? 2} · Pembaruan data
+                </span>
+              ) : null}
+              <span
+                className={cn(
+                  'rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                  detailRecord.status === 'FINALIZED' ? TONE_PILL.good : 'bg-secondary/60 text-muted-foreground',
+                )}
+              >
+                {labelRecordStatus(detailRecord.status)}
+              </span>
+            </>
           ) : undefined
         }
         size="md"

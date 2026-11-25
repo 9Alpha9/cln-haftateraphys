@@ -35,6 +35,8 @@ const ROUTE_RULES: readonly DashboardRouteRule[] = [
   // Pasien hanya melihat dokumennya yang dibagikan; scope ditegakkan di query.
   { pattern: /^\/dashboard\/documents(?:\/|$)/, roles: ALL_ROLES },
   { pattern: /^\/dashboard\/security(?:\/|$)/, roles: ALL_ROLES },
+  // Perangkat & sesi aktif: layanan mandiri untuk semua role (data sendiri).
+  { pattern: /^\/dashboard\/sessions(?:\/|$)/, roles: ALL_ROLES },
 ];
 
 export function canAccessDashboardPath(role: Role, pathname: string) {

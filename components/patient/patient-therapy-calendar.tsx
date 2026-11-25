@@ -711,8 +711,9 @@ export function PatientTherapyCalendar({
                           setSelectedTime(null);
                           setSelectedTherapistId(null);
                         }}
-                        className="shrink-0 cursor-pointer rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
+                        className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-semibold text-foreground transition-colors hover:bg-[var(--hafta-50)]"
                       >
+                        <Clock3 className="h-3 w-3 shrink-0" />
                         Ganti jam
                       </button>
                     </div>
@@ -724,7 +725,7 @@ export function PatientTherapyCalendar({
                         <div
                           role="radiogroup"
                           aria-label="Pilih fisioterapis"
-                          className="-mx-1 mt-1.5 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                          className="mt-1.5 flex flex-wrap gap-2"
                         >
                           {therapistsForTime.map((slot) => {
                             const isActive = effectiveTherapist.therapistId === slot.therapistId;
@@ -736,7 +737,7 @@ export function PatientTherapyCalendar({
                                 aria-checked={isActive}
                                 onClick={() => setSelectedTherapistId(slot.therapistId)}
                                 className={cn(
-                                  'flex w-[186px] shrink-0 snap-start cursor-pointer items-center gap-2.5 rounded-2xl border p-2.5 text-left transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
+                                  'flex w-[186px] shrink-0 cursor-pointer items-center gap-2.5 rounded-2xl border p-2.5 text-left transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
                                   isActive
                                     ? 'border-[var(--hafta-900)] bg-[#FAFAF8] ring-2 ring-[var(--hafta-org-200)]/35'
                                     : 'border-border bg-card hover:bg-[var(--hafta-50)]',

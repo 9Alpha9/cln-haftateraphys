@@ -21,7 +21,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChangePasswordForm } from '@/components/dashboard/change-password-form';
 import { EmailVerificationCard } from '@/components/auth/email-verification-card';
-import { SessionManager } from '@/components/dashboard/session-manager';
 import { DatePicker } from '@/components/ui/date-picker';
 import { AppSelect } from '@/components/ui/app-select';
 import { ImageCropModal } from '@/components/ui/image-crop-modal';
@@ -414,7 +413,6 @@ export function PatientProfileTabs({
               <EmailVerificationCard email={email} verified={emailVerified} />
             </div>
             <ChangePasswordForm />
-            <SessionManager />
           </div>
         ) : (
           <form className="flex flex-1 flex-col" onSubmit={handleSubmit(onSubmit)}>

@@ -628,7 +628,7 @@ export function PatientDashboardShell({
                 className={cn(
                   scrolled
                     ? 'bg-transparent hover:bg-accent/70'
-                    : 'border border-white/60 bg-card/60 shadow-[0_4px_16px_rgba(24,23,0,0.08)] backdrop-blur-md hover:bg-card/80',
+                    : 'border border-white/60 bg-card/60 backdrop-blur-md hover:bg-card/80',
                 )}
               />
 

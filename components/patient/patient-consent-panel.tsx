@@ -41,6 +41,38 @@ function ConsentIcon({ status }: { status: ConsentStatus }) {
   return <FileText className="h-4 w-4" />;
 }
 
+/**
+ * Penjelasan mendetail per persetujuan agar pasien paham apa yang disetujui:
+ * data apa yang diproses, untuk apa, dan sejauh mana cakupannya.
+ */
+const CONSENT_DETAILS: Record<string, readonly string[]> = {
+  PRIVACY_DATA_PROCESSING: [
+    'Data yang diproses: identitas (nama, No. RM, tanggal lahir, kontak), riwayat kesehatan (keluhan, diagnosis, hasil evaluasi), dan data administratif kunjungan.',
+    'Tujuan: menyusun rencana terapi, mengevaluasi kemajuan, kebutuhan administrasi klinik, dan pemenuhan kewajiban catatan medis.',
+    'Jangka waktu: selama Anda menjadi pasien Hafta dan sesuai periode penyimpanan dalam kebijakan retensi; tidak dibagikan ke pihak ketiga di luar yang diwajibkan hukum.',
+  ],
+  CLINICAL_SERVICE: [
+    'Tindakan: pemeriksaan fisik, penilaian nyeri/ROM/kekuatan, terapi manual, modalitas, dan latihan terarah sesuai kondisi Anda.',
+    'Pelaksana: fisioterapis berlisensi Hafta; rencana dan setiap perubahan tindakan dijelaskan kepada Anda terlebih dahulu.',
+    'Anda dapat menghentikan atau menolak tindakan kapan saja dengan memberi tahu terapis, tanpa mengganggu hak layanan lain.',
+  ],
+  DOCUMENT_UPLOAD: [
+    'Contoh dokumen: hasil rontgen/MRI/USG, surat rujukan, resep, atau catatan pemeriksaan lain yang relevan dengan terapi.',
+    'Dokumen hanya diakses tim klinik yang menangani Anda, disimpan aman, dan tidak pernah dipublikasikan.',
+    'Bersifat opsional — layanan tetap berjalan tanpa dokumen tambahan selama secara klinis memungkinkan.',
+  ],
+  MEDIA_PUBLICATION: [
+    'Materi: foto atau video selama sesi terapi (wajah, latihan, fasilitas) untuk media sosial, website, dan materi edukasi Hafta.',
+    'Opsional: menolak atau menarik persetujuan tidak memengaruhi layanan Anda; penarikan berlaku untuk materi baru dan permintaan penghapusan dapat diajukan untuk materi yang terbit.',
+    'Tidak ada imbalan finansial; nama lengkap tidak dicantumkan tanpa izin terpisah.',
+  ],
+  TESTIMONIAL_PUBLICATION: [
+    'Isi: kutipan cerita atau catatan pemulihan Anda, disertai nama sesuai kesepakatan atau inisial.',
+    'Dipublikasikan hanya di kanal milik Hafta (website, media sosial, materi edukasi).',
+    'Terpisah dari persetujuan layanan dan dapat ditarik kapan saja tanpa konsekuensi klinis.',
+  ],
+};
+
 export function PatientConsentPanel({ consents }: { consents: ConsentView[] }) {
   const router = useRouter();
   const { showToast } = useToast();
@@ -82,18 +114,19 @@ export function PatientConsentPanel({ consents }: { consents: ConsentView[] }) {
     });
   }
 
-  function renderCard(consent: ConsentView) {
+  function renderRow(consent: ConsentView, index: number) {
     const date = consent.grantedAt ? formatDate(consent.grantedAt) : null;
     const canGrant = ['PENDING', 'WITHDRAWN', 'EXPIRED', 'SUPERSEDED'].includes(consent.status);
     const canWithdraw = consent.status === 'GRANTED';
+    const details = CONSENT_DETAILS[consent.type] ?? [];
 
     return (
-      <article
+      <div
         key={consent.type}
-        className="rounded-2xl border border-border bg-card p-4 sm:p-5"
+        className={cn('p-4 sm:p-5', index > 0 && 'border-t border-border/70')}
       >
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <h3 className="text-sm font-bold text-foreground">{consent.label}</h3>
               <span
@@ -115,8 +148,24 @@ export function PatientConsentPanel({ consents }: { consents: ConsentView[] }) {
                 </span>
               )}
             </div>
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{consent.description}</p>
-            <p className="mt-2 text-[11px] text-muted-foreground">
+            <p className="mt-2 text-xs font-medium leading-relaxed text-foreground/80">
+              {consent.description}
+            </p>
+            <ul className="mt-2.5 space-y-1.5">
+              {details.map((line) => (
+                <li
+                  key={line}
+                  className="flex gap-2 text-[11.5px] leading-relaxed text-muted-foreground"
+                >
+                  <span
+                    className="mt-[7px] h-1 w-1 shrink-0 rounded-full bg-[var(--hafta-300)]"
+                    aria-hidden="true"
+                  />
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2.5 text-[11px] text-muted-foreground">
               Versi kebijakan: {consent.policyVersion}
               {date ? ` · Disetujui ${date}` : ''}
             </p>
@@ -153,7 +202,7 @@ export function PatientConsentPanel({ consents }: { consents: ConsentView[] }) {
             ) : null}
           </div>
         </div>
-      </article>
+      </div>
     );
   }
 
@@ -167,7 +216,9 @@ export function PatientConsentPanel({ consents }: { consents: ConsentView[] }) {
             memproses data Anda.
           </p>
         </div>
-        <div className="space-y-3">{required.map(renderCard)}</div>
+        <div className="overflow-hidden rounded-2xl border border-border bg-card">
+          {required.map((consent, index) => renderRow(consent, index))}
+        </div>
       </section>
 
       <section className="space-y-3">
@@ -178,7 +229,11 @@ export function PatientConsentPanel({ consents }: { consents: ConsentView[] }) {
             memengaruhi layanan klinis Anda.
           </p>
         </div>
-        <div className="space-y-3">{optional.map(renderCard)}</div>
+        {optional.length > 0 ? (
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
+            {optional.map((consent, index) => renderRow(consent, index))}
+          </div>
+        ) : null}
         {publication.length === 0 ? (
           <p className="rounded-2xl bg-[#FAFAF8] px-4 py-3 text-xs text-muted-foreground">
             Belum ada persetujuan opsional untuk ditampilkan.

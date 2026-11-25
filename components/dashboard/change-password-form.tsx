@@ -59,6 +59,7 @@ export function ChangePasswordForm() {
           <input
             type={showCurrent ? 'text' : 'password'}
             autoComplete="current-password"
+            placeholder="Masukkan kata sandi Anda saat ini"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
             disabled={pending}
@@ -81,6 +82,7 @@ export function ChangePasswordForm() {
           <input
             type={showNew ? 'text' : 'password'}
             autoComplete="new-password"
+            placeholder="Buat kata sandi baru yang kuat"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
             disabled={pending}
@@ -103,6 +105,7 @@ export function ChangePasswordForm() {
           <input
             type={showConfirm ? 'text' : 'password'}
             autoComplete="new-password"
+            placeholder="Ulangi kata sandi baru untuk konfirmasi"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             disabled={pending}

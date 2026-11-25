@@ -7,8 +7,8 @@ import { getDb } from "@/db";
 import { profiles } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
 import { canAccessDashboardPath } from "@/lib/permissions/dashboard-routes";
+import DashboardNotFound from './not-found';
 import { getMaintenanceFlags, decideMaintenance } from "@/lib/maintenance";
 import { redirect } from "next/navigation";
 
@@ -17,14 +17,18 @@ export const dynamic = 'force-dynamic';
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { role, session } = await requireSession({ redirectToLogin: true });
   const pathname = (await headers()).get('x-pathname');
-  if (!pathname) notFound();
+  /**
+   * JANGAN memanggil `notFound()` dari layout: boundary not-found akan jatuh ke
+   * root layout sehingga 404 tampil dengan chrome halaman landing. Path yang
+   * tidak diizinkan (atau pathname hilang) dirender sebagai 404 DI DALAM shell
+   * dashboard agar navigasi panel tetap utuh.
+   */
+  const accessDenied = !pathname || !canAccessDashboardPath(role, pathname);
 
   const maintenance = decideMaintenance({ flags: await getMaintenanceFlags() });
   if (maintenance.mode === 'maintenance' && role !== 'SUPER_ADMIN') {
     redirect('/maintenance');
   }
-
-  if (!canAccessDashboardPath(role, pathname)) notFound();
 
   const [unreadCount, recentNotifications, avatarResult, navCounts] = await Promise.all([
     getUnreadNotificationsCount(),
@@ -52,7 +56,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <DashboardShellRouter role={role} userName={session.user.name ?? ''} userEmail={session.user.email ?? ''} avatarUrl={avatarUrl} unreadCount={unreadCount} recentNotifications={recentNotifications} navCounts={navCounts}>
-      {children}
+      {accessDenied ? <DashboardNotFound /> : children}
     </DashboardShellRouter>
   );
 }

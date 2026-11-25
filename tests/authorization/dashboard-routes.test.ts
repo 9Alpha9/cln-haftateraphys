@@ -44,6 +44,7 @@ describe('dashboard route access policy', () => {
       expect(canAccessDashboardPath(role, '/dashboard')).toBe(true);
       expect(canAccessDashboardPath(role, '/dashboard/notifications')).toBe(true);
       expect(canAccessDashboardPath(role, '/dashboard/security')).toBe(true);
+      expect(canAccessDashboardPath(role, '/dashboard/sessions')).toBe(true);
       expect(canAccessDashboardPath(role, '/dashboard/unknown')).toBe(false);
     }
   });

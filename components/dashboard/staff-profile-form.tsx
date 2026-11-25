@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ChangePasswordForm } from '@/components/dashboard/change-password-form';
-import { SessionManager } from '@/components/dashboard/session-manager';
 import { ImageCropModal } from '@/components/ui/image-crop-modal';
 import { updateCurrentStaffProfile } from '@/server/actions/staff-profile';
 import type { StaffProfileView } from '@/server/queries/staff-profile';
@@ -226,7 +225,6 @@ export function StaffProfileForm({ initial }: { initial: StaffProfileView }) {
           <h2 className="text-sm font-bold text-foreground">Keamanan Akun</h2>
         </div>
         <ChangePasswordForm />
-        <SessionManager />
       </section>
 
       <ImageCropModal
