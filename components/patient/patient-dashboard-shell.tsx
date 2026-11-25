@@ -22,7 +22,6 @@ import {
   PanelLeftOpen,
   TrendingUp,
   Users,
-  User,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -32,13 +31,7 @@ import { signOut } from '@/lib/auth/client';
 import { NotificationBell, type NotificationView } from '@/components/dashboard/notification-bell';
 import { DashboardClock } from '@/components/dashboard/dashboard-clock';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { TopbarAccountMenu } from '@/components/ui/topbar-account-menu';
 import { SessionSecurityGuard } from '@/components/dashboard/session-security-guard';
 import { LogoutConfirmModal } from '@/components/auth/logout-confirm-modal';
 import { PrintPreviewHost } from '@/components/print/print-preview-host';
@@ -639,37 +632,13 @@ export function PatientDashboardShell({
                 )}
               />
 
-              <DropdownMenu>
-                <DropdownMenuTrigger className="hidden items-center gap-2.5 rounded-xl p-1.5 transition-colors hover:bg-[var(--hafta-50)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--hafta-org-200)] md:flex">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-[var(--hafta-org-50)] text-sm font-bold text-[var(--hafta-org-900)]">
-                    {liveAvatar ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={liveAvatar} alt="Avatar" className="h-full w-full object-cover" />
-                    ) : (
-                      userName?.[0]?.toUpperCase() ?? 'P'
-                    )}
-                  </span>
-                  <div className="hidden min-w-0 flex-col text-left sm:flex">
-                    <span className="truncate text-xs font-bold text-[#111827]">{userName || 'Pasien'}</span>
-                    <span className="truncate text-[11px] text-muted-foreground">{userEmail || 'pasien'}</span>
-                  </div>
-                  <ChevronDown className="hidden h-4 w-4 shrink-0 text-muted-foreground sm:block" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" sideOffset={8} className="w-56 max-h-[calc(100dvh-4rem)] overflow-y-auto rounded-2xl bg-popover p-1.5 text-popover-foreground shadow-md ring-1 ring-popover/10">
-                  <div className="px-3 py-2">
-                    <p className="text-sm font-semibold text-[#111827]">{userName || 'Pasien'}</p>
-                    <p className="text-xs text-muted-foreground">{userEmail || 'pasien'}</p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => goTo('/dashboard/profile')}>
-                    <User className="h-4 w-4" /> Data Saya
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
-                    <LogOut className="h-4 w-4 mr-2" /> Keluar
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <TopbarAccountMenu
+                userName={userName}
+                userEmail={userEmail}
+                avatarUrl={liveAvatar}
+                onProfile={() => goTo('/dashboard/profile')}
+                onLogout={handleLogout}
+              />
             </div>
 
           </div>
