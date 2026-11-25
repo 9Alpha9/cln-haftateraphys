@@ -157,6 +157,7 @@ export function TreatmentPlanPanel({
       )}
 
       <TreatmentPlanForm
+        key={plan?.id ?? 'new-plan'}
         patientId={patientId}
         patientName={patientName}
         plan={plan}
@@ -203,22 +204,8 @@ function TreatmentPlanForm({
   const [error, setError] = useState<string | null>(null);
 
   /**
-   * Drawer sengaja TIDAK di-remount lewat `key` setiap plan berubah, karena
-   * remount di tengah proses simpan memotong exit animation GlobalSlideOver
-   * (drawer menutup instan tanpa slide). Sebagai gantinya, state form disegarkan
-   * dari `plan` terbaru setiap kali drawer dibuka.
+   * Menggunakan key berbasis plan ID atau isOpen reset untuk menghindari sync effect state.
    */
-  useEffect(() => {
-    if (!isOpen) return;
-    setGoals(plan?.goals ?? '');
-    setInterventions(plan?.interventions ?? '');
-    setReviewIntervalText(plan?.reviewIntervalText ?? '');
-    setReviewAt(plan?.reviewAt ? new Date(plan.reviewAt).toISOString().slice(0, 10) : '');
-    setPrecautions(plan?.precautions ?? '');
-    setStatus(plan?.status === 'ACTIVE' ? 'ACTIVE' : 'DRAFT');
-    setPatientVisible(plan?.patientVisible ?? true);
-    setError(null);
-  }, [isOpen, plan]);
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
