@@ -1,9 +1,11 @@
 'use client';
 
-import { useId, useState, useTransition } from 'react';
+import { useEffect, useId, useState, useTransition } from 'react';
 import {
   CalendarDays,
   ClipboardList,
+  CircleCheck,
+  CircleX,
   Eye,
   EyeOff,
   Loader2,
@@ -155,7 +157,6 @@ export function TreatmentPlanPanel({
       )}
 
       <TreatmentPlanForm
-        key={plan?.id ?? 'new'}
         patientId={patientId}
         patientName={patientName}
         plan={plan}
@@ -200,6 +201,24 @@ function TreatmentPlanForm({
   );
   const [patientVisible, setPatientVisible] = useState(plan?.patientVisible ?? true);
   const [error, setError] = useState<string | null>(null);
+
+  /**
+   * Drawer sengaja TIDAK di-remount lewat `key` setiap plan berubah, karena
+   * remount di tengah proses simpan memotong exit animation GlobalSlideOver
+   * (drawer menutup instan tanpa slide). Sebagai gantinya, state form disegarkan
+   * dari `plan` terbaru setiap kali drawer dibuka.
+   */
+  useEffect(() => {
+    if (!isOpen) return;
+    setGoals(plan?.goals ?? '');
+    setInterventions(plan?.interventions ?? '');
+    setReviewIntervalText(plan?.reviewIntervalText ?? '');
+    setReviewAt(plan?.reviewAt ? new Date(plan.reviewAt).toISOString().slice(0, 10) : '');
+    setPrecautions(plan?.precautions ?? '');
+    setStatus(plan?.status === 'ACTIVE' ? 'ACTIVE' : 'DRAFT');
+    setPatientVisible(plan?.patientVisible ?? true);
+    setError(null);
+  }, [isOpen, plan]);
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -290,17 +309,21 @@ function TreatmentPlanForm({
           />
         </label>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <label className="space-y-1.5 text-xs font-semibold text-muted-foreground">
-            Interval evaluasi
+        <div className="grid grid-cols-1 items-end gap-3 sm:grid-cols-2">
+          <label className="block space-y-1.5">
+            <span className="block text-xs font-semibold text-muted-foreground">
+              Interval evaluasi
+            </span>
             <Input
               value={reviewIntervalText}
               onChange={(e) => setReviewIntervalText(e.target.value)}
               placeholder="Contoh: setiap 2 minggu"
             />
           </label>
-          <div className="space-y-1.5">
-            <span className="text-xs font-semibold text-muted-foreground">Tanggal evaluasi</span>
+          <div className="block space-y-1.5">
+            <span className="block text-xs font-semibold text-muted-foreground">
+              Tanggal evaluasi
+            </span>
             <DatePicker
               value={reviewAt}
               onChange={setReviewAt}
@@ -326,23 +349,27 @@ function TreatmentPlanForm({
             <p className="text-[11px] font-medium text-muted-foreground">Status rencana</p>
             <div className="mt-1 grid grid-cols-2 gap-1 rounded-full bg-muted p-1">
               {[
-                { value: 'DRAFT' as const, label: 'Draft' },
-                { value: 'ACTIVE' as const, label: 'Aktif' },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setStatus(option.value)}
-                  className={cn(
-                    'h-8 cursor-pointer rounded-full text-xs font-semibold transition-colors',
-                    status === option.value
-                      ? 'bg-[var(--hafta-900)] font-bold text-white'
-                      : 'text-muted-foreground hover:text-foreground',
-                  )}
-                >
-                  {option.label}
-                </button>
-              ))}
+                { value: 'DRAFT' as const, label: 'Draft', icon: CircleX },
+                { value: 'ACTIVE' as const, label: 'Aktif', icon: CircleCheck },
+              ].map((option) => {
+                const Icon = option.icon;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setStatus(option.value)}
+                    className={cn(
+                      'inline-flex h-8 cursor-pointer items-center justify-center gap-1 rounded-full text-xs font-semibold transition-colors',
+                      status === option.value
+                        ? 'bg-[var(--hafta-900)] font-bold text-white'
+                        : 'text-muted-foreground hover:text-foreground',
+                    )}
+                  >
+                    <Icon className="h-3 w-3" />
+                    {option.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
           <div>
