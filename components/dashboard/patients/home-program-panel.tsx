@@ -379,6 +379,9 @@ function HomeProgramForm({
                 );
               })}
             </div>
+            <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
+              Internal hanya terlihat oleh terapis dan admin; Pasien melihat program ini di portal pasiennya.
+            </p>
           </div>
         </section>
 

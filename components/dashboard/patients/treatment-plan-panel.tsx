@@ -376,6 +376,9 @@ function TreatmentPlanForm({
                 );
               })}
             </div>
+            <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
+              Draft masih disiapkan; Aktif menjadi acuan terapi.
+            </p>
           </div>
           <div>
             <p className="text-[11px] font-medium text-muted-foreground">Terlihat oleh</p>
@@ -403,6 +406,9 @@ function TreatmentPlanForm({
                 );
               })}
             </div>
+            <p className="mt-1 text-[10px] leading-relaxed text-muted-foreground">
+              Internal hanya terlihat oleh terapis dan admin; Pasien melihat rencana ini di portal pasiennya.
+            </p>
           </div>
         </div>
       </form>
