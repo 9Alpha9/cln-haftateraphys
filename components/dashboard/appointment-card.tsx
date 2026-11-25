@@ -252,6 +252,7 @@ export function AppointmentCard({
       />
       <AppointmentPrintDialog
         appointmentId={appointment.id}
+        patientName={appointment.patientName}
         open={printOpen}
         onOpenChange={setPrintOpen}
       />

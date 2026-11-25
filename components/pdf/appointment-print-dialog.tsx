@@ -21,10 +21,12 @@ import { AppointmentPrintPreview } from './appointment-print-preview';
  */
 export function AppointmentPrintDialog({
   appointmentId,
+  patientName,
   open,
   onOpenChange,
 }: {
   appointmentId: string;
+  patientName?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -40,7 +42,9 @@ export function AppointmentPrintDialog({
               Pratinjau Cetak Janj Temu
             </DialogTitle>
             <DialogDescription className="truncate text-[11px] leading-snug text-muted-foreground">
-              Gunakan toolbar PDF untuk mencari, memperbesar, mencetak, atau mengunduh.
+              {patientName
+                ? `${patientName} · Gunakan toolbar PDF untuk mencari, memperbesar, mencetak, atau mengunduh.`
+                : 'Gunakan toolbar PDF untuk mencari, memperbesar, mencetak, atau mengunduh.'}
             </DialogDescription>
           </div>
           <DialogClose

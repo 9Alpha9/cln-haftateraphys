@@ -79,6 +79,7 @@ function SessionRow({ appointment }: { appointment: PatientPortalAppointment }) 
       </div>
       <AppointmentPrintDialog
         appointmentId={appointment.id}
+        patientName={appointment.therapistName ?? 'Fisioterapis Hafta'}
         open={printOpen}
         onOpenChange={setPrintOpen}
       />
