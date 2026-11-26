@@ -339,6 +339,7 @@ export function PatientMedicalRecordView({
   /** Aset dekoratif kartu — dari registri atlas (bukan path hardcode). */
   const decorSkeletal = ANATOMY_SYSTEMS.find((item) => item.key === 'skeletal')?.anterior;
   const decorMuscular = ANATOMY_SYSTEMS.find((item) => item.key === 'muscular')?.anterior;
+  const decorNervous = ANATOMY_SYSTEMS.find((item) => item.key === 'nervous')?.anterior;
   const decorPosterior = ANATOMY_SYSTEMS.find((item) => item.key === 'muscular')?.posterior;
   const decorArticular = ANATOMY_SYSTEMS.find((item) => item.key === 'articular')?.anterior;
 
@@ -435,12 +436,21 @@ export function PatientMedicalRecordView({
                   const value = Number(selectedRecord[metric.field] ?? 0);
                   const tone = metricTone(metricKey, value);
                   const values = sessions.map((session) => Number(session.latest[metric.field] ?? 0));
-                  const decor = metricKey === 'pain' ? decorMuscular : decorArticular;
+                  const decor = metricKey === 'pain' ? decorNervous : decorArticular;
+                  // Tint berbeda per metrik agar kartu tidak monoton putih:
+                  // nyeri = hangat, rentang gerak = hijau lembut.
+                  const cardTint =
+                    metricKey === 'pain'
+                      ? 'border-[var(--hafta-100)] bg-[var(--hafta-50)]'
+                      : 'border-[var(--hafta-grn-100)] bg-[var(--hafta-grn-50)]';
                   return (
                     <section
                       key={metricKey}
                       aria-label={`${metric.label} sesi ini`}
-                      className="relative overflow-hidden rounded-[28px] border border-border bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)]"
+                      className={cn(
+                        'relative overflow-hidden rounded-[28px] border p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)]',
+                        cardTint,
+                      )}
                     >
                       {/* siluet anatomi dekoratif pada kartu metrik */}
                       {decor ? (
