@@ -105,14 +105,17 @@ function regionThumbnail(marker: DetectedRegion): string {
       return marker.side === 'kanan'
         ? '/assets/body-anatomy/right-arm.webp'
         : '/assets/body-anatomy/left-arm.webp';
+    case 'punggung':
+      return '/assets/body-anatomy/back-musculature.webp';
     case 'dada':
     case 'perut':
-    case 'punggung':
     case 'pinggul':
       return '/assets/body-anatomy/torso.webp';
     case 'lutut':
     case 'kaki':
-      return '/assets/body-anatomy/skeletal-anterior.webp';
+      return marker.side === 'kanan'
+        ? '/assets/body-anatomy/right-leg-and-foot.webp'
+        : '/assets/body-anatomy/left-leg-and-foot.webp';
   }
 }
 
