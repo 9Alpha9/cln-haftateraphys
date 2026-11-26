@@ -1,7 +1,17 @@
 'use client';
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, FlipHorizontal2, Layers, Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
+import {
+  ChevronDown,
+  FlipHorizontal2,
+  Layers,
+  Maximize2,
+  Minimize2,
+  RotateCcw,
+  X,
+  ZoomIn,
+  ZoomOut,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SkeletonBlock } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { LifelineLoader } from '@/components/animate-ui/lifeline-loader';
@@ -459,66 +469,77 @@ export function TherapyAnatomyStage({
               const position = markerPosition(asset.id, marker.key, marker.side);
               const label = regionLabel(marker);
               const isActive = activeId === markerId(marker);
-              // Pill mengambang di sisi pin: ke kanan bila pin di kiri panggung.
-              const pillRight = position.x <= 55;
+              // Label keluar dari sumbu tubuh: pin di kiri → label ke kanan,
+              // pin di kanan → label ke kiri. Garis penunjuk jadi sejajar dan
+              // tidak pernah menyilang tubuh/titik lain.
+              const pillRight = position.x <= 50;
               return (
-                <button
+                <div
                   key={markerId(marker)}
-                  type="button"
-                  data-stage-hotspot
-                  data-hotspot-id={markerId(marker)}
-                  aria-label={`Area keluhan: ${label}`}
-                  aria-expanded={isActive}
-                  title={label}
-                  onPointerDown={(event) => event.stopPropagation()}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    selectMarker(isActive ? null : markerId(marker));
-                  }}
-                  className="absolute z-10 cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FACC15]/50"
+                  className="absolute z-10"
                   style={{
                     left: layout.cx - layout.w / 2 + (position.x / 100) * layout.w,
                     top: layout.cy - layout.h / 2 + (position.y / 100) * layout.h,
-                    transform: 'translate(-50%, -50%)',
                   }}
                 >
-                  <span className="relative flex h-5 w-5 items-center justify-center">
-                    {/* halo statis; denyut hanya pada penanda aktif */}
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        'absolute inset-0 rounded-full',
-                        isActive ? 'bg-[#FACC15]/30 motion-safe:animate-ping' : 'bg-slate-400/15',
-                      )}
-                    />
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        'relative h-3.5 w-3.5 rounded-full border-2 bg-white shadow-sm',
-                        isActive ? 'border-[#FACC15] ring-2 ring-[#FACC15]/40' : 'border-slate-400/80',
-                      )}
-                    />
-                    {/* Floating pill + garis penunjuk lentur — disembunyikan saat pin
-                        aktif (popover terbuka), agar label tidak menumpuk. */}
-                    {!isActive ? (
+                  <button
+                    type="button"
+                    data-stage-hotspot
+                    data-hotspot-id={markerId(marker)}
+                    aria-label={`Area keluhan: ${label}`}
+                    aria-expanded={isActive}
+                    title={label}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      selectMarker(isActive ? null : markerId(marker));
+                    }}
+                    className={cn(
+                      'absolute top-0 flex -translate-y-1/2 cursor-pointer items-center rounded-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FACC15]/50',
+                      pillRight ? 'left-0 flex-row' : 'left-0 flex-row-reverse -translate-x-full',
+                    )}
+                  >
+                    {/* titik pin — selalu di koordinat anatomi */}
+                    <span className="relative z-10 flex h-5 w-5 shrink-0 items-center justify-center">
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          'absolute inset-0 rounded-full',
+                          isActive ? 'bg-[#FACC15]/30 motion-safe:animate-ping' : 'bg-slate-400/15',
+                        )}
+                      />
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          'relative h-3.5 w-3.5 rounded-full border-2 bg-white shadow-sm',
+                          isActive ? 'border-[#FACC15] ring-2 ring-[#FACC15]/40' : 'border-slate-400/80',
+                        )}
+                      />
+                    </span>
+                    {/* garis penunjuk: satu segmen pendek, sejajar sumbu horizontal.
+                        Disembunyikan saat pin aktif karena popover menggantikannya. */}
+                    {isActive ? null : (
                       <>
                         <svg
                           aria-hidden="true"
-                          className="pointer-events-none absolute left-1/2 top-1/2 h-8 w-12 overflow-visible"
-                          viewBox={pillRight ? '0 0 48 32' : '-48 0 48 32'}
+                          viewBox="0 0 16 2"
+                          className="h-0.5 w-4 shrink-0 overflow-visible"
+                          preserveAspectRatio="none"
                         >
-                          <path
-                            d={pillRight ? 'M 4 16 C 14 4, 22 28, 34 16' : 'M -4 16 C -14 4, -22 28, -34 16'}
-                            fill="none"
+                          <line
+                            x1={0}
+                            y1={1}
+                            x2={16}
+                            y2={1}
                             stroke="#94A3B8"
                             strokeWidth={1.5}
                             strokeLinecap="round"
+                            vectorEffect="non-scaling-stroke"
                           />
                         </svg>
                         <span
                           className={cn(
-                            'absolute top-1/2 flex -translate-y-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-slate-200 bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-slate-700 shadow-sm backdrop-blur',
-                            pillRight ? 'left-4' : 'right-4',
+                            'flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-slate-200 bg-white/95 px-2 py-0.5 text-[9px] font-semibold leading-4 text-slate-700 shadow-sm backdrop-blur',
                           )}
                         >
                           <span
@@ -528,9 +549,9 @@ export function TherapyAnatomyStage({
                           {label}
                         </span>
                       </>
-                    ) : null}
-                  </span>
-                </button>
+                    )}
+                  </button>
+                </div>
               );
             })
           : null}
