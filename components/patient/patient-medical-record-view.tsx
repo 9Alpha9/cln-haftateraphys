@@ -356,7 +356,7 @@ export function PatientMedicalRecordView({
       <Tabs value={activeTab} onValueChange={(value) => selectTab(value as TabKey)}>
         <TabsList
           aria-label="Bagian rekam medis"
-          className="h-auto w-full justify-start gap-1 overflow-x-auto rounded-none bg-transparent p-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="mx-auto flex h-auto w-full max-w-xl items-center justify-start gap-1 overflow-x-auto rounded-full border border-border/60 bg-muted/60 p-1 backdrop-blur-sm [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden"
           style={{ touchAction: 'manipulation' }}
         >
           {TABS.map((tab) => (
@@ -364,18 +364,11 @@ export function PatientMedicalRecordView({
               key={tab.key}
               value={tab.key}
               className={cn(
-                'relative min-h-11 shrink-0 rounded-none px-2 pb-1 text-sm font-medium transition-colors first:pl-0 data-[state=active]:bg-transparent',
+                'min-h-9 shrink-0 rounded-full px-4 text-sm font-medium transition-colors data-[state=active]:bg-card data-[state=active]:shadow-sm',
                 activeTab === tab.key ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
               )}
             >
               {tab.label}
-              <span
-                aria-hidden="true"
-                className={cn(
-                  'absolute inset-x-1 bottom-0 h-0.5 rounded-full',
-                  activeTab === tab.key ? 'bg-[var(--hafta-300)]' : 'bg-transparent',
-                )}
-              />
             </TabsTrigger>
           ))}
         </TabsList>

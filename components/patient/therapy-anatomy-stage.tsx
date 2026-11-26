@@ -1,17 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import {
-  ChevronDown,
-  FlipHorizontal2,
-  Layers,
-  Maximize2,
-  Minimize2,
-  RotateCcw,
-  X,
-  ZoomIn,
-  ZoomOut,
-} from 'lucide-react';
+import { FlipHorizontal2, Layers, Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -686,21 +676,20 @@ export function TherapyAnatomyStage({
         </div>
       ) : null}
 
-      {/* ── pemilih sistem + tampakan: SATU baris compact untuk kanvas sempit ── */}
-      <div className="absolute bottom-4 left-4 flex items-center gap-1.5">
+      {/* ── pemilih sistem + tampakan: rail vertikal kompak di sisi KIRI kanvas ── */}
+      <div className="absolute left-3 top-1/2 z-20 flex -translate-y-1/2 flex-col items-center gap-1.5">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
               aria-label={`Sistem anatomi: ${systemEntry?.label ?? ''}`}
-              className="tap-target inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border border-slate-200/70 bg-white/60 pl-2 pr-2 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur-md transition-colors hover:bg-white/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 data-[state=open]:bg-white/90"
+              title={`Sistem anatomi: ${systemEntry?.label ?? ''}`}
+              className="tap-target inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-slate-200/70 bg-white/60 text-foreground shadow-sm backdrop-blur-md transition-colors hover:bg-white/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 data-[state=open]:bg-white/90"
             >
-              <Layers aria-hidden="true" className="h-3.5 w-3.5 text-muted-foreground" />
-              {systemEntry?.label ?? 'Sistem'}
-              <ChevronDown aria-hidden="true" className="h-3 w-3 text-muted-foreground" />
+              <Layers aria-hidden="true" className="h-3.5 w-3.5" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent side="top" align="start" sideOffset={6} className="min-w-[136px]">
+          <DropdownMenuContent side="right" align="start" sideOffset={6} className="min-w-[132px]">
             <DropdownMenuRadioGroup value={system} onValueChange={(value) => selectSystem(value as AnatomySystemKey)}>
               {ANATOMY_SYSTEMS.map((item) => (
                 <DropdownMenuRadioItem key={item.key} value={item.key} className="text-[11px] font-semibold">
@@ -718,12 +707,11 @@ export function TherapyAnatomyStage({
           aria-pressed={view === 'posterior'}
           onClick={() => setView((current) => (current === 'anterior' ? 'posterior' : 'anterior'))}
           className={cn(
-            'tap-target inline-flex h-8 cursor-pointer items-center gap-1 rounded-full border border-slate-200/70 bg-white/60 px-2.5 text-[11px] font-semibold shadow-sm backdrop-blur-md transition-colors hover:bg-white/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
+            'tap-target inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-slate-200/70 bg-white/60 shadow-sm backdrop-blur-md transition-colors hover:bg-white/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
             view === 'posterior' ? 'text-foreground' : 'text-muted-foreground',
           )}
         >
-          <FlipHorizontal2 className="h-3.5 w-3.5" />
-          {view === 'anterior' ? 'Depan' : 'Belakang'}
+          <FlipHorizontal2 aria-hidden="true" className="h-3.5 w-3.5" />
         </button>
       </div>
 
