@@ -1,13 +1,21 @@
 'use client';
 
 import { Menu } from '@base-ui/react/menu';
-import { Check, ChevronDown, Layers } from 'lucide-react';
+import { Check, ChevronDown, FlipHorizontal2, Layers } from 'lucide-react';
+import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import {
   ANATOMY_SYSTEMS,
   type AnatomySystemKey,
   type AnatomyViewKey,
 } from '@/components/patient/body-anatomy-atlas';
+
+const SYSTEM_THUMBNAIL: Record<AnatomySystemKey, string> = {
+  muscular: '/assets/body-anatomy/muscular-anterior.webp',
+  skeletal: '/assets/body-anatomy/skeletal-anterior.webp',
+  nervous: '/assets/body-anatomy/nervous-anterior.webp',
+  articular: '/assets/body-anatomy/articular-system.webp',
+};
 
 export function AnatomySystemMenu({
   system,
@@ -52,8 +60,16 @@ export function AnatomySystemMenu({
                   <Menu.RadioItem
                     key={item.key}
                     value={item.key}
-                    className="flex min-h-[36px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-accent data-popup-open:bg-accent data-disabled:opacity-50"
+                    className="flex min-h-[40px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-accent data-popup-open:bg-accent data-disabled:opacity-50"
                   >
+                    <NextImage
+                      src={SYSTEM_THUMBNAIL[item.key]}
+                      alt=""
+                      aria-hidden="true"
+                      width={28}
+                      height={28}
+                      className="h-7 w-7 shrink-0 rounded-lg object-cover object-top"
+                    />
                     <span className="min-w-0 flex-1 truncate">{item.label}</span>
                     <Menu.RadioItemIndicator>
                       <Check className="h-3.5 w-3.5 shrink-0 text-[var(--hafta-300)]" />
@@ -74,26 +90,18 @@ export function AnatomySystemMenu({
         aria-pressed={view === 'posterior'}
         onClick={onToggleView}
         className={cn(
-          'tap-target inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
+          'tap-target inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
           view === 'posterior' ? 'text-foreground' : 'text-muted-foreground',
         )}
       >
-        <svg
+        <FlipHorizontal2 aria-hidden="true" className="h-4 w-4" />
+        <ChevronDown
           aria-hidden="true"
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="h-3.5 w-3.5"
-        >
-          <path d="m8 3 4 9-4 9" />
-          <path d="M4 7h16" />
-          <path d="m20 7-4 9 4 9" />
-        </svg>
+          className={cn(
+            'h-3 w-3 text-muted-foreground transition-transform',
+            view === 'posterior' ? '-rotate-90' : 'rotate-180',
+          )}
+        />
       </button>
     </div>
   );
