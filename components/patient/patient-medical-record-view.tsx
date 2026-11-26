@@ -389,33 +389,43 @@ export function PatientMedicalRecordView({
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start">
             {/* ── KOLOM KIRI (4): identitas pasien + metrik evaluasi + sesi/fisioterapis + kekuatan/fungsi ── */}
             <div className="min-w-0 space-y-4 lg:col-span-4">
-              <header className="hafta-card p-4 sm:p-5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
-                    {patient?.preferredName ?? patient?.fullName ?? 'Pasien'}
-                  </h1>
-                  <span className="rounded-full bg-[var(--hafta-50)] px-2 py-0.5 text-xs font-medium text-[var(--hafta-700)]">
-                    {labelCaseStatus(patient?.caseStatus)}
-                  </span>
+              <header className="hafta-card relative overflow-hidden p-4 sm:p-5">
+                <Image
+                  src="/assets/body-anatomy/cardiovascular-system.webp"
+                  alt=""
+                  aria-hidden="true"
+                  width={220}
+                  height={280}
+                  className="pointer-events-none absolute -right-4 top-0 h-full w-32 object-cover object-top [mask-image:linear-gradient(to_right,transparent_0%,black_35%)] sm:w-36"
+                />
+                <div className="relative z-10 pr-24 sm:pr-28">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h1 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
+                      {patient?.preferredName ?? patient?.fullName ?? 'Pasien'}
+                    </h1>
+                    <span className="rounded-full bg-[var(--hafta-50)] px-2 py-0.5 text-xs font-medium text-[var(--hafta-700)]">
+                      {labelCaseStatus(patient?.caseStatus)}
+                    </span>
+                  </div>
+                  <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5">
+                    {[
+                      { label: 'Usia', value: formatAge(patient?.dateOfBirth ?? null) },
+                      { label: 'Jenis Kelamin', value: labelGender(patient?.gender) },
+                      { label: 'No. Rekam Medis', value: patient?.medicalRecordNumber ?? '-', tabular: true },
+                      {
+                        label: 'Fisioterapis',
+                        value: patient?.therapistName ?? latestRecord?.therapistName ?? 'Fisioterapis Hafta',
+                      },
+                    ].map((item) => (
+                      <div key={item.label} className="min-w-0">
+                        <dt className="text-xs font-semibold text-muted-foreground">{item.label}</dt>
+                        <dd className={cn('mt-0.5 truncate text-sm font-medium text-foreground', item.tabular && 'tabular-nums')}>
+                          {item.value}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
                 </div>
-                <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5">
-                  {[
-                    { label: 'Usia', value: formatAge(patient?.dateOfBirth ?? null) },
-                    { label: 'Jenis Kelamin', value: labelGender(patient?.gender) },
-                    { label: 'No. Rekam Medis', value: patient?.medicalRecordNumber ?? '-', tabular: true },
-                    {
-                      label: 'Fisioterapis',
-                      value: patient?.therapistName ?? latestRecord?.therapistName ?? 'Fisioterapis Hafta',
-                    },
-                  ].map((item) => (
-                    <div key={item.label} className="min-w-0">
-                      <dt className="text-xs font-semibold text-muted-foreground">{item.label}</dt>
-                      <dd className={cn('mt-0.5 truncate text-sm font-medium text-foreground', item.tabular && 'tabular-nums')}>
-                        {item.value}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
               </header>
               {/* baris 1: dua kartu metrik utama — VAS & ROM (sparkline dari data sesi nyata) */}
               <div className="grid grid-cols-2 gap-3">
