@@ -40,7 +40,7 @@ export function AnatomySystemMenu({
           title={`Sistem anatomi: ${systemEntry?.label ?? ''}`}
           className="tap-target inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 data-popup-open:bg-accent"
         >
-          <Layers aria-hidden="true" className="h-4 w-4 text-[var(--hafta-300)]" />
+          <Layers aria-hidden="true" className="h-4 w-4" />
         </Menu.Trigger>
 
         <Menu.Portal container={container ?? undefined}>
