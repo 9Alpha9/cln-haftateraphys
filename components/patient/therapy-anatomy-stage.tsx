@@ -673,7 +673,10 @@ export function TherapyAnatomyStage({
           className="absolute left-4 top-4 z-20 max-w-[75%] cursor-pointer rounded-full border border-slate-200/70 bg-white/70 px-3 py-1.5 text-left shadow-sm backdrop-blur-md transition-all hover:bg-white/90 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
         >
           <span className="flex flex-wrap items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
-            <HeartPulse aria-hidden="true" className={`h-3.5 w-3.5 shrink-0 ${TONE_TEXT[tone]}`} />
+            <HeartPulse
+              aria-hidden="true"
+              className={`h-3.5 w-3.5 shrink-0 motion-reduce:animate-none animate-heartbeat ${TONE_TEXT[tone]}`}
+            />
             {legendExpanded ? (
               <span>
                 {markers.length} area keluhan · nada nyeri sesi

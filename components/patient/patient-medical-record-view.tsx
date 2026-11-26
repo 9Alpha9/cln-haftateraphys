@@ -21,6 +21,7 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { GlobalModal } from '@/components/ui/global-modal';
+import { CountUp } from '@/components/ui/count-up';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -487,7 +488,9 @@ export function PatientMedicalRecordView({
                         </span>
                       </div>
                       <div className="relative mt-2 flex items-baseline gap-1">
-                        <span className={cn('text-2xl font-bold tabular-nums', palette.value)}>{value}</span>
+                        <span className={cn('text-2xl font-bold tabular-nums', palette.value)}>
+                          <CountUp value={value} />
+                        </span>
                         <span className={cn('text-[10px] font-medium', palette.suffix)}>/10</span>
                       </div>
                       <svg aria-hidden="true" viewBox="0 0 120 40" className="mt-2 h-9 w-full" fill="none">
@@ -584,7 +587,9 @@ export function PatientMedicalRecordView({
                             {metric.label}
                           </dt>
                           <dd className="flex min-w-0 flex-wrap items-baseline justify-end gap-1">
-                            <span className="text-lg font-bold leading-none tabular-nums text-foreground">{value}</span>
+                            <span className="text-lg font-bold leading-none tabular-nums text-foreground">
+                              <CountUp value={value} />
+                            </span>
                             <span className="text-[10px] text-muted-foreground">/10</span>
                             {change ? (
                               <span
@@ -593,7 +598,8 @@ export function PatientMedicalRecordView({
                                   change.isGood ? TONE_DELTA.up : TONE_DELTA.down,
                                 )}
                               >
-                                {change.text}
+                                {change.value > 0 ? '+' : '−'}
+                                <CountUp value={Math.abs(change.value)} />
                               </span>
                             ) : (
                               <span className="text-[10px] text-muted-foreground">tetap</span>
@@ -651,13 +657,14 @@ export function PatientMedicalRecordView({
                 {[
                   {
                     label: 'Total Sesi',
-                    value: `${sessions.length}`,
+                    numeric: sessions.length,
                     detail: firstRecord ? `sejak ${shortDate(firstRecord.recordedAt)}` : 'belum ada sesi',
                     valueClass: 'text-xl leading-none tracking-tight sm:text-2xl',
                   },
                   {
                     label: 'Progres',
-                    value: `${averageScore}%`,
+                    numeric: averageScore,
+                    suffix: '%',
                     detail: 'rata-rata ROM, kekuatan & fungsi',
                     valueClass: 'text-xl leading-none tracking-tight sm:text-2xl',
                   },
@@ -671,7 +678,14 @@ export function PatientMedicalRecordView({
                   <div key={stat.label} className="hafta-card p-3">
                     <p className="text-[10px] font-medium text-muted-foreground">{stat.label}</p>
                     <p className={cn('mt-1.5 font-semibold tabular-nums text-foreground', stat.valueClass)}>
-                      {stat.value}
+                      {'numeric' in stat && typeof stat.numeric === 'number' ? (
+                        <>
+                          <CountUp value={stat.numeric} />
+                          {'suffix' in stat ? stat.suffix : null}
+                        </>
+                      ) : (
+                        stat.value
+                      )}
                     </p>
                     <p className="mt-1 line-clamp-2 text-[10px] leading-snug text-muted-foreground">{stat.detail}</p>
                   </div>

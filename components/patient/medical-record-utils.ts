@@ -92,7 +92,12 @@ export function deltaLabel(current: number, previous: number | null) {
   if (previous === null) return null;
   const diff = Number(current) - Number(previous);
   if (diff === 0) return null;
-  return { text: `${diff > 0 ? '+' : ''}${diff}`, direction: diff > 0 ? ('up' as const) : ('down' as const) };
+  return {
+    text: `${diff > 0 ? '+' : ''}${diff}`,
+    direction: diff > 0 ? ('up' as const) : ('down' as const),
+    /** Nilai numerik delta (untuk animasi hitung naik). */
+    value: diff,
+  };
 }
 
 /** Delta dengan arah "baik/buruk": untuk Nyeri, turun = baik. */

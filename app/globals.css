@@ -284,6 +284,30 @@
   will-change: transform;
 }
 
+/* Denyut ikon (mis. HeartPulse pada badge area keluhan). */
+@keyframes heartbeat {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.18);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.12);
+  }
+  56% {
+    transform: scale(1);
+  }
+}
+
+@utility animate-heartbeat {
+  animation: heartbeat 1.4s ease-in-out infinite;
+}
+
 @layer utilities {
   .container-hafta {
     @apply w-full px-4 md:px-6 lg:mx-auto lg:max-w-7xl lg:px-8;
