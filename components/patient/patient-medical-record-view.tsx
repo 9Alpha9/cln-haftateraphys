@@ -348,7 +348,7 @@ export function PatientMedicalRecordView({
       <Tabs value={activeTab} onValueChange={(value) => selectTab(value as TabKey)} className="py-2 sm:py-3">
         <TabsList
           aria-label="Bagian rekam medis"
-          className="mx-auto flex h-auto w-full max-w-lg items-center justify-start gap-1.5 overflow-x-auto rounded-full border border-border/60 bg-muted/60 p-1.5 backdrop-blur-sm [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden"
+          className="mx-auto flex h-auto w-full max-w-lg items-center justify-start gap-2 overflow-x-auto rounded-full border border-border/60 bg-muted/60 p-1 backdrop-blur-sm [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden"
           style={{ touchAction: 'manipulation' }}
         >
           {TABS.map((tab) => (

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, FlipHorizontal2, Layers, Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { ChevronDown, ChevronRight, FlipHorizontal2, Layers, Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AnatomySystemMenu } from '@/components/patient/anatomy-system-menu';
 import { SkeletonBlock } from '@/components/dashboard/skeletons/skeleton-primitives';
@@ -683,11 +683,11 @@ export function TherapyAnatomyStage({
             ) : (
               <span className="font-semibold text-foreground">{markers.length} area</span>
             )}
-            <ChevronDown
+            <ChevronRight
               aria-hidden="true"
               className={cn(
                 'h-3 w-3 shrink-0 text-muted-foreground transition-transform duration-200',
-                legendExpanded ? 'rotate-0' : 'rotate-180',
+                legendExpanded ? 'rotate-90' : 'rotate-0',
               )}
             />
           </span>

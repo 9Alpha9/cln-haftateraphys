@@ -53,7 +53,7 @@ export function AnatomySystemMenu({
           >
             <Menu.Popup
               data-slot="dropdown-menu-content"
-              className="max-w-[min(240px,var(--available-height))] min-w-[168px] overflow-y-auto rounded-2xl bg-popover p-1.5 text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-none data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 duration-100"
+              className="max-w-[min(240px,var(--available-height))] min-w-[168px] overflow-y-auto rounded-2xl border border-border/70 bg-popover/85 p-1.5 text-popover-foreground shadow-md ring-1 ring-foreground/10 backdrop-blur-md outline-none data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 duration-100"
             >
               <Menu.RadioGroup value={system} onValueChange={(value) => onSelectSystem(value as AnatomySystemKey)}>
                 {ANATOMY_SYSTEMS.map((item) => (
