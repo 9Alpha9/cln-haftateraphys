@@ -683,6 +683,13 @@ export function TherapyAnatomyStage({
             ) : (
               <span className="font-semibold text-foreground">{markers.length} area</span>
             )}
+            <ChevronDown
+              aria-hidden="true"
+              className={cn(
+                'h-3 w-3 shrink-0 text-muted-foreground transition-transform duration-200',
+                legendExpanded ? 'rotate-0' : 'rotate-180',
+              )}
+            />
           </span>
         </button>
       ) : null}
