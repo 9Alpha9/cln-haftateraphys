@@ -113,11 +113,7 @@ export async function requestPatientAppointment(input: RequestAppointmentInput) 
     throw new Error('Jadwal pasien hanya tersedia dalam slot 60 menit.');
   }
 
-  const availabilityRules = await getAvailabilityRules(
-    [input.therapistId],
-    input.requestedDate,
-    input.requestedDate,
-  );
+  const availabilityRules = await getAvailabilityRules([input.therapistId], input.requestedDate, input.requestedDate);
   const isOnTimeOff = (availabilityRules.timeOffByTherapist.get(input.therapistId) ?? []).some(
     (item) => item.startDate <= input.requestedDate && item.endDate >= input.requestedDate,
   );
@@ -211,6 +207,7 @@ export async function requestPatientAppointment(input: RequestAppointmentInput) 
 
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/appointments');
+  revalidatePath('/dashboard/progress');
   return { ok: true as const };
 }
 
@@ -264,10 +261,7 @@ export async function reschedulePatientAppointment(input: RescheduleAppointmentI
     .select({ id: appointmentRequests.id })
     .from(appointmentRequests)
     .where(
-      and(
-        eq(appointmentRequests.rescheduleAppointmentId, appointment.id),
-        eq(appointmentRequests.status, 'PENDING'),
-      ),
+      and(eq(appointmentRequests.rescheduleAppointmentId, appointment.id), eq(appointmentRequests.status, 'PENDING')),
     )
     .limit(1);
   if (pendingReschedule) {
@@ -312,11 +306,7 @@ export async function reschedulePatientAppointment(input: RescheduleAppointmentI
   }
 
   const durationMinutes = appointment.durationMinutes;
-  const availabilityRules = await getAvailabilityRules(
-    [input.therapistId],
-    input.requestedDate,
-    input.requestedDate,
-  );
+  const availabilityRules = await getAvailabilityRules([input.therapistId], input.requestedDate, input.requestedDate);
   const isOnTimeOff = (availabilityRules.timeOffByTherapist.get(input.therapistId) ?? []).some(
     (item) => item.startDate <= input.requestedDate && item.endDate >= input.requestedDate,
   );
@@ -404,6 +394,7 @@ export async function reschedulePatientAppointment(input: RescheduleAppointmentI
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/appointments');
   revalidatePath('/dashboard/notifications');
+  revalidatePath('/dashboard/progress');
   return { ok: true as const };
 }
 
@@ -466,11 +457,7 @@ export async function reviewPatientAppointmentRequest({
           createdBy: session.user.id,
         })
         .onConflictDoUpdate({
-          target: [
-            patientAssignments.patientId,
-            patientAssignments.staffUserId,
-            patientAssignments.assignmentType,
-          ],
+          target: [patientAssignments.patientId, patientAssignments.staffUserId, patientAssignments.assignmentType],
           set: { activeUntil: null },
         });
     }
@@ -646,6 +633,7 @@ export async function reviewPatientAppointmentRequest({
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/appointments');
   revalidatePath('/dashboard/notifications');
+  revalidatePath('/dashboard/progress');
   return { ok: true as const };
 }
 
@@ -729,5 +717,6 @@ export async function cancelPatientAppointmentRequest(requestId: string) {
 
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/appointments');
+  revalidatePath('/dashboard/progress');
   return { ok: true as const };
 }

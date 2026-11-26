@@ -62,10 +62,7 @@ function formatDateLabel(value: string) {
   });
 }
 
-export async function createAppointment(
-  input: CreateAppointmentInput,
-  options?: { notifyPatient?: boolean },
-) {
+export async function createAppointment(input: CreateAppointmentInput, options?: { notifyPatient?: boolean }) {
   requireCreateAppointmentInput(input);
 
   const { session, role } = await requireSession({ redirectToLogin: false });
@@ -152,6 +149,7 @@ export async function createAppointment(
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/appointments');
   revalidatePath('/dashboard/notifications');
+  revalidatePath('/dashboard/progress');
 }
 
 export type UpdateAppointmentInput = {
@@ -165,7 +163,6 @@ export type UpdateAppointmentInput = {
   type?: AppointmentType;
   administrativeNote?: string;
 };
-
 
 export async function getAppointmentEditData(appointmentId: string) {
   const { role } = await requireSession({ redirectToLogin: false });
@@ -256,6 +253,7 @@ export async function updateAppointment(input: UpdateAppointmentInput) {
   await syncNextTherapyAt(input.patientId);
 
   revalidatePath('/dashboard/appointments');
+  revalidatePath('/dashboard/progress');
 }
 
 export async function deleteAppointment(appointmentId: string) {
@@ -290,6 +288,7 @@ export async function deleteAppointment(appointmentId: string) {
   await syncNextTherapyAt(appointment.patientId);
 
   revalidatePath('/dashboard/appointments');
+  revalidatePath('/dashboard/progress');
 }
 
 /**
@@ -340,9 +339,7 @@ export async function markAppointmentNoShow(appointmentId: string) {
   const [updated] = await db
     .update(appointments)
     .set({ status: 'NO_SHOW', updatedAt: now })
-    .where(
-      and(eq(appointments.id, appointment.id), inArray(appointments.status, [...activeStatuses])),
-    )
+    .where(and(eq(appointments.id, appointment.id), inArray(appointments.status, [...activeStatuses])))
     .returning({ id: appointments.id });
   if (!updated) {
     throw new Error('Jadwal telah berubah oleh pengguna lain. Muat ulang halaman.');
@@ -366,4 +363,5 @@ export async function markAppointmentNoShow(appointmentId: string) {
 
   revalidatePath('/dashboard/appointments');
   revalidatePath('/dashboard');
+  revalidatePath('/dashboard/progress');
 }

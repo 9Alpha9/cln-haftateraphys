@@ -1,6 +1,15 @@
-import { and, count, desc, eq, ilike, isNull, or, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gt, gte, ilike, inArray, isNull, or, sql } from 'drizzle-orm';
 import { getDb } from '@/db';
-import { patientAssignments, patientIntakes, patients, profiles, therapyProgressRecords, users } from '@/db/schema';
+import {
+  appointmentRequests,
+  appointments,
+  patientAssignments,
+  patientIntakes,
+  patients,
+  profiles,
+  therapyProgressRecords,
+  users,
+} from '@/db/schema';
 import { requireSession } from '@/lib/auth/require-session';
 import { ForbiddenError, hasPermission, PERMISSIONS } from '@/lib/permissions';
 
@@ -150,6 +159,20 @@ export async function getTherapyProgressById(id: string): Promise<TherapyProgres
   };
 }
 
+export type PatientNextSchedule = {
+  /** Sumber jadwal: sesi aktif, pengajuan baru, pengajuan ubah jadwal, atau input manual. */
+  source: 'APPOINTMENT' | 'PENDING_REQUEST' | 'PENDING_RESCHEDULE' | 'MANUAL';
+  dateAt: Date;
+  /** Jam mulai dalam format `HH:MM`. */
+  timeText: string;
+  therapistName: string | null;
+  /** Label status ramah pasien, mis. "Terjadwal", "Menunggu Konfirmasi". */
+  statusLabel: string;
+  /** Jadwal lama yang sedang diajukan untuk diubah (hanya untuk PENDING_RESCHEDULE). */
+  previousDateAt: Date | null;
+  previousTimeText: string | null;
+};
+
 export type PatientMedicalRecordSummary = {
   id: string;
   fullName: string;
@@ -166,6 +189,8 @@ export type PatientMedicalRecordSummary = {
   therapyDiagnosisLabel: string | null;
   therapyFrequencyText: string | null;
   nextTherapyAt: Date | null;
+  /** Jadwal berikutnya ter-resolve dari appointment aktif + pengajuan PENDING. */
+  nextSchedule: PatientNextSchedule | null;
   therapistNote: string | null;
   therapistNoteAuthor: string | null;
   therapistNoteAt: Date | null;
@@ -222,16 +247,145 @@ export async function getOwnMedicalRecordSummary(): Promise<PatientMedicalRecord
     .select({ therapistName: users.name })
     .from(patientAssignments)
     .innerJoin(users, eq(patientAssignments.staffUserId, users.id))
-    .where(
-      and(
-        eq(patientAssignments.patientId, patient.id),
-        isNull(patientAssignments.activeUntil),
-      ),
-    )
+    .where(and(eq(patientAssignments.patientId, patient.id), isNull(patientAssignments.activeUntil)))
     .orderBy(desc(patientAssignments.activeFrom))
     .limit(1);
 
-  return { ...patient, therapistName: assignment?.therapistName ?? null };
+  const nextSchedule = await resolveNextSchedule(
+    db,
+    patient.id,
+    patient.nextTherapyAt,
+    assignment?.therapistName ?? null,
+  );
+
+  return { ...patient, therapistName: assignment?.therapistName ?? null, nextSchedule };
+}
+
+/** Kunci tanggal lokal `YYYY-MM-DD` (konsisten dengan next-therapy-sync & appointment-requests). */
+function localDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function localTimeText(date: Date): string {
+  return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+function parseDateKey(value: string): Date {
+  const [year, month, day] = value.slice(0, 10).split('-').map(Number);
+  return new Date(year, (month ?? 1) - 1, day ?? 1);
+}
+
+type DbClient = ReturnType<typeof getDb>;
+
+/**
+ * Tentukan "jadwal berikutnya" bagi pasien dari TIGA sumber, dengan prioritas:
+ * 1. Pengajuan ubah jadwal PENDING (`rescheduleAppointmentId` terisi) — jadwal
+ *    sedang dalam proses perubahan, tampilkan tanggal barunya beserta catatan
+ *    jadwal semula agar pasien tidak bingung.
+ * 2. Pengajuan jadwal baru PENDING — slot sudah dipilih, menunggu persetujuan.
+ * 3. Appointment aktif terdekat (SCHEDULED/CONFIRMED) yang belum berlalu.
+ * 4. Fallback ke `patients.nextTherapyAt` (input manual / historis).
+ */
+async function resolveNextSchedule(
+  db: DbClient,
+  patientId: string,
+  manualNextTherapyAt: Date | null,
+  fallbackTherapistName: string | null,
+): Promise<PatientNextSchedule | null> {
+  const now = new Date();
+  const todayKey = localDateKey(now);
+  const nowTimeText = localTimeText(now);
+
+  const [pendingRequest] = await db
+    .select({
+      requestedDate: appointmentRequests.requestedDate,
+      startTime: appointmentRequests.startTime,
+      therapistName: users.name,
+      rescheduleAppointmentId: appointmentRequests.rescheduleAppointmentId,
+    })
+    .from(appointmentRequests)
+    .innerJoin(users, eq(appointmentRequests.therapistId, users.id))
+    .where(
+      and(
+        eq(appointmentRequests.patientId, patientId),
+        eq(appointmentRequests.status, 'PENDING'),
+        gte(appointmentRequests.requestedDate, todayKey),
+      ),
+    )
+    .orderBy(asc(appointmentRequests.requestedDate), asc(appointmentRequests.startTime))
+    .limit(1);
+
+  if (pendingRequest) {
+    let previous: { scheduledDate: string; startTime: string } | null = null;
+    if (pendingRequest.rescheduleAppointmentId) {
+      const [source] = await db
+        .select({ scheduledDate: appointments.scheduledDate, startTime: appointments.startTime })
+        .from(appointments)
+        .where(eq(appointments.id, pendingRequest.rescheduleAppointmentId))
+        .limit(1);
+      previous = source ?? null;
+    }
+    return {
+      source: pendingRequest.rescheduleAppointmentId ? 'PENDING_RESCHEDULE' : 'PENDING_REQUEST',
+      dateAt: parseDateKey(pendingRequest.requestedDate),
+      timeText: pendingRequest.startTime.slice(0, 5),
+      therapistName: pendingRequest.therapistName,
+      statusLabel: pendingRequest.rescheduleAppointmentId ? 'Pengajuan Ubah Jadwal' : 'Menunggu Konfirmasi',
+      previousDateAt: previous ? parseDateKey(previous.scheduledDate) : null,
+      previousTimeText: previous ? previous.startTime.slice(0, 5) : null,
+    };
+  }
+
+  // Sesi hari ini yang jam mulainya sudah lewat tidak lagi disebut "berikutnya".
+  const [nextAppointment] = await db
+    .select({
+      scheduledDate: appointments.scheduledDate,
+      startTime: appointments.startTime,
+      therapistName: users.name,
+    })
+    .from(appointments)
+    .innerJoin(users, eq(appointments.therapistId, users.id))
+    .where(
+      and(
+        eq(appointments.patientId, patientId),
+        inArray(appointments.status, ['SCHEDULED', 'CONFIRMED']),
+        or(
+          gt(appointments.scheduledDate, todayKey),
+          and(eq(appointments.scheduledDate, todayKey), gte(appointments.startTime, nowTimeText)),
+        ),
+      ),
+    )
+    .orderBy(asc(appointments.scheduledDate), asc(appointments.startTime))
+    .limit(1);
+
+  if (nextAppointment) {
+    return {
+      source: 'APPOINTMENT',
+      dateAt: parseDateKey(nextAppointment.scheduledDate),
+      timeText: nextAppointment.startTime.slice(0, 5),
+      therapistName: nextAppointment.therapistName,
+      statusLabel: 'Terjadwal',
+      previousDateAt: null,
+      previousTimeText: null,
+    };
+  }
+
+  if (manualNextTherapyAt) {
+    return {
+      source: 'MANUAL',
+      dateAt: manualNextTherapyAt,
+      timeText: localTimeText(manualNextTherapyAt),
+      therapistName: fallbackTherapistName,
+      statusLabel: 'Terjadwal',
+      previousDateAt: null,
+      previousTimeText: null,
+    };
+  }
+
+  return null;
 }
 
 export type GetProgressOptions = {
@@ -244,7 +398,7 @@ export type GetProgressOptions = {
 };
 
 export async function getScopedTherapyProgress(
-  options: GetProgressOptions = {}
+  options: GetProgressOptions = {},
 ): Promise<{ items: TherapyProgressView[]; total: number; currentPage: number; totalPages: number }> {
   const { page = 1, pageSize = 10, search = '', status = '', patientVisible = '', patientId } = options;
 
@@ -307,10 +461,7 @@ export async function getScopedTherapyProgress(
     .leftJoin(profiles, eq(profiles.userId, patients.userId))
     .leftJoin(
       patientAssignments,
-      and(
-        eq(patientAssignments.patientId, patients.id),
-        isNull(patientAssignments.activeUntil),
-      ),
+      and(eq(patientAssignments.patientId, patients.id), isNull(patientAssignments.activeUntil)),
     );
 
   let scopeFilter;
@@ -322,10 +473,7 @@ export async function getScopedTherapyProgress(
     // pasien di-assign kembali, tetapi tidak terbuka setelah assignment berakhir.
     // `activeUntil` wajib ikut di filter (bukan hanya di JOIN) agar query hitung
     // total memakai scope yang sama dengan query data.
-    scopeFilter = and(
-      eq(patientAssignments.staffUserId, session.user.id),
-      isNull(patientAssignments.activeUntil),
-    );
+    scopeFilter = and(eq(patientAssignments.staffUserId, session.user.id), isNull(patientAssignments.activeUntil));
   }
 
   const filters = [scopeFilter, isNull(therapyProgressRecords.supersededAt)];

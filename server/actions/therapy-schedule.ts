@@ -25,10 +25,7 @@ export async function updateTherapySchedule(patientId: string, input: TherapySch
   const { session, role } = await requireSession({ redirectToLogin: false });
   if (
     role === 'USER' ||
-    !(
-      hasPermission(role, PERMISSIONS.PATIENT_UPDATE_DEMOGRAPHICS) ||
-      hasPermission(role, PERMISSIONS.INTAKE_REVIEW)
-    )
+    !(hasPermission(role, PERMISSIONS.PATIENT_UPDATE_DEMOGRAPHICS) || hasPermission(role, PERMISSIONS.INTAKE_REVIEW))
   ) {
     throw new ForbiddenError();
   }
@@ -60,5 +57,6 @@ export async function updateTherapySchedule(patientId: string, input: TherapySch
   });
 
   revalidatePath('/dashboard');
+  revalidatePath('/dashboard/progress');
   revalidatePath(`/dashboard/patients/${patientId}`);
 }

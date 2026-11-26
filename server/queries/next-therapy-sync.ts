@@ -1,4 +1,4 @@
-import { and, asc, eq, gte, inArray } from 'drizzle-orm';
+import { and, asc, eq, gt, gte, inArray, or } from 'drizzle-orm';
 import { getDb } from '@/db';
 import { appointments, patients } from '@/db/schema';
 
@@ -27,6 +27,10 @@ function localDateKey(date: Date): string {
  */
 export async function syncNextTherapyAt(patientId: string): Promise<void> {
   const db = getDb();
+  const now = new Date();
+  const todayKey = localDateKey(now);
+  const nowTimeText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
   const [next] = await db
     .select({ scheduledDate: appointments.scheduledDate, startTime: appointments.startTime })
     .from(appointments)
@@ -34,7 +38,11 @@ export async function syncNextTherapyAt(patientId: string): Promise<void> {
       and(
         eq(appointments.patientId, patientId),
         inArray(appointments.status, [...ACTIVE_APPOINTMENT_STATUSES]),
-        gte(appointments.scheduledDate, localDateKey(new Date())),
+        // Sesi hari ini yang jam mulainya sudah lewat bukan lagi "berikutnya".
+        or(
+          gt(appointments.scheduledDate, todayKey),
+          and(eq(appointments.scheduledDate, todayKey), gte(appointments.startTime, nowTimeText)),
+        ),
       ),
     )
     .orderBy(asc(appointments.scheduledDate), asc(appointments.startTime))
@@ -47,8 +55,5 @@ export async function syncNextTherapyAt(patientId: string): Promise<void> {
     nextTherapyAt = new Date(year, (month ?? 1) - 1, day ?? 1, hours ?? 0, minutes ?? 0);
   }
 
-  await db
-    .update(patients)
-    .set({ nextTherapyAt, updatedAt: new Date() })
-    .where(eq(patients.id, patientId));
+  await db.update(patients).set({ nextTherapyAt, updatedAt: new Date() }).where(eq(patients.id, patientId));
 }
