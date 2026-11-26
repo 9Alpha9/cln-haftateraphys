@@ -437,19 +437,31 @@ export function PatientMedicalRecordView({
                   const tone = metricTone(metricKey, value);
                   const values = sessions.map((session) => Number(session.latest[metric.field] ?? 0));
                   const decor = metricKey === 'pain' ? decorNervous : decorArticular;
-                  // Tint berbeda per metrik agar kartu tidak monoton putih:
-                  // nyeri = hangat, rentang gerak = hijau lembut.
-                  const cardTint =
+                  // Tint + palet per metrik agar kartu tidak monoton putih dan
+                  // warna garis grafik serta teks selaras dengan latarnya.
+                  const palette =
                     metricKey === 'pain'
-                      ? 'border-[var(--hafta-100)] bg-[var(--hafta-50)]'
-                      : 'border-[var(--hafta-grn-100)] bg-[var(--hafta-grn-50)]';
+                      ? {
+                          tint: 'border-[var(--hafta-100)] bg-[var(--hafta-50)]',
+                          stroke: 'var(--hafta-400)',
+                          label: 'text-[var(--hafta-700)]',
+                          value: 'text-[var(--hafta-900)]',
+                          suffix: 'text-[var(--hafta-600)]',
+                        }
+                      : {
+                          tint: 'border-[var(--hafta-grn-100)] bg-[var(--hafta-grn-50)]',
+                          stroke: 'var(--hafta-grn-500)',
+                          label: 'text-[var(--hafta-grn-700)]',
+                          value: 'text-[var(--hafta-grn-900)]',
+                          suffix: 'text-[var(--hafta-grn-600)]',
+                        };
                   return (
                     <section
                       key={metricKey}
                       aria-label={`${metric.label} sesi ini`}
                       className={cn(
                         'relative overflow-hidden rounded-[28px] border p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)]',
-                        cardTint,
+                        palette.tint,
                       )}
                     >
                       {/* siluet anatomi dekoratif pada kartu metrik */}
@@ -464,7 +476,7 @@ export function PatientMedicalRecordView({
                         />
                       ) : null}
                       <div className="relative flex items-start justify-between gap-1.5">
-                        <p className="text-xs font-semibold text-muted-foreground">{metric.label}</p>
+                        <p className={cn('text-xs font-semibold', palette.label)}>{metric.label}</p>
                         <span
                           className={cn(
                             'shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-semibold',
@@ -475,13 +487,13 @@ export function PatientMedicalRecordView({
                         </span>
                       </div>
                       <div className="relative mt-2 flex items-baseline gap-1">
-                        <span className="text-2xl font-bold tabular-nums text-foreground">{value}</span>
-                        <span className="text-[10px] font-medium text-muted-foreground">/10</span>
+                        <span className={cn('text-2xl font-bold tabular-nums', palette.value)}>{value}</span>
+                        <span className={cn('text-[10px] font-medium', palette.suffix)}>/10</span>
                       </div>
                       <svg aria-hidden="true" viewBox="0 0 120 40" className="mt-2 h-9 w-full" fill="none">
                         <polyline
                           points={sparklinePoints(values, 10)}
-                          stroke="var(--hafta-400)"
+                          stroke={palette.stroke}
                           strokeWidth="2"
                           strokeLinejoin="round"
                           strokeLinecap="round"
