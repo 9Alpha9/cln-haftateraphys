@@ -14,7 +14,9 @@ export type TherapyCalendarEntry = {
 
 type Props = {
   entries: TherapyCalendarEntry[];
-  /** Dipanggil saat tanggal bertanda terapi diketuk. */
+  /** Dipanggil saat TANGGAL bertanda terapi diketuk — memilih sesi tsb. */
+  onSelectDay?: (entry: TherapyCalendarEntry) => void;
+  /** Dipanggil saat tombol "Lihat" pada detail hari diketuk. */
   onSelectRecord: (recordId: string) => void;
 };
 
@@ -29,7 +31,7 @@ const monthLabel = (value: Date) => value.toLocaleDateString('id-ID', { month: '
 /** Senin = indeks 0, Minggu = indeks 6. */
 const mondayIndex = (value: Date) => (value.getDay() + 6) % 7;
 
-export function TherapyCalendar({ entries, onSelectRecord }: Props) {
+export function TherapyCalendar({ entries, onSelectDay, onSelectRecord }: Props) {
   const byDay = useMemo(() => {
     const map = new Map<string, TherapyCalendarEntry[]>();
     for (const entry of entries) {
@@ -147,6 +149,8 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
                   setMonthCursor(new Date(cell.date.getFullYear(), cell.date.getMonth(), 1));
                 }
                 setSelectedDay(cell.key);
+                // Tanggal terapi dipilih = sesi terkait ikut terpilih.
+                if (cell.inMonth && dayEntries[0]) onSelectDay?.(dayEntries[0]);
               }}
               aria-label={
                 hasTherapy

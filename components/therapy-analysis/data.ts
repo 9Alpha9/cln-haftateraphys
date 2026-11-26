@@ -23,8 +23,9 @@ export const THERAPY_POINTS: TherapyPoint[] = [
   {
     id: 'servikal',
     partName: 'Leher (Servikal)',
+    // Dikalibrasi untuk /assets/body-anatomy/muscular-anterior.webp (841×1510).
     x: 50,
-    y: 9,
+    y: 12.5,
     condition: 'Nyeri leher postural akibat posisi kerja',
     therapyMethod: 'Peregangan aktif + edukasi postur kerja',
     progress: 55,
@@ -33,8 +34,9 @@ export const THERAPY_POINTS: TherapyPoint[] = [
   {
     id: 'bahu-kiri',
     partName: 'Bahu Kiri',
-    x: 37,
-    y: 17,
+    // Tampak depan: sisi KIRI pasien = kanan gambar.
+    x: 68.6,
+    y: 29,
     condition: 'Rotator cuff syndrome — nyeri saat mengangkat lengan',
     therapyMethod: 'Manual therapy + latihan penguatan rotator',
     progress: 68,
@@ -44,7 +46,7 @@ export const THERAPY_POINTS: TherapyPoint[] = [
     id: 'lumbar',
     partName: 'Punggung Bawah (Lumbar)',
     x: 50,
-    y: 40,
+    y: 50,
     condition: 'Nyeri mekanik lumbal',
     therapyMethod: 'Latihan core stability + modalitas TENS',
     progress: 45,
@@ -53,8 +55,9 @@ export const THERAPY_POINTS: TherapyPoint[] = [
   {
     id: 'lutut-kanan',
     partName: 'Lutut Kanan',
-    x: 58,
-    y: 76,
+    // Tampak depan: sisi KANAN pasien = kiri gambar.
+    x: 37.8,
+    y: 77.2,
     condition: 'Osteoarthritis derajat 1',
     therapyMethod: 'Terapi latihan + kinesio taping',
     progress: 72,

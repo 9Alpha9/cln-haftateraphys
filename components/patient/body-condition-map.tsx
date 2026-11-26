@@ -26,29 +26,7 @@ export const REGION_POINTS: Record<BodyRegionKey, { x: number; y: number; label:
 };
 
 /**
- * Posisi penanda area pada GAMBAR anatomi PNG (`/assets/anatomy-front.png`),
- * dalam persen lebar/tinggi gambar — dipakai panggung anatomi interaktif.
- * Dikalibrasi dari profil siluet gambar (kepala y 0–13%, bahu y≈18%, pinggul
- * y≈56%, lutut y≈78%, pergelangan y≈92%).
- *
- * Konvensi tampilan depan: `x` = sisi KANAN pasien (kiri gambar), `altX` =
- * sisi KIRI pasien (kanan gambar). Area tunggal (kepala, leher, dll.) tanpa
- * `altX`.
- */
-export const BODY_REGION_IMAGE_POSITIONS: Record<BodyRegionKey, { x: number; y: number; altX?: number }> = {
-  kepala: { x: 50, y: 6 },
-  leher: { x: 50, y: 14 },
-  bahu: { x: 34, y: 18, altX: 66 },
-  lengan: { x: 16, y: 33, altX: 84 },
-  dada: { x: 50, y: 22 },
-  perut: { x: 50, y: 37 },
-  punggung: { x: 50, y: 45 },
-  pinggul: { x: 44, y: 56, altX: 56 },
-  lutut: { x: 40, y: 78, altX: 60 },
-  kaki: { x: 41, y: 92, altX: 59 },
-};
-
-/** Kata kunci Indonesia/istilah klinis → area tubuh.
+ * Kata kunci Indonesia/istilah klinis → area tubuh.
  *  Aturan: kata umum yang muncul sebagai KONTEKS (bukan keluhan) tidak dipakai —
  *  mis. "postur", "core", atau "kepala" pada frasa "postur kepala maju".
  *  Area hanya ditandai bila benar-benar dikeluhkan/diperiksa. */

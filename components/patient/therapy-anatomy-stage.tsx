@@ -1,22 +1,22 @@
 'use client';
 
-import Image from 'next/image';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
-import { MousePointer2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { REGION_POINTS, type DetectedRegion } from '@/components/patient/body-condition-map';
 import {
-  BODY_REGION_IMAGE_POSITIONS,
-  REGION_POINTS,
-  type DetectedRegion,
-} from '@/components/patient/body-condition-map';
+  ANATOMY_SYSTEMS,
+  atlasAsset,
+  markerPosition,
+  type AnatomySystemKey,
+  type AnatomyViewKey,
+} from '@/components/patient/body-anatomy-atlas';
 
-const ANATOMY_SRC = '/assets/anatomy-front.png';
-const ANATOMY_WIDTH = 1044;
-const ANATOMY_HEIGHT = 1507;
-
-const ZOOM_MIN = 0.8;
-const ZOOM_MAX = 2.2;
-const ZOOM_STEP = 0.15;
+const ZOOM_MIN = 1;
+const ZOOM_MAX = 4;
+const ZOOM_STEP = 1.25;
+/** Batas geser: gambar boleh bergeser maksimal setengah lebar/tinggi ekstra. */
+const PAN_MARGIN = 80;
 
 type Tone = 'good' | 'watch' | 'alert';
 
@@ -42,54 +42,296 @@ export type AnatomyAreaDetail = {
 };
 
 /**
- * Panggung anatomi untuk Ringkasan rekam medis.
+ * Atlas anatomi interaktif — Canvas 2D ringan (tanpa WebGL).
  *
- * Aturan zoom: HANYA gambar anatomi yang menskala. Penanda dikompensasi
- * `scale(1/scale)`; popover, legenda, dan kontrol berada di luar kanvas
- * sehingga ukurannya selalu stabil di semua level zoom. Posisi popover
- * dihitung terhadap panggung dan diklem — tidak pernah terpotong.
+ * - Aset WebP `/assets/body-anatomy/`, dimuat lazy per aset aktif + cache
+ *   sesi (aset yang belum dilihat tidak dimuat).
+ * - Default: muscular anterior, fit-to-container, seluruh tubuh terlihat,
+ *   rasio aspek asli, tanpa clipping.
+ * - Pan (grab/drag), pinch dua jari, zoom tombol, reset, fullscreen.
+ * - Penanda = tombol DOM asli (fokus & target sentuh terjamin); posisinya
+ *   dihitung dari transform kanvas sehingga tidak bergeser saat zoom/pan/
+ *   resize/fullscreen, tetapi ukurannya konstan di layar.
+ * - Klik kanan ditekan di permukaan viewer saja (bukan seluruh aplikasi).
  */
 export function TherapyAnatomyStage({
   markers,
   tone,
   detail,
   onRegionSelect,
+  onActiveMarkerChange,
+  focusRegionId,
   fallbackHint,
 }: {
   markers: DetectedRegion[];
   tone: Tone;
   detail: AnatomyAreaDetail | null;
   onRegionSelect?: (region: DetectedRegion) => void;
+  /** Sinkronisasi pilihan penanda dengan daftar area keluhan di luar viewer. */
+  onActiveMarkerChange?: (markerId: string | null) => void;
+  /** Id penanda yang diaktifkan dari luar (daftar area keluhan). */
+  focusRegionId: string | null;
   fallbackHint: string;
 }) {
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [scale, setScale] = useState(1);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [pointerMode, setPointerMode] = useState(false);
+  const [activeId, setActiveId] = useState<string | null>(null);  const [system, setSystem] = useState<AnatomySystemKey>('muscular');
+  const [view, setView] = useState<AnatomyViewKey>('anterior');
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
-  const dragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [imageReady, setImageReady] = useState(0);
+  const [size, setSize] = useState<{ w: number; h: number } | null>(null);
+
+  const asset = atlasAsset(system, view);
+  const systemEntry = ANATOMY_SYSTEMS.find((item) => item.key === system);
+
   const sectionRef = useRef<HTMLElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<SVGLineElement>(null);
   const dotRef = useRef<SVGCircleElement>(null);
+  const imageRef = useRef<HTMLImageElement | null>(null);
+  /** Cache aset yang sudah pernah dilihat — aset lain tetap tidak dimuat. */
+  const imageCache = useRef(new Map<string, HTMLImageElement>());
   /** Id area terakhir yang garisnya dianimasikan — animasi hanya sekali per pilihan. */
   const lineAnimatedFor = useRef<string | null>(null);
 
+  const pointersRef = useRef(new Map<number, { x: number; y: number }>());
+  const panStartRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
+  const pinchStartRef = useRef<{
+    dist: number;
+    zoom: number;
+    midX: number;
+    midY: number;
+    panX: number;
+    panY: number;
+  } | null>(null);
+  const movedRef = useRef(0);
+
   const activeMarker = markers.find((marker) => markerId(marker) === activeId) ?? null;
 
-  const zoomIn = useCallback(() => setScale((s) => Math.min(ZOOM_MAX, s + ZOOM_STEP)), []);
-  const zoomOut = useCallback(() => setScale((s) => Math.max(ZOOM_MIN, s - ZOOM_STEP)), []);
-  const resetView = useCallback(() => {
-    setScale(1);
-    setOffset({ x: 0, y: 0 });
+  /**
+   * Aktivasi penanda dari daftar area keluhan (kolom kanan).
+   * Pola render-adjust (bukan effect): state disesuaikan saat prop berubah,
+   * tanpa setState-in-effect.
+   */
+  const [lastFocusRegionId, setLastFocusRegionId] = useState<string | null>(focusRegionId);
+  if (focusRegionId !== lastFocusRegionId) {
+    setLastFocusRegionId(focusRegionId);
+    if (focusRegionId) setActiveId(focusRegionId);
+  }
+
+  const selectMarker = useCallback(
+    (id: string | null) => {
+      setActiveId(id);
+      onActiveMarkerChange?.(id);
+    },
+    [onActiveMarkerChange],
+  );
+
+  /** Muat HANYA aset aktif (lazy); aset yang pernah dimuat disimpan di cache. */
+  useEffect(() => {
+    let cancelled = false;
+    const cached = imageCache.current.get(asset.id);
+    if (cached) {
+      imageRef.current = cached;
+      setImageReady((value) => value + 1);
+      return () => {
+        cancelled = true;
+      };
+    }
+    const image = new Image();
+    image.decoding = 'async';
+    image.src = asset.url;
+    const onLoad = () => {
+      if (cancelled) return;
+      imageCache.current.set(asset.id, image);
+      imageRef.current = image;
+      setImageReady((value) => value + 1);
+    };
+    image.addEventListener('load', onLoad);
+    image.addEventListener('error', onLoad);
+    return () => {
+      cancelled = true;
+      image.removeEventListener('load', onLoad);
+      image.removeEventListener('error', onLoad);
+    };
+  }, [asset]);
+
+  /** Ukuran kanvas mengikuti kontainer (resize + fullscreen). */
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    const measure = () => {
+      const rect = wrap.getBoundingClientRect();
+      setSize({ w: rect.width, h: rect.height });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(wrap);
+    return () => observer.disconnect();
   }, []);
+
+  const layout = useMemo(() => {
+    if (!size) return null;
+    const fit = Math.min((size.w * 0.94) / asset.width, (size.h * 0.94) / asset.height);
+    const scale = fit * zoom;
+    return {
+      cx: size.w / 2 + pan.x,
+      cy: size.h / 2 + pan.y,
+      w: asset.width * scale,
+      h: asset.height * scale,
+    };
+  }, [asset, size, zoom, pan]);
+
+  const clampPan = useCallback(
+    (next: { x: number; y: number }) => {
+      if (!layout) return next;
+      const maxX = Math.max(0, (layout.w - (size?.w ?? 0)) / 2 + PAN_MARGIN);
+      const maxY = Math.max(0, (layout.h - (size?.h ?? 0)) / 2 + PAN_MARGIN);
+      return { x: Math.min(maxX, Math.max(-maxX, next.x)), y: Math.min(maxY, Math.max(-maxY, next.y)) };
+    },
+    [layout, size],
+  );
+
+  /** Render aset ke kanvas (DPR-aware) — bukan <img> konvensional. */
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const image = imageRef.current;
+    if (!canvas || !image || !layout || !size) return;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(size.w * dpr);
+    canvas.height = Math.round(size.h * dpr);
+    canvas.style.width = `${size.w}px`;
+    canvas.style.height = `${size.h}px`;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, size.w, size.h);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(image, layout.cx - layout.w / 2, layout.cy - layout.h / 2, layout.w, layout.h);
+  }, [layout, size, imageReady]);
+
+  const resetView = useCallback(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }, []);
+
+  const zoomBy = useCallback((factor: number) => {
+    setZoom((current) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, current * factor)));
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
+    } else {
+      void section.requestFullscreen?.().catch(() => {
+        // Browser menolak (mis. iframe tanpa allow) — viewer tetap dipakai inline.
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', onChange);
+    return () => document.removeEventListener('fullscreenchange', onChange);
+  }, []);
+
+  /** Ganti sistem → tampakan yang tidak tersedia kembali ke anterior. */
+  const selectSystem = (next: AnatomySystemKey) => {
+    setSystem(next);
+    const entry = ANATOMY_SYSTEMS.find((item) => item.key === next);
+    if (view === 'posterior' && !entry?.posterior) setView('anterior');
+  };
+
+  const distance = (a: { x: number; y: number }, b: { x: number; y: number }) =>
+    Math.hypot(a.x - b.x, a.y - b.y);
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    const target = event.target as Element;
+    if (target.closest('[data-stage-hotspot]') || target.closest('[data-stage-popover]')) return;
+    pointersRef.current.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    movedRef.current = 0;
+    const count = pointersRef.current.size;
+    if (count === 1) {
+      panStartRef.current = { x: event.clientX, y: event.clientY, ox: pan.x, oy: pan.y };
+    } else if (count === 2) {
+      const [first, second] = Array.from(pointersRef.current.values());
+      pinchStartRef.current = {
+        dist: Math.max(1, distance(first, second)),
+        zoom,
+        midX: (first.x + second.x) / 2,
+        midY: (first.y + second.y) / 2,
+        panX: pan.x,
+        panY: pan.y,
+      };
+      panStartRef.current = null;
+    }
+    setDragging(true);
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Pointer sudah tidak aktif — pan tetap berjalan lewat ref.
+    }
+  };
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    const pointers = pointersRef.current;
+    const previous = pointers.get(event.pointerId);
+    if (!previous) return;
+    movedRef.current += Math.hypot(event.clientX - previous.x, event.clientY - previous.y);
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+    if (pointers.size === 2 && pinchStartRef.current) {
+      const [first, second] = Array.from(pointers.values());
+      const dist = Math.max(1, distance(first, second));
+      const midX = (first.x + second.x) / 2;
+      const midY = (first.y + second.y) / 2;
+      const start = pinchStartRef.current;
+      setZoom(Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, (start.zoom * dist) / start.dist)));
+      setPan(
+        clampPan({
+          x: start.panX + (midX - start.midX),
+          y: start.panY + (midY - start.midY),
+        }),
+      );
+      return;
+    }
+    if (pointers.size === 1 && panStartRef.current) {
+      const start = panStartRef.current;
+      setPan(clampPan({ x: start.ox + (event.clientX - start.x), y: start.oy + (event.clientY - start.y) }));
+    }
+  };
+
+  const endPointer = (event: React.PointerEvent<HTMLDivElement>) => {
+    const pointers = pointersRef.current;
+    const hadPointer = pointers.has(event.pointerId);
+    pointers.delete(event.pointerId);
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    if (pointers.size === 1) {
+      const [only] = Array.from(pointers.values());
+      if (only) panStartRef.current = { x: only.x, y: only.y, ox: pan.x, oy: pan.y };
+      pinchStartRef.current = null;
+    }
+    if (pointers.size === 0) {
+      pinchStartRef.current = null;
+      panStartRef.current = null;
+      setDragging(false);
+      // Ketukan singkat di latar (bukan penanda) menutup popover.
+      if (hadPointer && movedRef.current < 6) selectMarker(null);
+    }
+  };
 
   /**
    * Klem posisi popover + gambarkan garis penunjuk (pin → kartu) langsung ke
    * DOM di useLayoutEffect — sebelum paint, tanpa re-render — sehingga popover
    * tidak pernah terpotong dan garis otomatis "menunjuk" di semua level zoom.
-   * Garis dianimasikan menggambar dirinya (stroke-dashoffset) hanya saat area
-   * baru dipilih; menghormati prefers-reduced-motion.
    */
   useLayoutEffect(() => {
     const section = sectionRef.current;
@@ -169,88 +411,47 @@ export function TherapyAnatomyStage({
         }
       }
     }
-  }, [activeMarker, activeId, scale, offset]);
+  }, [activeMarker, activeId, zoom, pan, size, isFullscreen]);
 
-  const handleStagePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    const target = event.target as Element;
-    if (target.closest('[data-stage-hotspot]') || target.closest('[data-stage-popover]')) return;
-    dragRef.current = { startX: event.clientX, startY: event.clientY, originX: offset.x, originY: offset.y };
-    setDragging(true);
-    try {
-      event.currentTarget.setPointerCapture(event.pointerId);
-    } catch {
-      // Pointer sudah tidak aktif — pan tetap berjalan lewat dragRef.
-    }
-    setActiveId(null);
-  };
-
-  const handleStagePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    const drag = dragRef.current;
-    if (!drag) return;
-    setOffset({ x: drag.originX + (event.clientX - drag.startX), y: drag.originY + (event.clientY - drag.startY) });
-  };
-
-  const endDrag = (event: React.PointerEvent<HTMLDivElement>) => {
-    dragRef.current = null;
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    setDragging(false);
-  };
-
-  /** Kompensasi zoom: penanda selalu ukuran asli di layar. */
-  const inverseScale = 1 / scale;
+  const cursorClass = dragging ? 'cursor-grabbing' : 'cursor-grab';
 
   return (
     <section
       ref={sectionRef}
-      aria-label="Peta kondisi tubuh"
-      className="relative min-h-[560px] overflow-hidden rounded-[28px] border border-border bg-gradient-to-b from-[#F8FAFC] to-[#EEF2F6] shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:min-h-[640px]"
+      aria-label="Atlas anatomi interaktif"
+      onContextMenu={(event) => event.preventDefault()}
+      className={cn(
+        'relative overflow-hidden rounded-[28px] border border-border bg-gradient-to-b from-[#F8FAFC] to-[#EEF2F6] shadow-[0_1px_2px_rgba(28,25,23,0.04)]',
+        isFullscreen ? 'h-screen w-screen rounded-none' : 'min-h-[560px] sm:min-h-[640px]',
+      )}
     >
-      {/* ── lantai grid perspektif ── */}
+      {/* ── kanvas: gambar di-render Canvas 2D, drag = pan, pinch = zoom ── */}
       <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-56"
-        style={{
-          backgroundImage:
-            'repeating-linear-gradient(to right, rgba(100,116,139,0.16) 0 1px, transparent 1px 44px), repeating-linear-gradient(to top, rgba(100,116,139,0.16) 0 1px, transparent 1px 36px)',
-          maskImage: 'linear-gradient(to top, black 0%, transparent 85%)',
-          WebkitMaskImage: 'linear-gradient(to top, black 0%, transparent 85%)',
+        ref={wrapRef}
+        className={cn('absolute inset-0 select-none', cursorClass)}
+        style={{ touchAction: zoom > 1 ? 'none' : 'pan-y' }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endPointer}
+        onPointerCancel={endPointer}
+        onWheel={(event) => {
+          // Pinch trackpad (ctrl+wheel) = zoom; scroll biasa tetap menggulir halaman.
+          if (!event.ctrlKey && !event.metaKey) return;
+          event.preventDefault();
+          zoomBy(event.deltaY < 0 ? 1.08 : 1 / 1.08);
         }}
-      />
-
-      {/* ── kanvas anatomi (hanya gambar yang zoom) ── */}
-      <div
-        className={cn(
-          'absolute inset-0 select-none touch-none',
-          pointerMode ? 'cursor-crosshair' : dragging ? 'cursor-grabbing' : 'cursor-grab',
-        )}
-        onPointerDown={handleStagePointerDown}
-        onPointerMove={handleStagePointerMove}
-        onPointerUp={endDrag}
-        onPointerCancel={endDrag}
       >
-        <div
-          className="absolute left-1/2 top-1/2 w-[min(80%,310px)] sm:w-[min(52%,360px)]"
-          style={{
-            transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px)) scale(${scale})`,
-            transition: dragging ? 'none' : 'transform 200ms cubic-bezier(0.2, 0, 0, 1)',
-          }}
-        >
-          <div className="relative aspect-[1044/1507] w-full">
-            <Image
-              src={ANATOMY_SRC}
-              alt="Anatomi tubuh manusia tampak depan"
-              width={ANATOMY_WIDTH}
-              height={ANATOMY_HEIGHT}
-              priority
-              draggable={false}
-              className="h-full w-full object-contain"
-            />
+        <canvas
+          ref={canvasRef}
+          role="img"
+          aria-label={`Atlas anatomi — ${systemEntry?.label ?? 'otot'} tampak ${view === 'anterior' ? 'depan' : 'belakang'}`}
+          className="block h-full w-full"
+        />
 
-            {/* ── penanda area keluhan (posisi terkalibrasi, tidak ikut zoom) ── */}
-            {markers.map((marker) => {
-              const position = regionPosition(marker);
+        {/* ── penanda area keluhan: tombol DOM, ukuran konstan di semua zoom ── */}
+        {layout
+          ? markers.map((marker) => {
+              const position = markerPosition(asset.id, marker.key, marker.side);
               const label = regionLabel(marker);
               const isActive = activeId === markerId(marker);
               return (
@@ -261,16 +462,17 @@ export function TherapyAnatomyStage({
                   data-hotspot-id={markerId(marker)}
                   aria-label={`Area keluhan: ${label}`}
                   aria-expanded={isActive}
+                  title={label}
                   onPointerDown={(event) => event.stopPropagation()}
                   onClick={(event) => {
                     event.stopPropagation();
-                    if (!pointerMode) setActiveId(isActive ? null : markerId(marker));
+                    selectMarker(isActive ? null : markerId(marker));
                   }}
-                  className="absolute cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FACC15]/50"
+                  className="absolute z-10 cursor-pointer rounded-full focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FACC15]/50"
                   style={{
-                    left: `${position.x}%`,
-                    top: `${position.y}%`,
-                    transform: `translate(-50%, -50%) scale(${inverseScale})`,
+                    left: layout.cx - layout.w / 2 + (position.x / 100) * layout.w,
+                    top: layout.cy - layout.h / 2 + (position.y / 100) * layout.h,
+                    transform: 'translate(-50%, -50%)',
                   }}
                 >
                   <span className="relative flex h-5 w-5 items-center justify-center">
@@ -292,9 +494,8 @@ export function TherapyAnatomyStage({
                   </span>
                 </button>
               );
-            })}
-          </div>
-        </div>
+            })
+          : null}
       </div>
 
       {/* ── garis penunjuk pin → kartu (animasi menggambar dirinya) ── */}
@@ -342,7 +543,7 @@ export function TherapyAnatomyStage({
               <button
                 type="button"
                 aria-label="Tutup detail"
-                onClick={() => setActiveId(null)}
+                onClick={() => selectMarker(null)}
                 className="tap-target flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
               >
                 <X className="h-3.5 w-3.5" />
@@ -372,7 +573,7 @@ export function TherapyAnatomyStage({
               type="button"
               onClick={() => {
                 onRegionSelect?.(activeMarker);
-                setActiveId(null);
+                selectMarker(null);
               }}
               className="mt-2.5 inline-flex h-11 w-full cursor-pointer items-center justify-center rounded-full bg-[var(--hafta-950)] px-3 text-xs font-semibold text-white transition-colors hover:bg-[var(--hafta-900)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
             >
@@ -411,11 +612,71 @@ export function TherapyAnatomyStage({
         </div>
       ) : null}
 
+      {/* ── pemilih sistem anatomi + tampakan ── */}
+      <div className="absolute right-4 top-4 flex max-w-[60%] flex-col items-end gap-1.5">
+        <div
+          role="group"
+          aria-label="Sistem anatomi"
+          className="flex flex-wrap justify-end gap-0.5 rounded-full border border-slate-200/80 bg-white/90 p-0.5 shadow-sm backdrop-blur"
+        >
+          {ANATOMY_SYSTEMS.map((item) => (
+            <button
+              key={item.key}
+              type="button"
+              aria-pressed={system === item.key}
+              title={item.anterior.label}
+              onClick={() => selectSystem(item.key)}
+              className={cn(
+                'tap-target min-h-8 cursor-pointer rounded-full px-2.5 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
+                system === item.key
+                  ? 'bg-[var(--hafta-950)] text-white'
+                  : 'text-muted-foreground hover:bg-slate-100 hover:text-foreground',
+              )}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
+        <div
+          role="group"
+          aria-label="Tampakan anatomi"
+          className="flex gap-0.5 rounded-full border border-slate-200/80 bg-white/90 p-0.5 shadow-sm backdrop-blur"
+        >
+          {(
+            [
+              { key: 'anterior', label: 'Depan' },
+              { key: 'posterior', label: 'Belakang' },
+            ] as const
+          ).map((item) => {
+            const disabled = item.key === 'posterior' && !systemEntry?.posterior;
+            return (
+              <button
+                key={item.key}
+                type="button"
+                disabled={disabled}
+                aria-pressed={view === item.key}
+                title={disabled ? 'Tampakan belakang tidak tersedia untuk sistem ini' : `Tampak ${item.label.toLowerCase()}`}
+                onClick={() => setView(item.key)}
+                className={cn(
+                  'tap-target min-h-8 cursor-pointer rounded-full px-2.5 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
+                  view === item.key
+                    ? 'bg-[var(--hafta-950)] text-white'
+                    : 'text-muted-foreground hover:bg-slate-100 hover:text-foreground',
+                )}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* ── kontrol kanvas ── */}
       <div className="absolute bottom-4 right-4 flex flex-col gap-1 rounded-full border border-slate-200/80 bg-white/90 p-1 shadow-sm backdrop-blur">
         <button
           type="button"
           aria-label="Reset tampilan"
+          title="Reset tampilan"
           onClick={resetView}
           className="tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-slate-100 hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
         >
@@ -423,20 +684,9 @@ export function TherapyAnatomyStage({
         </button>
         <button
           type="button"
-          aria-label="Mode pointer pilih"
-          aria-pressed={pointerMode}
-          onClick={() => setPointerMode((mode) => !mode)}
-          className={cn(
-            'tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
-            pointerMode ? 'bg-[#111827] text-white' : 'text-muted-foreground hover:bg-slate-100 hover:text-foreground',
-          )}
-        >
-          <MousePointer2 className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
           aria-label="Perbesar"
-          onClick={zoomIn}
+          title="Perbesar"
+          onClick={() => zoomBy(ZOOM_STEP)}
           className="tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-slate-100 hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
         >
           <ZoomIn className="h-4 w-4" />
@@ -444,10 +694,22 @@ export function TherapyAnatomyStage({
         <button
           type="button"
           aria-label="Perkecil"
-          onClick={zoomOut}
-          className="tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-slate-100 hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+          title="Perkecil"
+          onClick={() => zoomBy(1 / ZOOM_STEP)}
+          disabled={zoom <= ZOOM_MIN}
+          className="tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-slate-100 hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ZoomOut className="h-4 w-4" />
+        </button>
+        <button
+          type="button"
+          aria-label={isFullscreen ? 'Keluar layar penuh' : 'Layar penuh'}
+          title={isFullscreen ? 'Keluar layar penuh' : 'Layar penuh'}
+          aria-pressed={isFullscreen}
+          onClick={toggleFullscreen}
+          className="tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-slate-100 hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+        >
+          {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
         </button>
       </div>
     </section>
@@ -456,13 +718,6 @@ export function TherapyAnatomyStage({
 
 function markerId(marker: DetectedRegion): string {
   return `${marker.key}:${marker.side ?? '-'}`;
-}
-
-/** Posisi x mengikuti sisi keluhan: kiri pasien = kanan gambar (tampilan depan). */
-function regionPosition(marker: DetectedRegion): { x: number; y: number } {
-  const position = BODY_REGION_IMAGE_POSITIONS[marker.key];
-  const x = marker.side === 'kiri' && position.altX !== undefined ? position.altX : position.x;
-  return { x, y: position.y };
 }
 
 function regionLabel(marker: DetectedRegion): string {

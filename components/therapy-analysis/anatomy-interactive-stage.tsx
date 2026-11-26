@@ -6,9 +6,9 @@ import { MousePointer2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { BMI_RANGES, THERAPY_POINTS } from './data';
 
-const ANATOMY_SRC = '/assets/anatomy-front.png';
-const ANATOMY_WIDTH = 1044;
-const ANATOMY_HEIGHT = 1507;
+const ANATOMY_SRC = '/assets/body-anatomy/muscular-anterior.webp';
+const ANATOMY_WIDTH = 841;
+const ANATOMY_HEIGHT = 1510;
 
 const ZOOM_MIN = 0.8;
 const ZOOM_MAX = 2.2;
@@ -109,7 +109,7 @@ export function AnatomyInteractiveStage() {
             transition: dragging ? 'none' : 'transform 200ms cubic-bezier(0.2, 0, 0, 1)',
           }}
         >
-          <div className="relative aspect-[1044/1507] w-full">
+          <div className="relative aspect-[841/1510] w-full">
             <Image
               src={ANATOMY_SRC}
               alt="Anatomi tubuh manusia tampak depan"
