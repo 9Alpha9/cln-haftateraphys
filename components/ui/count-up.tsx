@@ -14,7 +14,7 @@ import { useEffect, useRef } from 'react';
 export function CountUp({
   value,
   decimals = 0,
-  duration = 900,
+  duration = 1600,
   className,
 }: {
   value: number;
@@ -38,13 +38,19 @@ export function CountUp({
       return;
     }
 
+    // Tampilkan 0 lebih dulu supaya animasi selalu terlihat sejak frame pertama,
+    // walaupun hidrasi terjadi sangat cepat.
+    element.textContent = format(0);
+
     let frame = 0;
-    const startedAt = performance.now();
+    let startedAt: number | null = null;
 
     const tick = (now: number) => {
+      if (startedAt === null) startedAt = now;
       const progress = Math.min(1, (now - startedAt) / duration);
-      // easeOutCubic: cepat di awal, melambat menjelang nilai akhir.
-      const eased = 1 - Math.pow(1 - progress, 3);
+      // easeOutQuad: tetap terlihat "berjalan" sampai akhir, tidak melompat
+      // langsung ke nilai akhir seperti easeOutCubic.
+      const eased = 1 - Math.pow(1 - progress, 2);
       element.textContent = format(target * eased);
       if (progress < 1) {
         frame = requestAnimationFrame(tick);
