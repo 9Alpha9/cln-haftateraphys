@@ -140,6 +140,10 @@ export default async function ProgressPage({
 
   return (
     <div className="space-y-4 pb-6 sm:space-y-5">
+      {/* Preload aset atlas utama agar browser mengambilnya sejak awal (paralel
+          dengan streaming halaman), sehingga skeleton atlas tidak tertinggal
+          jauh di belakang section lain pada koneksi lambat. */}
+      <link rel="preload" as="image" href="/assets/body-anatomy/muscular-anterior.webp" />
       <Suspense fallback={<RouteSkeleton variant="progress" />}>
         <ProgressPageContent
           isPatient={isPatient}
