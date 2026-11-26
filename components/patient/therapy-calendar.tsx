@@ -123,9 +123,9 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
         </div>
       </div>
 
-      <div className="mt-2 grid grid-cols-7 gap-1 text-center">
+      <div className="mt-3 grid grid-cols-7 gap-1 text-center">
         {WEEKDAY_LABELS.map((label) => (
-          <span key={label} className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <span key={label} className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/80">
             {label}
           </span>
         ))}
@@ -155,7 +155,7 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
               }
               aria-pressed={isSelected}
               className={cn(
-                'tap-target relative flex h-10 cursor-pointer flex-col items-center justify-center rounded-lg text-[12.5px] tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 sm:h-11',
+                'tap-target relative flex h-10 cursor-pointer flex-col items-center justify-center rounded-lg text-xs tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 sm:h-9',
                 // Tanggal di luar bulan: teks redup saja — latar abu-abu membuat kalender berisik.
                 !cell.inMonth && 'text-stone-400',
                 hasTherapy
@@ -180,53 +180,33 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
         })}
       </div>
 
-      <div className="mt-3 border-t border-border/70 pt-3">
+      <div className="mt-3 space-y-1.5 border-t border-border/70 pt-2.5">
         {selectedDate ? (
           selectedEntries.length > 0 ? (
-            <div className="space-y-2">
-              <p className="text-[11px] font-medium text-muted-foreground">
-                {selectedDate.toLocaleDateString('id-ID', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })}
-              </p>
-              {selectedEntries.map((entry) => (
-                <button
-                  key={entry.id}
-                  type="button"
-                  onClick={() => onSelectRecord(entry.id)}
-                  className="flex w-full cursor-pointer items-center gap-3 rounded-xl hafta-tint px-3 py-2 text-left transition-colors hover:bg-[var(--hafta-100)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-                >
-                  <span className="min-w-0 flex-1 text-[12px] leading-relaxed text-foreground">
-                    Nyeri <span className="font-semibold tabular-nums">{entry.painScore ?? '-'}/10</span>
-                    <span className="mx-1.5 text-muted-foreground">·</span>
-                    ROM{' '}
-                    <span className="font-semibold tabular-nums">
-                      {entry.rangeOfMotionScore != null ? `${entry.rangeOfMotionScore * 10}%` : '-'}
-                    </span>
+            selectedEntries.map((entry) => (
+              <button
+                key={entry.id}
+                type="button"
+                onClick={() => onSelectRecord(entry.id)}
+                className="tap-target flex w-full cursor-pointer items-center gap-3 rounded-xl hafta-tint px-3 py-2 text-left transition-colors hover:bg-[var(--hafta-100)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+              >
+                <span className="min-w-0 flex-1 text-xs leading-relaxed text-foreground">
+                  Nyeri <span className="font-semibold tabular-nums">{entry.painScore ?? '-'}/10</span>
+                  <span className="mx-1.5 text-muted-foreground">·</span>
+                  ROM{' '}
+                  <span className="font-semibold tabular-nums">
+                    {entry.rangeOfMotionScore != null ? `${entry.rangeOfMotionScore * 10}%` : '-'}
                   </span>
-                  <span className="shrink-0 text-[11px] font-semibold text-[var(--hafta-700)]">Lihat</span>
-                  <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                </button>
-              ))}
-            </div>
+                </span>
+                <span className="shrink-0 text-xs font-semibold text-[var(--hafta-700)]">Lihat</span>
+                <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              </button>
+            ))
           ) : (
-            <div className="space-y-1">
-              <p className="text-[11px] font-medium text-muted-foreground">
-                {selectedDate.toLocaleDateString('id-ID', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })}
-              </p>
-              <p className="text-[12px] text-muted-foreground">Tidak ada terapi pada tanggal ini.</p>
-            </div>
+            <p className="text-xs text-muted-foreground">Tidak ada terapi pada tanggal ini.</p>
           )
         ) : (
-          <p className="text-[12px] text-muted-foreground">Ketuk tanggal mana pun untuk melihat progres hari itu.</p>
+          <p className="text-xs text-muted-foreground">Ketuk tanggal untuk melihat progres hari itu.</p>
         )}
       </div>
     </div>

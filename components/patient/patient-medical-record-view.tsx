@@ -223,7 +223,7 @@ type TherapySession = {
   amendments: TherapyProgressView[];
 };
 
-function ChartBadge({
+function PainDot({
   cx,
   cy,
   payload,
@@ -236,42 +236,18 @@ function ChartBadge({
   onSelect?: (sesi: number) => void;
   lastSesi?: number;
 }) {
-  if (typeof cx !== 'number' || typeof cy !== 'number' || !payload) return null;
-  const isLast = typeof lastSesi === 'number' && payload.sesi === lastSesi;
-  // Label nilai hanya di sesi pertama & terakhir agar grafik tidak penuh label.
-  const showLabel = payload.sesi === 1 || isLast;
+  if (typeof cx !== 'number' || typeof cy !== 'number') return null;
+  const isLast = typeof lastSesi === 'number' && payload?.sesi === lastSesi;
   return (
     <g
-      data-chart-dot={payload.sesi}
-      onClick={() => onSelect?.(payload.sesi)}
+      data-chart-dot={payload?.sesi ?? 0}
+      onClick={() => onSelect?.(payload?.sesi ?? 0)}
       style={onSelect ? { cursor: 'pointer' } : undefined}
     >
       {/* area sentuh lebih besar agar mudah diklik di layar sentuh */}
       <circle cx={cx} cy={cy} r={14} fill="transparent" />
-      {isLast ? <circle cx={cx} cy={cy} r={9} fill="var(--hafta-300)" opacity={0.25} /> : null}
+      {isLast ? <circle cx={cx} cy={cy} r={9} fill="var(--hafta-300)" opacity={0.22} /> : null}
       <circle cx={cx} cy={cy} r={4.5} fill="#fff" stroke="var(--hafta-400)" strokeWidth={2} />
-      {showLabel ? (
-        <g transform={`translate(${cx - 16}, ${cy - 30})`}>
-          <rect
-            width={32}
-            height={18}
-            rx={9}
-            fill={isLast ? 'var(--hafta-900)' : '#fff'}
-            stroke={isLast ? 'var(--hafta-900)' : 'var(--hafta-border)'}
-            strokeWidth={1}
-          />
-          <text
-            x={16}
-            y={12.5}
-            textAnchor="middle"
-            fontSize={10}
-            fontWeight={600}
-            fill={isLast ? 'var(--hafta-50)' : 'var(--hafta-800)'}
-          >
-            {payload.pain}/10
-          </text>
-        </g>
-      ) : null}
     </g>
   );
 }
@@ -410,7 +386,9 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
 
   return (
     <div
-      className="h-[200px] w-full sm:h-[230px]"
+      className="h-[170px] w-full sm:h-[190px]"
+      role="group"
+      aria-label="Grafik pemulihan: skor nyeri dan rentang gerak per sesi. Ketuk titik untuk membuka sesi."
       onClick={handleSurfaceClick}
       style={{
         cursor: onSelectSession ? 'pointer' : undefined,
@@ -418,7 +396,7 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
       }}
     >
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 28, right: 8, bottom: 8, left: -18 }}>
+        <LineChart data={data} margin={{ top: 18, right: 8, bottom: 4, left: -18 }}>
           <CartesianGrid vertical={false} stroke="var(--hafta-100)" strokeDasharray="4 6" />
           <YAxis yAxisId="pain" domain={[0, 10]} tickLine={false} axisLine={false} tick={false} />
           <YAxis yAxisId="rom" orientation="right" domain={[0, 100]} tickLine={false} axisLine={false} tick={false} />
@@ -451,8 +429,8 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
             dataKey="pain"
             stroke="var(--hafta-400)"
             strokeWidth={2.5}
-            dot={<ChartBadge onSelect={onSelectSession} lastSesi={data.length} />}
-            activeDot={<ChartBadge onSelect={onSelectSession} lastSesi={data.length} />}
+            dot={<PainDot onSelect={onSelectSession} lastSesi={data.length} />}
+            activeDot={<PainDot onSelect={onSelectSession} lastSesi={data.length} />}
             isAnimationActive={false}
           />
         </LineChart>
@@ -1308,13 +1286,13 @@ export function PatientMedicalRecordView({
               </div>
 
               {/* catatan klinis — baris hairline */}
-              <dl className="mt-4 divide-y divide-border/70 border-t border-border/70">
+              <dl className="mt-3 divide-y divide-border/70">
                 {CLINICAL_ROWS.map((row) => {
                   const value = selectedRecord[row.field];
                   return (
                     <div
                       key={row.field}
-                      className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6"
+                      className="grid gap-0.5 py-2 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6"
                     >
                       <dt className="text-xs font-medium text-muted-foreground sm:pt-px">{row.label}</dt>
                       <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
@@ -1331,26 +1309,26 @@ export function PatientMedicalRecordView({
 
               {/* rencana terapi — hanya bila ada */}
               {treatmentPlan ? (
-                <div className="mt-4 border-t border-border/70 pt-3">
+                <div className="mt-3 border-t border-border/70 pt-3">
                   <h3 className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                     <ClipboardList className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
                     Rencana Terapi
                   </h3>
                   <dl className="mt-1 divide-y divide-border/70">
-                    <div className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6">
+                    <div className="grid gap-0.5 py-2 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6">
                       <dt className="text-xs font-medium text-muted-foreground sm:pt-px">Tujuan</dt>
                       <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                         {treatmentPlan.goals}
                       </dd>
                     </div>
-                    <div className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6">
+                    <div className="grid gap-0.5 py-2 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6">
                       <dt className="text-xs font-medium text-muted-foreground sm:pt-px">Intervensi</dt>
                       <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                         {treatmentPlan.interventions}
                       </dd>
                     </div>
                     {treatmentPlan.precautions ? (
-                      <div className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6">
+                      <div className="grid gap-0.5 py-2 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6">
                         <dt className="text-xs font-medium text-muted-foreground sm:pt-px">Perhatian</dt>
                         <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                           {treatmentPlan.precautions}
@@ -1363,7 +1341,7 @@ export function PatientMedicalRecordView({
 
               {/* program latihan — compact, detail di modal */}
               {homeProgram && homeProgram.items.length > 0 ? (
-                <div className="mt-4 border-t border-border/70 pt-3">
+                <div className="mt-3 border-t border-border/70 pt-3">
                   <button
                     type="button"
                     onClick={() => setProgramOpen(true)}
@@ -1879,7 +1857,7 @@ export function PatientMedicalRecordView({
                 return (
                   <div
                     key={row.field}
-                    className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6"
+                    className="grid gap-0.5 py-2 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6"
                   >
                     <dt className="text-xs font-medium text-muted-foreground sm:pt-px">{row.label}</dt>
                     <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
