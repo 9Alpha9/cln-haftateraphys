@@ -13,6 +13,13 @@ import {
   ZoomOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { SkeletonBlock } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { LifelineLoader } from '@/components/animate-ui/lifeline-loader';
 import { REGION_POINTS, type DetectedRegion } from '@/components/patient/body-condition-map';
@@ -681,28 +688,28 @@ export function TherapyAnatomyStage({
 
       {/* ── pemilih sistem + tampakan: SATU baris compact untuk kanvas sempit ── */}
       <div className="absolute bottom-4 left-4 flex items-center gap-1.5">
-        <div className="relative rounded-full border border-slate-200/70 bg-white/60 shadow-sm backdrop-blur-md">
-          <Layers
-            aria-hidden="true"
-            className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
-          />
-          <select
-            aria-label="Sistem anatomi"
-            value={system}
-            onChange={(event) => selectSystem(event.target.value as AnatomySystemKey)}
-            className="tap-target h-8 cursor-pointer appearance-none rounded-full bg-transparent pl-7 pr-6 text-[11px] font-semibold text-foreground outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-          >
-            {ANATOMY_SYSTEMS.map((item) => (
-              <option key={item.key} value={item.key}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown
-            aria-hidden="true"
-            className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground"
-          />
-        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              aria-label={`Sistem anatomi: ${systemEntry?.label ?? ''}`}
+              className="tap-target inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-full border border-slate-200/70 bg-white/60 pl-2 pr-2 text-[11px] font-semibold text-foreground shadow-sm backdrop-blur-md transition-colors hover:bg-white/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 data-[state=open]:bg-white/90"
+            >
+              <Layers aria-hidden="true" className="h-3.5 w-3.5 text-muted-foreground" />
+              {systemEntry?.label ?? 'Sistem'}
+              <ChevronDown aria-hidden="true" className="h-3 w-3 text-muted-foreground" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="top" align="start" sideOffset={6} className="min-w-[136px]">
+            <DropdownMenuRadioGroup value={system} onValueChange={(value) => selectSystem(value as AnatomySystemKey)}>
+              {ANATOMY_SYSTEMS.map((item) => (
+                <DropdownMenuRadioItem key={item.key} value={item.key} className="text-[11px] font-semibold">
+                  {item.label}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <button
           type="button"
           disabled={!systemEntry?.posterior}
