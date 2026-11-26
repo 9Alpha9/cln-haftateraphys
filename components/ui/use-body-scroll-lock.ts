@@ -80,15 +80,24 @@ function acquireScrollLock() {
 
   html.style.overflow = 'hidden';
   html.style.overscrollBehavior = 'none';
-  body.style.overflow = 'hidden';
-  body.style.overscrollBehavior = 'none';
 
   if (usesFixedPosition) {
+    // Mode fixed (mobile): JANGAN memberi body `overflow: hidden`. Body yang
+    // menjadi scroll-container membuat header sticky shell menempel ke TOP
+    // body yang digeser `-scrollY` — akibatnya topnav "menghilang" saat
+    // drawer terbuka. Tanpa overflow di body, scroll container terdekat
+    // adalah html, sehingga `sticky top-0` tetap menempel ke viewport.
+    // Bocor scroll iOS tetap terkunci karena body sudah position: fixed.
     body.style.position = 'fixed';
     body.style.top = `-${scrollY}px`;
     body.style.left = `-${scrollX}px`;
     body.style.right = '0';
     body.style.width = '100%';
+  } else {
+    // Mode desktop: cukup overflow — tidak ada position: fixed sehingga
+    // sticky header tidak terdampak.
+    body.style.overflow = 'hidden';
+    body.style.overscrollBehavior = 'none';
   }
 
   // Kompensasi lebar scrollbar supaya layout tidak bergeser saat dikunci.

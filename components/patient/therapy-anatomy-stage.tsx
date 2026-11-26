@@ -231,7 +231,7 @@ export function TherapyAnatomyStage({
         onPointerCancel={endDrag}
       >
         <div
-          className="absolute left-1/2 top-1/2 w-[min(58%,320px)] sm:w-[min(52%,360px)]"
+          className="absolute left-1/2 top-1/2 w-[min(80%,310px)] sm:w-[min(52%,360px)]"
           style={{
             transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px)) scale(${scale})`,
             transition: dragging ? 'none' : 'transform 200ms cubic-bezier(0.2, 0, 0, 1)',
@@ -306,11 +306,20 @@ export function TherapyAnatomyStage({
             y1={0}
             x2={0}
             y2={0}
-            stroke="rgba(100,116,139,0.8)"
+            stroke="#FFFFFF"
             strokeWidth={1.5}
             strokeLinecap="round"
+            style={{ filter: 'drop-shadow(0 1px 1px rgba(100,116,139,0.45))' }}
           />
-          <circle ref={dotRef} cx={0} cy={0} r={2.5} fill="rgba(100,116,139,0.9)" opacity={0} />
+          <circle
+            ref={dotRef}
+            cx={0}
+            cy={0}
+            r={2.5}
+            fill="#FFFFFF"
+            opacity={0}
+            style={{ filter: 'drop-shadow(0 1px 1px rgba(100,116,139,0.45))' }}
+          />
         </svg>
       ) : null}
 
