@@ -78,6 +78,11 @@ export function NotificationBell({
   const [count, setCount] = useState(unreadCount);
   const [pending, startTransition] = useTransition();
 
+  useEffect(() => {
+    setNotifications(initialNotifications);
+    setCount(unreadCount);
+  }, [initialNotifications, unreadCount]);
+
   const refreshNotifications = useCallback(async () => {
     try {
       const res = await fetch('/api/notifications', { cache: 'no-store' });
