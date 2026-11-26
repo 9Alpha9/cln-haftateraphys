@@ -94,6 +94,28 @@ function formatAge(dateOfBirth: Date | null) {
   return `${age} tahun`;
 }
 
+function regionThumbnail(marker: DetectedRegion): string {
+  switch (marker.key) {
+    case 'kepala':
+      return '/assets/body-anatomy/head-neck.webp';
+    case 'leher':
+      return '/assets/body-anatomy/head-neck-back.webp';
+    case 'bahu':
+    case 'lengan':
+      return marker.side === 'kanan'
+        ? '/assets/body-anatomy/right-arm.webp'
+        : '/assets/body-anatomy/left-arm.webp';
+    case 'dada':
+    case 'perut':
+    case 'punggung':
+    case 'pinggul':
+      return '/assets/body-anatomy/torso.webp';
+    case 'lutut':
+    case 'kaki':
+      return '/assets/body-anatomy/skeletal-anterior.webp';
+  }
+}
+
 export function PatientMedicalRecordView({
   patient,
   records,
@@ -364,7 +386,7 @@ export function PatientMedicalRecordView({
               key={tab.key}
               value={tab.key}
               className={cn(
-                'min-h-9 shrink-0 rounded-full px-4 text-sm font-medium transition-colors data-[state=active]:bg-card data-[state=active]:shadow-sm',
+                'min-h-9 shrink-0 cursor-pointer rounded-full px-4 text-sm font-medium transition-colors data-[state=active]:bg-card data-[state=active]:shadow-sm',
                 activeTab === tab.key ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
               )}
             >
@@ -591,7 +613,7 @@ export function PatientMedicalRecordView({
             {/* ── KOLOM KANAN (4): panel info klinis — scroll vertikal sejajar tinggi atlas ── */}
             <aside
               aria-label="Panel informasi klinis"
-              className="min-w-0 space-y-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:col-span-4 lg:max-h-[640px] lg:overflow-y-auto lg:pr-1"
+              className="min-w-0 space-y-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:col-span-4 lg:max-h-[640px] lg:overflow-y-auto lg:pb-8 lg:pr-1 lg:[mask-image:linear-gradient(to_bottom,black_0%,black_calc(100%-32px),transparent_100%)]"
             >
               {/* statistik ringkas — di dalam panel scroll kanan */}
               <div className="grid grid-cols-3 gap-2">
@@ -693,17 +715,22 @@ export function PatientMedicalRecordView({
                               setActiveMarkerId(id);
                             }}
                             className={cn(
-                              'tap-target inline-flex min-h-9 cursor-pointer items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
+                              'tap-target inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full border pl-1.5 pr-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
                               isActive
                                 ? 'border-transparent bg-[var(--hafta-950)] text-white'
                                 : 'border-border text-foreground hover:bg-accent',
                             )}
                           >
-                            <span
+                            <Image
+                              src={regionThumbnail(marker)}
+                              alt=""
                               aria-hidden="true"
+                              width={22}
+                              height={22}
                               className={cn(
-                                'h-1.5 w-1.5 shrink-0 rounded-full',
-                                isActive ? 'bg-white' : 'bg-[var(--hafta-red-500)]',
+                                'h-5.5 w-5.5 shrink-0 rounded-full object-cover',
+                                marker.key === 'lutut' || marker.key === 'kaki' ? 'object-bottom' : 'object-center',
+                                isActive ? 'bg-white/15' : 'bg-muted/50',
                               )}
                             />
                             {regionDisplayName(marker)}

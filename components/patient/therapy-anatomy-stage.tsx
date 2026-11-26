@@ -658,7 +658,7 @@ export function TherapyAnatomyStage({
 
       {/* legenda nada penanda — sinyal ganda: warna + teks */}
       {markers.length > 0 ? (
-        <div className="pointer-events-none absolute left-4 top-4 max-w-[70%] rounded-full border border-slate-200/80 bg-white/90 px-3 py-1.5 shadow-sm backdrop-blur">
+        <div className="pointer-events-none absolute left-4 top-4 max-w-[70%] rounded-full border border-slate-200/70 bg-white/70 px-3.5 py-2 shadow-sm backdrop-blur-md">
           <p className="flex flex-wrap items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
             <span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${TONE_DOT[tone]}`} />
             <span>
@@ -677,22 +677,22 @@ export function TherapyAnatomyStage({
       ) : null}
 
       {/* ── pemilih sistem + tampakan: rail vertikal kompak di sisi KIRI kanvas ── */}
-      <div className="absolute left-3 top-1/2 z-20 flex -translate-y-1/2 flex-col items-center gap-1.5">
+      <div className="absolute left-3 top-1/2 z-20 flex -translate-y-1/2 flex-col items-center gap-1 rounded-full border border-slate-200/70 bg-white/60 p-1 shadow-sm backdrop-blur-md">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
               aria-label={`Sistem anatomi: ${systemEntry?.label ?? ''}`}
               title={`Sistem anatomi: ${systemEntry?.label ?? ''}`}
-              className="tap-target inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-slate-200/70 bg-white/60 text-foreground shadow-sm backdrop-blur-md transition-colors hover:bg-white/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 data-[state=open]:bg-white/90"
+              className="tap-target inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 data-[state=open]:bg-white/90"
             >
               <Layers aria-hidden="true" className="h-3.5 w-3.5" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent side="right" align="start" sideOffset={6} className="min-w-[132px]">
+          <DropdownMenuContent side="right" align="start" sideOffset={8} className="min-w-[132px]">
             <DropdownMenuRadioGroup value={system} onValueChange={(value) => selectSystem(value as AnatomySystemKey)}>
               {ANATOMY_SYSTEMS.map((item) => (
-                <DropdownMenuRadioItem key={item.key} value={item.key} className="text-[11px] font-semibold">
+                <DropdownMenuRadioItem key={item.key} value={item.key} className="cursor-pointer text-[11px] font-semibold">
                   {item.label}
                 </DropdownMenuRadioItem>
               ))}
@@ -707,7 +707,7 @@ export function TherapyAnatomyStage({
           aria-pressed={view === 'posterior'}
           onClick={() => setView((current) => (current === 'anterior' ? 'posterior' : 'anterior'))}
           className={cn(
-            'tap-target inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border border-slate-200/70 bg-white/60 shadow-sm backdrop-blur-md transition-colors hover:bg-white/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
+            'tap-target inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
             view === 'posterior' ? 'text-foreground' : 'text-muted-foreground',
           )}
         >
