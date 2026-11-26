@@ -4,7 +4,18 @@
  * dan workspace Perjalanan Pemulihan.
  */
 
-import { Activity, HeartPulse, TrendingUp } from 'lucide-react';
+import {
+  Activity,
+  ClipboardCheck,
+  FileSearch,
+  Hand,
+  HeartPulse,
+  NotebookPen,
+  Route,
+  ScrollText,
+  TrendingUp,
+  type LucideIcon,
+} from 'lucide-react';
 import type { TherapyProgressView } from '@/server/queries/therapy-progress';
 
 export type Tone = 'good' | 'watch' | 'alert';
@@ -52,13 +63,17 @@ export const longDate = (value: Date) =>
     year: 'numeric',
   });
 
-export const CLINICAL_ROWS: { label: string; field: keyof TherapyProgressView }[] = [
-  { label: 'Anamnesis', field: 'anamnesis' },
-  { label: 'Pemeriksaan fisik', field: 'physicalExamination' },
-  { label: 'Diagnosis fisioterapi', field: 'diagnosis' },
-  { label: 'Tindakan', field: 'treatment' },
-  { label: 'Rencana tindak lanjut', field: 'followUpPlan' },
-  { label: 'Ringkasan sesi', field: 'summary' },
+export const CLINICAL_ROWS: {
+  label: string;
+  field: keyof TherapyProgressView;
+  icon: LucideIcon;
+}[] = [
+  { label: 'Anamnesis', field: 'anamnesis', icon: NotebookPen },
+  { label: 'Pemeriksaan fisik', field: 'physicalExamination', icon: ClipboardCheck },
+  { label: 'Diagnosis fisioterapi', field: 'diagnosis', icon: FileSearch },
+  { label: 'Tindakan', field: 'treatment', icon: Hand },
+  { label: 'Rencana tindak lanjut', field: 'followUpPlan', icon: Route },
+  { label: 'Ringkasan sesi', field: 'summary', icon: ScrollText },
 ];
 
 export const METRICS: {

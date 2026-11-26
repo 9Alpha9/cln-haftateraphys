@@ -2,7 +2,7 @@
 
 import { memo, useCallback, useMemo, useState } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { ChevronRight, ClipboardList, Dumbbell, TrendingUp } from 'lucide-react';
+import { ChevronRight, ClipboardList, Dumbbell, Target, TrendingUp, Wrench } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TherapyCalendar, type TherapyCalendarEntry } from '@/components/patient/therapy-calendar';
 import {
@@ -506,7 +506,10 @@ export function RecoveryWorkspace({
                   key={row.field}
                   className="grid gap-0.5 py-2 xl:grid-cols-[minmax(0,180px)_minmax(0,1fr)] xl:gap-6"
                 >
-                  <dt className="text-xs font-medium text-muted-foreground xl:pt-px">{row.label}</dt>
+                  <dt className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground xl:pt-px">
+                    <row.icon aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-[var(--hafta-300)]" />
+                    {row.label}
+                  </dt>
                   <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                     {typeof value === 'string' && value ? (
                       value
@@ -528,11 +531,17 @@ export function RecoveryWorkspace({
               </h3>
               <dl className="mt-1 divide-y divide-border/70">
                 <div className="grid gap-0.5 py-2 xl:grid-cols-[minmax(0,180px)_minmax(0,1fr)] xl:gap-6">
-                  <dt className="text-xs font-medium text-muted-foreground xl:pt-px">Tujuan</dt>
+                  <dt className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground xl:pt-px">
+                    <Target aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-[var(--hafta-300)]" />
+                    Tujuan
+                  </dt>
                   <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">{treatmentPlan.goals}</dd>
                 </div>
                 <div className="grid gap-0.5 py-2 xl:grid-cols-[minmax(0,180px)_minmax(0,1fr)] xl:gap-6">
-                  <dt className="text-xs font-medium text-muted-foreground xl:pt-px">Intervensi</dt>
+                  <dt className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground xl:pt-px">
+                    <Wrench aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-[var(--hafta-300)]" />
+                    Intervensi
+                  </dt>
                   <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                     {treatmentPlan.interventions}
                   </dd>

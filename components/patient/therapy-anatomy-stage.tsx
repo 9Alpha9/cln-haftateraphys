@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, ChevronRight, FlipHorizontal2, Layers, Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { ChevronRight, FlipHorizontal2, HeartPulse, Layers, Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AnatomySystemMenu } from '@/components/patient/anatomy-system-menu';
 import { SkeletonBlock } from '@/components/dashboard/skeletons/skeleton-primitives';
@@ -27,6 +27,12 @@ const TONE_DOT: Record<Tone, string> = {
   good: 'bg-[var(--hafta-grn-500)]',
   watch: 'bg-[var(--hafta-300)]',
   alert: 'bg-[var(--hafta-red-500)]',
+};
+
+const TONE_TEXT: Record<Tone, string> = {
+  good: 'text-[var(--hafta-grn-500)]',
+  watch: 'text-[var(--hafta-300)]',
+  alert: 'text-[var(--hafta-red-500)]',
 };
 
 const TONE_LABEL: Record<Tone, string> = {
@@ -667,7 +673,7 @@ export function TherapyAnatomyStage({
           className="absolute left-4 top-4 z-20 max-w-[75%] cursor-pointer rounded-full border border-slate-200/70 bg-white/70 px-3 py-1.5 text-left shadow-sm backdrop-blur-md transition-all hover:bg-white/90 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
         >
           <span className="flex flex-wrap items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
-            <span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${TONE_DOT[tone]}`} />
+            <HeartPulse aria-hidden="true" className={`h-3.5 w-3.5 shrink-0 ${TONE_TEXT[tone]}`} />
             {legendExpanded ? (
               <span>
                 {markers.length} area keluhan · nada nyeri sesi

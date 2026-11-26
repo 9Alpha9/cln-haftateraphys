@@ -1,8 +1,10 @@
+import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { Activity } from 'lucide-react';
 import { DashboardPageHeader } from '@/components/dashboard/dashboard-page-header';
 import { PaginationBar } from '@/components/ui/pagination-bar';
 import { NewMedicalRecordButton } from '@/components/dashboard/progress/new-medical-record-button';
+import { RouteSkeleton } from '@/components/dashboard/skeletons/route-skeletons';
 import { requireSession } from '@/lib/auth/require-session';
 import { hasPermission, PERMISSIONS } from '@/lib/permissions';
 import { getOwnMedicalRecordSummary, getScopedTherapyProgress } from '@/server/queries/therapy-progress';
@@ -12,25 +14,29 @@ import { PatientMedicalRecordView } from '@/components/patient/patient-medical-r
 import { ProgressManagementView } from '@/components/dashboard/progress/progress-management-view';
 import { getPatientSelectOptions } from '@/server/queries/patients';
 
-export default async function ProgressPage({
-  searchParams,
+/**
+ * Konten berat (query DB + view) di-render sebagai komponen async terpisah dan
+ * dibungkus <Suspense> dengan skeleton sebagai fallback. Shell halaman ter-flush
+ * lebih dulu sehingga pada koneksi lambat (mis. 3G) SKELETON tampil duluan,
+ * lalu konten nyata menggantikannya saat streaming selesai — bukan sebaliknya.
+ */
+async function ProgressPageContent({
+  isPatient,
+  canCreate,
+  page,
+  search,
+  status,
+  visible,
+  rawVisible,
 }: {
-  searchParams: Promise<{ page?: string; q?: string; status?: 'DRAFT' | 'FINALIZED' | ''; visible?: string }>;
+  isPatient: boolean;
+  canCreate: boolean;
+  page: number;
+  search: string;
+  status: '' | 'DRAFT' | 'FINALIZED';
+  visible: boolean | '';
+  rawVisible?: string;
 }) {
-  const { role } = await requireSession({ redirectToLogin: true });
-  const isPatient = role === 'USER';
-  const canRead = hasPermission(role, isPatient ? PERMISSIONS.PROGRESS_READ_OWN : PERMISSIONS.PROGRESS_READ);
-  if (!canRead) {
-    redirect('/dashboard');
-  }
-  const canCreate = hasPermission(role, PERMISSIONS.PROGRESS_READ) && !isPatient;
-
-  const params = await searchParams;
-  const page = Number(params.page) || 1;
-  const search = params.q?.trim() ?? '';
-  const status = params.status ?? '';
-  const visible = params.visible === 'true' ? true : params.visible === 'false' ? false : '';
-
   // Parallel fetching untuk menghindari waterfall
   const [
     { items: records, totalPages, currentPage },
@@ -56,13 +62,13 @@ export default async function ProgressPage({
     const p = new URLSearchParams();
     if (search) p.set('q', search);
     if (status) p.set('status', status);
-    if (params.visible) p.set('visible', params.visible);
+    if (rawVisible) p.set('visible', rawVisible);
     const query = p.toString();
     return `/dashboard/progress?${query ? `${query}&` : ''}page={page}`;
   })();
 
   return (
-    <div className="space-y-4 pb-6 sm:space-y-5">
+    <>
       {/* ── 1. GLOBAL ARCHITECTURAL NON-ROUNDED HEADER (staff only; patient gets in-module header) ── */}
       {!isPatient ? (
       <DashboardPageHeader
@@ -109,6 +115,42 @@ export default async function ProgressPage({
           ) : null}
         </>
       )}
+    </>
+  );
+}
+
+export default async function ProgressPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; q?: string; status?: 'DRAFT' | 'FINALIZED' | ''; visible?: string }>;
+}) {
+  const { role } = await requireSession({ redirectToLogin: true });
+  const isPatient = role === 'USER';
+  const canRead = hasPermission(role, isPatient ? PERMISSIONS.PROGRESS_READ_OWN : PERMISSIONS.PROGRESS_READ);
+  if (!canRead) {
+    redirect('/dashboard');
+  }
+  const canCreate = hasPermission(role, PERMISSIONS.PROGRESS_READ) && !isPatient;
+
+  const params = await searchParams;
+  const page = Number(params.page) || 1;
+  const search = params.q?.trim() ?? '';
+  const status = params.status ?? '';
+  const visible = params.visible === 'true' ? true : params.visible === 'false' ? false : '';
+
+  return (
+    <div className="space-y-4 pb-6 sm:space-y-5">
+      <Suspense fallback={<RouteSkeleton variant="progress" />}>
+        <ProgressPageContent
+          isPatient={isPatient}
+          canCreate={canCreate}
+          page={page}
+          search={search}
+          status={status}
+          visible={visible}
+          rawVisible={params.visible}
+        />
+      </Suspense>
     </div>
   );
 }

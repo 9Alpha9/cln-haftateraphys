@@ -357,7 +357,7 @@ export function PatientMedicalRecordView({
               value={tab.key}
               className={cn(
                 'min-h-9 shrink-0 cursor-pointer rounded-full px-4 text-[13px] font-medium transition-colors data-[state=active]:bg-hafta-org-400',
-                activeTab === tab.key ? 'text-white' : 'text-muted-foreground hover:text-foreground',
+                activeTab === tab.key ? 'text-white' : 'text-stone-600 hover:text-foreground',
               )}
             >
               {tab.label}
@@ -517,8 +517,9 @@ export function PatientMedicalRecordView({
                     </div>
                     <Link
                       href="/dashboard/appointments"
-                      className={cn(buttonVariants({ variant: 'outline', size: 'xs' }), 'shrink-0')}
+                      className={cn(buttonVariants({ variant: 'outline', size: 'xs' }), 'shrink-0 gap-1.5')}
                     >
+                      <CalendarDays aria-hidden="true" className="h-3.5 w-3.5" />
                       Lihat Jadwal
                     </Link>
                   </div>
@@ -1343,7 +1344,10 @@ export function PatientMedicalRecordView({
                     key={row.field}
                     className="grid gap-0.5 py-2 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6"
                   >
-                    <dt className="text-xs font-medium text-muted-foreground sm:pt-px">{row.label}</dt>
+                    <dt className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground sm:pt-px">
+                      <row.icon aria-hidden="true" className="h-3.5 w-3.5 shrink-0 text-[var(--hafta-300)]" />
+                      {row.label}
+                    </dt>
                     <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                       {typeof value === 'string' && value ? (
                         value

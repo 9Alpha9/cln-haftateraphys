@@ -7,6 +7,13 @@ import { motion } from 'motion/react';
 // garis tidak terpotong oleh mask (overflow-hidden) container.
 const LIFELINE_PATH = 'M10 30 H50 l7 0 6 -16 8 32 8 -26 7 10 H190';
 const CYCLE_SECONDS = 2.1;
+/**
+ * Porsi siklus untuk menggambar garis. Sisa (1 - DRAW_FRACTION) dipakai untuk
+ * sapuan keluar cepat, sehingga jejak detak berikutnya segera menyusul tanpa
+ * jeda mati yang panjang. Titik denyut berhenti di titik yang sama sehingga
+ * ujung garis dan titik selalu sinkron.
+ */
+const DRAW_FRACTION = 0.8;
 
 /**
  * Animasi "lifeline" (garis EKG) yang dipakai sebagai indikator proses.
@@ -57,7 +64,7 @@ export function LifelineLoader({
             animate={{ pathLength: [0, 1, 1], pathOffset: [0, 0, 1], opacity: [0.9, 1, 0.9] }}
             transition={{
               duration: CYCLE_SECONDS,
-              times: [0, 0.55, 1],
+              times: [0, DRAW_FRACTION, 1],
               ease: 'easeInOut',
               repeat: Infinity,
             }}
@@ -93,20 +100,22 @@ export function LifelineLoader({
             />
           </g>
           {/* Titik denyut: mengikuti jalur yang sama, termasuk puncak gelombang.
-              Berhenti di x=190 sehingga tidak menyentuh tepi mask. */}
+              Berhenti di ujung jalur tepat saat garis selesai digambar
+              (DRAW_FRACTION) agar ujung garis dan titik selalu sinkron, lalu
+              memudar bersama sapuan keluar. */}
           <circle r={3.5} fill="currentColor">
             <animateMotion
               dur={`${CYCLE_SECONDS}s`}
               repeatCount="indefinite"
               path={LIFELINE_PATH}
-              keyPoints="0;1"
-              keyTimes="0;1"
+              keyPoints="0;1;1"
+              keyTimes={`0;${DRAW_FRACTION};1`}
               calcMode="linear"
             />
             <animate
               attributeName="opacity"
-              values="0;1;1;1;0"
-              keyTimes="0;0.08;0.85;0.94;1"
+              values="0;1;1;0"
+              keyTimes={`0;0.06;${DRAW_FRACTION};1`}
               dur={`${CYCLE_SECONDS}s`}
               repeatCount="indefinite"
             />
