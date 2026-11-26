@@ -1208,31 +1208,6 @@ export function PatientMedicalRecordView({
                   </dl>
                 </div>
               ) : null}
-
-              {/* program latihan — compact, detail di modal */}
-              {homeProgram && homeProgram.items.length > 0 ? (
-                <div className="mt-4 border-t border-border/70 pt-3">
-                  <button
-                    type="button"
-                    onClick={() => setProgramOpen(true)}
-                    className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-1 py-2 text-left transition-colors hover:bg-[var(--hafta-50)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-                  >
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl hafta-tint text-[var(--hafta-700)]">
-                      <Dumbbell className="h-4 w-4" />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-semibold text-foreground">Program Latihan Mandiri</span>
-                      <span className="block text-xs text-muted-foreground">
-                        {homeProgram.items.length} latihan ·{' '}
-                        {homeProgram.startsAt
-                          ? `${shortDate(homeProgram.startsAt)}${homeProgram.endsAt ? ` – ${shortDate(homeProgram.endsAt)}` : ''}`
-                          : 'tanpa batas waktu'}
-                      </span>
-                    </span>
-                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-                  </button>
-                </div>
-              ) : null}
             </section>
 
             {/* catatan fisioterapis — hanya bila ada */}
