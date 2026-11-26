@@ -95,6 +95,7 @@ Canonical visual direction is defined by `docs/DESIGN-SYSTEM.md` and `docs/DESIG
 - Validation schema berada di `lib/validators` atau dekat domain jika benar-benar feature-specific.
 - Jangan membuat `page.tsx` atau component raksasa yang memuat seluruh logic feature.
 - Jangan membuat duplicate component jika komponen yang sesuai sudah ada.
+- Semua dropdown menu wajib menggunakan komponen global shadcn/ui di `components/ui/dropdown-menu.tsx` (`DropdownMenu`, `DropdownMenuTrigger`, `DropdownMenuContent`, `DropdownMenuItem`, `DropdownMenuRadioGroup`, `DropdownMenuSubContent`, dll.). Dilarang membuat custom dropdown atau mengimpor `@radix-ui/react-dropdown-menu` secara langsung di komponen fitur/halaman.
 - Jika baris kode dilakukan perubahan jangan merubah baris kode yang sudah dibenarkan.
 
 ## 6. Coding rules

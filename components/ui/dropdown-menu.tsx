@@ -34,6 +34,7 @@ function DropdownMenuContent({
       <DropdownMenuPrimitive.Content
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
+        updatePositionStrategy="always"
         collisionPadding={collisionPadding ?? responsivePadding}
         className={cn(
           // z-[54]: di bawah topnav (z-[55]) dan sidebar (z-[58]) agar panel
@@ -151,6 +152,7 @@ function DropdownMenuSubContent({
         data-slot="dropdown-menu-sub-content"
         alignOffset={alignOffset}
         sideOffset={sideOffset}
+        updatePositionStrategy="always"
         collisionPadding={collisionPadding ?? responsivePadding}
         className={cn(
           'z-[54] max-h-[var(--radix-dropdown-menu-content-available-height)] w-auto min-w-[96px] origin-[var(--radix-dropdown-menu-content-transform-origin)] overflow-x-hidden overflow-y-auto rounded-2xl bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=closed]:overflow-hidden',
