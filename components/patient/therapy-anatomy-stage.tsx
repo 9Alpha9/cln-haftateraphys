@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { ChevronDown, FlipHorizontal2, Layers, Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SkeletonBlock } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { LifelineLoader } from '@/components/animate-ui/lifeline-loader';
@@ -658,65 +658,45 @@ export function TherapyAnatomyStage({
         </div>
       ) : null}
 
-      {/* ── pemilih sistem anatomi + tampakan (kiri bawah, tidak menutup legenda) ── */}
-      <div className="absolute bottom-4 left-4 flex max-w-[70%] flex-col items-start gap-1">
-        <div
-          role="group"
-          aria-label="Sistem anatomi"
-          className="flex flex-wrap justify-start gap-0.5 rounded-full border border-slate-200/70 bg-white/60 p-0.5 shadow-sm backdrop-blur-md"
-        >
-          {ANATOMY_SYSTEMS.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              aria-pressed={system === item.key}
-              title={item.anterior.label}
-              onClick={() => selectSystem(item.key)}
-              className={cn(
-                'tap-target min-h-7 cursor-pointer rounded-full px-2 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
-                system === item.key
-                  ? 'bg-[var(--hafta-950)] text-white'
-                  : 'text-muted-foreground hover:bg-slate-100 hover:text-foreground',
-              )}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-        <div
-          role="group"
-          aria-label="Tampakan anatomi"
-          className="flex gap-0.5 rounded-full border border-slate-200/70 bg-white/60 p-0.5 shadow-sm backdrop-blur-md"
-        >
-          {(
-            [
-              { key: 'anterior', label: 'Depan' },
-              { key: 'posterior', label: 'Belakang' },
-            ] as const
-          ).map((item) => {
-            const disabled = item.key === 'posterior' && !systemEntry?.posterior;
-            return (
-              <button
-                key={item.key}
-                type="button"
-                disabled={disabled}
-                aria-pressed={view === item.key}
-                title={
-                  disabled ? 'Tampakan belakang tidak tersedia untuk sistem ini' : `Tampak ${item.label.toLowerCase()}`
-                }
-                onClick={() => setView(item.key)}
-                className={cn(
-                  'tap-target min-h-7 cursor-pointer rounded-full px-2 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
-                  view === item.key
-                    ? 'bg-[var(--hafta-950)] text-white'
-                    : 'text-muted-foreground hover:bg-slate-100 hover:text-foreground',
-                )}
-              >
+      {/* ── pemilih sistem + tampakan: SATU baris compact untuk kanvas sempit ── */}
+      <div className="absolute bottom-4 left-4 flex items-center gap-1.5">
+        <div className="relative rounded-full border border-slate-200/70 bg-white/60 shadow-sm backdrop-blur-md">
+          <Layers
+            aria-hidden="true"
+            className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground"
+          />
+          <select
+            aria-label="Sistem anatomi"
+            value={system}
+            onChange={(event) => selectSystem(event.target.value as AnatomySystemKey)}
+            className="tap-target h-8 cursor-pointer appearance-none rounded-full bg-transparent pl-7 pr-6 text-[11px] font-semibold text-foreground outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+          >
+            {ANATOMY_SYSTEMS.map((item) => (
+              <option key={item.key} value={item.key}>
                 {item.label}
-              </button>
-            );
-          })}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            aria-hidden="true"
+            className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-muted-foreground"
+          />
         </div>
+        <button
+          type="button"
+          disabled={!systemEntry?.posterior}
+          aria-label={`Tampakan ${view === 'anterior' ? 'depan' : 'belakang'} — ganti tampakan`}
+          title={systemEntry?.posterior ? 'Ganti tampakan depan/belakang' : 'Tampakan belakang tidak tersedia'}
+          aria-pressed={view === 'posterior'}
+          onClick={() => setView((current) => (current === 'anterior' ? 'posterior' : 'anterior'))}
+          className={cn(
+            'tap-target inline-flex h-8 cursor-pointer items-center gap-1 rounded-full border border-slate-200/70 bg-white/60 px-2.5 text-[11px] font-semibold shadow-sm backdrop-blur-md transition-colors hover:bg-white/80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
+            view === 'posterior' ? 'text-foreground' : 'text-muted-foreground',
+          )}
+        >
+          <FlipHorizontal2 className="h-3.5 w-3.5" />
+          {view === 'anterior' ? 'Depan' : 'Belakang'}
+        </button>
       </div>
 
       {/* ── kontrol kanvas ── */}
