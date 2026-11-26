@@ -698,20 +698,6 @@ export function TherapyAnatomyStage({
       <div className="absolute bottom-4 right-4 z-20 flex flex-col gap-1 rounded-full border border-border bg-popover p-1 shadow-sm">
         <button
           type="button"
-          disabled={!systemEntry?.posterior}
-          aria-label={`Tampakan ${view === 'anterior' ? 'depan' : 'belakang'} — ganti tampakan`}
-          title={systemEntry?.posterior ? 'Ganti tampakan depan/belakang' : 'Tampakan belakang tidak tersedia'}
-          aria-pressed={view === 'posterior'}
-          onClick={() => setView((current) => (current === 'anterior' ? 'posterior' : 'anterior'))}
-          className={cn(
-            'tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
-            view === 'posterior' ? 'text-foreground' : 'text-muted-foreground',
-          )}
-        >
-          <FlipHorizontal2 className="h-4 w-4" />
-        </button>
-        <button
-          type="button"
           aria-label="Reset tampilan"
           title="Reset tampilan"
           onClick={resetView}
