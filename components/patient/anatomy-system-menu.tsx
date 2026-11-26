@@ -30,9 +30,9 @@ export function AnatomySystemMenu({
         <Menu.Trigger
           aria-label={`Sistem anatomi: ${systemEntry?.label ?? ''}`}
           title={`Sistem anatomi: ${systemEntry?.label ?? ''}`}
-          className="tap-target inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 data-popup-open:bg-accent"
+          className="tap-target inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 data-popup-open:bg-accent"
         >
-          <Layers aria-hidden="true" className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
+          <Layers aria-hidden="true" className="h-4 w-4 text-[var(--hafta-300)]" />
         </Menu.Trigger>
 
         <Menu.Portal container={container ?? undefined}>
@@ -45,14 +45,14 @@ export function AnatomySystemMenu({
           >
             <Menu.Popup
               data-slot="dropdown-menu-content"
-              className="max-w-[min(240px,var(--available-height))] min-w-[148px] overflow-y-auto rounded-2xl bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-none data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 duration-100"
+              className="max-w-[min(240px,var(--available-height))] min-w-[168px] overflow-y-auto rounded-2xl bg-popover p-1.5 text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-none data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 duration-100"
             >
               <Menu.RadioGroup value={system} onValueChange={(value) => onSelectSystem(value as AnatomySystemKey)}>
                 {ANATOMY_SYSTEMS.map((item) => (
                   <Menu.RadioItem
                     key={item.key}
                     value={item.key}
-                    className="flex cursor-pointer items-center gap-2 rounded-xl px-1.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-accent data-popup-open:bg-accent data-disabled:opacity-50"
+                    className="flex min-h-[36px] cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-accent data-popup-open:bg-accent data-disabled:opacity-50"
                   >
                     <span className="min-w-0 flex-1 truncate">{item.label}</span>
                     <Menu.RadioItemIndicator>
