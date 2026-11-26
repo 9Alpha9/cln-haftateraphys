@@ -701,7 +701,7 @@ export function TherapyAnatomyStage({
           aria-label="Reset tampilan"
           title="Reset tampilan"
           onClick={resetView}
-          className="tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-slate-100 hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+          className="tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
         >
           <RotateCcw className="h-4 w-4" />
         </button>
@@ -710,7 +710,7 @@ export function TherapyAnatomyStage({
           aria-label="Perbesar"
           title="Perbesar"
           onClick={() => zoomBy(ZOOM_STEP)}
-          className="tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-slate-100 hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+          className="tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
         >
           <ZoomIn className="h-4 w-4" />
         </button>
@@ -720,7 +720,7 @@ export function TherapyAnatomyStage({
           title="Perkecil"
           onClick={() => zoomBy(1 / ZOOM_STEP)}
           disabled={zoom <= ZOOM_MIN}
-          className="tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-slate-100 hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40"
+          className="tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40"
         >
           <ZoomOut className="h-4 w-4" />
         </button>
@@ -730,7 +730,7 @@ export function TherapyAnatomyStage({
           title={isFullscreen ? 'Keluar layar penuh' : 'Layar penuh'}
           aria-pressed={isFullscreen}
           onClick={toggleFullscreen}
-          className="tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-slate-100 hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+          className="tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
         >
           {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
         </button>
