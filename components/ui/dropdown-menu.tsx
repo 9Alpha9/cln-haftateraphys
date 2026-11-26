@@ -5,20 +5,9 @@ import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu';
 import { Check, ChevronRight } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import { TOPBAR_SAFE_AREA_PX, useResponsiveCollisionPadding } from '@/components/ui/overlay-positioning';
 
-/**
- * Dropdown global (shadcn/ui) berbasis **Radix UI** — fondasi resmi shadcn/ui
- * dan primitif yang sama dengan dropdown topnav, sehingga seluruh dropdown di
- * aplikasi (topbar, sidebar, aksi tabel, filter, pagination) kini berbagi
- * gaya, animasi, positioning, dan perilaku yang identik.
- *
- * Tinggi topbar aplikasi (68px) + jarak aman 8px. Panel dropdown tidak boleh
- * tergambar di atas garis ini supaya topbar tetap utuh saat menu dibuka.
- * Radix menghitung ulang posisi terhadap anchor saat halaman di-scroll
- * (panel menempel ke trigger), jadi tidak diperlukan penutupan paksa saat
- * scroll.
- */
-export const TOPBAR_SAFE_AREA_PX = 76;
+export { TOPBAR_SAFE_AREA_PX };
 
 function DropdownMenu({ modal = false, ...props }: React.ComponentProps<typeof DropdownMenuPrimitive.Root>) {
   return <DropdownMenuPrimitive.Root data-slot="dropdown-menu" modal={modal} {...props} />;
@@ -35,20 +24,24 @@ function DropdownMenuTrigger({ ...props }: React.ComponentProps<typeof DropdownM
 function DropdownMenuContent({
   className,
   sideOffset = 4,
+  collisionPadding,
   ...props
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+  const responsivePadding = useResponsiveCollisionPadding();
+
   return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
-        collisionPadding={{ top: TOPBAR_SAFE_AREA_PX, right: 12, bottom: 80, left: 12 }}
+        collisionPadding={collisionPadding ?? responsivePadding}
         className={cn(
           // z-[54]: di bawah topnav (z-[55]) dan sidebar (z-[58]) agar panel
           // dropdown tidak pernah menembus chrome aplikasi, tetapi di atas
           // konten halaman (bottom-nav z-40, tooltip z-50) dan di bawah
           // dialog (z-[80]) serta drawer (z-60+).
-          'z-[54] max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-32 origin-[var(--radix-dropdown-menu-content-transform-origin)] overflow-x-hidden overflow-y-auto rounded-2xl bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:overflow-hidden',
+          // Opacity-only animation agar transform/scale/slide tidak bertabrakan dengan floating positioner.
+          'z-[54] max-h-[var(--radix-dropdown-menu-content-available-height)] min-w-32 origin-[var(--radix-dropdown-menu-content-transform-origin)] overflow-x-hidden overflow-y-auto rounded-2xl bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:overflow-hidden',
           className,
         )}
         {...props}
@@ -144,26 +137,28 @@ function DropdownMenuSubTrigger({
 }
 
 function DropdownMenuSubContent({
-  align = 'start',
   alignOffset = -3,
-  side = 'right',
-  sideOffset = 0,
+  sideOffset = 2,
+  collisionPadding,
   className,
   ...props
-}: React.ComponentProps<typeof DropdownMenuContent>) {
+}: React.ComponentProps<typeof DropdownMenuPrimitive.SubContent>) {
+  const responsivePadding = useResponsiveCollisionPadding();
+
   return (
-    <DropdownMenuContent
-      data-slot="dropdown-menu-sub-content"
-      className={cn(
-        'w-auto min-w-[96px] rounded-2xl bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95',
-        className,
-      )}
-      align={align}
-      alignOffset={alignOffset}
-      side={side}
-      sideOffset={sideOffset}
-      {...props}
-    />
+    <DropdownMenuPrimitive.Portal>
+      <DropdownMenuPrimitive.SubContent
+        data-slot="dropdown-menu-sub-content"
+        alignOffset={alignOffset}
+        sideOffset={sideOffset}
+        collisionPadding={collisionPadding ?? responsivePadding}
+        className={cn(
+          'z-[54] max-h-[var(--radix-dropdown-menu-content-available-height)] w-auto min-w-[96px] origin-[var(--radix-dropdown-menu-content-transform-origin)] overflow-x-hidden overflow-y-auto rounded-2xl bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=closed]:overflow-hidden',
+          className,
+        )}
+        {...props}
+      />
+    </DropdownMenuPrimitive.Portal>
   );
 }
 

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { Check, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { TOPBAR_SAFE_AREA_PX, useResponsiveCollisionPadding } from '@/components/ui/overlay-positioning';
 
 export type AppSelectOption = {
   value: string;
@@ -59,6 +60,7 @@ export function AppSelect({
   const isControlled = value !== undefined;
   const currentValue = isControlled ? value : internalValue;
   const selected = allOptions.find((option) => option.value === currentValue);
+  const collisionPadding = useResponsiveCollisionPadding(TOPBAR_SAFE_AREA_PX);
 
   return (
     <div className={cn('relative w-full', className)}>
@@ -103,12 +105,12 @@ export function AppSelect({
             align={align === 'right' ? 'end' : 'start'}
             side="bottom"
             sideOffset={6}
-            collisionPadding={{ top: 76, right: 12, bottom: 80, left: 12 }}
+            collisionPadding={collisionPadding}
           >
             <SelectPrimitive.Popup
               data-slot="app-select-content"
               className={cn(
-                'z-[70] max-h-[min(280px,var(--available-height))] w-(--anchor-width) min-w-(--anchor-width) origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-2xl border border-stone-200/90 bg-white p-1.5 text-[#181700] shadow-[0_12px_32px_rgba(24,23,0,0.14)] outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95',
+                'z-[70] max-h-[min(280px,var(--available-height))] w-(--anchor-width) min-w-(--anchor-width) origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-2xl border border-stone-200/90 bg-white p-1.5 text-[#181700] shadow-[0_12px_32px_rgba(24,23,0,0.14)] outline-none data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 duration-100',
                 menuClassName,
               )}
             >

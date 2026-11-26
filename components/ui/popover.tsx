@@ -4,6 +4,7 @@ import * as PopoverPrimitive from "@radix-ui/react-popover";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { useResponsiveCollisionPadding } from "@/components/ui/overlay-positioning";
 
 const Popover = PopoverPrimitive.Root;
 
@@ -16,25 +17,30 @@ const PopoverContent = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> & {
     showArrow?: boolean;
   }
->(({ className, align = "center", sideOffset = 4, showArrow = false, ...props }, ref) => (
-  <PopoverPrimitive.Portal>
-    <PopoverPrimitive.Content
-      ref={ref}
-      align={align}
-      sideOffset={sideOffset}
-      className={cn(
-        "z-[70] max-h-[var(--radix-popover-content-available-height)] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=open]:duration-150 data-[state=closed]:duration-200 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
-        className,
-      )}
-      {...props}
-    >
+>(({ className, align = "center", sideOffset = 4, collisionPadding, showArrow = false, ...props }, ref) => {
+  const responsivePadding = useResponsiveCollisionPadding(12);
+
+  return (
+    <PopoverPrimitive.Portal>
+      <PopoverPrimitive.Content
+        ref={ref}
+        align={align}
+        sideOffset={sideOffset}
+        collisionPadding={collisionPadding ?? responsivePadding}
+        className={cn(
+          "z-[70] max-h-[var(--radix-popover-content-available-height)] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-2xl border border-border bg-popover p-4 text-popover-foreground shadow-[0_1px_2px_rgba(28,25,23,0.06),0_12px_32px_-16px_rgba(28,25,23,0.18)] outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-150 data-[state=closed]:duration-150",
+          className,
+        )}
+        {...props}
+      >
       {props.children}
       {showArrow && (
         <PopoverPrimitive.Arrow className="-my-px fill-popover drop--[0_1px_0_hsl(var(--border))]" />
       )}
-    </PopoverPrimitive.Content>
-  </PopoverPrimitive.Portal>
-));
+      </PopoverPrimitive.Content>
+    </PopoverPrimitive.Portal>
+  );
+});
 PopoverContent.displayName = PopoverPrimitive.Content.displayName;
 
 export { Popover, PopoverAnchor, PopoverContent, PopoverTrigger };
