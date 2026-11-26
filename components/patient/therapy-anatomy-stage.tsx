@@ -90,6 +90,7 @@ export function TherapyAnatomyStage({
   const [dragging, setDragging] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fullscreenContainer, setFullscreenContainer] = useState<HTMLElement | null>(null);
+  const [legendExpanded, setLegendExpanded] = useState(false);
   const [imageReady, setImageReady] = useState(0);
   const [loadedAssetId, setLoadedAssetId] = useState<string | null>(null);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
@@ -661,24 +662,35 @@ export function TherapyAnatomyStage({
         </div>
       ) : null}
 
-      {/* legenda nada penanda — sinyal ganda: warna + teks */}
+      {/* legenda nada penanda — ringkas saat diam, memanjang saat diklik */}
       {markers.length > 0 ? (
-        <div className="pointer-events-none absolute left-4 top-4 max-w-[70%] rounded-full border border-slate-200/70 bg-white/70 px-3.5 py-2 shadow-sm backdrop-blur-md">
-          <p className="flex flex-wrap items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
+        <button
+          type="button"
+          onClick={() => setLegendExpanded((prev) => !prev)}
+          aria-expanded={legendExpanded}
+          aria-label={`${markers.length} area keluhan · nada nyeri sesi ${TONE_LABEL[tone]}`}
+          title="Klik untuk melihat detail nada nyeri sesi"
+          className="absolute left-4 top-4 z-20 max-w-[75%] cursor-pointer rounded-full border border-slate-200/70 bg-white/70 px-3 py-1.5 text-left shadow-sm backdrop-blur-md transition-all hover:bg-white/90 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+        >
+          <span className="flex flex-wrap items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
             <span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${TONE_DOT[tone]}`} />
-            <span>
-              {markers.length} area keluhan · nada nyeri sesi
-              <span
-                className={cn(
-                  'ml-1 font-semibold',
-                  tone === 'alert' ? 'text-[var(--hafta-red-700)]' : 'text-foreground',
-                )}
-              >
-                {TONE_LABEL[tone]}
+            {legendExpanded ? (
+              <span>
+                {markers.length} area keluhan · nada nyeri sesi
+                <span
+                  className={cn(
+                    'ml-1 font-semibold',
+                    tone === 'alert' ? 'text-[var(--hafta-red-700)]' : 'text-foreground',
+                  )}
+                >
+                  {TONE_LABEL[tone]}
+                </span>
               </span>
-            </span>
-          </p>
-        </div>
+            ) : (
+              <span className="font-semibold text-foreground">{markers.length} area</span>
+            )}
+          </span>
+        </button>
       ) : null}
 
       {/* ── pemilih sistem + tampakan: rail vertikal kompak di sisi KIRI kanvas ── */}

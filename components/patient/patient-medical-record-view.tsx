@@ -345,7 +345,7 @@ export function PatientMedicalRecordView({
   return (
     <div className="space-y-4 sm:space-y-5">
       {/* ── 3. TABS — global Tabs component (Radix) ── */}
-      <Tabs value={activeTab} onValueChange={(value) => selectTab(value as TabKey)}>
+      <Tabs value={activeTab} onValueChange={(value) => selectTab(value as TabKey)} className="py-2 sm:py-3">
         <TabsList
           aria-label="Bagian rekam medis"
           className="mx-auto flex h-auto w-full max-w-xl items-center justify-start gap-1 overflow-x-auto rounded-full border border-border/60 bg-muted/60 p-1 backdrop-blur-sm [scrollbar-width:none] sm:justify-center [&::-webkit-scrollbar]:hidden"
@@ -391,12 +391,12 @@ export function PatientMedicalRecordView({
             <div className="min-w-0 space-y-4 lg:col-span-4">
               <header className="hafta-card relative overflow-hidden p-4 sm:p-5">
                 <Image
-                  src="/assets/body-anatomy/cardiovascular-system.webp"
+                  src="/assets/body-anatomy/articular-system.webp"
                   alt=""
                   aria-hidden="true"
                   width={220}
                   height={280}
-                  className="pointer-events-none absolute -right-4 top-0 h-full w-32 object-cover object-top [mask-image:linear-gradient(to_right,transparent_0%,black_35%)] sm:w-36"
+                  className="pointer-events-none absolute -right-4 top-3 h-full w-48 object-cover object-top [mask-image:linear-gradient(to_right,transparent_0%,black_50%)] sm:w-52 opacity-40"
                 />
                 <div className="relative z-10 pr-24 sm:pr-28">
                   <div className="flex flex-wrap items-center gap-2">

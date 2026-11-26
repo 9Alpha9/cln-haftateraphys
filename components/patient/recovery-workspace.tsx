@@ -215,13 +215,14 @@ function MetricLineChart({
       }}
     >
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 16, right: 8, bottom: 4, left: -18 }}>
+        <LineChart data={data} margin={{ top: 16, right: 36, bottom: 8, left: -12 }}>
           <CartesianGrid vertical={false} stroke="var(--hafta-100)" strokeDasharray="4 6" />
           <YAxis yAxisId="metric" domain={config.domain} tickLine={false} axisLine={false} tick={false} />
           <XAxis
             dataKey="sesi"
             type="number"
             domain={[1, data.length]}
+            padding={{ left: 12, right: 4 }}
             tickLine={false}
             axisLine={false}
             interval={tickInterval}
