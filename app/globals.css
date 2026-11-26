@@ -284,26 +284,6 @@
   will-change: transform;
 }
 
-/* Garis heartbeat (ECG) untuk indikator loading global — hormati reduced-motion. */
-@keyframes line-heartbeat-dash {
-  from {
-    stroke-dashoffset: 260;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@utility animate-line-heartbeat {
-  animation: line-heartbeat-dash 1.6s linear infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-line-heartbeat {
-    animation: none;
-  }
-}
-
 @layer utilities {
   .container-hafta {
     @apply w-full px-4 md:px-6 lg:mx-auto lg:max-w-7xl lg:px-8;

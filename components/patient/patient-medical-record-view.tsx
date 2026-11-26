@@ -9,10 +9,10 @@ import {
   CalendarDays,
   ChevronRight,
   ClipboardList,
+  Crosshair,
   Dumbbell,
   FileText,
   HeartPulse,
-  MapPin,
   Maximize2,
   NotebookPen,
   PenLine,
@@ -313,7 +313,9 @@ export function PatientMedicalRecordView({
 
   /** Aset dekoratif kartu — dari registri atlas (bukan path hardcode). */
   const decorSkeletal = ANATOMY_SYSTEMS.find((item) => item.key === 'skeletal')?.anterior;
-  const decorNervous = ANATOMY_SYSTEMS.find((item) => item.key === 'nervous')?.anterior;
+  const decorMuscular = ANATOMY_SYSTEMS.find((item) => item.key === 'muscular')?.anterior;
+  const decorPosterior = ANATOMY_SYSTEMS.find((item) => item.key === 'muscular')?.posterior;
+  const decorArticular = ANATOMY_SYSTEMS.find((item) => item.key === 'articular')?.anterior;
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -321,11 +323,7 @@ export function PatientMedicalRecordView({
       <header className="border-b border-border pb-4">
         <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
           <div className="min-w-0">
-            <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-              <NotebookPen className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
-              Rekam Medis
-            </p>
-            <div className="mt-1 flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <h1 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
                 {patient?.preferredName ?? patient?.fullName ?? 'Pasien'}
               </h1>
@@ -334,17 +332,6 @@ export function PatientMedicalRecordView({
               </span>
             </div>
           </div>
-          {/* Aksi utama: cetak/unduh rekam terbaru. */}
-          <Button
-            variant="default"
-            size="sm"
-            onClick={() => {
-              if (latestRecord) setPrintRecord(latestRecord);
-            }}
-          >
-            <Printer />
-            Cetak/Unduh
-          </Button>
         </div>
         <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5 sm:grid-cols-4">
           {[
@@ -365,50 +352,6 @@ export function PatientMedicalRecordView({
           ))}
         </dl>
       </header>
-      {/* ── 2. STAT — angka jadi fokus, label kecil di atas ── */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-3">
-        {[
-          {
-            label: 'Total Sesi',
-            value: `${sessions.length}`,
-            detail: firstRecord ? `sejak ${shortDate(firstRecord.recordedAt)}` : 'belum ada sesi',
-            valueClass: 'text-2xl leading-none tracking-tight sm:text-3xl',
-          },
-          {
-            label: 'Progres',
-            value: `${averageScore}%`,
-            detail: 'rata-rata ROM, kekuatan & fungsi',
-            valueClass: 'text-2xl leading-none tracking-tight sm:text-3xl',
-          },
-          {
-            label: 'Berikutnya',
-            value: nextScheduleDateLabel,
-            // Detail selalu konsisten dengan value: tanggal tampil bila jadwal
-            // benar-benar ada; tanpa jadwal jangan menampilkan frekuensi
-            // seolah-olah sudah terjadwal.
-            detail: nextScheduleDetail,
-            // Tanggal — bukan angka murni, jadi lebih kecil dari dua tetangganya.
-            valueClass: 'text-base leading-tight tracking-tight sm:text-xl',
-          },
-        ].map((stat) => (
-          <div key={stat.label} className="hafta-card p-3 sm:p-4">
-            <p className="text-xs font-medium text-muted-foreground">{stat.label}</p>
-            <p
-              className={cn(
-                'mt-1.5 font-semibold tabular-nums text-foreground',
-                stat.valueClass,
-                stat.label === 'Berikutnya' && 'break-words',
-              )}
-            >
-              {stat.value}
-            </p>
-            <p className="mt-1.5 line-clamp-2 text-xs leading-snug text-muted-foreground sm:line-clamp-1">
-              {stat.detail}
-            </p>
-          </div>
-        ))}
-      </div>
-
       {/* ── 3. TABS — global Tabs component (Radix) ── */}
       <Tabs value={activeTab} onValueChange={(value) => selectTab(value as TabKey)}>
         <TabsList
@@ -469,13 +412,25 @@ export function PatientMedicalRecordView({
                   const value = Number(selectedRecord[metric.field] ?? 0);
                   const tone = metricTone(metricKey, value);
                   const values = sessions.map((session) => Number(session.latest[metric.field] ?? 0));
+                  const decor = metricKey === 'pain' ? decorMuscular : decorArticular;
                   return (
                     <section
                       key={metricKey}
                       aria-label={`${metric.label} sesi ini`}
-                      className="rounded-[28px] border border-border bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)]"
+                      className="relative overflow-hidden rounded-[28px] border border-border bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)]"
                     >
-                      <div className="flex items-start justify-between gap-1.5">
+                      {/* siluet anatomi dekoratif pada kartu metrik */}
+                      {decor ? (
+                        <Image
+                          src={decor.url}
+                          alt=""
+                          aria-hidden="true"
+                          width={decor.width}
+                          height={decor.height}
+                          className="pointer-events-none absolute -right-2 bottom-0 h-[75%] w-auto opacity-[0.08]"
+                        />
+                      ) : null}
+                      <div className="relative flex items-start justify-between gap-1.5">
                         <p className="text-xs font-semibold text-muted-foreground">{metric.label}</p>
                         <span
                           className={cn(
@@ -486,7 +441,7 @@ export function PatientMedicalRecordView({
                           {tone.label}
                         </span>
                       </div>
-                      <div className="mt-2 flex items-baseline gap-1">
+                      <div className="relative mt-2 flex items-baseline gap-1">
                         <span className="text-2xl font-bold tabular-nums text-foreground">{value}</span>
                         <span className="text-[10px] font-medium text-muted-foreground">/10</span>
                       </div>
@@ -521,23 +476,7 @@ export function PatientMedicalRecordView({
                   />
                 ) : null}
                 <div className="relative">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-xs font-semibold text-muted-foreground">Total Sesi</p>
-                      <p className="mt-1 text-2xl font-bold tabular-nums leading-none text-foreground">
-                        {sessions.length}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {firstRecord ? `sejak ${shortDate(firstRecord.recordedAt)}` : 'belum ada sesi'}
-                      </p>
-                    </div>
-                    <div className="min-w-0 text-right">
-                      <p className="text-xs font-semibold text-muted-foreground">Berikutnya</p>
-                      <p className="mt-1 text-sm font-semibold tabular-nums text-foreground">{nextScheduleDateLabel}</p>
-                      <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{nextScheduleDetail}</p>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex items-center gap-2.5 border-t border-border/70 pt-3">
+                  <div className="flex items-center gap-2.5">
                     <span
                       aria-hidden="true"
                       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-50)] text-[var(--hafta-700)]"
@@ -659,20 +598,52 @@ export function PatientMedicalRecordView({
             {/* ── KOLOM KANAN (4): panel info klinis — scroll vertikal sejajar tinggi atlas ── */}
             <aside
               aria-label="Panel informasi klinis"
-              className="min-w-0 space-y-4 lg:col-span-4 lg:max-h-[640px] lg:overflow-y-auto lg:pr-1"
+              className="min-w-0 space-y-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:col-span-4 lg:max-h-[640px] lg:overflow-y-auto lg:pr-1"
             >
+              {/* statistik ringkas — di dalam panel scroll kanan */}
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  {
+                    label: 'Total Sesi',
+                    value: `${sessions.length}`,
+                    detail: firstRecord ? `sejak ${shortDate(firstRecord.recordedAt)}` : 'belum ada sesi',
+                    valueClass: 'text-xl leading-none tracking-tight sm:text-2xl',
+                  },
+                  {
+                    label: 'Progres',
+                    value: `${averageScore}%`,
+                    detail: 'rata-rata ROM, kekuatan & fungsi',
+                    valueClass: 'text-xl leading-none tracking-tight sm:text-2xl',
+                  },
+                  {
+                    label: 'Berikutnya',
+                    value: nextScheduleDateLabel,
+                    detail: nextScheduleDetail,
+                    valueClass: 'text-sm leading-tight tracking-tight sm:text-base',
+                  },
+                ].map((stat) => (
+                  <div key={stat.label} className="hafta-card p-3">
+                    <p className="text-[10px] font-medium text-muted-foreground">{stat.label}</p>
+                    <p className={cn('mt-1.5 font-semibold tabular-nums text-foreground', stat.valueClass)}>
+                      {stat.value}
+                    </p>
+                    <p className="mt-1 line-clamp-2 text-[10px] leading-snug text-muted-foreground">{stat.detail}</p>
+                  </div>
+                ))}
+              </div>
+
               {/* diagnosis terkini — permukaan netral + siluet anatomi dekoratif */}
               <section
                 aria-label="Diagnosis terkini"
                 className="relative overflow-hidden rounded-[28px] border border-border bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5"
               >
-                {decorNervous ? (
+                {decorPosterior ? (
                   <Image
-                    src={decorNervous.url}
+                    src={decorPosterior.url}
                     alt=""
                     aria-hidden="true"
-                    width={decorNervous.width}
-                    height={decorNervous.height}
+                    width={decorPosterior.width}
+                    height={decorPosterior.height}
                     className="pointer-events-none absolute -right-2 bottom-0 h-[85%] w-auto opacity-[0.07]"
                   />
                 ) : null}
@@ -710,7 +681,7 @@ export function PatientMedicalRecordView({
               {/* area keluhan — klik mengaktifkan penanda pada Atlas */}
               <section aria-label="Area keluhan tercatat" className="hafta-card p-4 sm:p-5">
                 <h2 className="inline-flex items-center gap-1.5 text-base font-semibold tracking-tight text-foreground">
-                  <MapPin className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
+                  <Crosshair className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
                   Area Keluhan
                 </h2>
                 {bodyRegions.length > 0 ? (

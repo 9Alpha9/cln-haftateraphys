@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SkeletonBlock } from '@/components/dashboard/skeletons/skeleton-primitives';
-import { LineHeartbeat } from '@/components/ui/line-heartbeat';
+import { LifelineLoader } from '@/components/animate-ui/lifeline-loader';
 import { REGION_POINTS, type DetectedRegion } from '@/components/patient/body-condition-map';
 import {
   ANATOMY_SYSTEMS,
@@ -426,8 +426,8 @@ export function TherapyAnatomyStage({
       aria-label="Atlas anatomi interaktif"
       onContextMenu={(event) => event.preventDefault()}
       className={cn(
-        'relative overflow-hidden rounded-[28px] border border-border bg-gradient-to-b from-[#F8FAFC] to-[#EEF2F6] shadow-[0_1px_2px_rgba(28,25,23,0.04)]',
-        isFullscreen ? 'h-screen w-screen rounded-none' : 'min-h-[560px] sm:min-h-[640px]',
+        'relative overflow-hidden rounded-[28px]',
+        isFullscreen ? 'h-screen w-screen rounded-none bg-white' : 'min-h-[560px] sm:min-h-[640px]',
       )}
     >
       {/* ── kanvas: gambar di-render Canvas 2D, drag = pan, pinch = zoom ── */}
@@ -498,20 +498,37 @@ export function TherapyAnatomyStage({
                         isActive ? 'border-[#FACC15] ring-2 ring-[#FACC15]/40' : 'border-slate-400/80',
                       )}
                     />
-                    {/* Floating pill: label area keluhan, menunjuk ke koordinat pin.
-                        Ukuran konstan di semua zoom (DOM di atas kanvas). */}
-                    <span
-                      className={cn(
-                        'absolute top-1/2 flex -translate-y-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] font-semibold shadow-sm transition-colors',
-                        pillRight ? 'left-3' : 'right-3',
-                        isActive
-                          ? 'border-[var(--hafta-950)] bg-[var(--hafta-950)] text-white'
-                          : 'border-slate-200 bg-white/95 text-slate-700 backdrop-blur',
-                      )}
-                    >
-                      <span aria-hidden="true" className={cn('h-1.5 w-1.5 shrink-0 rounded-full', TONE_DOT[tone])} />
-                      {label}
-                    </span>
+                    {/* Floating pill + garis penunjuk lentur — disembunyikan saat pin
+                        aktif (popover terbuka), agar label tidak menumpuk. */}
+                    {!isActive ? (
+                      <>
+                        <svg
+                          aria-hidden="true"
+                          className="pointer-events-none absolute left-1/2 top-1/2 h-8 w-12 overflow-visible"
+                          viewBox={pillRight ? '0 0 48 32' : '-48 0 48 32'}
+                        >
+                          <path
+                            d={pillRight ? 'M 4 16 C 14 4, 22 28, 34 16' : 'M -4 16 C -14 4, -22 28, -34 16'}
+                            fill="none"
+                            stroke="#94A3B8"
+                            strokeWidth={1.5}
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        <span
+                          className={cn(
+                            'absolute top-1/2 flex -translate-y-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border border-slate-200 bg-white/95 px-2.5 py-1 text-[10px] font-semibold text-slate-700 shadow-sm backdrop-blur',
+                            pillRight ? 'left-4' : 'right-4',
+                          )}
+                        >
+                          <span
+                            aria-hidden="true"
+                            className={cn('h-1.5 w-1.5 shrink-0 rounded-full', TONE_DOT[tone])}
+                          />
+                          {label}
+                        </span>
+                      </>
+                    ) : null}
                   </span>
                 </button>
               );
@@ -519,11 +536,11 @@ export function TherapyAnatomyStage({
           : null}
       </div>
 
-      {/* ── loading aset atlas: skeleton global + line heartbeat global ── */}
+      {/* ── loading aset atlas: skeleton global + LifelineLoader global (sama seperti PDF viewer) ── */}
       {loadedAssetId !== asset.id ? (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-gradient-to-b from-[#F8FAFC]/95 to-[#EEF2F6]/95">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-white/80 backdrop-blur-sm">
           <SkeletonBlock className="h-3/5 w-1/2 max-w-[220px] rounded-[40px] bg-slate-200/70" />
-          <LineHeartbeat label="Memuat atlas anatomi…" />
+          <LifelineLoader label="Memuat atlas anatomi…" />
         </div>
       ) : null}
 
@@ -642,11 +659,11 @@ export function TherapyAnatomyStage({
       ) : null}
 
       {/* ── pemilih sistem anatomi + tampakan (kiri bawah, tidak menutup legenda) ── */}
-      <div className="absolute bottom-4 left-4 flex max-w-[65%] flex-col items-start gap-1.5">
+      <div className="absolute bottom-4 left-4 flex max-w-[70%] flex-col items-start gap-1">
         <div
           role="group"
           aria-label="Sistem anatomi"
-          className="flex flex-wrap justify-start gap-0.5 rounded-full border border-slate-200/80 bg-white/90 p-0.5 shadow-sm backdrop-blur"
+          className="flex flex-wrap justify-start gap-0.5 rounded-full border border-slate-200/70 bg-white/60 p-0.5 shadow-sm backdrop-blur-md"
         >
           {ANATOMY_SYSTEMS.map((item) => (
             <button
@@ -656,7 +673,7 @@ export function TherapyAnatomyStage({
               title={item.anterior.label}
               onClick={() => selectSystem(item.key)}
               className={cn(
-                'tap-target min-h-8 cursor-pointer rounded-full px-2.5 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
+                'tap-target min-h-7 cursor-pointer rounded-full px-2 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
                 system === item.key
                   ? 'bg-[var(--hafta-950)] text-white'
                   : 'text-muted-foreground hover:bg-slate-100 hover:text-foreground',
@@ -669,7 +686,7 @@ export function TherapyAnatomyStage({
         <div
           role="group"
           aria-label="Tampakan anatomi"
-          className="flex gap-0.5 rounded-full border border-slate-200/80 bg-white/90 p-0.5 shadow-sm backdrop-blur"
+          className="flex gap-0.5 rounded-full border border-slate-200/70 bg-white/60 p-0.5 shadow-sm backdrop-blur-md"
         >
           {(
             [
@@ -689,7 +706,7 @@ export function TherapyAnatomyStage({
                 }
                 onClick={() => setView(item.key)}
                 className={cn(
-                  'tap-target min-h-8 cursor-pointer rounded-full px-2.5 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
+                  'tap-target min-h-7 cursor-pointer rounded-full px-2 text-[10px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
                   view === item.key
                     ? 'bg-[var(--hafta-950)] text-white'
                     : 'text-muted-foreground hover:bg-slate-100 hover:text-foreground',
@@ -703,7 +720,7 @@ export function TherapyAnatomyStage({
       </div>
 
       {/* ── kontrol kanvas ── */}
-      <div className="absolute bottom-4 right-4 flex flex-col gap-1 rounded-full border border-slate-200/80 bg-white/90 p-1 shadow-sm backdrop-blur">
+      <div className="absolute bottom-4 right-4 flex flex-col gap-1 rounded-full border border-slate-200/70 bg-white/60 p-1 shadow-sm backdrop-blur-md">
         <button
           type="button"
           aria-label="Reset tampilan"
