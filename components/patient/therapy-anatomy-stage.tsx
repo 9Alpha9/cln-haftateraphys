@@ -3,13 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, FlipHorizontal2, Layers, Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { AnatomySystemMenu } from '@/components/patient/anatomy-system-menu';
 import { SkeletonBlock } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { LifelineLoader } from '@/components/animate-ui/lifeline-loader';
 import { REGION_POINTS, type DetectedRegion } from '@/components/patient/body-condition-map';
@@ -694,35 +688,13 @@ export function TherapyAnatomyStage({
       ) : null}
 
       {/* ── pemilih sistem + tampakan: rail vertikal kompak di sisi KIRI kanvas ── */}
-      <div className="absolute left-3 top-1/2 z-20 flex -translate-y-1/2 flex-col items-center gap-1 rounded-full border border-border bg-popover p-1 shadow-sm">
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <button
-              type="button"
-              aria-label={`Sistem anatomi: ${systemEntry?.label ?? ''}`}
-              title={`Sistem anatomi: ${systemEntry?.label ?? ''}`}
-              className="tap-target inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 data-[state=open]:bg-accent"
-            >
-              <Layers aria-hidden="true" className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            side="right"
-            align="start"
-            sideOffset={8}
-            container={fullscreenContainer ?? undefined}
-            className="min-w-[148px]"
-          >
-            <DropdownMenuRadioGroup value={system} onValueChange={(value) => selectSystem(value as AnatomySystemKey)}>
-              {ANATOMY_SYSTEMS.map((item) => (
-                <DropdownMenuRadioItem key={item.key} value={item.key} className="cursor-pointer text-[11px] font-semibold">
-                  {item.label}
-                </DropdownMenuRadioItem>
-              ))}
-            </DropdownMenuRadioGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+      <AnatomySystemMenu
+        system={system}
+        view={view}
+        container={fullscreenContainer}
+        onSelectSystem={selectSystem}
+        onToggleView={() => setView((current) => (current === 'anterior' ? 'posterior' : 'anterior'))}
+      />
       <div className="absolute bottom-4 right-4 z-20 flex flex-col gap-1 rounded-full border border-border bg-popover p-1 shadow-sm">
         <button
           type="button"
