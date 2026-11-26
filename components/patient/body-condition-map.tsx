@@ -28,18 +28,24 @@ export const REGION_POINTS: Record<BodyRegionKey, { x: number; y: number; label:
 /**
  * Posisi penanda area pada GAMBAR anatomi PNG (`/assets/anatomy-front.png`),
  * dalam persen lebar/tinggi gambar — dipakai panggung anatomi interaktif.
+ * Dikalibrasi dari profil siluet gambar (kepala y 0–13%, bahu y≈18%, pinggul
+ * y≈56%, lutut y≈78%, pergelangan y≈92%).
+ *
+ * Konvensi tampilan depan: `x` = sisi KANAN pasien (kiri gambar), `altX` =
+ * sisi KIRI pasien (kanan gambar). Area tunggal (kepala, leher, dll.) tanpa
+ * `altX`.
  */
-export const BODY_REGION_IMAGE_POSITIONS: Record<BodyRegionKey, { x: number; y: number }> = {
-  kepala: { x: 50, y: 4 },
-  leher: { x: 50, y: 9 },
-  bahu: { x: 37, y: 17 },
-  lengan: { x: 49, y: 26 },
-  dada: { x: 50, y: 14 },
-  perut: { x: 50, y: 28 },
-  pinggul: { x: 50, y: 34 },
-  punggung: { x: 50, y: 40 },
-  lutut: { x: 58, y: 76 },
-  kaki: { x: 57, y: 88 },
+export const BODY_REGION_IMAGE_POSITIONS: Record<BodyRegionKey, { x: number; y: number; altX?: number }> = {
+  kepala: { x: 50, y: 6 },
+  leher: { x: 50, y: 14 },
+  bahu: { x: 34, y: 18, altX: 66 },
+  lengan: { x: 16, y: 33, altX: 84 },
+  dada: { x: 50, y: 22 },
+  perut: { x: 50, y: 37 },
+  punggung: { x: 50, y: 45 },
+  pinggul: { x: 44, y: 56, altX: 56 },
+  lutut: { x: 40, y: 78, altX: 60 },
+  kaki: { x: 41, y: 92, altX: 59 },
 };
 
 /** Kata kunci Indonesia/istilah klinis → area tubuh.
@@ -94,13 +100,53 @@ const TONE_HALO: Record<Tone, string> = {
   alert: 'bg-[var(--hafta-red-500)]/25',
 };
 
-/** Deteksi area tubuh dari teks bebas (diagnosis/anamnesis/pemeriksaan). */
-export function detectBodyRegions(...texts: Array<string | null | undefined>): BodyRegionKey[] {
+/** Area tubuh yang terdeteksi + sisi yang disebut dalam keluhan (bila ada). */
+export type DetectedRegion = {
+  key: BodyRegionKey;
+  side: 'kiri' | 'kanan' | null;
+};
+
+/**
+ * Deteksi area tubuh dari teks bebas (diagnosis/anamnesis/pemeriksaan).
+ * Bila kata "kiri"/"kanan" muncul dekat kata kunci area, sisi ikut dicatat
+ * supaya penanda diletakkan pada sisi tubuh yang benar (tampilan depan:
+ * kanan pasien = kiri gambar).
+ */
+export function detectBodyRegions(...texts: Array<string | null | undefined>): DetectedRegion[] {
   const haystack = ` ${texts.filter(Boolean).join(' ').toLowerCase()} `;
-  const hits = (Object.keys(REGION_KEYWORDS) as BodyRegionKey[]).filter((region) =>
-    REGION_KEYWORDS[region].some((word) => haystack.includes(word.toLowerCase())),
-  );
-  return hits;
+  const detected: DetectedRegion[] = [];
+  for (const key of Object.keys(REGION_KEYWORDS) as BodyRegionKey[]) {
+    const match = REGION_KEYWORDS[key].find((word) => haystack.includes(word.toLowerCase()));
+    if (!match) continue;
+    const at = haystack.indexOf(match.toLowerCase());
+    // Sisi hanya dibaca dalam KALIMAT yang sama — mencegah "bahu kiri" pada
+    // kalimat sebelumnya mencemari sisi area lain (mis. leher/lutut).
+    const boundary = Math.max(
+      haystack.lastIndexOf('.', at),
+      haystack.lastIndexOf(';', at),
+      haystack.lastIndexOf('!', at),
+      haystack.lastIndexOf('?', at),
+    );
+    const segStart = boundary + 1;
+    const nextDots = ['.', ';', '!', '?']
+      .map((ch) => haystack.indexOf(ch, at + match.length))
+      .filter((index) => index !== -1);
+    const segment = haystack.slice(segStart, nextDots.length ? Math.min(...nextDots) : haystack.length);
+    const kiriAt = segment.search(/\bkiri\b/);
+    const kananAt = segment.search(/\bkanan\b/);
+    const side =
+      kiriAt === -1
+        ? kananAt === -1
+          ? null
+          : 'kanan'
+        : kananAt === -1
+          ? 'kiri'
+          : kiriAt <= kananAt
+            ? 'kiri'
+            : 'kanan';
+    detected.push({ key, side });
+  }
+  return detected;
 }
 
 export function BodyConditionMap({

@@ -1045,7 +1045,7 @@ export function PatientMedicalRecordView({
                   <button
                     type="button"
                     onClick={() => selectTab('dokumen')}
-                    className="inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-full text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                    className="tap-target inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-full text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
                   >
                     Semua
                     <ChevronRight className="h-3.5 w-3.5" />
@@ -1070,14 +1070,14 @@ export function PatientMedicalRecordView({
                           {shortDate(record.recordedAt)} · {labelRecordStatus(record.status)}
                         </span>
                       </span>
-                      <Button
-                        variant="outline"
-                        size="sm"
+                      <button
+                        type="button"
                         aria-label={`Cetak/unduh Sesi ${visitNumberById.get(record.id) ?? 0}`}
                         onClick={() => setPrintRecord(record)}
+                        className="tap-target flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
                       >
-                        <Printer />
-                      </Button>
+                        <Printer className="h-4 w-4" />
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -1088,6 +1088,14 @@ export function PatientMedicalRecordView({
             <TherapyAnatomyStage
               markers={bodyRegions}
               tone={bodyTone}
+              detail={
+                selectedRecord.diagnosis || selectedRecord.treatment
+                  ? {
+                      condition: selectedRecord.diagnosis ?? '',
+                      therapyMethod: selectedRecord.treatment ?? '',
+                    }
+                  : null
+              }
               onRegionSelect={() => openSession(selectedRecord)}
               fallbackHint="Area keluhan akan ditandai otomatis dari diagnosis sesi terpilih."
             />
@@ -1106,7 +1114,7 @@ export function PatientMedicalRecordView({
                     <button
                       type="button"
                       onClick={() => setProgramOpen(true)}
-                      className="inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-full text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                      className="tap-target inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-full text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
                     >
                       Semua
                       <ChevronRight className="h-3.5 w-3.5" />
@@ -1141,8 +1149,9 @@ export function PatientMedicalRecordView({
                 </section>
               ) : null}
 
+              {/* Temuan utama — tidak menggandakan angka progres di stat pill. */}
               <section
-                aria-label="Progres pemulihan"
+                aria-label="Diagnosis terkini"
                 className="relative overflow-hidden rounded-[28px] bg-[#1C1C1E] p-5 text-white shadow-[0_8px_24px_rgba(28,25,23,0.16)]"
               >
                 <svg
@@ -1165,25 +1174,22 @@ export function PatientMedicalRecordView({
                 <div className="relative">
                   <div className="flex items-start justify-between gap-2">
                     <span className="rounded-full border border-white/25 px-2 py-0.5 text-[10px] font-bold tracking-[0.14em] text-white/70">
-                      PROGRES
+                      TEMUAN UTAMA
                     </span>
-                    <TrendingUp aria-hidden="true" className="h-4 w-4 text-white/40" />
+                    <Stethoscope aria-hidden="true" className="h-4 w-4 shrink-0 text-white/40" />
                   </div>
-                  <div className="mt-3 flex items-baseline gap-1">
-                    <span className="text-3xl font-bold tabular-nums">{averageScore}</span>
-                    <span className="text-lg font-bold text-white/60">%</span>
-                  </div>
-                  <h2 className="text-balance mt-1 text-lg font-bold tracking-tight">Progres Pemulihan</h2>
-                  <p className="mt-1.5 max-w-[85%] text-xs leading-relaxed text-white/60">
-                    Rata-rata rentang gerak, kekuatan &amp; fungsi dari {sessions.length} sesi terapi.
+                  <h2 className="text-balance mt-3 text-lg font-bold tracking-tight">Diagnosis Terkini</h2>
+                  <p className="line-clamp-4 mt-1.5 max-w-[85%] text-xs leading-relaxed text-white/60">
+                    {selectedRecord.diagnosis || 'Belum ada diagnosis tercatat pada sesi terpilih.'}
                   </p>
-                  <Link
-                    href="#grafik-pemulihan"
-                    aria-label="Lihat grafik pemulihan"
-                    className="mt-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#FACC15] text-[#1C1C1E] transition-colors hover:bg-[#FDE047] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FACC15]/40"
+                  <button
+                    type="button"
+                    onClick={() => openSession(selectedRecord)}
+                    aria-label="Buka detail lengkap sesi"
+                    className="tap-target mt-4 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#FACC15] text-[#1C1C1E] transition-colors hover:bg-[#FDE047] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FACC15]/40"
                   >
                     <ArrowUpRight className="h-4 w-4" />
-                  </Link>
+                  </button>
                 </div>
               </section>
             </aside>
