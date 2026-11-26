@@ -1,9 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ChevronRight, FlipHorizontal2, HeartPulse, Layers, Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { ChevronRight, FlipHorizontal2, Layers, Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AnatomySystemMenu } from '@/components/patient/anatomy-system-menu';
+import { HeartPulse } from '@/components/animate-ui/icons/heart-pulse';
 import { SkeletonBlock } from '@/components/dashboard/skeletons/skeleton-primitives';
 import { LifelineLoader } from '@/components/animate-ui/lifeline-loader';
 import { REGION_POINTS, type DetectedRegion } from '@/components/patient/body-condition-map';
@@ -674,8 +675,12 @@ export function TherapyAnatomyStage({
         >
           <span className="flex flex-wrap items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
             <HeartPulse
+              size={14}
               aria-hidden="true"
-              className={`h-3.5 w-3.5 shrink-0 motion-reduce:animate-none animate-heartbeat ${TONE_TEXT[tone]}`}
+              className={`shrink-0 ${TONE_TEXT[tone]}`}
+              animate
+              loop
+              loopDelay={400}
             />
             {legendExpanded ? (
               <span>
