@@ -42,25 +42,28 @@ export const BODY_REGION_IMAGE_POSITIONS: Record<BodyRegionKey, { x: number; y: 
   kaki: { x: 57, y: 88 },
 };
 
-/** Kata kunci Indonesia/istilah klinis → area tubuh. */
+/** Kata kunci Indonesia/istilah klinis → area tubuh.
+ *  Aturan: kata umum yang muncul sebagai KONTEKS (bukan keluhan) tidak dipakai —
+ *  mis. "postur", "core", atau "kepala" pada frasa "postur kepala maju".
+ *  Area hanya ditandai bila benar-benar dikeluhkan/diperiksa. */
 const REGION_KEYWORDS: Record<BodyRegionKey, string[]> = {
-  kepala: ['kepala', 'migrain', 'vertigo', ' TBI ', 'concussion'],
+  kepala: ['sakit kepala', 'nyeri kepala', 'migrain', 'vertigo', 'pusing', 'trauma kepala', ' TBI ', 'concussion'],
   leher: ['leher', 'cervical', 'servikal', 'torticollis', 'whiplash'],
   bahu: ['bahu', 'shoulder', 'rotator', 'impingement', 'frozen shoulder'],
   lengan: [
-    'lengan',
     'siku',
     'elbow',
-    'tangan',
-    'wrist',
     'pergelangan tangan',
+    'wrist',
     'karpal',
     'carpal',
     'epikondilitis',
     'tennis elbow',
+    'nyeri lengan',
+    'kesemutan lengan',
   ],
-  dada: ['dada', 'chest', 'sesak', 'pernapasan', 'postur', 'posture', 'skoliosis ringan'],
-  perut: ['perut', 'abdomen', 'core', 'oblique', 'diastasis'],
+  dada: ['dada', 'chest', 'sesak', 'pernapasan', 'nyeri dada'],
+  perut: ['perut', 'abdomen', 'diastasis', 'nyeri perut'],
   punggung: [
     'punggung',
     'back',

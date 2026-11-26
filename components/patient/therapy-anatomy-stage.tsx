@@ -236,16 +236,18 @@ export function TherapyAnatomyStage({
                 </div>
               </div>
             ) : null}
-
-            {/* fallback bila belum ada area terdeteksi */}
-            {markers.length === 0 && !activeRegion ? (
-              <p className="absolute inset-x-0 bottom-2 mx-auto max-w-[80%] rounded-full bg-white/85 px-3 py-1.5 text-center text-[10px] leading-snug text-muted-foreground shadow-sm backdrop-blur">
-                {fallbackHint}
-              </p>
-            ) : null}
           </div>
         </div>
       </div>
+
+      {/* fallback bila belum ada area — DI LUAR kanvas sehingga tidak ikut zoom/pan */}
+      {markers.length === 0 ? (
+        <div className="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center px-4">
+          <p className="max-w-[80%] rounded-full border border-slate-200/80 bg-white/90 px-3 py-1.5 text-center text-[10px] leading-snug text-muted-foreground shadow-sm backdrop-blur">
+            {fallbackHint}
+          </p>
+        </div>
+      ) : null}
 
       {/* ── kontrol kanvas ── */}
       <div className="absolute bottom-4 right-4 flex flex-col gap-1 rounded-full border border-slate-200/80 bg-white/90 p-1 shadow-sm backdrop-blur">
