@@ -693,8 +693,9 @@ export function TherapyAnatomyStage({
               aria-hidden="true"
               className={cn(
                 'h-3 w-3 shrink-0 text-muted-foreground transition-transform duration-200',
-                // collapsed: panah ke depan (kanan); expanded: kebalikannya (atas)
-                legendExpanded ? '-rotate-90' : 'rotate-0',
+                // collapsed: panah ke depan (kanan, konten membuka ke kanan);
+                // expanded: kebalikannya (kiri) karena konten menutup ke kiri.
+                legendExpanded ? 'rotate-180' : 'rotate-0',
               )}
             />
           </span>
