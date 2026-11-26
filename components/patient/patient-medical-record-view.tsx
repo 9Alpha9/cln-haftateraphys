@@ -685,7 +685,7 @@ export function PatientMedicalRecordView({
                   <button
                     type="button"
                     onClick={() => openSession(selectedRecord)}
-                    className="tap-target mt-3 inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-full text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                    className="tap-target mt-3 -ml-2.5 inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-full px-2.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
                   >
                     Lihat catatan lengkap
                     <ChevronRight className="h-3.5 w-3.5" />
