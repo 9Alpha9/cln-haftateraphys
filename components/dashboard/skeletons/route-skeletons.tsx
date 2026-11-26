@@ -443,30 +443,139 @@ function CalendarSkeleton() {
 
 function ProgressSkeleton() {
   return (
-    <div className="space-y-4 sm:space-y-6">
-      <PageHeaderSkeleton action="single" />
-      <ToolbarSkeleton tabs={4} />
-      <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-        {[0, 1, 2, 3, 4, 5].map((item) => (
-          <SkeletonPanel key={item} className="h-64 rounded-2xl p-3.5 sm:p-5">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <SkeletonBlock className="h-5 w-36 rounded-md bg-stone-200" />
+    <div className="space-y-4 sm:space-y-5">
+      {/* ── pill tabs terpusat ── */}
+      <div className="mx-auto flex h-auto w-full max-w-lg items-center justify-center gap-1.5 rounded-full border border-border/60 bg-muted/60 p-1.5">
+        {['Ringkasan', 'Kunjungan', 'Diagnosis', 'Tindakan', 'Dokumen'].map((label) => (
+          <SkeletonBlock key={label} className="h-9 flex-1 rounded-full bg-stone-200/70" />
+        ))}
+      </div>
+
+      {/* ── 12-col grid: kiri identitas+metrik | tengah atlas | kanan info klinis ── */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start">
+        {/* KOLOM KIRI */}
+        <div className="min-w-0 space-y-4 lg:col-span-4">
+          {/* kartu identitas pasien */}
+          <SkeletonPanel className="relative overflow-hidden rounded-[28px] p-4 sm:p-5">
+            <div className="flex items-center gap-2">
+              <SkeletonBlock className="h-6 w-36 rounded-md bg-stone-200" />
+              <SkeletonBlock className="h-5 w-20 rounded-full bg-stone-100" />
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2.5">
+              {Array.from({ length: 4 }, (_, item) => (
+                <div key={item} className="space-y-1.5">
+                  <SkeletonLine className="w-16 bg-stone-100" />
+                  <SkeletonBlock className="h-4 w-24 rounded-md bg-stone-200/80" />
+                </div>
+              ))}
+            </div>
+          </SkeletonPanel>
+
+          {/* dua kartu metrik (VAS & ROM) */}
+          <div className="grid grid-cols-2 gap-3">
+            {[0, 1].map((item) => (
+              <SkeletonPanel key={item} className="rounded-[28px] p-4">
+                <SkeletonLine className="w-20 bg-stone-100" />
+                <SkeletonBlock className="mt-2 h-7 w-16 rounded-md bg-stone-200" />
+                <div className="mt-3 flex h-10 items-end gap-1">
+                  {[6, 9, 4, 10, 7].map((bar) => (
+                    <SkeletonBlock key={bar} className="flex-1 rounded-t-md bg-stone-100" style={{ height: bar * 4 }} />
+                  ))}
+                </div>
+              </SkeletonPanel>
+            ))}
+          </div>
+
+          {/* kartu terapis & jadwal */}
+          <SkeletonPanel className="rounded-[28px] p-4 sm:p-5">
+            <SkeletonLine className="w-28 bg-stone-100" />
+            <div className="mt-3 flex items-center gap-3">
+              <SkeletonBlock className="h-11 w-11 shrink-0 rounded-full bg-stone-200" />
+              <div className="flex-1 space-y-2">
+                <SkeletonBlock className="h-4 w-32 rounded-md bg-stone-200/80" />
                 <SkeletonLine className="w-24 bg-stone-100" />
               </div>
-              <SkeletonBlock className="h-6 w-20 rounded-full bg-stone-100" />
+              <SkeletonBlock className="h-8 w-24 rounded-full bg-stone-100" />
             </div>
-            <div className="mt-5 space-y-3">
+          </SkeletonPanel>
+
+          {/* kartu kekuatan & fungsi */}
+          <SkeletonPanel className="rounded-[28px] p-4 sm:p-5">
+            <SkeletonLine className="w-32 bg-stone-100" />
+            <div className="mt-4 space-y-3">
+              {[0, 1, 2].map((item) => (
+                <div key={item} className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <SkeletonLine className="w-20 bg-stone-100" />
+                    <SkeletonBlock className="h-4 w-10 rounded-md bg-stone-200/80" />
+                  </div>
+                  <SkeletonBlock className="h-1 w-full rounded-full bg-stone-100" />
+                </div>
+              ))}
+            </div>
+          </SkeletonPanel>
+        </div>
+
+        {/* KOLOM TENGAH — atlas canvas */}
+        <div className="min-w-0 lg:col-span-4">
+          <SkeletonPanel className="min-h-[560px] rounded-[28px] sm:min-h-[640px]">
+            <div className="flex h-full flex-col items-center justify-center gap-4 p-6">
+              <SkeletonBlock className="h-3/5 w-1/2 max-w-[220px] rounded-[40px] bg-stone-200/70" />
+              <SkeletonLine className="w-32 bg-stone-100" />
+            </div>
+          </SkeletonPanel>
+        </div>
+
+        {/* KOLOM KANAN — panel info klinis scrollable */}
+        <div className="min-w-0 space-y-4 lg:col-span-4">
+          {/* statistik ringkas */}
+          <div className="grid grid-cols-3 gap-2">
+            {[0, 1, 2].map((item) => (
+              <SkeletonPanel key={item} className="rounded-3xl p-3">
+                <SkeletonLine className="w-14 bg-stone-100" />
+                <SkeletonBlock className="mt-2 h-6 w-12 rounded-md bg-stone-200" />
+                <SkeletonLine className="mt-2 w-full bg-stone-100" />
+              </SkeletonPanel>
+            ))}
+          </div>
+
+          {/* diagnosis terkini */}
+          <SkeletonPanel className="relative overflow-hidden rounded-[28px] p-4 sm:p-5">
+            <div className="flex items-start justify-between">
+              <SkeletonLine className="w-32 bg-stone-100" />
+              <SkeletonBlock className="h-5 w-16 rounded-full bg-stone-100" />
+            </div>
+            <div className="mt-3 space-y-2">
               <SkeletonLine className="w-full" />
               <SkeletonLine className="w-5/6 bg-stone-100" />
               <SkeletonLine className="w-2/3 bg-stone-100" />
             </div>
-            <div className="mt-6 flex items-center justify-between border-t border-stone-100 pt-4">
-              <SkeletonBlock className="h-4 w-24 rounded-md bg-stone-100" />
-              <SkeletonBlock className="h-8 w-20 rounded-full bg-stone-100" />
+          </SkeletonPanel>
+
+          {/* area keluhan pills */}
+          <SkeletonPanel className="rounded-[28px] p-4 sm:p-5">
+            <SkeletonLine className="w-24 bg-stone-100" />
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {[0, 1, 2, 3].map((item) => (
+                <SkeletonBlock key={item} className="h-9 w-24 rounded-full bg-stone-200/70" />
+              ))}
             </div>
           </SkeletonPanel>
-        ))}
+
+          {/* perjalanan pemulihan workspace */}
+          <SkeletonPanel className="rounded-[28px] p-4 sm:p-5">
+            <div className="flex items-center justify-between">
+              <SkeletonLine className="w-36 bg-stone-100" />
+              <SkeletonBlock className="h-8 w-8 rounded-full bg-stone-100" />
+            </div>
+            <div className="mt-3 flex gap-1.5">
+              {[0, 1, 2].map((item) => (
+                <SkeletonBlock key={item} className="h-8 w-20 rounded-full bg-stone-100" />
+              ))}
+            </div>
+            <SkeletonBlock className="mt-4 h-[170px] w-full rounded-2xl bg-stone-100 sm:h-[190px]" />
+          </SkeletonPanel>
+        </div>
       </div>
     </div>
   );
