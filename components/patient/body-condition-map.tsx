@@ -11,8 +11,8 @@ export type BodyRegionKey =
 
 type Tone = 'good' | 'watch' | 'alert';
 
-/** Posisi penanda dalam viewBox 200×380 (tampak depan). */
-const REGION_POINTS: Record<BodyRegionKey, { x: number; y: number; label: string }> = {
+/** Posisi penanda area dalam viewBox 200×380 (tampak depan) + label tampilan. */
+export const REGION_POINTS: Record<BodyRegionKey, { x: number; y: number; label: string }> = {
   kepala: { x: 100, y: 30, label: 'Kepala' },
   leher: { x: 100, y: 58, label: 'Leher' },
   bahu: { x: 76, y: 80, label: 'Bahu' },
@@ -23,6 +23,23 @@ const REGION_POINTS: Record<BodyRegionKey, { x: number; y: number; label: string
   pinggul: { x: 100, y: 208, label: 'Pinggul' },
   lutut: { x: 84, y: 286, label: 'Lutut' },
   kaki: { x: 114, y: 340, label: 'Kaki & pergelangan' },
+};
+
+/**
+ * Posisi penanda area pada GAMBAR anatomi PNG (`/assets/anatomy-front.png`),
+ * dalam persen lebar/tinggi gambar — dipakai panggung anatomi interaktif.
+ */
+export const BODY_REGION_IMAGE_POSITIONS: Record<BodyRegionKey, { x: number; y: number }> = {
+  kepala: { x: 50, y: 4 },
+  leher: { x: 50, y: 9 },
+  bahu: { x: 37, y: 17 },
+  lengan: { x: 49, y: 26 },
+  dada: { x: 50, y: 14 },
+  perut: { x: 50, y: 28 },
+  pinggul: { x: 50, y: 34 },
+  punggung: { x: 50, y: 40 },
+  lutut: { x: 58, y: 76 },
+  kaki: { x: 57, y: 88 },
 };
 
 /** Kata kunci Indonesia/istilah klinis → area tubuh. */
