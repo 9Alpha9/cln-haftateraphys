@@ -2,6 +2,7 @@
 
 import { memo, useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import {
   Activity,
   CalendarDays,
@@ -451,7 +452,21 @@ export function PatientMedicalRecordView({
   homeProgram?: HomeProgramView | null;
   treatmentPlan?: TreatmentPlanView | null;
 }) {
-  const [activeTab, setActiveTab] = useState<TabKey>('ringkasan');
+  // Tab di-derive dari URL (?tab=…) + override lokal, bukan disinkronkan lewat
+  // effect — server dan client render sama dari awal (bebas hydration mismatch)
+  // dan tab bisa dibagikan/di-refresh tanpa hilang.
+  const searchParams = useSearchParams();
+  const [tabOverride, setTabOverride] = useState<TabKey | null>(null);
+  const urlTab = searchParams.get('tab');
+  const activeTab: TabKey =
+    tabOverride ?? (urlTab && TABS.some((tab) => tab.key === urlTab) ? (urlTab as TabKey) : 'ringkasan');
+
+  function selectTab(tab: TabKey) {
+    setTabOverride(tab);
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', tab);
+    window.history.replaceState(null, '', `?${params.toString()}`);
+  }
   const [selectedRecordId, setSelectedRecordId] = useState(records[0]?.id ?? '');
   const [detailRecord, setDetailRecord] = useState<TherapyProgressView | null>(null);
   /** Pratinjau cetak/unduh via PDF.js global (MedicalRecordPrintDialog). */
@@ -649,7 +664,7 @@ export function PatientMedicalRecordView({
 
   function openRecord(recordId: string) {
     setSelectedRecordId(recordId);
-    setActiveTab('ringkasan');
+    setTabOverride('ringkasan');
   }
 
   /**
@@ -660,7 +675,7 @@ export function PatientMedicalRecordView({
   const nextTherapyCard = (
     <section className="hafta-card overflow-hidden">
       <div className="flex items-center justify-between gap-2 border-b border-border/70 px-4 py-3">
-        <p className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold tracking-normal text-muted-foreground">
+        <p className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-muted-foreground">
           <CalendarDays className="h-3 w-3 shrink-0 text-[var(--hafta-300)]" />
           Terapi Berikutnya
         </p>
@@ -682,9 +697,7 @@ export function PatientMedicalRecordView({
         {nextSchedule ? (
           <div className="flex items-start gap-3">
             <div className="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-2xl bg-[var(--hafta-900)] text-white">
-              <span className="text-xs font-medium tracking-normal text-white/65">
-                {shortWeekday(nextSchedule.dateAt)}
-              </span>
+              <span className="text-xs font-medium text-white/65">{shortWeekday(nextSchedule.dateAt)}</span>
               <span className="text-xl font-semibold leading-tight tabular-nums">{dayNumber(nextSchedule.dateAt)}</span>
             </div>
             <div className="min-w-0">
@@ -740,7 +753,7 @@ export function PatientMedicalRecordView({
           <h1 className="text-lg font-semibold tracking-tight text-foreground sm:text-xl">
             {patient?.preferredName ?? patient?.fullName ?? 'Pasien'}
           </h1>
-          <span className="rounded-full bg-[var(--hafta-50)] px-2 py-0.5 text-xs font-semibold text-[var(--hafta-700)]">
+          <span className="rounded-full bg-[var(--hafta-50)] px-2 py-0.5 text-xs font-medium text-[var(--hafta-700)]">
             {labelCaseStatus(patient?.caseStatus)}
           </span>
         </div>
@@ -755,7 +768,7 @@ export function PatientMedicalRecordView({
             },
           ].map((item) => (
             <div key={item.label} className="min-w-0">
-              <dt className="text-xs font-semibold tracking-normal text-muted-foreground sm:text-xs">{item.label}</dt>
+              <dt className="text-xs font-semibold text-muted-foreground ">{item.label}</dt>
               <dd className={cn('mt-0.5 truncate text-sm font-medium text-foreground', item.tabular && 'tabular-nums')}>
                 {item.value}
               </dd>
@@ -763,50 +776,44 @@ export function PatientMedicalRecordView({
           ))}
         </dl>
       </header>
-      {/* ── 2. STAT PILLS — satu baris, tint token ── */}
+      {/* ── 2. STAT — angka jadi fokus, label kecil di atas ── */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {[
           {
-            icon: Activity,
             label: 'Total Sesi',
             value: `${sessions.length}`,
             detail: firstRecord ? `sejak ${shortDate(firstRecord.recordedAt)}` : 'belum ada sesi',
-            // Angka utama dioptimalkan untuk ter-highlight.
-            valueClass:
-              'text-xl font-bold leading-none tracking-tight tabular-nums text-foreground sm:text-2xl lg:text-3xl',
+            valueClass: 'text-2xl leading-none tracking-tight sm:text-3xl',
           },
           {
-            icon: TrendingUp,
             label: 'Progres',
             value: `${averageScore}%`,
             detail: 'rata-rata ROM, kekuatan & fungsi',
-            valueClass:
-              'text-xl font-bold leading-none tracking-tight tabular-nums text-foreground sm:text-2xl lg:text-3xl',
+            valueClass: 'text-2xl leading-none tracking-tight sm:text-3xl',
           },
           {
-            icon: CalendarDays,
             label: 'Berikutnya',
             value: nextScheduleDateLabel,
             // Detail selalu konsisten dengan value: tanggal tampil bila jadwal
             // benar-benar ada; tanpa jadwal jangan menampilkan frekuensi
             // seolah-olah sudah terjadwal.
             detail: nextScheduleDetail,
-            // Tanggal lebih panjang dari angka murni — boleh wrap di layar sempit.
-            valueClass:
-              'text-sm font-bold leading-tight tracking-tight tabular-nums text-foreground sm:text-xl lg:text-2xl',
+            // Tanggal — bukan angka murni, jadi lebih kecil dari dua tetangganya.
+            valueClass: 'text-base leading-tight tracking-tight sm:text-xl',
           },
         ].map((stat) => (
-          <div key={stat.label} className="hafta-card p-2.5 sm:p-3.5">
-            <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[var(--hafta-50)] sm:h-7 sm:w-7">
-                <stat.icon className="h-3 w-3 text-[var(--hafta-400)] sm:h-3.5 sm:w-3.5" />
-              </span>
-              <p className="min-w-0 text-xs font-semibold tracking-normal text-muted-foreground sm:text-xs sm:tracking-normal">
-                {stat.label}
-              </p>
-            </div>
-            <p className={cn('mt-2', stat.valueClass)}>{stat.value}</p>
-            <p className="mt-1.5 line-clamp-3 text-xs leading-snug text-muted-foreground sm:line-clamp-1 sm:text-xs">
+          <div key={stat.label} className="hafta-card p-3 sm:p-4">
+            <p className="text-xs font-medium text-muted-foreground">{stat.label}</p>
+            <p
+              className={cn(
+                'mt-1.5 font-semibold tabular-nums text-foreground',
+                stat.valueClass,
+                stat.label === 'Berikutnya' && 'break-words',
+              )}
+            >
+              {stat.value}
+            </p>
+            <p className="mt-1.5 line-clamp-2 text-xs leading-snug text-muted-foreground sm:line-clamp-1">
               {stat.detail}
             </p>
           </div>
@@ -815,24 +822,27 @@ export function PatientMedicalRecordView({
 
       {/* ── 3. TABS ── */}
       <nav
-        aria-label="Tab rekam medis"
-        className="flex items-center gap-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        role="tablist"
+        aria-label="Bagian rekam medis"
+        className="flex items-stretch gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        style={{ touchAction: 'manipulation' }}
       >
         {TABS.map((tab) => (
           <button
             key={tab.key}
             type="button"
-            onClick={() => setActiveTab(tab.key)}
-            aria-pressed={activeTab === tab.key}
+            role="tab"
+            onClick={() => selectTab(tab.key)}
+            aria-selected={activeTab === tab.key}
             className={cn(
-              'relative flex min-h-11 shrink-0 cursor-pointer items-center whitespace-nowrap pb-2 text-xs font-medium transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
+              'relative flex min-h-11 shrink-0 cursor-pointer items-center px-2 pb-1 text-sm font-medium transition-colors first:pl-0 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 focus-visible:ring-offset-[-2px]',
               activeTab === tab.key ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
             )}
           >
             {tab.label}
             <span
               className={cn(
-                'absolute inset-x-0 bottom-0 h-0.5 rounded-full',
+                'absolute inset-x-1 bottom-0 h-0.5 rounded-full',
                 activeTab === tab.key ? 'bg-[var(--hafta-300)]' : 'bg-transparent',
               )}
               aria-hidden="true"
@@ -843,28 +853,36 @@ export function PatientMedicalRecordView({
 
       {/* ── 4. KONTEN ── */}
       {records.length === 0 ? (
-        <div className="flex flex-col items-center hafta-card py-12 text-center">
-          <Activity className="h-6 w-6 text-muted-foreground" />
-          <p className="mt-3 text-sm font-semibold text-foreground">Belum ada rekam medis</p>
-          <p className="mt-1 max-w-sm text-xs leading-relaxed text-muted-foreground">
-            Catatan evaluasi akan tampil setelah fisioterapis menyelesaikan sesi dan membagikannya.
+        <div className="flex flex-col items-center rounded-2xl border border-dashed border-border bg-card px-6 py-12 text-center">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[var(--hafta-50)]">
+            <Activity className="h-5 w-5 text-[var(--hafta-400)]" />
+          </span>
+          <p className="mt-4 text-base font-semibold text-foreground">Belum ada rekam medis</p>
+          <p className="mt-1 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            Catatan evaluasi akan tampil setelah fisioterapis menyelesaikan sesi dan membagikannya kepada Anda.
           </p>
+          <Link
+            href="/dashboard/appointments"
+            className="mt-4 inline-flex h-11 items-center justify-center gap-1.5 rounded-full bg-[var(--hafta-300)] px-5 text-sm font-bold text-[#181700] transition-colors hover:bg-[var(--hafta-400)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+          >
+            Ajukan Jadwal Terapi
+          </Link>
         </div>
       ) : activeTab === 'ringkasan' && selectedRecord ? (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
           <div className="min-w-0 space-y-4">
             {/* 1. metrik ringkas — paling atas agar langsung terbaca semua umur */}
             <section className="hafta-card p-4 sm:p-5">
-              <div className="flex items-start justify-between gap-2">
+              <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
                 <div className="min-w-0 flex-1">
-                  <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-muted-foreground">
+                  <p className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                     <Activity className="h-3 w-3 text-[var(--hafta-300)]" />
                     Kondisi Terkini
                   </p>
-                  <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground sm:text-base">
+                  <h2 className="text-balance mt-1 text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
                     Evaluasi Sesi {visitNumberById.get(selectedRecord.id) ?? 1}
                   </h2>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{longDate(selectedRecord.recordedAt)}</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">{longDate(selectedRecord.recordedAt)}</p>
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
                   {selectedRecord.amendedFromId ? (
@@ -880,7 +898,7 @@ export function PatientMedicalRecordView({
                   >
                     {labelRecordStatus(selectedRecord.status)}
                   </span>
-                  <Button variant="default" size="xs" onClick={() => setPrintRecord(selectedRecord)}>
+                  <Button variant="default" size="sm" onClick={() => setPrintRecord(selectedRecord)}>
                     <Printer />
                     Cetak/Unduh
                   </Button>
@@ -954,11 +972,11 @@ export function PatientMedicalRecordView({
               <section className="hafta-card p-4 sm:p-5">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-muted-foreground">
+                    <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                       <TrendingUp className="h-3 w-3 text-[var(--hafta-300)]" />
                       Grafik Pemulihan Klinis
                     </p>
-                    <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground sm:text-base">
+                    <h2 className="text-balance mt-1 text-lg font-semibold tracking-tight text-foreground">
                       Nyeri turun &amp; gerak naik dari sesi ke sesi
                     </h2>
                   </div>
@@ -988,11 +1006,11 @@ export function PatientMedicalRecordView({
               </section>
             ) : (
               <section className="hafta-card p-4 sm:p-5">
-                <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-muted-foreground">
+                <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                   <TrendingUp className="h-3 w-3 text-[var(--hafta-300)]" />
                   Grafik Pemulihan Klinis
                 </p>
-                <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground sm:text-base">
+                <h2 className="text-balance mt-1 text-lg font-semibold tracking-tight text-foreground">
                   Nyeri turun &amp; gerak naik dari sesi ke sesi
                 </h2>
                 <div className="mt-3 flex items-start gap-3 rounded-2xl border border-dashed border-border bg-[var(--hafta-50)]/60 p-4">
@@ -1069,7 +1087,7 @@ export function PatientMedicalRecordView({
               {/* rencana terapi — hanya bila ada */}
               {treatmentPlan ? (
                 <div className="mt-4 border-t border-border/70 pt-3">
-                  <h3 className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-muted-foreground">
+                  <h3 className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                     <ClipboardList className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
                     Rencana Terapi
                   </h3>
@@ -1127,7 +1145,7 @@ export function PatientMedicalRecordView({
             {/* catatan fisioterapis — hanya bila ada */}
             {patient?.therapistNote ? (
               <section className="hafta-card p-4 sm:p-5">
-                <h3 className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-muted-foreground">
+                <h3 className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                   <PenLine className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
                   Catatan Fisioterapis
                 </h3>
@@ -1145,21 +1163,21 @@ export function PatientMedicalRecordView({
             {nextTherapyCard}
 
             <section className="hafta-card p-4">
-              <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-muted-foreground">
-                <FileText className="h-3 w-3 text-[var(--hafta-300)]" />
-                Dokumen Sesi Ini
-              </p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Ringkasan sesi {visitNumberById.get(selectedRecord.id) ?? 1} bisa dicetak dari kartu Kondisi Terkini.
-              </p>
+              <p className="text-xs font-medium text-muted-foreground">Dokumen</p>
               <button
                 type="button"
-                onClick={() => setActiveTab('dokumen')}
-                className="mt-2 flex w-full cursor-pointer items-center justify-between gap-2 rounded-xl px-2 py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                onClick={() => selectTab('dokumen')}
+                className="mt-2 flex min-h-11 w-full cursor-pointer items-center justify-between gap-2 rounded-xl border border-border px-3 text-sm font-medium text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
               >
-                Semua dokumen ({records.length})
-                <ChevronRight className="h-3.5 w-3.5" />
+                Semua dokumen
+                <span className="flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
+                  {records.length}
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </span>
               </button>
+              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                Cetak/unduh sesi {visitNumberById.get(selectedRecord.id) ?? 1} dari kartu Kondisi Terkini.
+              </p>
             </section>
           </aside>
         </div>
@@ -1167,11 +1185,13 @@ export function PatientMedicalRecordView({
         <section className="hafta-card p-4 sm:p-5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-muted-foreground">
+              <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                 <CalendarDays className="h-3 w-3 text-[var(--hafta-300)]" />
                 Kunjungan
               </p>
-              <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground">Riwayat Kunjungan</h2>
+              <h2 className="text-balance mt-1 text-lg font-semibold tracking-tight text-foreground">
+                Riwayat Kunjungan
+              </h2>
             </div>
             <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{visitRecords.length} sesi</span>
           </div>
@@ -1182,13 +1202,13 @@ export function PatientMedicalRecordView({
                 <button
                   type="button"
                   onClick={() => openSession(record)}
-                  className="flex w-full cursor-pointer items-center gap-3 py-3 text-left transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                  className="flex w-full cursor-pointer items-center gap-3 touch-manipulation py-3 text-left transition-colors focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
                 >
                   <span className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-xl bg-[var(--hafta-50)]">
                     <span className="text-sm font-semibold leading-none tabular-nums text-foreground">
                       {record.recordedAt.getDate()}
                     </span>
-                    <span className="mt-0.5 text-xs tracking-normal text-muted-foreground">
+                    <span className="mt-0.5 text-xs text-muted-foreground">
                       {record.recordedAt.toLocaleDateString('id-ID', { month: 'short' })}
                     </span>
                   </span>
@@ -1233,35 +1253,44 @@ export function PatientMedicalRecordView({
         <section className="hafta-card p-4 sm:p-5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-muted-foreground">
+              <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                 <Stethoscope className="h-3 w-3 text-[var(--hafta-300)]" />
                 Diagnosis
               </p>
-              <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground">Diagnosis &amp; Anamnesis</h2>
+              <h2 className="text-balance mt-1 text-lg font-semibold tracking-tight text-foreground">
+                Diagnosis &amp; Anamnesis
+              </h2>
             </div>
             <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{visitRecords.length} catatan</span>
           </div>
 
-          {/* Banner ringkasan: apa kondisi saya saat ini & apa target pemulihan saya? */}
-          <div className="mt-3 rounded-2xl border border-[var(--hafta-200)] bg-[var(--hafta-50)]/70 p-4">
-            <p className="text-xs font-semibold tracking-normal text-[var(--hafta-700)]">
-              Kondisi &amp; Target Terapi Anda
-            </p>
-            <div className="mt-2 grid gap-3 sm:grid-cols-2">
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-[var(--hafta-800)]">Diagnosis terkini</p>
-                <p className="mt-0.5 whitespace-pre-wrap text-base leading-relaxed text-foreground">
-                  {selectedRecord?.diagnosis || patient?.therapyDiagnosisLabel || 'Belum ada diagnosis tercatat'}
-                </p>
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-[var(--hafta-800)]">Tujuan terapi</p>
-                <p className="mt-0.5 whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-                  {treatmentPlan?.goals || patient?.therapyGoal || 'Belum ada tujuan tercatat'}
-                </p>
+          {/* Banner ringkasan: hanya bila ada isinya — kotak kosong tidak pernah dirender. */}
+          {selectedRecord?.diagnosis ||
+          patient?.therapyDiagnosisLabel ||
+          treatmentPlan?.goals ||
+          patient?.therapyGoal ? (
+            <div className="mt-3 rounded-2xl border border-[var(--hafta-200)] bg-[var(--hafta-50)]/70 p-4">
+              <p className="text-xs font-medium text-[var(--hafta-700)]">Kondisi &amp; Target Terapi Anda</p>
+              <div className="mt-2 grid gap-4 sm:grid-cols-2">
+                {selectedRecord?.diagnosis || patient?.therapyDiagnosisLabel ? (
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-[var(--hafta-800)]">Diagnosis terkini</p>
+                    <p className="text-balance mt-0.5 whitespace-pre-wrap text-base leading-relaxed text-foreground">
+                      {selectedRecord?.diagnosis || patient?.therapyDiagnosisLabel}
+                    </p>
+                  </div>
+                ) : null}
+                {treatmentPlan?.goals || patient?.therapyGoal ? (
+                  <div className="min-w-0">
+                    <p className="text-xs font-medium text-[var(--hafta-800)]">Tujuan terapi</p>
+                    <p className="text-balance mt-0.5 whitespace-pre-wrap text-sm leading-relaxed text-foreground">
+                      {treatmentPlan?.goals || patient?.therapyGoal}
+                    </p>
+                  </div>
+                ) : null}
               </div>
             </div>
-          </div>
+          ) : null}
 
           {/* Riwayat diagnosis per kunjungan — teks tidak pernah dipotong. */}
           <ul className="mt-4">
@@ -1298,7 +1327,7 @@ export function PatientMedicalRecordView({
                         {record.therapistName ?? 'Fisioterapis Hafta'}
                       </p>
                     </div>
-                    <Button variant="outline" size="xs" onClick={() => openSession(record)}>
+                    <Button variant="outline" size="sm" onClick={() => openSession(record)}>
                       Lihat Detail Sesi
                     </Button>
                   </div>
@@ -1306,7 +1335,7 @@ export function PatientMedicalRecordView({
                   {/* dua blok informasi — bahasa ramah pasien */}
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     <div className="border-l-2 border-[var(--hafta-300)] pl-3">
-                      <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-[var(--hafta-700)]">
+                      <p className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--hafta-700)]">
                         <Stethoscope className="h-3 w-3" />
                         Diagnosis Fisioterapi
                       </p>
@@ -1318,14 +1347,14 @@ export function PatientMedicalRecordView({
                       </p>
                     </div>
                     <div className="border-l-2 border-[var(--hafta-300)] pl-3">
-                      <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-[var(--hafta-700)]">
+                      <p className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--hafta-700)]">
                         <NotebookPen className="h-3 w-3" />
                         Keluhan &amp; Anamnesis
                       </p>
                       <p className="mt-0.5 text-xs leading-snug text-muted-foreground">
                         Keluhan dan riwayat yang dicatat saat awal sesi
                       </p>
-                      <p className="mt-1.5 whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
+                      <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
                         {record.anamnesis || 'Anamnesis tidak dicatat'}
                       </p>
                     </div>
@@ -1366,11 +1395,11 @@ export function PatientMedicalRecordView({
         <section className="hafta-card p-4 sm:p-5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-muted-foreground">
+              <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                 <HeartPulse className="h-3 w-3 text-[var(--hafta-300)]" />
                 Tindakan
               </p>
-              <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground">
+              <h2 className="text-balance mt-1 text-lg font-semibold tracking-tight text-foreground">
                 Tindakan &amp; Pemeriksaan
               </h2>
             </div>
@@ -1380,7 +1409,7 @@ export function PatientMedicalRecordView({
           {/* Rencana intervensi aktif — gambaran besar terapi yang sedang dijalani. */}
           {treatmentPlan ? (
             <div className="mt-3 rounded-2xl border border-[var(--hafta-200)] bg-[var(--hafta-50)]/70 p-4">
-              <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-[var(--hafta-700)]">
+              <p className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--hafta-700)]">
                 <ClipboardList className="h-3 w-3" />
                 Rencana Intervensi Aktif
               </p>
@@ -1438,26 +1467,23 @@ export function PatientMedicalRecordView({
                     </div>
                   </div>
 
-                  {/* langkah-langkah tindakan */}
-                  <ol className="mt-3 space-y-2">
+                  {/* langkah-langkah tindakan — timeline bernomor dengan garis penghubung */}
+                  <ol className="mt-3">
                     {[
                       {
-                        icon: Stethoscope,
-                        label: '1. Pemeriksaan Fisik',
+                        label: 'Pemeriksaan Fisik',
                         hint: 'Kondisi fisik & gerak yang diperiksa terapis',
                         value: record.physicalExamination,
                         empty: 'Tidak ada catatan khusus',
                       },
                       {
-                        icon: HeartPulse,
-                        label: '2. Tindakan Fisioterapi',
+                        label: 'Tindakan Fisioterapi',
                         hint: 'Terapi, latihan, atau modalitas yang diberikan pada sesi ini',
                         value: record.treatment,
                         empty: 'Tindakan tidak dicatat',
                       },
                       {
-                        icon: ClipboardList,
-                        label: '3. Evaluasi & Tindak Lanjut',
+                        label: 'Evaluasi & Tindak Lanjut',
                         hint: 'Hasil setelah diterapi dan hal yang perlu dilakukan sebelum sesi berikutnya',
                         value:
                           [record.evaluation, record.followUpPlan]
@@ -1465,31 +1491,36 @@ export function PatientMedicalRecordView({
                             .join('\n\n') || null,
                         empty: 'Belum ada catatan tindak lanjut',
                       },
-                    ].map((step) => (
-                      <li key={step.label} className="border-l-2 border-[var(--hafta-300)] pl-3">
-                        <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-[var(--hafta-700)]">
-                          <step.icon className="h-3 w-3" />
-                          {step.label}
-                        </p>
-                        <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{step.hint}</p>
-                        <p
-                          className={cn(
-                            'mt-1.5 whitespace-pre-wrap text-xs leading-relaxed',
-                            step.value ? 'text-foreground' : 'text-muted-foreground',
-                          )}
-                        >
-                          {step.value ?? step.empty}
-                        </p>
+                    ].map((step, index, steps) => (
+                      <li key={step.label} className="grid grid-cols-[28px_minmax(0,1fr)] gap-x-3">
+                        <div className="flex flex-col items-center" aria-hidden="true">
+                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-300)] text-xs font-bold tabular-nums text-[#181700]">
+                            {index + 1}
+                          </span>
+                          {index < steps.length - 1 ? <span className="my-1 w-px flex-1 bg-border" /> : null}
+                        </div>
+                        <div className={cn('min-w-0', index < steps.length - 1 ? 'pb-4' : null)}>
+                          <p className="text-sm font-semibold text-foreground">{step.label}</p>
+                          <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{step.hint}</p>
+                          <p
+                            className={cn(
+                              'mt-1 whitespace-pre-wrap text-sm leading-relaxed',
+                              step.value ? 'text-foreground' : 'text-muted-foreground',
+                            )}
+                          >
+                            {step.value ?? step.empty}
+                          </p>
+                        </div>
                       </li>
                     ))}
                   </ol>
 
                   {/* aksi cepat per sesi */}
                   <div className="mt-2.5 flex flex-wrap items-center gap-2">
-                    <Button variant="outline" size="xs" onClick={() => openSession(record)}>
+                    <Button variant="outline" size="sm" onClick={() => openSession(record)}>
                       Lihat Detail Sesi
                     </Button>
-                    <Button variant="outline" size="xs" onClick={() => setPrintRecord(record)}>
+                    <Button variant="outline" size="sm" onClick={() => setPrintRecord(record)}>
                       <Printer />
                       Cetak/Unduh
                     </Button>
@@ -1510,11 +1541,13 @@ export function PatientMedicalRecordView({
         <section className="hafta-card p-4 sm:p-5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
-              <p className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal text-muted-foreground">
+              <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
                 <FileText className="h-3 w-3 text-[var(--hafta-300)]" />
                 Dokumen
               </p>
-              <h2 className="mt-1 text-base font-semibold tracking-tight text-foreground">Berkas Rekam Medis</h2>
+              <h2 className="text-balance mt-1 text-lg font-semibold tracking-tight text-foreground">
+                Berkas Rekam Medis
+              </h2>
             </div>
             <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{records.length} berkas</span>
           </div>
@@ -1534,7 +1567,7 @@ export function PatientMedicalRecordView({
                     {shortDate(record.recordedAt)} · {labelRecordStatus(record.status)}
                   </span>
                 </span>
-                <Button variant="outline" size="xs" onClick={() => setPrintRecord(record)}>
+                <Button variant="outline" size="sm" onClick={() => setPrintRecord(record)}>
                   <Printer />
                   Cetak/Unduh
                 </Button>
