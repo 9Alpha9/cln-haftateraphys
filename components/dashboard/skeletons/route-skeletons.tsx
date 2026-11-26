@@ -253,61 +253,111 @@ function PatientDashboardSkeleton() {
   return (
     <div className="w-full space-y-4 pb-8 sm:space-y-5">
       <header className="border-b border-stone-200/90 pb-4 pt-3 sm:pb-6 sm:pt-4">
-        <SkeletonBlock className="h-5 w-40 rounded-full bg-stone-100 sm:hidden" />
+        <SkeletonBlock className="h-3 w-32 rounded-md bg-stone-100" />
         <SkeletonBlock className="mt-2 h-8 w-52 rounded-lg bg-stone-200" />
         <SkeletonLine className="mt-2 w-full max-w-xl" />
         <SkeletonLine className="mt-1.5 w-3/4 max-w-md bg-stone-100" />
       </header>
 
-      <section aria-hidden="true">
-        <SkeletonPanel className="rounded-3xl p-4 sm:p-5">
-          <div className="flex items-start justify-between gap-3">
-            <div className="space-y-2">
-              <SkeletonBlock className="h-3 w-24 bg-stone-200/80" />
-              <SkeletonBlock className="h-5 w-48 bg-stone-200/70" />
-            </div>
-            <SkeletonBlock className="h-7 w-28 rounded-full bg-stone-100" />
-          </div>
-
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            {[0, 1, 2].map((item) => (
-              <div
-                key={item}
-                className="flex items-center gap-2.5 rounded-xl border border-stone-200 bg-white px-3 py-2.5"
-              >
-                <SkeletonBlock className="h-9 w-9 shrink-0 rounded-full bg-stone-100" />
-                <div className="min-w-0 flex-1 space-y-2">
-                  <SkeletonBlock className="h-3.5 w-32 max-w-full bg-stone-200/70" />
-                  <SkeletonLine className="w-20 bg-stone-100" />
-                </div>
+      {/* Dua kolom: jadwal (lebar 8) + metrik (ramping 4) — sama dengan layout asli */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 lg:items-start lg:gap-6">
+        <div className="min-w-0 space-y-5 lg:col-span-8">
+          {/* panel pemilihan jadwal */}
+          <SkeletonPanel className="rounded-3xl p-4 sm:p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-2">
+                <SkeletonBlock className="h-3 w-24 bg-stone-200/80" />
+                <SkeletonBlock className="h-5 w-48 bg-stone-200/70" />
               </div>
-            ))}
-          </div>
+              <SkeletonBlock className="h-7 w-28 rounded-full bg-stone-100" />
+            </div>
 
-          <div className="mt-4 space-y-3 border-t border-stone-100 pt-4">
-            <SkeletonBlock className="h-3 w-28 bg-stone-200/70" />
-            <div className="flex gap-2 overflow-hidden">
-              {[0, 1, 2, 3, 4].map((item) => (
-                <SkeletonBlock key={item} className="h-14 w-16 shrink-0 rounded-xl bg-stone-100" />
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {[0, 1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center gap-2.5 rounded-xl border border-stone-200 bg-white px-3 py-2.5"
+                >
+                  <SkeletonBlock className="h-9 w-9 shrink-0 rounded-full bg-stone-100" />
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <SkeletonBlock className="h-3.5 w-32 max-w-full bg-stone-200/70" />
+                    <SkeletonLine className="w-20 bg-stone-100" />
+                  </div>
+                </div>
               ))}
             </div>
-            <SkeletonBlock className="h-11 w-full rounded-full bg-stone-200/80" />
-          </div>
-        </SkeletonPanel>
-      </section>
 
-      <section aria-hidden="true">
-        <SkeletonPanel className="rounded-3xl p-4 sm:p-5">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-            <div className="space-y-2">
-              <SkeletonBlock className="h-3 w-24 bg-stone-200/80" />
-              <SkeletonBlock className="h-5 w-52 max-w-full bg-stone-200/70" />
+            <div className="mt-4 space-y-3 border-t border-stone-100 pt-4">
+              <SkeletonBlock className="h-3 w-28 bg-stone-200/70" />
+              <div className="flex gap-2 overflow-hidden">
+                {[0, 1, 2, 3, 4].map((item) => (
+                  <SkeletonBlock key={item} className="h-14 w-16 shrink-0 rounded-xl bg-stone-100" />
+                ))}
+              </div>
+              <SkeletonBlock className="h-11 w-full rounded-full bg-stone-200/80" />
             </div>
-            <SkeletonLine className="w-36 bg-stone-200/60" />
-          </div>
-          <SkeletonBlock className="mt-4 h-28 w-full rounded-2xl bg-stone-100" />
-        </SkeletonPanel>
-      </section>
+          </SkeletonPanel>
+
+          {/* preview rekam medis */}
+          <SkeletonPanel className="rounded-3xl p-4 sm:p-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="space-y-2">
+                <SkeletonBlock className="h-3 w-24 bg-stone-200/80" />
+                <SkeletonBlock className="h-5 w-52 max-w-full bg-stone-200/70" />
+              </div>
+              <SkeletonLine className="w-24 bg-stone-200/60" />
+            </div>
+            <SkeletonBlock className="mt-4 h-16 w-full rounded-2xl bg-stone-100" />
+            <div className="mt-3 grid grid-cols-4 gap-2">
+              {[0, 1, 2, 3].map((item) => (
+                <SkeletonBlock key={item} className="h-14 rounded-2xl bg-stone-100" />
+              ))}
+            </div>
+          </SkeletonPanel>
+        </div>
+
+        <aside className="min-w-0 space-y-4 lg:col-span-4">
+          {/* kartu overview dengan bar distribusi */}
+          <SkeletonPanel className="rounded-3xl p-4 sm:p-5">
+            <SkeletonBlock className="h-3 w-20 bg-stone-200/80" />
+            <SkeletonBlock className="mt-2 h-9 w-28 rounded-lg bg-stone-200" />
+            <div className="mt-4 flex h-20 items-stretch gap-1.5">
+              {[0, 1, 2, 3].map((item) => (
+                <SkeletonBlock key={item} className="flex-1 rounded-md bg-stone-200/60" />
+              ))}
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="space-y-1.5">
+                <SkeletonBlock className="h-0.5 w-full rounded-full bg-stone-200" />
+                <SkeletonLine className="w-20 bg-stone-100" />
+              </div>
+              <div className="space-y-1.5">
+                <SkeletonBlock className="h-0.5 w-full rounded-full bg-stone-200" />
+                <SkeletonLine className="w-20 bg-stone-100" />
+              </div>
+            </div>
+          </SkeletonPanel>
+
+          {/* rincian metrik */}
+          <SkeletonPanel className="rounded-3xl p-4 sm:p-5">
+            <div className="flex items-center justify-between">
+              <SkeletonBlock className="h-3 w-24 bg-stone-200/80" />
+              <SkeletonBlock className="h-5 w-24 rounded-full bg-stone-100" />
+            </div>
+            <div className="mt-4 space-y-3">
+              {[0, 1, 2, 3].map((item) => (
+                <div key={item} className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <SkeletonLine className="w-16 bg-stone-100" />
+                    <SkeletonBlock className="h-4 w-10 rounded-md bg-stone-200/80" />
+                  </div>
+                  <SkeletonBlock className="h-1 w-full rounded-full bg-stone-100" />
+                </div>
+              ))}
+            </div>
+          </SkeletonPanel>
+        </aside>
+      </div>
     </div>
   );
 }

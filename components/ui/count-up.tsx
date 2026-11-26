@@ -29,7 +29,7 @@ export function CountUp({
       inViewOnce
       inViewMargin="0px 0px -8% 0px"
       className={className}
-      transition={{ stiffness: 140, damping: 24, mass: 0.6 }}
+      transition={{ stiffness: 70, damping: 20, mass: 1 }}
     />
   );
 }

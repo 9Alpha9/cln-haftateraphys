@@ -8,24 +8,17 @@ import {
   CalendarDays,
   CalendarPlus,
   CheckCircle2,
-  ClipboardList,
   Clock3,
-  Dumbbell,
-  FileText,
-  History,
   LockKeyhole,
-  Printer,
   Stethoscope,
-  TrendingUp,
 } from 'lucide-react';
 import { GlobalModal } from '@/components/ui/global-modal';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { CountUp } from '@/components/ui/count-up';
-import { MedicalRecordPrintDialog } from '@/components/pdf/medical-record-print-dialog';
 import { PatientBookingPanel } from '@/components/patient/patient-booking-panel';
 import { useToast } from '@/components/ui/toast';
 import { cancelPatientAppointmentRequest } from '@/server/actions/appointment-requests';
-import type { HomeProgramView } from '@/server/queries/home-programs';
 import type {
   AvailabilityDate,
   PatientAppointmentRequestView,
@@ -87,20 +80,17 @@ export function PatientDashboardOverview({
   requests,
   availability,
   records,
-  homeProgram,
 }: {
   userName?: string | null;
   appointments: PatientPortalAppointment[];
   requests: PatientAppointmentRequestView[];
   availability: AvailabilityDate[];
   records: TherapyProgressView[];
-  homeProgram: HomeProgramView | null;
 }) {
   const router = useRouter();
   const { showToast } = useToast();
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [printOpen, setPrintOpen] = useState(false);
   const [cancelPending, startCancelTransition] = useTransition();
 
   const today = toDateKey(new Date());
@@ -145,13 +135,46 @@ export function PatientDashboardOverview({
       : null;
 
   const latestRecord = records[0] ?? null;
-  /** Progres ringkas dari evaluasi terakhir: rata-rata ROM, kekuatan, fungsi (0–100%). */
-  const progressPercent = latestRecord
-    ? Math.round(
-        ((latestRecord.rangeOfMotionScore + latestRecord.strengthScore + latestRecord.functionScore) / 30) * 100,
-      )
-    : 0;
-  const activeProgramItems = homeProgram?.items.filter((item) => item.status === 'ACTIVE') ?? [];
+
+  /** Metrik evaluasi terakhir + status optimal (ambang klinis sama dengan halaman rekam medis). */
+  const evaluationMetrics = latestRecord
+    ? [
+        { key: 'pain', label: 'Nyeri', value: latestRecord.painScore, optimal: latestRecord.painScore <= 3 },
+        { key: 'rom', label: 'ROM', value: latestRecord.rangeOfMotionScore, optimal: latestRecord.rangeOfMotionScore >= 8 },
+        {
+          key: 'strength',
+          label: 'Kekuatan',
+          value: latestRecord.strengthScore,
+          optimal: latestRecord.strengthScore >= 8,
+        },
+        {
+          key: 'function',
+          label: 'Fungsi',
+          value: latestRecord.functionScore,
+          optimal: latestRecord.functionScore >= 8,
+        },
+      ]
+    : [];
+  const optimalCount = evaluationMetrics.filter((metric) => metric.optimal).length;
+  const subOptimalCount = evaluationMetrics.length - optimalCount;
+
+  /**
+   * Bar distribusi memakai gradasi halus: intensitas naik bertahap menurut
+   * urutan (color-mix oklab) + gradient vertikal lembut, sehingga tidak ada
+   * lompatan warna antar bar.
+   */
+  function metricBarStyle(optimal: boolean, index: number, total: number) {
+    const base = optimal ? 'var(--hafta-grn-500)' : 'var(--hafta-red-500)';
+    const ratio = total > 1 ? index / (total - 1) : 0;
+    const strength = Math.round(26 + ratio * 54); // 26% → 80%
+    return {
+      backgroundColor: `color-mix(in oklab, ${base} ${strength}%, white)`,
+      backgroundImage: `linear-gradient(180deg, color-mix(in oklab, ${base} ${Math.max(
+        18,
+        strength - 14,
+      )}%, white) 0%, color-mix(in oklab, ${base} ${Math.min(92, strength + 16)}%, white) 100%)`,
+    } as const;
+  }
 
   function handleCancelPendingRequest() {
     if (!pendingRequest) return;
@@ -187,74 +210,9 @@ export function PatientDashboardOverview({
         </p>
       </header>
 
-      {/* ── 2. RINGKASAN CEPAT — 3 kartu status ── */}
-      <section aria-label="Ringkasan cepat" className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <article className={cnCard('p-4')}>
-          <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            <Clock3 className="h-3 w-3" />
-            Sesi Berikutnya
-          </p>
-          <p className="mt-1.5 text-lg font-extrabold leading-tight tracking-tight text-foreground">
-            {schedule ? formatLongDate(schedule.date) : 'Belum dijadwalkan'}
-          </p>
-          <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
-            {schedule
-              ? `${formatTime(schedule.startTime)} WIB · ${schedule.therapistName}`
-              : 'Ajukan jadwal terapi bersama fisioterapis Anda.'}
-          </p>
-        </article>
-
-        <article className={cnCard('p-4')}>
-          <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            <TrendingUp className="h-3 w-3" />
-            Progres Terakhir
-          </p>
-          <p className="mt-1.5 text-lg font-extrabold leading-tight tracking-tight text-foreground">
-            {latestRecord ? (
-              <>
-                <CountUp value={progressPercent} />
-                <span className="text-sm font-bold text-muted-foreground">%</span>
-              </>
-            ) : (
-              '—'
-            )}
-          </p>
-          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-stone-200/70">
-            <span
-              className="block h-full rounded-full bg-[var(--hafta-grn-500)] transition-[width] duration-700"
-              style={{ width: `${latestRecord ? Math.max(4, progressPercent) : 0}%` }}
-            />
-          </div>
-          <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground">
-            {latestRecord ? 'Rata-rata ROM, kekuatan & fungsi' : 'Belum ada evaluasi tercatat.'}
-          </p>
-        </article>
-
-        <article className={cnCard('p-4')}>
-          <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
-            <ClipboardList className="h-3 w-3" />
-            Rekam Medis
-          </p>
-          <p className="mt-1.5 text-lg font-extrabold leading-tight tracking-tight text-foreground">
-            {records.length > 0 ? (
-              <>
-                <CountUp value={records.length} /> <span className="text-sm font-bold text-muted-foreground">berkas</span>
-              </>
-            ) : (
-              '—'
-            )}
-          </p>
-          <p className="mt-1 line-clamp-2 text-[11px] leading-snug text-muted-foreground">
-            {latestRecord
-              ? `Terakhir ${formatLongDate(latestRecord.recordedAt)}`
-              : 'Catatan evaluasi akan muncul setelah sesi terapi.'}
-          </p>
-        </article>
-      </section>
-
-      {/* ── 3. KONTEN UTAMA: kiri jadwal + rekam medis, kanan latihan & akses cepat ── */}
+      {/* ── 2. DUA KOLOM: kiri pemilihan jadwal (lebar), kanan metrik (ramping) ── */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 lg:items-start lg:gap-6">
-        <div className="min-w-0 space-y-5 lg:col-span-7">
+        <div className="min-w-0 space-y-5 lg:col-span-8">
       {/* ── 3a. JADWAL TERAPI (SMART STATE) ── */}
       <section aria-label="Jadwal terapi">
         {showBookingPanel ? (
@@ -349,181 +307,110 @@ export function PatientDashboardOverview({
         ) : null}
       </section>
 
-      {/* ── 3. REKAM MEDIS — preview ringkas terakhir ── */}
-      <section aria-label="Rekam medis dan evaluasi terapi" className={cnCard('p-4 sm:p-5')}>
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              <ClipboardList className="h-3 w-3" />
-              Rekam Medis
-            </p>
-            <h2 className="mt-1 text-base font-bold text-foreground">Evaluasi Terapi Terakhir</h2>
-          </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <Link
-              href="/dashboard/progress"
-              className="hidden w-fit items-center gap-1 rounded text-xs font-semibold text-foreground underline-offset-4 hover:underline focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 sm:inline-flex"
-            >
-              Lihat Semua
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
         </div>
 
-        {records.length === 0 ? (
-          <p className="mt-4 border-y border-border/70 py-4 text-xs leading-relaxed text-muted-foreground">
-            Belum ada rekam medis. Catatan evaluasi dari fisioterapis akan muncul di sini setelah
-            sesi terapi selesai.
-          </p>
-        ) : latestRecord ? (
-          <div className="mt-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-[12.5px] font-semibold text-foreground">
-                {formatLongDate(latestRecord.recordedAt)}
-              </p>
-              <span
-                className={
-                  latestRecord.status === 'FINALIZED'
-                    ? 'rounded-full bg-[var(--hafta-grn-50)] px-2 py-0.5 text-[10px] font-semibold text-[var(--hafta-grn-700)]'
-                    : 'rounded-full bg-secondary/60 px-2 py-0.5 text-[10px] font-semibold text-muted-foreground'
-                }
-              >
-                {latestRecord.status === 'FINALIZED' ? 'Final' : 'Draf'}
-              </span>
-            </div>
-            <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
-              <Stethoscope className="h-3 w-3 shrink-0" />
-              {latestRecord.therapistName ?? 'Fisioterapis Hafta'}
-            </p>
-            <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
-              {latestRecord.diagnosis || latestRecord.summary || 'Belum dicatat'}
-            </p>
-
-            <dl className="mt-3 grid grid-cols-4 gap-2">
-              {[
-                { label: 'Nyeri', value: latestRecord.painScore },
-                { label: 'ROM', value: latestRecord.rangeOfMotionScore },
-                { label: 'Kekuatan', value: latestRecord.strengthScore },
-                { label: 'Fungsi', value: latestRecord.functionScore },
-              ].map((metric) => (
-                <div key={metric.label} className="hafta-tint px-2.5 py-2 text-center">
-                  <dt className="text-[9.5px] font-medium uppercase tracking-wide text-muted-foreground">
-                    {metric.label}
-                  </dt>
-                  <dd className="mt-0.5 text-sm font-extrabold tabular-nums text-foreground">
-                    {metric.value}
-                    <span className="text-[9.5px] font-medium text-muted-foreground">/10</span>
-                  </dd>
-                </div>
-              ))}
-            </dl>
-
-            <div className="mt-3 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setPrintOpen(true)}
-                className="inline-flex h-11 cursor-pointer items-center gap-1.5 rounded-full border border-border bg-background px-4 text-xs font-semibold text-foreground transition-colors hover:bg-accent focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-              >
-                <Printer className="h-3.5 w-3.5" />
-                Cetak Rekam Medis
-              </button>
-            </div>
-          </div>
-        ) : null}
-
-        {records.length > 1 ? (
-          <p className="mt-3 flex items-center gap-1.5 border-t border-border/70 pt-3 text-[10.5px] text-muted-foreground">
-            <TrendingUp className="h-3 w-3" />
-            {records.length} rekam medis tersimpan
-          </p>
-        ) : null}
-
-        <Link
-          href="/dashboard/progress"
-          className="mt-3 flex h-11 w-full items-center justify-center gap-1.5 rounded-full border border-border bg-card text-xs font-semibold text-foreground transition-colors hover:bg-accent focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 sm:hidden"
-        >
-          Lihat Semua Rekam Medis
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
-      </section>
-
-        </div>
-
-        {/* ── KOLOM KANAN: latihan mandiri + akses cepat ── */}
-        <aside aria-label="Latihan mandiri dan akses cepat" className="min-w-0 space-y-5 lg:col-span-5">
+        {/* ── KOLOM KANAN (ramping): metrik perhitungan evaluasi ── */}
+        <aside aria-label="Metrik evaluasi" className="min-w-0 space-y-4 lg:col-span-4">
+          {/* kartu overview bergaya bar distribusi */}
           <section className={cnCard('p-4 sm:p-5')}>
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-                  <Dumbbell className="h-3 w-3" />
-                  Latihan Mandiri
+                <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                  Overview
                 </p>
-                <h2 className="mt-1 text-base font-bold text-foreground">Program dari Terapis</h2>
+                <p className="mt-1 flex items-baseline gap-1.5 text-3xl font-extrabold leading-none tracking-tight text-foreground">
+                  {latestRecord ? (
+                    <>
+                      <span className="inline-flex items-baseline">
+                        <CountUp value={optimalCount} />
+                        <span className="text-xl font-bold text-muted-foreground">/{evaluationMetrics.length}</span>
+                      </span>
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                        Hasil
+                      </span>
+                    </>
+                  ) : (
+                    '—'
+                  )}
+                </p>
               </div>
-              <Link
-                href="/dashboard/exercises"
-                className="inline-flex h-9 shrink-0 items-center gap-1 rounded-full border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent"
-              >
-                Semua
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
             </div>
 
-            {activeProgramItems.length === 0 ? (
-              <p className="mt-3 border-y border-border/70 py-4 text-xs leading-relaxed text-muted-foreground">
-                Belum ada program latihan aktif. Fisioterapis akan menambahkan latihan mandiri setelah
-                evaluasi.
-              </p>
-            ) : (
-              <ul className="mt-3 space-y-2">
-                {activeProgramItems.slice(0, 3).map((item) => (
-                  <li key={item.id} className="hafta-tint px-3 py-2.5">
-                    <p className="text-[13px] font-bold text-foreground">{item.name}</p>
-                    <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-muted-foreground">
-                      {[
-                        item.sets ? `${item.sets} set` : null,
-                        item.repetitions ? `${item.repetitions} repetisi` : null,
-                        item.frequencyText,
-                      ]
-                        .filter(Boolean)
-                        .join(' · ') || item.instruction}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {/* bar distribusi metrik — hijau = optimal, merah = sub optimal */}
+            <div className="mt-4 flex h-20 items-stretch gap-1.5" role="img" aria-label="Distribusi hasil evaluasi metrik">
+              {evaluationMetrics.length > 0
+                ? evaluationMetrics.map((metric, index) => (
+                    <span
+                      key={metric.key}
+                      title={`${metric.label} · ${metric.optimal ? 'Optimal' : 'Sub optimal'}`}
+                      className="flex-1 rounded-md transition-colors"
+                      style={metricBarStyle(metric.optimal, index, evaluationMetrics.length)}
+                    />
+                  ))
+                : [0, 1, 2, 3].map((item) => (
+                    <span key={item} className="flex-1 rounded-md bg-stone-200/60" />
+                  ))}
+            </div>
 
-            <p className="mt-3 flex items-center gap-1.5 border-t border-border/70 pt-3 text-[10.5px] text-muted-foreground">
-              <Dumbbell className="h-3 w-3" />
-              {activeProgramItems.length} latihan aktif
-            </p>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div>
+                <span aria-hidden="true" className="block h-0.5 w-full rounded-full bg-[var(--hafta-grn-500)]" />
+                <p className="mt-1.5 text-[11px] font-semibold text-muted-foreground">
+                  Optimal <span className="tabular-nums text-foreground">{latestRecord ? optimalCount : '—'}</span>
+                </p>
+              </div>
+              <div>
+                <span aria-hidden="true" className="block h-0.5 w-full rounded-full bg-[var(--hafta-red-400)]" />
+                <p className="mt-1.5 text-[11px] font-semibold text-muted-foreground">
+                  Sub Optimal <span className="tabular-nums text-foreground">{latestRecord ? subOptimalCount : '—'}</span>
+                </p>
+              </div>
+            </div>
           </section>
 
+          {/* rincian nilai per metrik */}
           <section className={cnCard('p-4 sm:p-5')}>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-              Akses Cepat
-            </p>
-            <h2 className="mt-1 text-base font-bold text-foreground">Menu Pasien</h2>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              {[
-                { href: '/dashboard/progress', label: 'Rekam Medis', icon: ClipboardList },
-                { href: '/dashboard/exercises', label: 'Latihan Saya', icon: Dumbbell },
-                { href: '/dashboard/documents', label: 'Dokumen', icon: FileText },
-                { href: '/dashboard/history', label: 'Riwayat', icon: History },
-              ].map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex min-h-11 items-center gap-2 rounded-2xl border border-border bg-card px-3 text-xs font-semibold text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-                >
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-50)] text-[var(--hafta-700)]">
-                    <item.icon className="h-3.5 w-3.5" />
-                  </span>
-                  <span className="min-w-0 flex-1 truncate">{item.label}</span>
-                  <ArrowRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                </Link>
-              ))}
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                Metrik Terakhir
+              </p>
+              <span className="shrink-0 rounded-full bg-[var(--hafta-50)] px-2 py-0.5 text-[9px] font-semibold text-[var(--hafta-700)]">
+                {latestRecord ? formatLongDate(latestRecord.recordedAt) : 'Belum ada'}
+              </span>
             </div>
+            <dl className="mt-3 space-y-3">
+              {evaluationMetrics.length > 0
+                ? evaluationMetrics.map((metric) => (
+                    <div key={metric.key}>
+                      <div className="flex items-baseline justify-between gap-2">
+                        <dt className="text-xs font-medium text-muted-foreground">{metric.label}</dt>
+                        <dd
+                          className={cn(
+                            'text-sm font-bold tabular-nums',
+                            metric.optimal ? 'text-[var(--hafta-grn-700)]' : 'text-[var(--hafta-red-700)]',
+                          )}
+                        >
+                          <CountUp value={metric.value} />
+                          <span className="text-[9px] font-medium text-muted-foreground">/10</span>
+                        </dd>
+                      </div>
+                      <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-stone-200/70">
+                        <span
+                          className={cn(
+                            'block h-full rounded-full',
+                            metric.optimal ? 'bg-[var(--hafta-grn-500)]' : 'bg-[var(--hafta-red-400)]',
+                          )}
+                          style={{ width: `${Math.max(4, metric.value * 10)}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))
+                : (
+                    <p className="border-y border-border/70 py-4 text-xs leading-relaxed text-muted-foreground">
+                      Metrik evaluasi akan tampil setelah fisioterapis menyelesaikan sesi pertama.
+                    </p>
+                  )}
+            </dl>
           </section>
         </aside>
 
@@ -608,12 +495,6 @@ export function PatientDashboardOverview({
           </dl>
         ) : null}
       </GlobalModal>
-
-      <MedicalRecordPrintDialog
-        record={latestRecord}
-        open={printOpen}
-        onOpenChange={setPrintOpen}
-      />
     </div>
   );
 }

@@ -8,7 +8,6 @@ import {
   getPatientPortalAppointments,
 } from '@/server/queries/patient-portal';
 import { getScopedTherapyProgress } from '@/server/queries/therapy-progress';
-import { getOwnHomeProgram } from '@/server/queries/home-programs';
 import { PatientDashboardOverview } from '@/components/patient/patient-dashboard-overview';
 import {
   getCalendarAppointments,
@@ -42,12 +41,11 @@ function getFormattedToday(): string {
 }
 
 async function PatientDashboard({ userName }: { userName?: string }) {
-  const [appointments, requests, progress, availability, homeProgram] = await Promise.all([
+  const [appointments, requests, progress, availability] = await Promise.all([
     getPatientPortalAppointments(),
     getPatientAppointmentRequests(),
     getScopedTherapyProgress({ page: 1, pageSize: 3 }),
     getPatientBookingAvailability(),
-    getOwnHomeProgram(),
   ]);
 
   return (
@@ -57,7 +55,6 @@ async function PatientDashboard({ userName }: { userName?: string }) {
       requests={requests}
       availability={availability}
       records={progress.items}
-      homeProgram={homeProgram}
     />
   );
 }
