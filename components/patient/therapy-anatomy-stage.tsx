@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { FlipHorizontal2, Layers, Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { ChevronDown, FlipHorizontal2, Layers, Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   DropdownMenu,
@@ -694,16 +694,16 @@ export function TherapyAnatomyStage({
       ) : null}
 
       {/* ── pemilih sistem + tampakan: rail vertikal kompak di sisi KIRI kanvas ── */}
-      <div className="absolute left-3 top-1/2 z-20 flex -translate-y-1/2 flex-col items-center gap-1 rounded-full border border-slate-200/70 bg-white/60 p-1 shadow-sm backdrop-blur-md">
-        <DropdownMenu>
+      <div className="absolute left-3 top-1/2 z-20 flex -translate-y-1/2 flex-col items-center gap-1 rounded-full border border-border bg-popover p-1 shadow-sm">
+        <DropdownMenu modal={false}>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
               aria-label={`Sistem anatomi: ${systemEntry?.label ?? ''}`}
               title={`Sistem anatomi: ${systemEntry?.label ?? ''}`}
-              className="tap-target inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 data-[state=open]:bg-white/90"
+              className="tap-target inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 data-[state=open]:bg-accent"
             >
-              <Layers aria-hidden="true" className="h-3.5 w-3.5" />
+              <Layers aria-hidden="true" className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -711,7 +711,7 @@ export function TherapyAnatomyStage({
             align="start"
             sideOffset={8}
             container={fullscreenContainer ?? undefined}
-            className="min-w-[132px]"
+            className="min-w-[148px]"
           >
             <DropdownMenuRadioGroup value={system} onValueChange={(value) => selectSystem(value as AnatomySystemKey)}>
               {ANATOMY_SYSTEMS.map((item) => (
@@ -722,6 +722,8 @@ export function TherapyAnatomyStage({
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
+      </div>
+      <div className="absolute bottom-4 right-4 z-20 flex flex-col gap-1 rounded-full border border-border bg-popover p-1 shadow-sm">
         <button
           type="button"
           disabled={!systemEntry?.posterior}
@@ -730,16 +732,12 @@ export function TherapyAnatomyStage({
           aria-pressed={view === 'posterior'}
           onClick={() => setView((current) => (current === 'anterior' ? 'posterior' : 'anterior'))}
           className={cn(
-            'tap-target inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
+            'tap-target flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
             view === 'posterior' ? 'text-foreground' : 'text-muted-foreground',
           )}
         >
-          <FlipHorizontal2 aria-hidden="true" className="h-3.5 w-3.5" />
+          <FlipHorizontal2 className="h-4 w-4" />
         </button>
-      </div>
-
-      {/* ── kontrol kanvas ── */}
-      <div className="absolute bottom-4 right-4 flex flex-col gap-1 rounded-full border border-slate-200/70 bg-white/60 p-1 shadow-sm backdrop-blur-md">
         <button
           type="button"
           aria-label="Reset tampilan"

@@ -356,7 +356,7 @@ export function PatientMedicalRecordView({
               key={tab.key}
               value={tab.key}
               className={cn(
-                'min-h-9 shrink-0 cursor-pointer rounded-full px-4 text-sm font-medium transition-colors data-[state=active]:bg-card data-[state=active]:shadow-sm',
+                'min-h-9 shrink-0 cursor-pointer rounded-full px-[3rem] text-sm font-medium transition-colors data-[state=active]:bg-card data-[state=active]:shadow-sm',
                 activeTab === tab.key ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
               )}
             >
