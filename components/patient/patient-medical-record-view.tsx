@@ -228,14 +228,18 @@ function ChartBadge({
   cy,
   payload,
   onSelect,
+  lastSesi,
 }: {
   cx?: number;
   cy?: number;
   payload?: ChartPoint;
   onSelect?: (sesi: number) => void;
+  lastSesi?: number;
 }) {
   if (typeof cx !== 'number' || typeof cy !== 'number' || !payload) return null;
-  const isLast = payload.sesi === 9;
+  const isLast = typeof lastSesi === 'number' && payload.sesi === lastSesi;
+  // Label nilai hanya di sesi pertama & terakhir agar grafik tidak penuh label.
+  const showLabel = payload.sesi === 1 || isLast;
   return (
     <g
       data-chart-dot={payload.sesi}
@@ -246,26 +250,28 @@ function ChartBadge({
       <circle cx={cx} cy={cy} r={14} fill="transparent" />
       {isLast ? <circle cx={cx} cy={cy} r={9} fill="var(--hafta-300)" opacity={0.25} /> : null}
       <circle cx={cx} cy={cy} r={4.5} fill="#fff" stroke="var(--hafta-400)" strokeWidth={2} />
-      <g transform={`translate(${cx - 16}, ${cy - 30})`}>
-        <rect
-          width={32}
-          height={18}
-          rx={9}
-          fill={isLast ? 'var(--hafta-900)' : '#fff'}
-          stroke={isLast ? 'var(--hafta-900)' : 'var(--hafta-border)'}
-          strokeWidth={1}
-        />
-        <text
-          x={16}
-          y={12.5}
-          textAnchor="middle"
-          fontSize={10}
-          fontWeight={600}
-          fill={isLast ? 'var(--hafta-50)' : 'var(--hafta-800)'}
-        >
-          {payload.pain}/10
-        </text>
-      </g>
+      {showLabel ? (
+        <g transform={`translate(${cx - 16}, ${cy - 30})`}>
+          <rect
+            width={32}
+            height={18}
+            rx={9}
+            fill={isLast ? 'var(--hafta-900)' : '#fff'}
+            stroke={isLast ? 'var(--hafta-900)' : 'var(--hafta-border)'}
+            strokeWidth={1}
+          />
+          <text
+            x={16}
+            y={12.5}
+            textAnchor="middle"
+            fontSize={10}
+            fontWeight={600}
+            fill={isLast ? 'var(--hafta-50)' : 'var(--hafta-800)'}
+          >
+            {payload.pain}/10
+          </text>
+        </g>
+      ) : null}
     </g>
   );
 }
@@ -404,7 +410,7 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
 
   return (
     <div
-      className="h-[220px] w-full sm:h-[260px]"
+      className="h-[200px] w-full sm:h-[230px]"
       onClick={handleSurfaceClick}
       style={{
         cursor: onSelectSession ? 'pointer' : undefined,
@@ -445,8 +451,8 @@ function RecoveryChart({ data, onSelectSession }: { data: ChartPoint[]; onSelect
             dataKey="pain"
             stroke="var(--hafta-400)"
             strokeWidth={2.5}
-            dot={<ChartBadge onSelect={onSelectSession} />}
-            activeDot={<ChartBadge onSelect={onSelectSession} />}
+            dot={<ChartBadge onSelect={onSelectSession} lastSesi={data.length} />}
+            activeDot={<ChartBadge onSelect={onSelectSession} lastSesi={data.length} />}
             isAnimationActive={false}
           />
         </LineChart>
@@ -626,6 +632,22 @@ export function PatientMedicalRecordView({
     [sessions],
   );
   const latestChartPoint = chartData.length > 0 ? chartData[chartData.length - 1] : null;
+
+  /** Judul grafik mengikuti data — jangan mengklaim "nyeri turun" bila datanya datar. */
+  const recoveryCaption = useMemo(() => {
+    const first = chartData[0];
+    const last = chartData[chartData.length - 1];
+    if (!first || !last || chartData.length < 2) return 'Progres nyeri & gerak dari sesi ke sesi';
+    const painDown = last.pain < first.pain;
+    const painUp = last.pain > first.pain;
+    const romUp = last.rom > first.rom;
+    const romDown = last.rom < first.rom;
+    if (painDown && romUp) return 'Nyeri turun & gerak naik dari sesi ke sesi';
+    if (painUp && romDown) return 'Nyeri naik & gerak turun dari sesi ke sesi';
+    if (romUp) return 'Gerak membaik, nyeri belum menurun';
+    if (painDown) return 'Nyeri menurun, gerak masih perlu dilatih';
+    return 'Progres nyeri & gerak dari sesi ke sesi';
+  }, [chartData]);
 
   /** Area tubuh yang disebut diagnosis/anamnesis sesi terpilih — penanda peta tubuh. */
   const bodyRegions = useMemo(
@@ -905,93 +927,184 @@ export function PatientMedicalRecordView({
       ) : activeTab === 'ringkasan' && selectedRecord ? (
         <>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-[300px_1fr_320px] lg:items-start">
-            {/* ── kolom 1: kondisi terkini — SATU kartu metrik (tanpa duplikasi) ── */}
-            <section
-              aria-label="Kondisi terkini sesi"
-              className="min-w-0 rounded-[28px] border border-border bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
-                <div className="min-w-0">
-                  <p className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                    <Activity className="h-3 w-3 text-[var(--hafta-300)]" />
-                    Kondisi Terkini
-                  </p>
-                  <h2 className="text-balance mt-1 text-xl font-semibold tracking-tight text-foreground">
-                    Evaluasi Sesi {visitNumberById.get(selectedRecord.id) ?? 1}
-                  </h2>
-                  <p className="mt-0.5 text-sm text-muted-foreground">{longDate(selectedRecord.recordedAt)}</p>
-                </div>
-                <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                  {selectedRecord.amendedFromId ? (
-                    <span className="rounded-full border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] px-2 py-0.5 text-xs font-semibold text-[var(--hafta-org-700)]">
-                      Revisi R{selectedRecord.revisionNumber ?? 2}
+            {/* ── kolom 1: kartu vital + evaluasi + dokumen ── */}
+            <div className="min-w-0 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <section aria-label="Nyeri sesi ini" className="rounded-[28px] bg-[#FEF9C3] p-4">
+                  <p className="text-xs font-semibold text-[#713F12]">Nyeri (VAS)</p>
+                  <div className="mt-1.5 flex items-baseline gap-1">
+                    <span className="text-2xl font-bold tabular-nums text-[#422006]">
+                      {Number(selectedRecord.painScore ?? 0)}
                     </span>
-                  ) : null}
+                    <span className="text-[10px] font-medium text-[#713F12]/70">/10</span>
+                  </div>
                   <span
                     className={cn(
-                      'rounded-full px-2 py-0.5 text-xs font-semibold',
-                      selectedRecord.status === 'FINALIZED' ? TONE_PILL.good : 'bg-secondary/60 text-muted-foreground',
+                      'mt-1.5 inline-flex rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-semibold',
+                      TONE_PILL[metricTone('pain', Number(selectedRecord.painScore ?? 0)).tone],
                     )}
                   >
-                    {labelRecordStatus(selectedRecord.status)}
+                    {metricTone('pain', Number(selectedRecord.painScore ?? 0)).label}
                   </span>
+                  <svg aria-hidden="true" viewBox="0 0 120 40" className="mt-2 h-9 w-full" fill="none">
+                    <polyline
+                      points={sparklinePoints(
+                        chartData.map((point) => point.pain),
+                        10,
+                      )}
+                      stroke="#EF4444"
+                      strokeWidth="2"
+                      strokeLinejoin="round"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </section>
+
+                <section aria-label="Rentang gerak sesi ini" className="rounded-[28px] bg-[#E0F2FE] p-4">
+                  <p className="text-xs font-semibold text-[#075985]">Rentang Gerak</p>
+                  <div className="mt-1.5 flex items-baseline gap-1">
+                    <span className="text-2xl font-bold tabular-nums text-[#082F49]">
+                      {Number(selectedRecord.rangeOfMotionScore ?? 0)}
+                    </span>
+                    <span className="text-[10px] font-medium text-[#075985]/70">/10</span>
+                  </div>
+                  <span
+                    className={cn(
+                      'mt-1.5 inline-flex rounded-full bg-white/70 px-2 py-0.5 text-[10px] font-semibold',
+                      TONE_PILL[metricTone('rom', Number(selectedRecord.rangeOfMotionScore ?? 0)).tone],
+                    )}
+                  >
+                    {metricTone('rom', Number(selectedRecord.rangeOfMotionScore ?? 0)).label}
+                  </span>
+                  <svg aria-hidden="true" viewBox="0 0 120 40" className="mt-2 h-9 w-full" fill="none">
+                    <polyline
+                      points={sparklinePoints(
+                        chartData.map((point) => point.rom),
+                        100,
+                      )}
+                      stroke="#EF4444"
+                      strokeWidth="2"
+                      strokeLinejoin="round"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                </section>
+              </div>
+
+              {/* kartu besar: evaluasi sesi — kekuatan & fungsi */}
+              <section
+                aria-label="Kondisi terkini sesi"
+                className="rounded-[28px] border border-border bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)]"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-muted-foreground">Kondisi Terkini</p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                      Evaluasi Sesi {visitNumberById.get(selectedRecord.id) ?? 1} ·{' '}
+                      {longDate(selectedRecord.recordedAt)}
+                    </p>
+                  </div>
                   <Button variant="default" size="sm" onClick={() => setPrintRecord(selectedRecord)}>
                     <Printer />
                     Cetak/Unduh
                   </Button>
                 </div>
-              </div>
-
-              {/* empat metrik sebagai baris — satu sumber, grafik riwayat ada di bawah */}
-              <dl className="mt-4 space-y-3">
-                {METRICS.map(({ key, label, short, field, icon: Icon, hint }) => {
-                  const value = Number(selectedRecord[field] ?? 0);
-                  const previous = previousRecord ? Number(previousRecord[field] ?? 0) : null;
-                  const change = deltaForMetric(key, value, previous);
-                  const tone = metricTone(key, value);
-                  return (
-                    <div key={key}>
-                      <div className="flex items-baseline justify-between gap-2">
-                        <dt className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-                          <Icon className="h-3 w-3 text-[var(--hafta-300)]" />
-                          {label}
-                        </dt>
-                        <dd className="flex min-w-0 items-baseline gap-1">
-                          <span className="text-xl font-bold leading-none tabular-nums text-foreground">{value}</span>
-                          <span className="text-[10px] text-muted-foreground">/10</span>
-                          {change ? (
+                <div className="mt-3 flex items-end justify-between gap-3">
+                  <div className="min-w-0 flex-1 space-y-2">
+                    {(['strength', 'function'] as const).map((metricKey) => {
+                      const metric = METRICS.find((item) => item.key === metricKey);
+                      if (!metric) return null;
+                      const value = Number(selectedRecord[metric.field] ?? 0);
+                      const previous = previousRecord ? Number(previousRecord[metric.field] ?? 0) : null;
+                      const change = deltaForMetric(metricKey, value, previous);
+                      const tone = metricTone(metricKey, value);
+                      return (
+                        <div key={metricKey} className="flex items-baseline justify-between gap-2">
+                          <span className="shrink-0 text-xs font-medium text-muted-foreground">{metric.label}</span>
+                          <span className="flex min-w-0 flex-wrap items-baseline justify-end gap-1">
+                            <span className="text-xl font-bold leading-none tabular-nums text-foreground">{value}</span>
+                            <span className="text-[10px] text-muted-foreground">/10</span>
+                            {change ? (
+                              <span
+                                className={cn(
+                                  'text-xs font-semibold tabular-nums',
+                                  change.isGood ? TONE_DELTA.up : TONE_DELTA.down,
+                                )}
+                              >
+                                {change.text}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-muted-foreground">tetap</span>
+                            )}
                             <span
                               className={cn(
-                                'text-xs font-semibold tabular-nums',
-                                change.isGood ? TONE_DELTA.up : TONE_DELTA.down,
+                                'rounded-full px-1.5 py-0.5 text-[9px] font-semibold',
+                                TONE_PILL[tone.tone],
                               )}
                             >
-                              {change.text}
+                              {tone.label}
                             </span>
-                          ) : (
-                            <span className="text-[10px] text-muted-foreground">tetap</span>
-                          )}
-                          <span
-                            className={cn('rounded-full px-1.5 py-0.5 text-[9px] font-semibold', TONE_PILL[tone.tone])}
-                          >
-                            {tone.label}
                           </span>
-                        </dd>
-                      </div>
-                      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-stone-200/70">
-                        <span
-                          className={cn('block h-full rounded-full', TONE_TRACK[tone.tone])}
-                          style={{ width: `${Math.max(4, value * 10)}%` }}
-                        />
-                      </div>
-                      <p className="sr-only">
-                        {short} sesi ini {value} dari 10. Skor {hint}.
-                      </p>
-                    </div>
-                  );
-                })}
-              </dl>
-            </section>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <Activity
+                    aria-hidden="true"
+                    className="h-11 w-11 shrink-0 fill-[var(--hafta-300)]/10 text-[var(--hafta-300)]"
+                    strokeWidth={1.5}
+                  />
+                </div>
+              </section>
+
+              {/* dokumen sesi terbaru */}
+              <section
+                aria-label="Dokumen sesi terbaru"
+                className="rounded-[28px] border border-border bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)]"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <h2 className="text-sm font-bold tracking-tight text-foreground">Dokumen Sesi</h2>
+                  <button
+                    type="button"
+                    onClick={() => selectTab('dokumen')}
+                    className="tap-target inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-full text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                  >
+                    Semua
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                <ul className="mt-2 divide-y divide-border/70">
+                  {records.slice(0, 3).map((record) => (
+                    <li key={record.id} className="flex items-center gap-3 py-2.5">
+                      <span
+                        aria-hidden="true"
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent text-muted-foreground"
+                      >
+                        <FileText className="h-4 w-4" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[13px] font-medium text-foreground">
+                          {record.amendedFromId
+                            ? `Revisi R${record.revisionNumber ?? 2} · Sesi ${visitNumberById.get(record.id) ?? 0}`
+                            : `Rekam medis Sesi ${visitNumberById.get(record.id) ?? 0}`}
+                        </span>
+                        <span className="block text-[10px] tabular-nums text-muted-foreground">
+                          {shortDate(record.recordedAt)} · {labelRecordStatus(record.status)}
+                        </span>
+                      </span>
+                      <button
+                        type="button"
+                        aria-label={`Cetak/unduh Sesi ${visitNumberById.get(record.id) ?? 0}`}
+                        onClick={() => setPrintRecord(record)}
+                        className="tap-target flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                      >
+                        <Printer className="h-4 w-4" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            </div>
 
             {/* ── kolom 2: panggung anatomi interaktif ── */}
             <TherapyAnatomyStage
@@ -1057,6 +1170,50 @@ export function PatientMedicalRecordView({
                   </ul>
                 </section>
               ) : null}
+
+              {/* Temuan utama — tidak menggandakan angka progres di stat pill. */}
+              <section
+                aria-label="Diagnosis terkini"
+                className="relative overflow-hidden rounded-[28px] bg-[#1C1C1E] p-5 text-white shadow-[0_8px_24px_rgba(28,25,23,0.16)]"
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 40 160"
+                  className="absolute -right-2 bottom-0 h-[85%] w-auto text-white/[0.07]"
+                  fill="currentColor"
+                >
+                  {Array.from({ length: 9 }, (_, index) => {
+                    const y = 14 + index * 15;
+                    const width = 18 - index * 0.6;
+                    return (
+                      <g key={index}>
+                        <rect x={(40 - width) / 2} y={y} width={width} height={9} rx={3} />
+                        <rect x={(40 - 6) / 2} y={y + 9} width={6} height={5} rx={2.5} />
+                      </g>
+                    );
+                  })}
+                </svg>
+                <div className="relative">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="rounded-full border border-white/25 px-2 py-0.5 text-[10px] font-bold tracking-[0.14em] text-white/70">
+                      TEMUAN UTAMA
+                    </span>
+                    <Stethoscope aria-hidden="true" className="h-4 w-4 shrink-0 text-white/40" />
+                  </div>
+                  <h2 className="text-balance mt-3 text-lg font-bold tracking-tight">Diagnosis Terkini</h2>
+                  <p className="line-clamp-4 mt-1.5 max-w-[85%] text-xs leading-relaxed text-white/60">
+                    {selectedRecord.diagnosis || 'Belum ada diagnosis tercatat pada sesi terpilih.'}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => openSession(selectedRecord)}
+                    aria-label="Buka detail lengkap sesi"
+                    className="tap-target mt-4 flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-[#FACC15] text-[#1C1C1E] transition-colors hover:bg-[#FDE047] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#FACC15]/40"
+                  >
+                    <ArrowUpRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </section>
             </aside>
           </div>
 
@@ -1065,15 +1222,13 @@ export function PatientMedicalRecordView({
             {/* 2. grafik pemulihan klinis */}
             {chartData.length >= 2 ? (
               <section id="grafik-pemulihan" className="hafta-card scroll-mt-24 p-4 sm:p-5">
-                <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
                   <div className="min-w-0">
-                    <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                      <TrendingUp className="h-3 w-3 text-[var(--hafta-300)]" />
+                    <h2 className="inline-flex items-center gap-1.5 text-base font-semibold tracking-tight text-foreground">
+                      <TrendingUp className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
                       Grafik Pemulihan Klinis
-                    </p>
-                    <h2 className="text-balance mt-1 text-lg font-semibold tracking-tight text-foreground">
-                      Nyeri turun &amp; gerak naik dari sesi ke sesi
                     </h2>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{recoveryCaption}</p>
                   </div>
                   <div className="flex items-center gap-3 text-xs font-medium text-muted-foreground">
                     <span className="inline-flex items-center gap-1.5">
@@ -1101,12 +1256,9 @@ export function PatientMedicalRecordView({
               </section>
             ) : (
               <section className="hafta-card p-4 sm:p-5">
-                <p className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                  <TrendingUp className="h-3 w-3 text-[var(--hafta-300)]" />
+                <h2 className="inline-flex items-center gap-1.5 text-base font-semibold tracking-tight text-foreground">
+                  <TrendingUp className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
                   Grafik Pemulihan Klinis
-                </p>
-                <h2 className="text-balance mt-1 text-lg font-semibold tracking-tight text-foreground">
-                  Nyeri turun &amp; gerak naik dari sesi ke sesi
                 </h2>
                 <div className="mt-3 flex items-start gap-3 rounded-2xl border border-dashed border-border bg-[var(--hafta-50)]/60 p-4">
                   <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-[var(--hafta-300)]" />
@@ -1162,7 +1314,7 @@ export function PatientMedicalRecordView({
                   return (
                     <div
                       key={row.field}
-                      className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] sm:gap-4"
+                      className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6"
                     >
                       <dt className="text-xs font-medium text-muted-foreground sm:pt-px">{row.label}</dt>
                       <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
@@ -1185,20 +1337,20 @@ export function PatientMedicalRecordView({
                     Rencana Terapi
                   </h3>
                   <dl className="mt-1 divide-y divide-border/70">
-                    <div className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] sm:gap-4">
+                    <div className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6">
                       <dt className="text-xs font-medium text-muted-foreground sm:pt-px">Tujuan</dt>
                       <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                         {treatmentPlan.goals}
                       </dd>
                     </div>
-                    <div className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] sm:gap-4">
+                    <div className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6">
                       <dt className="text-xs font-medium text-muted-foreground sm:pt-px">Intervensi</dt>
                       <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                         {treatmentPlan.interventions}
                       </dd>
                     </div>
                     {treatmentPlan.precautions ? (
-                      <div className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] sm:gap-4">
+                      <div className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6">
                         <dt className="text-xs font-medium text-muted-foreground sm:pt-px">Perhatian</dt>
                         <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
                           {treatmentPlan.precautions}
@@ -1206,6 +1358,31 @@ export function PatientMedicalRecordView({
                       </div>
                     ) : null}
                   </dl>
+                </div>
+              ) : null}
+
+              {/* program latihan — compact, detail di modal */}
+              {homeProgram && homeProgram.items.length > 0 ? (
+                <div className="mt-4 border-t border-border/70 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setProgramOpen(true)}
+                    className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-1 py-2 text-left transition-colors hover:bg-[var(--hafta-50)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl hafta-tint text-[var(--hafta-700)]">
+                      <Dumbbell className="h-4 w-4" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-semibold text-foreground">Program Latihan Mandiri</span>
+                      <span className="block text-xs text-muted-foreground">
+                        {homeProgram.items.length} latihan ·{' '}
+                        {homeProgram.startsAt
+                          ? `${shortDate(homeProgram.startsAt)}${homeProgram.endsAt ? ` – ${shortDate(homeProgram.endsAt)}` : ''}`
+                          : 'tanpa batas waktu'}
+                      </span>
+                    </span>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
+                  </button>
                 </div>
               ) : null}
             </section>
@@ -1702,7 +1879,7 @@ export function PatientMedicalRecordView({
                 return (
                   <div
                     key={row.field}
-                    className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,3fr)] sm:gap-4"
+                    className="grid gap-0.5 py-2.5 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6"
                   >
                     <dt className="text-xs font-medium text-muted-foreground sm:pt-px">{row.label}</dt>
                     <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">

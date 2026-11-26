@@ -24,8 +24,7 @@ const WEEKDAY_LABELS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 const dayKey = (value: Date) =>
   `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, '0')}-${String(value.getDate()).padStart(2, '0')}`;
 
-const monthLabel = (value: Date) =>
-  value.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+const monthLabel = (value: Date) => value.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
 
 /** Senin = indeks 0, Minggu = indeks 6. */
 const mondayIndex = (value: Date) => (value.getDay() + 6) % 7;
@@ -50,9 +49,7 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
     );
   }, [entries]);
 
-  const [monthCursor, setMonthCursor] = useState(
-    () => new Date(latestDate.getFullYear(), latestDate.getMonth(), 1),
-  );
+  const [monthCursor, setMonthCursor] = useState(() => new Date(latestDate.getFullYear(), latestDate.getMonth(), 1));
   const [selectedDay, setSelectedDay] = useState<string | null>(() => dayKey(latestDate));
 
   const days = useMemo(() => {
@@ -79,7 +76,7 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
     return cells;
   }, [monthCursor]);
 
-  const selectedEntries = selectedDay ? byDay.get(selectedDay) ?? [] : [];
+  const selectedEntries = selectedDay ? (byDay.get(selectedDay) ?? []) : [];
   const selectedDate = selectedDay ? new Date(`${selectedDay}T00:00:00`) : null;
   const sessionCountInMonth = days.reduce(
     (total, cell) => (cell.inMonth ? total + (byDay.get(cell.key)?.length ?? 0) : total),
@@ -97,23 +94,21 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
     <div>
       <div className="flex items-center justify-between gap-2">
         <div className="min-w-0">
-          <p className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-            <CalendarDays className="h-3 w-3 text-[var(--hafta-300)]" />
+          <h2 className="inline-flex items-center gap-1.5 text-base font-semibold tracking-tight text-foreground">
+            <CalendarDays className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
             Kalender Terapi
-          </p>
-          <p className="mt-0.5 text-[12.5px] font-semibold capitalize text-foreground">
+          </h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
             {monthLabel(monthCursor)}
-            <span className="ml-1.5 font-normal text-muted-foreground">
-              · {sessionCountInMonth} sesi
-            </span>
+            <span className="ml-1.5">· {sessionCountInMonth} sesi</span>
           </p>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1" role="group" aria-label="Navigasi bulan">
           <button
             type="button"
             onClick={() => shiftMonth(-1)}
             aria-label="Bulan sebelumnya"
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+            className="tap-target flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -121,7 +116,7 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
             type="button"
             onClick={() => shiftMonth(1)}
             aria-label="Bulan berikutnya"
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+            className="tap-target flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -136,7 +131,7 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
         ))}
       </div>
 
-      <div className="mt-1 grid grid-cols-7 gap-1">
+      <div className="mt-1 grid grid-cols-7 gap-x-1 gap-y-0.5">
         {days.map((cell) => {
           const dayEntries = byDay.get(cell.key) ?? [];
           const hasTherapy = dayEntries.length > 0;
@@ -160,8 +155,9 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
               }
               aria-pressed={isSelected}
               className={cn(
-                'relative flex h-10 cursor-pointer flex-col items-center justify-center rounded-lg text-[12.5px] tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 sm:h-11',
-                !cell.inMonth && 'bg-stone-50 text-stone-500',
+                'tap-target relative flex h-10 cursor-pointer flex-col items-center justify-center rounded-lg text-[12.5px] tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 sm:h-11',
+                // Tanggal di luar bulan: teks redup saja — latar abu-abu membuat kalender berisik.
+                !cell.inMonth && 'text-stone-400',
                 hasTherapy
                   ? 'font-semibold text-foreground hover:bg-[var(--hafta-100)]'
                   : 'text-stone-600 hover:bg-accent hover:text-foreground',
@@ -204,17 +200,14 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
                   className="flex w-full cursor-pointer items-center gap-3 rounded-xl hafta-tint px-3 py-2 text-left transition-colors hover:bg-[var(--hafta-100)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
                 >
                   <span className="min-w-0 flex-1 text-[12px] leading-relaxed text-foreground">
-                    Nyeri{' '}
-                    <span className="font-semibold tabular-nums">{entry.painScore ?? '-'}/10</span>
+                    Nyeri <span className="font-semibold tabular-nums">{entry.painScore ?? '-'}/10</span>
                     <span className="mx-1.5 text-muted-foreground">·</span>
                     ROM{' '}
                     <span className="font-semibold tabular-nums">
                       {entry.rangeOfMotionScore != null ? `${entry.rangeOfMotionScore * 10}%` : '-'}
                     </span>
                   </span>
-                  <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-[var(--hafta-700)]">
-                    Lihat
-                  </span>
+                  <span className="shrink-0 text-[11px] font-semibold text-[var(--hafta-700)]">Lihat</span>
                   <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                 </button>
               ))}
@@ -229,15 +222,11 @@ export function TherapyCalendar({ entries, onSelectRecord }: Props) {
                   year: 'numeric',
                 })}
               </p>
-              <p className="text-[12px] text-muted-foreground">
-                Tidak ada terapi pada tanggal ini.
-              </p>
+              <p className="text-[12px] text-muted-foreground">Tidak ada terapi pada tanggal ini.</p>
             </div>
           )
         ) : (
-          <p className="text-[12px] text-muted-foreground">
-            Ketuk tanggal mana pun untuk melihat progres hari itu.
-          </p>
+          <p className="text-[12px] text-muted-foreground">Ketuk tanggal mana pun untuk melihat progres hari itu.</p>
         )}
       </div>
     </div>
