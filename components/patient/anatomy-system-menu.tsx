@@ -1,7 +1,7 @@
 'use client';
 
 import { Menu } from '@base-ui/react/menu';
-import { Check, ChevronDown, FlipHorizontal2, Layers } from 'lucide-react';
+import { Check, FlipHorizontal2, Layers } from 'lucide-react';
 import NextImage from 'next/image';
 import { cn } from '@/lib/utils';
 import {
@@ -95,13 +95,6 @@ export function AnatomySystemMenu({
         )}
       >
         <FlipHorizontal2 aria-hidden="true" className="h-4 w-4" />
-        <ChevronDown
-          aria-hidden="true"
-          className={cn(
-            'h-3 w-3 text-muted-foreground transition-transform',
-            view === 'posterior' ? '-rotate-90' : 'rotate-180',
-          )}
-        />
       </button>
     </div>
   );
