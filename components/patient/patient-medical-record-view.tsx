@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, useCallback, useMemo, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -12,30 +13,42 @@ import {
   FileText,
   HeartPulse,
   MapPin,
+  Maximize2,
   NotebookPen,
   PenLine,
   Printer,
   Stethoscope,
   TrendingUp,
 } from 'lucide-react';
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { GlobalModal } from '@/components/ui/global-modal';
 import { GlobalSlideOver } from '@/components/ui/global-slide-over';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MedicalRecordPrintDialog } from '@/components/pdf/medical-record-print-dialog';
 import { PaginationBar } from '@/components/ui/pagination-bar';
-import { TherapyCalendar, type TherapyCalendarEntry } from '@/components/patient/therapy-calendar';
+import { RecoveryWorkspace, type RecoverySession } from '@/components/patient/recovery-workspace';
 import {
-  detectBodyRegions,
-  REGION_POINTS,
-  type DetectedRegion,
-} from '@/components/patient/body-condition-map';
+  CLINICAL_ROWS,
+  deltaForMetric,
+  labelRecordStatus,
+  longDate,
+  METRICS,
+  metricTone,
+  shortDate,
+  sparklinePoints,
+  TONE_DELTA,
+  TONE_PILL,
+  TONE_TRACK,
+} from '@/components/patient/medical-record-utils';
+import { detectBodyRegions, REGION_POINTS, type DetectedRegion } from '@/components/patient/body-condition-map';
 import { TherapyAnatomyStage } from '@/components/patient/therapy-anatomy-stage';
+import { ANATOMY_SYSTEMS } from '@/components/patient/body-anatomy-atlas';
 import { cn } from '@/lib/utils';
 import type { PatientMedicalRecordSummary, TherapyProgressView } from '@/server/queries/therapy-progress';
 import type { HomeProgramView } from '@/server/queries/home-programs';
 import type { TreatmentPlanView } from '@/server/queries/treatment-plans';
+
+type TherapySession = RecoverySession;
 
 type TabKey = 'ringkasan' | 'kunjungan' | 'diagnosis' | 'tindakan' | 'dokumen';
 
@@ -46,90 +59,6 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: 'tindakan', label: 'Tindakan' },
   { key: 'dokumen', label: 'Dokumen' },
 ];
-
-const CLINICAL_ROWS: { label: string; field: keyof TherapyProgressView }[] = [
-  { label: 'Anamnesis', field: 'anamnesis' },
-  { label: 'Pemeriksaan fisik', field: 'physicalExamination' },
-  { label: 'Diagnosis fisioterapi', field: 'diagnosis' },
-  { label: 'Tindakan', field: 'treatment' },
-  { label: 'Rencana tindak lanjut', field: 'followUpPlan' },
-  { label: 'Ringkasan sesi', field: 'summary' },
-];
-
-const METRICS: {
-  key: 'pain' | 'rom' | 'strength' | 'function';
-  label: string;
-  short: string;
-  field: keyof TherapyProgressView;
-  icon: typeof HeartPulse;
-  /** Petunjuk arah skala agar pasien paham ke mana angka yang baik. */
-  hint: string;
-}[] = [
-  {
-    key: 'pain',
-    label: 'Nyeri',
-    short: 'Nyeri',
-    field: 'painScore',
-    icon: HeartPulse,
-    hint: 'makin rendah makin baik',
-  },
-  {
-    key: 'rom',
-    label: 'Rentang Gerak',
-    short: 'ROM',
-    field: 'rangeOfMotionScore',
-    icon: Activity,
-    hint: 'makin tinggi makin baik',
-  },
-  {
-    key: 'strength',
-    label: 'Kekuatan',
-    short: 'Kekuatan',
-    field: 'strengthScore',
-    icon: TrendingUp,
-    hint: 'makin tinggi makin baik',
-  },
-  {
-    key: 'function',
-    label: 'Fungsi',
-    short: 'Fungsi',
-    field: 'functionScore',
-    icon: Activity,
-    hint: 'makin tinggi makin baik',
-  },
-];
-
-type Tone = 'good' | 'watch' | 'alert';
-
-function metricTone(key: string, score: number): { tone: Tone; label: string } {
-  const value = Math.max(0, Math.min(10, Number(score)));
-  if (key === 'pain') {
-    if (value <= 3) return { tone: 'good', label: 'Ringan' };
-    if (value <= 6) return { tone: 'watch', label: 'Sedang' };
-    return { tone: 'alert', label: 'Tinggi' };
-  }
-  if (value >= 8) return { tone: 'good', label: 'Optimal' };
-  if (value >= 6) return { tone: 'watch', label: 'Baik' };
-  return { tone: 'alert', label: 'Rendah' };
-}
-
-const TONE_PILL: Record<Tone, string> = {
-  good: 'bg-[var(--hafta-grn-50)] text-[var(--hafta-grn-700)]',
-  watch: 'bg-[var(--hafta-50)] text-[var(--hafta-700)]',
-  alert: 'bg-[var(--hafta-red-50)] text-[var(--hafta-red-700)]',
-};
-
-/** Warna isi jalur skor 0–10 pada tile Kondisi Terkini (mengikuti nada hasil). */
-const TONE_TRACK: Record<Tone, string> = {
-  good: 'bg-[var(--hafta-grn-500)]',
-  watch: 'bg-[var(--hafta-300)]',
-  alert: 'bg-[var(--hafta-red-500)]',
-};
-
-const TONE_DELTA: Record<'up' | 'down', string> = {
-  up: 'text-[var(--hafta-grn-600)]',
-  down: 'text-[var(--hafta-red-600)]',
-};
 
 const GENDER_LABEL: Record<string, string> = {
   MALE: 'Laki-laki',
@@ -156,19 +85,6 @@ const labelGender = (value: string | null | undefined) => (value ? (GENDER_LABEL
 const labelCaseStatus = (value: string | null | undefined) =>
   value ? (CASE_STATUS_LABEL[value.toUpperCase()] ?? value) : 'Aktif';
 
-const labelRecordStatus = (value: TherapyProgressView['status']) => (value === 'FINALIZED' ? 'Final' : 'Draf');
-
-const shortDate = (value: Date) =>
-  value.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-
-const longDate = (value: Date) =>
-  value.toLocaleDateString('id-ID', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-
 function formatAge(dateOfBirth: Date | null) {
   if (!dateOfBirth) return '—';
   const today = new Date();
@@ -177,259 +93,6 @@ function formatAge(dateOfBirth: Date | null) {
   if (month < 0 || (month === 0 && today.getDate() < dateOfBirth.getDate())) age -= 1;
   return `${age} tahun`;
 }
-
-function deltaLabel(current: number, previous: number | null) {
-  if (previous === null) return null;
-  const diff = Number(current) - Number(previous);
-  if (diff === 0) return null;
-  return { text: `${diff > 0 ? '+' : ''}${diff}`, direction: diff > 0 ? ('up' as const) : ('down' as const) };
-}
-
-/** Delta dengan arah "baik/buruk": untuk Nyeri, turun = baik. */
-function deltaForMetric(key: string, current: number, previous: number | null) {
-  const change = deltaLabel(current, previous);
-  if (!change) return null;
-  const isGood = key === 'pain' ? change.direction === 'down' : change.direction === 'up';
-  return { ...change, isGood };
-}
-
-/* ── Grafik Pemulihan Klinis (recharts) ─────────────────────────── */
-
-type ChartPoint = { sesi: number; label: string; date: string; pain: number; rom: number };
-
-/**
- * Satu KUNJUNGAN: rekam dasar (`base`) beserta seluruh amandemennya.
- * Amandemen adalah REVISI data, bukan kunjungan baru — `latest` adalah versi
- * terbaru yang dipakai untuk nilai terkini, sedangkan nomor & tanggal sesi
- * diambil dari `base`.
- */
-type TherapySession = {
-  base: TherapyProgressView;
-  latest: TherapyProgressView;
-  amendments: TherapyProgressView[];
-};
-
-function MetricDot({
-  cx,
-  cy,
-  payload,
-  onSelect,
-  lastSesi,
-  hollow,
-}: {
-  cx?: number;
-  cy?: number;
-  payload?: ChartPoint;
-  onSelect?: (sesi: number) => void;
-  lastSesi?: number;
-  hollow?: boolean;
-}) {
-  if (typeof cx !== 'number' || typeof cy !== 'number') return null;
-  const isLast = typeof lastSesi === 'number' && payload?.sesi === lastSesi;
-  return (
-    <g
-      data-chart-dot={payload?.sesi ?? 0}
-      onClick={() => onSelect?.(payload?.sesi ?? 0)}
-      style={onSelect ? { cursor: 'pointer' } : undefined}
-    >
-      {/* area sentuh lebih besar agar mudah diklik di layar sentuh */}
-      <circle cx={cx} cy={cy} r={14} fill="transparent" />
-      {isLast ? <circle cx={cx} cy={cy} r={9} fill="var(--hafta-300)" opacity={0.22} /> : null}
-      {hollow ? (
-        <circle cx={cx} cy={cy} r={4.5} fill="#fff" stroke="var(--hafta-400)" strokeWidth={2} />
-      ) : (
-        <circle cx={cx} cy={cy} r={3.5} fill="var(--hafta-900)" />
-      )}
-    </g>
-  );
-}
-
-function ChartTick({
-  x,
-  y,
-  payload,
-  length,
-  dates,
-  onSelect,
-}: {
-  x?: number;
-  y?: number;
-  payload?: { value: number };
-  length: number;
-  dates: Map<number, string>;
-  onSelect?: (sesi: number) => void;
-}) {
-  if (typeof x !== 'number' || typeof y !== 'number' || !payload) return null;
-  const sesi = Number(payload.value);
-  // Buang tick pecahan (mis. 1.25) yang dibuat recharts pada sumbu numerik —
-  // palsu, tidak punya data, dan menciptakan zona klik hantu.
-  if (!Number.isInteger(sesi) || sesi < 1 || sesi > length) return null;
-  const isLast = sesi === length;
-  return (
-    <g
-      data-chart-dot={sesi}
-      role="button"
-      tabIndex={0}
-      aria-label={`Lihat detail Sesi ${sesi}, ${dates.get(sesi) ?? ''}`}
-      onClick={() => onSelect?.(sesi)}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          onSelect?.(sesi);
-        }
-      }}
-      style={{ cursor: 'pointer' }}
-    >
-      <title>{`Lihat detail Sesi ${sesi} — ${dates.get(sesi) ?? ''}`}</title>
-      <rect x={x - 44} y={y} width={88} height={30} fill="transparent" />
-      <text x={x} y={y + 10} textAnchor="middle" pointerEvents="none">
-        <tspan x={x} dy={0} fontSize={10.5} fontWeight={isLast ? 700 : 500} fill="var(--hafta-800)">
-          Sesi {sesi}
-        </tspan>
-        <tspan x={x} dy={12} fontSize={9.5} fill="var(--hafta-600)">
-          {dates.get(sesi) ?? ''}
-        </tspan>
-      </text>
-    </g>
-  );
-}
-
-/** Tooltip hover per metrik — VAS dan ROM punya unit berbeda. */
-type MetricChartKey = 'pain' | 'rom';
-
-const METRIC_CHART: Record<
-  MetricChartKey,
-  { label: string; domain: [number, number]; stroke: string; dashed: boolean; hollow: boolean }
-> = {
-  pain: { label: 'nyeri (VAS)', domain: [0, 10], stroke: 'var(--hafta-400)', dashed: false, hollow: true },
-  rom: { label: 'rentang gerak', domain: [0, 100], stroke: 'var(--hafta-900)', dashed: true, hollow: false },
-};
-
-function MetricTooltip({
-  active,
-  payload,
-  metric,
-}: {
-  active?: boolean;
-  payload?: Array<{ payload?: ChartPoint }>;
-  metric: MetricChartKey;
-}) {
-  if (!active || !payload?.length || !payload[0]?.payload) return null;
-  const point = payload[0].payload;
-  return (
-    <div className="pointer-events-none rounded-xl border border-border bg-card px-3 py-2 shadow-lg">
-      <p className="text-xs font-bold text-foreground">
-        {point.label} · {point.date}
-      </p>
-      <p className="text-xs tabular-nums text-muted-foreground">
-        {metric === 'pain' ? `Nyeri ${point.pain}/10` : `Rentang gerak ${point.rom}%`}
-      </p>
-    </div>
-  );
-}
-
-/**
- * Grafik SATU metrik (VAS atau ROM) — unit & skala klinis aslinya,
- * tanpa nilai historis palsu.
- */
-function MetricLineChart({
-  data,
-  metric,
-  onSelectSession,
-}: {
-  data: ChartPoint[];
-  metric: MetricChartKey;
-  onSelectSession?: (sesi: number) => void;
-}) {
-  const config = METRIC_CHART[metric];
-  const tickDates = useMemo(() => new Map(data.map((point) => [point.sesi, point.date])), [data]);
-  const tickInterval = data.length > 5 ? 2 : 0;
-
-  /**
-   * Klik di mana pun pada grafik memilih sesi terdekat.
-   * Posisi sesi dibaca dari titik-titik yang sudah dirender, sehingga
-   * pemetaan selalu akurat (fallback activeTooltipIndex milik recharts
-   * bisa basi dan meleset ke sesi lain).
-   */
-  const handleSurfaceClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!onSelectSession) return;
-    if ((event.target as Element).closest('[data-chart-dot]')) return; // dot/tick punya handler sendiri
-    const svg = event.currentTarget.querySelector('svg');
-    if (!svg) return;
-    // Ambil satu titik acuan per sesi (titik nyeri), bukan gabungan dua garis.
-    const centers = Array.from(svg.querySelectorAll('[data-chart-dot] circle[r="14"]'))
-      .map((circle) => circle.getBoundingClientRect())
-      .filter((rect) => rect.width > 0)
-      .map((rect) => Math.round(rect.x + rect.width / 2));
-    const uniqueX = Array.from(new Set(centers)).sort((a, b) => a - b);
-    if (uniqueX.length === 0) return;
-    const clickedX = event.clientX;
-    // Klik hanya valid di dalam rentang data (titik pertama–terakhir) dengan
-    // toleransi 24px untuk sentuhan. Klik di margin/tepi luar diabaikan agar
-    // tidak ada "kebocoran" event ke luar jangkauan informasi grafik.
-    const firstX = uniqueX[0];
-    const lastX = uniqueX[uniqueX.length - 1];
-    const edgeTolerance = 24;
-    if (clickedX < firstX - edgeTolerance || clickedX > lastX + edgeTolerance) return;
-    let nearestIndex = 0;
-    let nearestDistance = Number.POSITIVE_INFINITY;
-    uniqueX.forEach((x, index) => {
-      const distance = Math.abs(x - clickedX);
-      if (distance < nearestDistance) {
-        nearestDistance = distance;
-        nearestIndex = index;
-      }
-    });
-    onSelectSession(Math.min(nearestIndex + 1, data.length));
-  };
-
-  return (
-    <div
-      className="h-[170px] w-full sm:h-[190px]"
-      role="group"
-      aria-label={`Grafik ${config.label} per sesi. Ketuk titik untuk membuka sesi.`}
-      onClick={handleSurfaceClick}
-      style={{
-        cursor: onSelectSession ? 'pointer' : undefined,
-        touchAction: onSelectSession ? 'manipulation' : undefined,
-      }}
-    >
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={data} margin={{ top: 16, right: 8, bottom: 4, left: -18 }}>
-          <CartesianGrid vertical={false} stroke="var(--hafta-100)" strokeDasharray="4 6" />
-          <YAxis yAxisId="metric" domain={config.domain} tickLine={false} axisLine={false} tick={false} />
-          <XAxis
-            dataKey="sesi"
-            type="number"
-            domain={[1, data.length]}
-            tickLine={false}
-            axisLine={false}
-            interval={tickInterval}
-            tick={(props: { x?: number; y?: number; payload?: { value: number } }) => (
-              <ChartTick {...props} length={data.length} dates={tickDates} onSelect={onSelectSession} />
-            )}
-          />
-          <Tooltip content={<MetricTooltip metric={metric} />} wrapperStyle={{ outline: 'none' }} />
-          <Line
-            yAxisId="metric"
-            type="monotone"
-            dataKey={metric}
-            stroke={config.stroke}
-            strokeWidth={2}
-            strokeDasharray={config.dashed ? '6 5' : undefined}
-            dot={<MetricDot onSelect={onSelectSession} lastSesi={data.length} hollow={config.hollow} />}
-            activeDot={<MetricDot onSelect={onSelectSession} lastSesi={data.length} hollow={config.hollow} />}
-            isAnimationActive={false}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-    </div>
-  );
-}
-
-/** Grafik di-memo agar panel detail bisa dibuka tanpa re-render grafik. */
-const MemoMetricChart = memo(MetricLineChart);
-const MemoTherapyCalendar = memo(TherapyCalendar);
 
 export function PatientMedicalRecordView({
   patient,
@@ -462,8 +125,8 @@ export function PatientMedicalRecordView({
   /** Pratinjau cetak/unduh via PDF.js global (MedicalRecordPrintDialog). */
   const [printRecord, setPrintRecord] = useState<TherapyProgressView | null>(null);
   const [programOpen, setProgramOpen] = useState(false);
-  /** Tab aktif workspace "Perjalanan Pemulihan" (grafik/kalender/perkembangan). */
-  const [workspaceTab, setWorkspaceTab] = useState<'grafik' | 'kalender' | 'perkembangan'>('grafik');
+  /** Workspace Perjalanan Pemulihan diperluas lewat modal global. */
+  const [workspaceExpanded, setWorkspaceExpanded] = useState(false);
   /** Penanda atlas yang diaktifkan dari daftar area keluhan (kolom kanan). */
   const [focusRegionId, setFocusRegionId] = useState<string | null>(null);
   /** Id penanda aktif saat ini — sinkron dengan viewer (highlight daftar area). */
@@ -592,35 +255,6 @@ export function PatientMedicalRecordView({
   // Nilai terbaru per kunjungan (amandemen sudah menggantikan rekam lamanya).
   const visitRecords = useMemo(() => sessions.map((session) => session.latest), [sessions]);
 
-  const chartData = useMemo<ChartPoint[]>(
-    () =>
-      sessions.map((session, index) => ({
-        sesi: index + 1,
-        label: `Sesi ${index + 1}`,
-        date: shortDate(session.base.recordedAt),
-        pain: Number(session.latest.painScore),
-        rom: Number(session.latest.rangeOfMotionScore) * 10,
-      })),
-    [sessions],
-  );
-  const latestChartPoint = chartData.length > 0 ? chartData[chartData.length - 1] : null;
-
-  /** Judul grafik mengikuti data — jangan mengklaim "nyeri turun" bila datanya datar. */
-  const recoveryCaption = useMemo(() => {
-    const first = chartData[0];
-    const last = chartData[chartData.length - 1];
-    if (!first || !last || chartData.length < 2) return 'Progres nyeri & gerak dari sesi ke sesi';
-    const painDown = last.pain < first.pain;
-    const painUp = last.pain > first.pain;
-    const romUp = last.rom > first.rom;
-    const romDown = last.rom < first.rom;
-    if (painDown && romUp) return 'Nyeri turun & gerak naik dari sesi ke sesi';
-    if (painUp && romDown) return 'Nyeri naik & gerak turun dari sesi ke sesi';
-    if (romUp) return 'Gerak membaik, nyeri belum menurun';
-    if (painDown) return 'Nyeri menurun, gerak masih perlu dilatih';
-    return 'Progres nyeri & gerak dari sesi ke sesi';
-  }, [chartData]);
-
   /** Area tubuh yang disebut diagnosis/anamnesis sesi terpilih — penanda peta tubuh. */
   const bodyRegions = useMemo(
     () =>
@@ -637,50 +271,15 @@ export function PatientMedicalRecordView({
   /** Nada penanda mengikuti skor nyeri sesi (bukan area spesifik — jujur ke data). */
   const bodyTone = selectedRecord ? metricTone('pain', Number(selectedRecord.painScore ?? 0)).tone : 'watch';
 
-  const calendarEntries = useMemo(
-    () =>
-      sessions.map((session) => ({
-        id: session.latest.id,
-        recordedAt: new Date(session.base.recordedAt),
-        painScore: session.latest.painScore ?? null,
-        rangeOfMotionScore: session.latest.rangeOfMotionScore ?? null,
-        status: session.latest.status,
-      })),
-    [sessions],
-  );
-
-  const selectSessionByNumber = useCallback(
-    (sesi: number) => {
-      const session = sessions[sesi - 1];
-      if (session) openSession(session.latest);
-    },
-    [sessions, openSession],
-  );
-
-  /** Tanggal kalender diketuk → sesi terkait terpilih (tanpa pindah tab). */
-  const selectCalendarDay = useCallback(
-    (entry: TherapyCalendarEntry) => {
-      const record = records.find((item) => item.id === entry.id);
-      if (record) setSelectedRecordId(record.id);
-    },
-    [records],
-  );
-  /** "Lihat" pada kalender → sesi terpilih + buka tab Perkembangan (tanpa drawer). */
-  const openCalendarDetail = useCallback(
-    (recordId: string) => {
-      const record = records.find((item) => item.id === recordId);
-      if (record) setSelectedRecordId(record.id);
-      setWorkspaceTab('perkembangan');
-    },
-    [records],
-  );
+  /** Pemilihan sesi dari workspace Perjalanan Pemulihan (grafik/kalender/perkembangan). */
+  const selectRecordById = useCallback((recordId: string) => {
+    setSelectedRecordId(recordId);
+  }, []);
 
   /** Id penanda atlas — format sama dengan viewer (`key:sisi`). */
   const regionMarkerId = (region: DetectedRegion) => `${region.key}:${region.side ?? '-'}`;
   const regionDisplayName = (region: DetectedRegion) =>
-    region.side
-      ? `${REGION_POINTS[region.key].label} ${region.side}`
-      : REGION_POINTS[region.key].label;
+    region.side ? `${REGION_POINTS[region.key].label} ${region.side}` : REGION_POINTS[region.key].label;
   // Kunjungan, Diagnosis, dan Tindakan dihitung per KUNJUNGAN (nilai terbaru),
   // bukan per rekam — amandemen tidak menggandakan baris.
   const visitPageCount = Math.max(1, Math.ceil(visitRecords.length / visitsPerPage));
@@ -711,6 +310,10 @@ export function PatientMedicalRecordView({
     setSelectedRecordId(recordId);
     setTabOverride('ringkasan');
   }
+
+  /** Aset dekoratif kartu — dari registri atlas (bukan path hardcode). */
+  const decorSkeletal = ANATOMY_SYSTEMS.find((item) => item.key === 'skeletal')?.anterior;
+  const decorNervous = ANATOMY_SYSTEMS.find((item) => item.key === 'nervous')?.anterior;
 
   return (
     <div className="space-y-4 sm:space-y-5">
@@ -854,17 +457,120 @@ export function PatientMedicalRecordView({
         </div>
       ) : activeTab === 'ringkasan' && selectedRecord ? (
         <>
-          {/* ── clinical overview: kondisi terkini | atlas anatomi | diagnosis & area ── */}
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,23fr)_minmax(0,52fr)_minmax(0,25fr)] lg:items-start">
-            {/* ── kolom 1: Kondisi Terkini — SATU kartu metrik terintegrasi ── */}
-            <div className="min-w-0">
+          {/* ── clinical overview: 12-col grid — kiri metrik | tengah atlas | kanan info klinis ── */}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-12 lg:items-start">
+            {/* ── KOLOM KIRI (4): metrik evaluasi + sesi/fisioterapis + kekuatan/fungsi ── */}
+            <div className="min-w-0 space-y-4 lg:col-span-4">
+              {/* baris 1: dua kartu metrik utama — VAS & ROM (sparkline dari data sesi nyata) */}
+              <div className="grid grid-cols-2 gap-3">
+                {(['pain', 'rom'] as const).map((metricKey) => {
+                  const metric = METRICS.find((item) => item.key === metricKey);
+                  if (!metric) return null;
+                  const value = Number(selectedRecord[metric.field] ?? 0);
+                  const tone = metricTone(metricKey, value);
+                  const values = sessions.map((session) => Number(session.latest[metric.field] ?? 0));
+                  return (
+                    <section
+                      key={metricKey}
+                      aria-label={`${metric.label} sesi ini`}
+                      className="rounded-[28px] border border-border bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)]"
+                    >
+                      <div className="flex items-start justify-between gap-1.5">
+                        <p className="text-xs font-semibold text-muted-foreground">{metric.label}</p>
+                        <span
+                          className={cn(
+                            'shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-semibold',
+                            TONE_PILL[tone.tone],
+                          )}
+                        >
+                          {tone.label}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex items-baseline gap-1">
+                        <span className="text-2xl font-bold tabular-nums text-foreground">{value}</span>
+                        <span className="text-[10px] font-medium text-muted-foreground">/10</span>
+                      </div>
+                      <svg aria-hidden="true" viewBox="0 0 120 40" className="mt-2 h-9 w-full" fill="none">
+                        <polyline
+                          points={sparklinePoints(values, 10)}
+                          stroke="var(--hafta-400)"
+                          strokeWidth="2"
+                          strokeLinejoin="round"
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                    </section>
+                  );
+                })}
+              </div>
+
+              {/* baris 2: total sesi + jadwal berikutnya + profil fisioterapis */}
               <section
-                aria-label="Kondisi terkini sesi"
+                aria-label="Sesi dan fisioterapis"
+                className="relative overflow-hidden rounded-[28px] border border-border bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5"
+              >
+                {/* siluet anatomi dekoratif — aset atlas, opasitas rendah */}
+                {decorSkeletal ? (
+                  <Image
+                    src={decorSkeletal.url}
+                    alt=""
+                    aria-hidden="true"
+                    width={decorSkeletal.width}
+                    height={decorSkeletal.height}
+                    className="pointer-events-none absolute -right-3 bottom-0 h-[80%] w-auto opacity-[0.06]"
+                  />
+                ) : null}
+                <div className="relative">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold text-muted-foreground">Total Sesi</p>
+                      <p className="mt-1 text-2xl font-bold tabular-nums leading-none text-foreground">
+                        {sessions.length}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {firstRecord ? `sejak ${shortDate(firstRecord.recordedAt)}` : 'belum ada sesi'}
+                      </p>
+                    </div>
+                    <div className="min-w-0 text-right">
+                      <p className="text-xs font-semibold text-muted-foreground">Berikutnya</p>
+                      <p className="mt-1 text-sm font-semibold tabular-nums text-foreground">{nextScheduleDateLabel}</p>
+                      <p className="mt-0.5 text-xs leading-snug text-muted-foreground">{nextScheduleDetail}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex items-center gap-2.5 border-t border-border/70 pt-3">
+                    <span
+                      aria-hidden="true"
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--hafta-50)] text-[var(--hafta-700)]"
+                    >
+                      <Stethoscope className="h-4 w-4" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-foreground">
+                        {nextSchedule?.therapistName ??
+                          patient?.therapistName ??
+                          latestRecord?.therapistName ??
+                          'Fisioterapis Hafta'}
+                      </p>
+                      <p className="text-xs text-muted-foreground">Fisioterapis</p>
+                    </div>
+                    <Link
+                      href="/dashboard/appointments"
+                      className={cn(buttonVariants({ variant: 'outline', size: 'xs' }), 'shrink-0')}
+                    >
+                      Lihat Jadwal
+                    </Link>
+                  </div>
+                </div>
+              </section>
+
+              {/* baris 3: kekuatan & fungsi + progress bar + badge selisih */}
+              <section
+                aria-label="Kekuatan dan fungsi"
                 className="hafta-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-muted-foreground">Kondisi Terkini</p>
+                    <p className="text-xs font-semibold text-muted-foreground">Kekuatan &amp; Fungsi</p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       Evaluasi Sesi {visitNumberById.get(selectedRecord.id) ?? 1} ·{' '}
                       {longDate(selectedRecord.recordedAt)}
@@ -876,19 +582,21 @@ export function PatientMedicalRecordView({
                     </span>
                   ) : null}
                 </div>
-
                 <dl className="mt-3 divide-y divide-border/70 border-t border-border/70">
-                  {METRICS.map(({ key, label, field, icon: Icon }) => {
-                    const value = Number(selectedRecord[field] ?? 0);
-                    const previous = previousRecord ? Number(previousRecord[field] ?? 0) : null;
-                    const change = deltaForMetric(key, value, previous);
-                    const tone = metricTone(key, value);
+                  {(['strength', 'function'] as const).map((metricKey) => {
+                    const metric = METRICS.find((item) => item.key === metricKey);
+                    if (!metric) return null;
+                    const value = Number(selectedRecord[metric.field] ?? 0);
+                    const previous = previousRecord ? Number(previousRecord[metric.field] ?? 0) : null;
+                    const change = deltaForMetric(metricKey, value, previous);
+                    const tone = metricTone(metricKey, value);
+                    const Icon = metric.icon;
                     return (
-                      <div key={key} className="py-2.5">
+                      <div key={metricKey} className="py-2.5">
                         <div className="flex items-baseline justify-between gap-2">
                           <dt className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                             <Icon className="h-3 w-3 text-[var(--hafta-300)]" />
-                            {label}
+                            {metric.label}
                           </dt>
                           <dd className="flex min-w-0 flex-wrap items-baseline justify-end gap-1">
                             <span className="text-lg font-bold leading-none tabular-nums text-foreground">{value}</span>
@@ -928,55 +636,75 @@ export function PatientMedicalRecordView({
               </section>
             </div>
 
-            {/* ── kolom 2: panggung anatomi interaktif ── */}
-            <TherapyAnatomyStage
-              markers={bodyRegions}
-              tone={bodyTone}
-              detail={
-                selectedRecord.diagnosis || selectedRecord.treatment
-                  ? {
-                      condition: selectedRecord.diagnosis ?? '',
-                      therapyMethod: selectedRecord.treatment ?? '',
-                    }
-                  : null
-              }
-              onRegionSelect={() => openSession(selectedRecord)}
-              onActiveMarkerChange={setActiveMarkerId}
-              focusRegionId={focusRegionId}
-              fallbackHint="Area keluhan akan ditandai otomatis dari diagnosis sesi terpilih."
-            />
+            {/* ── KOLOM TENGAH (4): Interactive Anatomy Viewer — fokus visual utama ── */}
+            <div className="min-w-0 lg:col-span-4">
+              <TherapyAnatomyStage
+                markers={bodyRegions}
+                tone={bodyTone}
+                detail={
+                  selectedRecord.diagnosis || selectedRecord.treatment
+                    ? {
+                        condition: selectedRecord.diagnosis ?? '',
+                        therapyMethod: selectedRecord.treatment ?? '',
+                      }
+                    : null
+                }
+                onRegionSelect={() => openSession(selectedRecord)}
+                onActiveMarkerChange={setActiveMarkerId}
+                focusRegionId={focusRegionId}
+                fallbackHint="Area keluhan akan ditandai otomatis dari diagnosis sesi terpilih."
+              />
+            </div>
 
-            {/* ── kolom 3: diagnosis terkini + area keluhan + latihan mandiri ── */}
-            <aside className="min-w-0 space-y-4 lg:sticky lg:top-[88px]">
-              {/* diagnosis terkini — permukaan netral, tanpa kartu gelap */}
-              <section aria-label="Diagnosis terkini" className="hafta-card p-4 sm:p-5">
-                <div className="flex items-start justify-between gap-2">
-                  <h2 className="inline-flex items-center gap-1.5 text-base font-semibold tracking-tight text-foreground">
-                    <Stethoscope className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
-                    Diagnosis Terkini
-                  </h2>
-                  <span
-                    className={cn(
-                      'shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold',
-                      selectedRecord.status === 'FINALIZED'
-                        ? TONE_PILL.good
-                        : 'bg-secondary/60 text-muted-foreground',
-                    )}
+            {/* ── KOLOM KANAN (4): panel info klinis — scroll vertikal sejajar tinggi atlas ── */}
+            <aside
+              aria-label="Panel informasi klinis"
+              className="min-w-0 space-y-4 lg:col-span-4 lg:max-h-[640px] lg:overflow-y-auto lg:pr-1"
+            >
+              {/* diagnosis terkini — permukaan netral + siluet anatomi dekoratif */}
+              <section
+                aria-label="Diagnosis terkini"
+                className="relative overflow-hidden rounded-[28px] border border-border bg-card p-4 shadow-[0_1px_2px_rgba(28,25,23,0.04)] sm:p-5"
+              >
+                {decorNervous ? (
+                  <Image
+                    src={decorNervous.url}
+                    alt=""
+                    aria-hidden="true"
+                    width={decorNervous.width}
+                    height={decorNervous.height}
+                    className="pointer-events-none absolute -right-2 bottom-0 h-[85%] w-auto opacity-[0.07]"
+                  />
+                ) : null}
+                <div className="relative">
+                  <div className="flex items-start justify-between gap-2">
+                    <h2 className="inline-flex items-center gap-1.5 text-base font-semibold tracking-tight text-foreground">
+                      <Stethoscope className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
+                      Diagnosis Terkini
+                    </h2>
+                    <span
+                      className={cn(
+                        'shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold',
+                        selectedRecord.status === 'FINALIZED'
+                          ? TONE_PILL.good
+                          : 'bg-secondary/60 text-muted-foreground',
+                      )}
+                    >
+                      {labelRecordStatus(selectedRecord.status)}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm leading-relaxed text-foreground">
+                    {selectedRecord.diagnosis || 'Belum ada diagnosis tercatat pada sesi terpilih.'}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => openSession(selectedRecord)}
+                    className="tap-target mt-3 inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-full text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
                   >
-                    {labelRecordStatus(selectedRecord.status)}
-                  </span>
+                    Lihat catatan lengkap
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </button>
                 </div>
-                <p className="mt-2 text-sm leading-relaxed text-foreground">
-                  {selectedRecord.diagnosis || 'Belum ada diagnosis tercatat pada sesi terpilih.'}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => openSession(selectedRecord)}
-                  className="tap-target mt-3 inline-flex min-h-9 cursor-pointer items-center gap-1 rounded-full text-xs font-semibold text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-                >
-                  Lihat catatan lengkap
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </button>
               </section>
 
               {/* area keluhan — klik mengaktifkan penanda pada Atlas */}
@@ -1027,6 +755,39 @@ export function PatientMedicalRecordView({
                 )}
               </section>
 
+              {/* Perjalanan Pemulihan — sub-tab Grafik/Kalender/Perkembangan + perluas */}
+              <section
+                id="grafik-pemulihan"
+                aria-label="Perjalanan pemulihan"
+                className="hafta-card scroll-mt-24 p-4 sm:p-5"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <h2 className="inline-flex items-center gap-1.5 text-base font-semibold tracking-tight text-foreground">
+                    <TrendingUp className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
+                    Perjalanan Pemulihan
+                  </h2>
+                  <button
+                    type="button"
+                    aria-label="Perluas Perjalanan Pemulihan"
+                    title="Perluas"
+                    onClick={() => setWorkspaceExpanded(true)}
+                    className="tap-target flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
+                  >
+                    <Maximize2 className="h-4 w-4" />
+                  </button>
+                </div>
+                <div className="mt-2">
+                  <RecoveryWorkspace
+                    sessions={sessions}
+                    selectedRecordId={selectedRecord.id}
+                    onSelectRecord={selectRecordById}
+                    treatmentPlan={treatmentPlan}
+                    homeProgram={homeProgram}
+                    onProgramOpen={() => setProgramOpen(true)}
+                  />
+                </div>
+              </section>
+
               {homeProgram && homeProgram.items.length > 0 ? (
                 <section
                   aria-label="Program latihan mandiri"
@@ -1074,250 +835,36 @@ export function PatientMedicalRecordView({
             </aside>
           </div>
 
-          {/* ── PERJALANAN PEMULIHAN — grafik + kalender + perkembangan dalam SATU workspace bertab ── */}
-          <div className="mt-4 space-y-4">
-            <section
-              id="grafik-pemulihan"
-              aria-label="Perjalanan pemulihan"
-              className="hafta-card scroll-mt-24 p-4 sm:p-5"
-            >
-              <div className="min-w-0">
-                <h2 className="inline-flex items-center gap-1.5 text-base font-semibold tracking-tight text-foreground">
-                  <TrendingUp className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
-                  Perjalanan Pemulihan
-                </h2>
-                <p className="mt-0.5 text-xs text-muted-foreground">
-                  {recoveryCaption} · Sesi {visitNumberById.get(selectedRecord.id) ?? 1} dari {sessions.length} dipilih
-                </p>
-              </div>
-
-              <Tabs value={workspaceTab} onValueChange={(value) => setWorkspaceTab(value as typeof workspaceTab)}>
-                <TabsList className="mt-3 gap-1 rounded-full bg-[var(--hafta-50)] p-1">
-                  {(
-                    [
-                      { key: 'grafik', label: 'Grafik' },
-                      { key: 'kalender', label: 'Kalender' },
-                      { key: 'perkembangan', label: 'Perkembangan' },
-                    ] as const
-                  ).map((tab) => (
-                    <TabsTrigger
-                      key={tab.key}
-                      value={tab.key}
-                      className="min-h-9 rounded-full px-4 text-xs font-semibold data-[state=active]:bg-[var(--hafta-950)] data-[state=active]:text-white"
-                    >
-                      {tab.label}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-
-                {/* ── GRAFIK: VAS & ROM dipisah — unit berbeda (0–10 vs %) ── */}
-                <TabsContent value="grafik" className="mt-4 outline-none">
-                  {chartData.length >= 2 ? (
-                    <div className="grid gap-5 lg:grid-cols-2">
-                      <div className="min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-xs font-semibold text-muted-foreground">Nyeri (VAS)</p>
-                          {latestChartPoint ? (
-                            <p className="text-xs font-semibold tabular-nums text-foreground">
-                              {latestChartPoint.pain}/10
-                            </p>
-                          ) : null}
-                        </div>
-                        <div className="mt-1">
-                          <MemoMetricChart data={chartData} metric="pain" onSelectSession={selectSessionByNumber} />
-                        </div>
-                      </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <p className="text-xs font-semibold text-muted-foreground">Rentang Gerak</p>
-                          {latestChartPoint ? (
-                            <p className="text-xs font-semibold tabular-nums text-foreground">{latestChartPoint.rom}%</p>
-                          ) : null}
-                        </div>
-                        <div className="mt-1">
-                          <MemoMetricChart data={chartData} metric="rom" onSelectSession={selectSessionByNumber} />
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-start gap-3 rounded-2xl border border-dashed border-border bg-[var(--hafta-50)]/60 p-4">
-                      <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-[var(--hafta-300)]" />
-                      <div className="min-w-0">
-                        <p className="text-xs font-semibold text-foreground">Grafik mulai tampil setelah 2 evaluasi</p>
-                        <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                          Setelah sesi berikutnya selesai dinilai, garis progres nyeri dan gerak Anda akan tampil di
-                          sini sehingga perkembangan terlihat jelas dari waktu ke waktu.
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </TabsContent>
-
-                {/* ── KALENDER: compact, tanggal terapi memilih sesi terkait ── */}
-                <TabsContent value="kalender" className="mt-4 outline-none">
-                  {records.length > 0 ? (
-                    <div className="mx-auto w-full max-w-[560px]">
-                      <MemoTherapyCalendar
-                        entries={calendarEntries}
-                        onSelectDay={selectCalendarDay}
-                        onSelectRecord={openCalendarDetail}
-                      />
-                    </div>
-                  ) : null}
-                </TabsContent>
-
-                {/* ── PERKEMBANGAN: detail klinis terstruktur sesi terpilih ── */}
-                <TabsContent value="perkembangan" className="mt-4 outline-none">
-                  {/* pemilih sesi — sesi tetap terpilih saat berpindah tab */}
-                  <div
-                    role="group"
-                    aria-label="Pilih sesi"
-                    className="flex items-center gap-1.5 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-                  >
-                    {sessions.map((session, index) => {
-                      const record = session.latest;
-                      const isActive =
-                        session.base.id === selectedRecord.id || record.id === selectedRecord.id;
-                      return (
-                        <button
-                          key={session.base.id}
-                          type="button"
-                          aria-pressed={isActive}
-                          onClick={() => setSelectedRecordId(record.id)}
-                          className={cn(
-                            'tap-target shrink-0 cursor-pointer rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35',
-                            isActive
-                              ? 'border-transparent bg-[var(--hafta-950)] text-white'
-                              : 'border-border text-muted-foreground hover:bg-accent hover:text-foreground',
-                          )}
-                        >
-                          Sesi {index + 1} · {shortDate(session.base.recordedAt)}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-                    <p className="min-w-0 text-xs text-muted-foreground">
-                      {longDate(selectedRecord.recordedAt)} · Sesi{' '}
-                      {visitNumberById.get(selectedRecord.id) ?? 1}
-                    </p>
-                    <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                      {selectedRecord.amendedFromId ? (
-                        <span className="rounded-full border border-[var(--hafta-org-200)] bg-[var(--hafta-org-50)] px-2 py-0.5 text-xs font-semibold text-[var(--hafta-org-700)]">
-                          Revisi R{selectedRecord.revisionNumber ?? 2} · Pembaruan data
-                        </span>
-                      ) : null}
-                      <span
-                        className={cn(
-                          'rounded-full px-2 py-0.5 text-xs font-semibold',
-                          selectedRecord.status === 'FINALIZED'
-                            ? TONE_PILL.good
-                            : 'bg-secondary/60 text-muted-foreground',
-                        )}
-                      >
-                        {labelRecordStatus(selectedRecord.status)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* catatan klinis — baris hairline */}
-                  <dl className="mt-3 divide-y divide-border/70 border-t border-border/70">
-                    {CLINICAL_ROWS.map((row) => {
-                      const value = selectedRecord[row.field];
-                      return (
-                        <div
-                          key={row.field}
-                          className="grid gap-0.5 py-2 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6"
-                        >
-                          <dt className="text-xs font-medium text-muted-foreground sm:pt-px">{row.label}</dt>
-                          <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-                            {typeof value === 'string' && value ? (
-                              value
-                            ) : (
-                              <span className="text-muted-foreground">Tidak dicatat</span>
-                            )}
-                          </dd>
-                        </div>
-                      );
-                    })}
-                  </dl>
-
-                  {/* rencana terapi — hanya bila ada */}
-                  {treatmentPlan ? (
-                    <div className="mt-3 border-t border-border/70 pt-3">
-                      <h3 className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                        <ClipboardList className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
-                        Rencana Terapi
-                      </h3>
-                      <dl className="mt-1 divide-y divide-border/70">
-                        <div className="grid gap-0.5 py-2 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6">
-                          <dt className="text-xs font-medium text-muted-foreground sm:pt-px">Tujuan</dt>
-                          <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-                            {treatmentPlan.goals}
-                          </dd>
-                        </div>
-                        <div className="grid gap-0.5 py-2 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6">
-                          <dt className="text-xs font-medium text-muted-foreground sm:pt-px">Intervensi</dt>
-                          <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-                            {treatmentPlan.interventions}
-                          </dd>
-                        </div>
-                        {treatmentPlan.precautions ? (
-                          <div className="grid gap-0.5 py-2 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)] sm:gap-6">
-                            <dt className="text-xs font-medium text-muted-foreground sm:pt-px">Perhatian</dt>
-                            <dd className="whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-                              {treatmentPlan.precautions}
-                            </dd>
-                          </div>
-                        ) : null}
-                      </dl>
-                    </div>
-                  ) : null}
-
-                  {/* program latihan — compact, detail di modal */}
-                  {homeProgram && homeProgram.items.length > 0 ? (
-                    <div className="mt-3 border-t border-border/70 pt-3">
-                      <button
-                        type="button"
-                        onClick={() => setProgramOpen(true)}
-                        className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-1 py-2 text-left transition-colors hover:bg-[var(--hafta-50)] focus-visible:border-[var(--hafta-950)] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35"
-                      >
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl hafta-tint text-[var(--hafta-700)]">
-                          <Dumbbell className="h-4 w-4" />
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-sm font-semibold text-foreground">Program Latihan Mandiri</span>
-                          <span className="block text-xs text-muted-foreground">
-                            {homeProgram.items.length} latihan ·{' '}
-                            {homeProgram.startsAt
-                              ? `${shortDate(homeProgram.startsAt)}${homeProgram.endsAt ? ` – ${shortDate(homeProgram.endsAt)}` : ''}`
-                              : 'tanpa batas waktu'}
-                          </span>
-                        </span>
-                        <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-                      </button>
-                    </div>
-                  ) : null}
-                </TabsContent>
-              </Tabs>
+          {/* Perjalanan Pemulihan versi diperluas — modal global. */}
+          <GlobalModal
+            isOpen={workspaceExpanded}
+            onClose={() => setWorkspaceExpanded(false)}
+            title="Perjalanan Pemulihan"
+            size="lg"
+            className="sm:max-w-4xl"
+          >
+            <RecoveryWorkspace
+              sessions={sessions}
+              selectedRecordId={selectedRecord.id}
+              onSelectRecord={selectRecordById}
+              treatmentPlan={treatmentPlan}
+              homeProgram={homeProgram}
+              onProgramOpen={() => setProgramOpen(true)}
+            />
+          </GlobalModal>
+          {patient?.therapistNote ? (
+            <section className="hafta-card p-4 sm:p-5">
+              <h3 className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
+                <PenLine className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
+                Catatan Fisioterapis
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-foreground">{patient.therapistNote}</p>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                {patient.therapistNoteAuthor ?? patient.therapistName ?? 'Fisioterapis Hafta'}
+                {patient.therapistNoteAt ? ` · ${shortDate(patient.therapistNoteAt)}` : ''}
+              </p>
             </section>
-
-            {/* catatan fisioterapis — hanya bila ada */}
-            {patient?.therapistNote ? (
-              <section className="hafta-card p-4 sm:p-5">
-                <h3 className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
-                  <PenLine className="h-3.5 w-3.5 text-[var(--hafta-300)]" />
-                  Catatan Fisioterapis
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-foreground">{patient.therapistNote}</p>
-                <p className="mt-1.5 text-xs text-muted-foreground">
-                  {patient.therapistNoteAuthor ?? patient.therapistName ?? 'Fisioterapis Hafta'}
-                  {patient.therapistNoteAt ? ` · ${shortDate(patient.therapistNoteAt)}` : ''}
-                </p>
-              </section>
-            ) : null}
-          </div>
+          ) : null}
         </>
       ) : activeTab === 'kunjungan' ? (
         <section className="hafta-card p-4 sm:p-5">

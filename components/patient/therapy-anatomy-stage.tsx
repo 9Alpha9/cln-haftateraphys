@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Maximize2, Minimize2, RotateCcw, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SkeletonBlock } from '@/components/dashboard/skeletons/skeleton-primitives';
+import { LineHeartbeat } from '@/components/ui/line-heartbeat';
 import { REGION_POINTS, type DetectedRegion } from '@/components/patient/body-condition-map';
 import {
   ANATOMY_SYSTEMS,
@@ -73,13 +75,15 @@ export function TherapyAnatomyStage({
   focusRegionId: string | null;
   fallbackHint: string;
 }) {
-  const [activeId, setActiveId] = useState<string | null>(null);  const [system, setSystem] = useState<AnatomySystemKey>('muscular');
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [system, setSystem] = useState<AnatomySystemKey>('muscular');
   const [view, setView] = useState<AnatomyViewKey>('anterior');
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [imageReady, setImageReady] = useState(0);
+  const [loadedAssetId, setLoadedAssetId] = useState<string | null>(null);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
 
   const asset = atlasAsset(system, view);
@@ -136,6 +140,7 @@ export function TherapyAnatomyStage({
     const cached = imageCache.current.get(asset.id);
     if (cached) {
       imageRef.current = cached;
+      setLoadedAssetId(asset.id);
       setImageReady((value) => value + 1);
       return () => {
         cancelled = true;
@@ -148,6 +153,7 @@ export function TherapyAnatomyStage({
       if (cancelled) return;
       imageCache.current.set(asset.id, image);
       imageRef.current = image;
+      setLoadedAssetId(asset.id);
       setImageReady((value) => value + 1);
     };
     image.addEventListener('load', onLoad);
@@ -248,8 +254,7 @@ export function TherapyAnatomyStage({
     if (view === 'posterior' && !entry?.posterior) setView('anterior');
   };
 
-  const distance = (a: { x: number; y: number }, b: { x: number; y: number }) =>
-    Math.hypot(a.x - b.x, a.y - b.y);
+  const distance = (a: { x: number; y: number }, b: { x: number; y: number }) => Math.hypot(a.x - b.x, a.y - b.y);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     const target = event.target as Element;
@@ -454,6 +459,8 @@ export function TherapyAnatomyStage({
               const position = markerPosition(asset.id, marker.key, marker.side);
               const label = regionLabel(marker);
               const isActive = activeId === markerId(marker);
+              // Pill mengambang di sisi pin: ke kanan bila pin di kiri panggung.
+              const pillRight = position.x <= 55;
               return (
                 <button
                   key={markerId(marker)}
@@ -491,12 +498,34 @@ export function TherapyAnatomyStage({
                         isActive ? 'border-[#FACC15] ring-2 ring-[#FACC15]/40' : 'border-slate-400/80',
                       )}
                     />
+                    {/* Floating pill: label area keluhan, menunjuk ke koordinat pin.
+                        Ukuran konstan di semua zoom (DOM di atas kanvas). */}
+                    <span
+                      className={cn(
+                        'absolute top-1/2 flex -translate-y-1/2 items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-1 text-[10px] font-semibold shadow-sm transition-colors',
+                        pillRight ? 'left-3' : 'right-3',
+                        isActive
+                          ? 'border-[var(--hafta-950)] bg-[var(--hafta-950)] text-white'
+                          : 'border-slate-200 bg-white/95 text-slate-700 backdrop-blur',
+                      )}
+                    >
+                      <span aria-hidden="true" className={cn('h-1.5 w-1.5 shrink-0 rounded-full', TONE_DOT[tone])} />
+                      {label}
+                    </span>
                   </span>
                 </button>
               );
             })
           : null}
       </div>
+
+      {/* ── loading aset atlas: skeleton global + line heartbeat global ── */}
+      {loadedAssetId !== asset.id ? (
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-gradient-to-b from-[#F8FAFC]/95 to-[#EEF2F6]/95">
+          <SkeletonBlock className="h-3/5 w-1/2 max-w-[220px] rounded-[40px] bg-slate-200/70" />
+          <LineHeartbeat label="Memuat atlas anatomi…" />
+        </div>
+      ) : null}
 
       {/* ── garis penunjuk pin → kartu (animasi menggambar dirinya) ── */}
       {activeMarker ? (
@@ -612,12 +641,12 @@ export function TherapyAnatomyStage({
         </div>
       ) : null}
 
-      {/* ── pemilih sistem anatomi + tampakan ── */}
-      <div className="absolute right-4 top-4 flex max-w-[60%] flex-col items-end gap-1.5">
+      {/* ── pemilih sistem anatomi + tampakan (kiri bawah, tidak menutup legenda) ── */}
+      <div className="absolute bottom-4 left-4 flex max-w-[65%] flex-col items-start gap-1.5">
         <div
           role="group"
           aria-label="Sistem anatomi"
-          className="flex flex-wrap justify-end gap-0.5 rounded-full border border-slate-200/80 bg-white/90 p-0.5 shadow-sm backdrop-blur"
+          className="flex flex-wrap justify-start gap-0.5 rounded-full border border-slate-200/80 bg-white/90 p-0.5 shadow-sm backdrop-blur"
         >
           {ANATOMY_SYSTEMS.map((item) => (
             <button
@@ -655,7 +684,9 @@ export function TherapyAnatomyStage({
                 type="button"
                 disabled={disabled}
                 aria-pressed={view === item.key}
-                title={disabled ? 'Tampakan belakang tidak tersedia untuk sistem ini' : `Tampak ${item.label.toLowerCase()}`}
+                title={
+                  disabled ? 'Tampakan belakang tidak tersedia untuk sistem ini' : `Tampak ${item.label.toLowerCase()}`
+                }
                 onClick={() => setView(item.key)}
                 className={cn(
                   'tap-target min-h-8 cursor-pointer rounded-full px-2.5 text-[11px] font-semibold transition-colors focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[var(--hafta-300)]/35 disabled:cursor-not-allowed disabled:opacity-40',
