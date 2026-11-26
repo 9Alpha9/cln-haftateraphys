@@ -44,20 +44,33 @@ export function getResponsiveCollisionPadding(
   };
 }
 
+const MOBILE_MQ = '(max-width: 767px)';
+
+function subscribeMediaQuery(callback: () => void) {
+  const mq = window.matchMedia(MOBILE_MQ);
+  mq.addEventListener('change', callback);
+  return () => mq.removeEventListener('change', callback);
+}
+
+function getMobileSnapshot() {
+  return window.matchMedia(MOBILE_MQ).matches;
+}
+
+function getServerSnapshot() {
+  return false;
+}
+
 /**
  * Mengembalikan collisionPadding yang menyesuaikan viewport mobile vs desktop
- * sehingga desktop tidak terkena padding bottom-nav mobile 80px.
+ * secara sinkron saat mount (tanpa state flip pasca-render) sehingga desktop
+ * tidak terkena padding bottom-nav mobile 80px.
  */
 export function useResponsiveCollisionPadding(top: number = TOPBAR_SAFE_AREA_PX): CollisionPadding {
-  const [isMobile, setIsMobile] = React.useState(false);
-
-  React.useEffect(() => {
-    const mq = window.matchMedia('(max-width: 767px)');
-    const update = () => setIsMobile(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
+  const isMobile = React.useSyncExternalStore(
+    subscribeMediaQuery,
+    getMobileSnapshot,
+    getServerSnapshot,
+  );
 
   return React.useMemo(() => getResponsiveCollisionPadding(isMobile, top), [isMobile, top]);
 }

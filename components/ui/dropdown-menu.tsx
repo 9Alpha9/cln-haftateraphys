@@ -25,12 +25,15 @@ function DropdownMenuContent({
   className,
   sideOffset = 4,
   collisionPadding,
+  container,
   ...props
-}: React.ComponentProps<typeof DropdownMenuPrimitive.Content>) {
+}: React.ComponentProps<typeof DropdownMenuPrimitive.Content> & {
+  container?: React.ComponentProps<typeof DropdownMenuPrimitive.Portal>['container'];
+}) {
   const responsivePadding = useResponsiveCollisionPadding();
 
   return (
-    <DropdownMenuPrimitive.Portal>
+    <DropdownMenuPrimitive.Portal container={container}>
       <DropdownMenuPrimitive.Content
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}

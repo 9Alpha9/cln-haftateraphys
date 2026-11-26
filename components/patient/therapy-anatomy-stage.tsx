@@ -89,6 +89,7 @@ export function TherapyAnatomyStage({
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [fullscreenContainer, setFullscreenContainer] = useState<HTMLElement | null>(null);
   const [imageReady, setImageReady] = useState(0);
   const [loadedAssetId, setLoadedAssetId] = useState<string | null>(null);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
@@ -249,7 +250,11 @@ export function TherapyAnatomyStage({
   }, []);
 
   useEffect(() => {
-    const onChange = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    const onChange = () => {
+      const el = document.fullscreenElement;
+      setIsFullscreen(Boolean(el));
+      setFullscreenContainer(el instanceof HTMLElement ? el : null);
+    };
     document.addEventListener('fullscreenchange', onChange);
     return () => document.removeEventListener('fullscreenchange', onChange);
   }, []);
@@ -689,7 +694,13 @@ export function TherapyAnatomyStage({
               <Layers aria-hidden="true" className="h-3.5 w-3.5" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent side="right" align="start" sideOffset={8} className="min-w-[132px]">
+          <DropdownMenuContent
+            side="right"
+            align="start"
+            sideOffset={8}
+            container={fullscreenContainer ?? undefined}
+            className="min-w-[132px]"
+          >
             <DropdownMenuRadioGroup value={system} onValueChange={(value) => selectSystem(value as AnatomySystemKey)}>
               {ANATOMY_SYSTEMS.map((item) => (
                 <DropdownMenuRadioItem key={item.key} value={item.key} className="cursor-pointer text-[11px] font-semibold">
