@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { motion } from 'motion/react';
 import {
   ArrowRight,
   CalendarDays,
@@ -155,13 +156,23 @@ export function PatientDashboardOverview({
         },
       ]
     : [];
-  const optimalCount = evaluationMetrics.filter((metric) => metric.optimal).length;
-  const subOptimalCount = evaluationMetrics.length - optimalCount;
+  const resultMetrics = records.flatMap((record) => [
+    { key: `${record.id}-pain`, optimal: record.painScore <= 3 },
+    { key: `${record.id}-rom`, optimal: record.rangeOfMotionScore >= 8 },
+    { key: `${record.id}-strength`, optimal: record.strengthScore >= 8 },
+    { key: `${record.id}-function`, optimal: record.functionScore >= 8 },
+  ]);
+  const totalResults = resultMetrics.length;
+  const optimalCount = resultMetrics.filter((metric) => metric.optimal).length;
+  const subOptimalCount = totalResults - optimalCount;
 
   /**
-   * Susun bar seperti referensi: kelompok optimal dulu (hijau terang → tua),
-   * lalu sub optimal (merah terang → tua), memakai ramp palet Hafta.
+   * Bar kecil seperti referensi: 10 slot tetap. Slot terisi berurutan dari
+   * kiri (kelompok optimal hijau terang → tua, lalu sub optimal merah terang
+   * → tua); slot yang belum terisi tetap abu-abu, sehingga bar "terisi
+   * perlahan" seiring bertambahnya data evaluasi.
    */
+  const BAR_SLOTS = 10;
   const OPTIMAL_RAMP = [
     'var(--hafta-grn-100)',
     'var(--hafta-grn-200)',
@@ -174,16 +185,26 @@ export function PatientDashboardOverview({
     'var(--hafta-red-300)',
     'var(--hafta-red-400)',
   ];
-  const orderedMetrics = [...evaluationMetrics].sort((a, b) => Number(b.optimal) - Number(a.optimal));
-  let optimalSeen = 0;
-  let subOptimalSeen = 0;
-  const metricBars = orderedMetrics.map((metric) => {
-    const ramp = metric.optimal ? OPTIMAL_RAMP : SUBOPTIMAL_RAMP;
-    const groupSize = metric.optimal ? optimalCount : subOptimalCount;
-    const position = metric.optimal ? optimalSeen++ : subOptimalSeen++;
-    const rampIndex =
-      groupSize <= 1 ? ramp.length - 1 : Math.round((position / (groupSize - 1)) * (ramp.length - 1));
-    return { ...metric, color: ramp[Math.min(rampIndex, ramp.length - 1)] };
+  const filledSlots = Math.min(totalResults, BAR_SLOTS);
+  const optimalSlots = totalResults > 0 ? Math.round((optimalCount / totalResults) * filledSlots) : 0;
+  const subOptimalSlots = filledSlots - optimalSlots;
+  const barSlots = Array.from({ length: BAR_SLOTS }, (_, index) => {
+    if (index < optimalSlots) {
+      const ramp = OPTIMAL_RAMP;
+      const rampIndex =
+        optimalSlots <= 1 ? ramp.length - 1 : Math.round((index / (optimalSlots - 1)) * (ramp.length - 1));
+      return { key: `optimal-${index}`, color: ramp[Math.min(rampIndex, ramp.length - 1)], filled: true };
+    }
+    const redIndex = index - optimalSlots;
+    if (redIndex < subOptimalSlots) {
+      const ramp = SUBOPTIMAL_RAMP;
+      const rampIndex =
+        subOptimalSlots <= 1
+          ? ramp.length - 1
+          : Math.round((redIndex / (subOptimalSlots - 1)) * (ramp.length - 1));
+      return { key: `sub-${index}`, color: ramp[Math.min(rampIndex, ramp.length - 1)], filled: true };
+    }
+    return { key: `empty-${index}`, color: 'var(--muted)', filled: false };
   });
 
   function handleCancelPendingRequest() {
@@ -329,11 +350,11 @@ export function PatientDashboardOverview({
                   Overview
                 </p>
                 <p className="mt-1 flex items-baseline gap-1.5 text-3xl font-extrabold leading-none tracking-tight text-foreground">
-                  {latestRecord ? (
+                  {totalResults > 0 ? (
                     <>
                       <span className="inline-flex items-baseline">
                         <CountUp value={optimalCount} />
-                        <span className="text-xl font-bold text-muted-foreground">/{evaluationMetrics.length}</span>
+                        <span className="text-xl font-bold text-muted-foreground">/{totalResults}</span>
                       </span>
                       <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         Hasil
@@ -346,33 +367,36 @@ export function PatientDashboardOverview({
               </div>
             </div>
 
-            {/* bar distribusi metrik — hijau = optimal, merah = sub optimal */}
-            <div className="mt-4 flex h-20 items-stretch gap-1.5" role="img" aria-label="Distribusi hasil evaluasi metrik">
-              {evaluationMetrics.length > 0
-                ? metricBars.map((metric) => (
-                    <span
-                      key={metric.key}
-                      title={`${metric.label} · ${metric.optimal ? 'Optimal' : 'Sub optimal'}`}
-                      className="flex-1 rounded-md transition-colors"
-                      style={{ backgroundColor: metric.color }}
-                    />
-                  ))
-                : [0, 1, 2, 3].map((item) => (
-                    <span key={item} className="flex-1 rounded-md bg-stone-200/60" />
-                  ))}
+            {/* 10 slot kecil: terisi berurutan (hijau → merah), sisanya abu-abu */}
+            <div
+              className="mt-4 grid h-16 grid-cols-10 items-stretch gap-1"
+              role="img"
+              aria-label="Distribusi hasil evaluasi metrik"
+            >
+              {barSlots.map((slot, index) => (
+                <motion.span
+                  key={slot.key}
+                  initial={{ opacity: 0.45, transform: 'scaleY(0.72)' }}
+                  animate={{ opacity: 1, transform: 'scaleY(1)' }}
+                  transition={{ duration: 0.32, ease: 'easeOut', delay: index * 0.035 }}
+                  className="origin-bottom rounded-md"
+                  style={{ backgroundColor: slot.color }}
+                />
+              ))}
             </div>
 
             <div className="mt-3 grid grid-cols-2 gap-2">
               <div>
                 <span aria-hidden="true" className="block h-0.5 w-full rounded-full bg-[var(--hafta-grn-500)]" />
                 <p className="mt-1.5 text-[11px] font-semibold text-muted-foreground">
-                  Optimal <span className="tabular-nums text-foreground">{latestRecord ? optimalCount : '—'}</span>
+                  Optimal <span className="tabular-nums text-foreground">{totalResults > 0 ? optimalCount : '—'}</span>
                 </p>
               </div>
               <div>
                 <span aria-hidden="true" className="block h-0.5 w-full rounded-full bg-[var(--hafta-red-400)]" />
                 <p className="mt-1.5 text-[11px] font-semibold text-muted-foreground">
-                  Sub Optimal <span className="tabular-nums text-foreground">{latestRecord ? subOptimalCount : '—'}</span>
+                  Sub Optimal{' '}
+                  <span className="tabular-nums text-foreground">{totalResults > 0 ? subOptimalCount : '—'}</span>
                 </p>
               </div>
             </div>
