@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { useOverlayLayer } from '@/components/ui/use-overlay-layer';
 import { useBodyScrollLock } from '@/components/ui/use-body-scroll-lock';
+import { useFullscreenElement } from '@/components/ui/overlay-positioning';
 import { cn } from '@/lib/utils';
 
 export type GlobalModalSize = 'sm' | 'md' | 'lg';
@@ -57,6 +58,7 @@ export function GlobalModal({
   );
   const { isTopmost, zIndex } = useOverlayLayer(isOpen, zIndexBase);
   useBodyScrollLock(isOpen);
+  const fullscreenElement = useFullscreenElement();
   const titleId = React.useId();
   const panelRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -201,6 +203,6 @@ export function GlobalModal({
         </motion.div>
       )}
     </AnimatePresence>,
-    document.body,
+    fullscreenElement ?? document.body,
   );
 }

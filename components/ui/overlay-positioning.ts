@@ -74,3 +74,23 @@ export function useResponsiveCollisionPadding(top: number = TOPBAR_SAFE_AREA_PX)
 
   return React.useMemo(() => getResponsiveCollisionPadding(isMobile, top), [isMobile, top]);
 }
+
+function subscribeFullscreen(callback: () => void) {
+  document.addEventListener('fullscreenchange', callback);
+  return () => document.removeEventListener('fullscreenchange', callback);
+}
+
+function getFullscreenSnapshot(): HTMLElement | null {
+  const element = document.fullscreenElement;
+  return element instanceof HTMLElement ? element : null;
+}
+
+/**
+ * Elemen yang sedang fullscreen (Fullscreen API). Dipakai overlay global
+ * (drawer/modal) untuk mem-portal kontennya KE DALAM elemen fullscreen —
+ * tanpa ini, portal ke `document.body` tidak pernah tampil karena browser
+ * hanya merender elemen fullscreen beserta turunannya.
+ */
+export function useFullscreenElement(): HTMLElement | null {
+  return React.useSyncExternalStore(subscribeFullscreen, getFullscreenSnapshot, () => null);
+}

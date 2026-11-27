@@ -7,6 +7,7 @@ import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useOverlayLayer } from '@/components/ui/use-overlay-layer';
 import { useBodyScrollLock } from '@/components/ui/use-body-scroll-lock';
+import { useFullscreenElement } from '@/components/ui/overlay-positioning';
 import { DRAWER_ANIMATION } from '@/lib/animation/drawer-animation';
 
 export type SlideOverSize = 'sm' | 'md' | 'lg' | 'xl';
@@ -83,6 +84,7 @@ export function GlobalSlideOver({
 
   const { isTopmost, zIndex } = useOverlayLayer(active, zIndexBase);
   useBodyScrollLock(active);
+  const fullscreenElement = useFullscreenElement();
   const titleId = React.useId();
   const panelRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -273,6 +275,6 @@ export function GlobalSlideOver({
         </motion.div>
       )}
     </AnimatePresence>,
-    document.body
+    fullscreenElement ?? document.body
   );
 }
