@@ -4,6 +4,7 @@ import { memo, useCallback, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { motion } from 'motion/react';
 import {
   Activity,
   CalendarDays,
@@ -494,12 +495,15 @@ export function PatientMedicalRecordView({
                         <span className={cn('text-[10px] font-medium', palette.suffix)}>/10</span>
                       </div>
                       <svg aria-hidden="true" viewBox="0 0 120 40" className="mt-2 h-9 w-full" fill="none">
-                        <polyline
+                        <motion.polyline
                           points={sparklinePoints(values, 10)}
                           stroke={palette.stroke}
                           strokeWidth="2"
                           strokeLinejoin="round"
                           strokeLinecap="round"
+                          initial={{ pathLength: 0, opacity: 0.5 }}
+                          animate={{ pathLength: 1, opacity: 1 }}
+                          transition={{ duration: 1.1, ease: 'easeOut', delay: 0.15 }}
                         />
                       </svg>
                     </section>
@@ -615,9 +619,11 @@ export function PatientMedicalRecordView({
                           </dd>
                         </div>
                         <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-stone-200/70">
-                          <span
+                          <motion.span
                             className={cn('block h-full rounded-full', TONE_TRACK[tone.tone])}
-                            style={{ width: `${Math.max(4, value * 10)}%` }}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${Math.max(4, value * 10)}%` }}
+                            transition={{ duration: 0.9, ease: 'easeOut', delay: 0.2 }}
                           />
                         </div>
                       </div>

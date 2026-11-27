@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, useCallback, useMemo, useState } from 'react';
+import { useReducedMotion } from 'motion/react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { ChevronRight, ClipboardList, Dumbbell, Target, TrendingUp, Wrench } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -164,6 +165,7 @@ function MetricLineChart({
   const config = METRIC_CHART[metric];
   const tickDates = useMemo(() => new Map(data.map((point) => [point.sesi, point.date])), [data]);
   const tickInterval = data.length > 5 ? 2 : 0;
+  const reduceMotion = useReducedMotion();
 
   /**
    * Klik di mana pun pada grafik memilih sesi terdekat.
@@ -240,7 +242,10 @@ function MetricLineChart({
             strokeDasharray={config.dashed ? '6 5' : undefined}
             dot={<MetricDot onSelect={onSelectSession} lastSesi={data.length} hollow={config.hollow} />}
             activeDot={<MetricDot onSelect={onSelectSession} lastSesi={data.length} hollow={config.hollow} />}
-            isAnimationActive={false}
+            isAnimationActive={!reduceMotion}
+            animationDuration={1100}
+            animationEasing="ease-out"
+            animationBegin={80}
           />
         </LineChart>
       </ResponsiveContainer>
