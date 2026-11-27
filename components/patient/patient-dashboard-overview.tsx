@@ -159,22 +159,32 @@ export function PatientDashboardOverview({
   const subOptimalCount = evaluationMetrics.length - optimalCount;
 
   /**
-   * Bar distribusi memakai gradasi halus: intensitas naik bertahap menurut
-   * urutan (color-mix oklab) + gradient vertikal lembut, sehingga tidak ada
-   * lompatan warna antar bar.
+   * Susun bar seperti referensi: kelompok optimal dulu (hijau terang → tua),
+   * lalu sub optimal (merah terang → tua), memakai ramp palet Hafta.
    */
-  function metricBarStyle(optimal: boolean, index: number, total: number) {
-    const base = optimal ? 'var(--hafta-grn-500)' : 'var(--hafta-red-500)';
-    const ratio = total > 1 ? index / (total - 1) : 0;
-    const strength = Math.round(26 + ratio * 54); // 26% → 80%
-    return {
-      backgroundColor: `color-mix(in oklab, ${base} ${strength}%, white)`,
-      backgroundImage: `linear-gradient(180deg, color-mix(in oklab, ${base} ${Math.max(
-        18,
-        strength - 14,
-      )}%, white) 0%, color-mix(in oklab, ${base} ${Math.min(92, strength + 16)}%, white) 100%)`,
-    } as const;
-  }
+  const OPTIMAL_RAMP = [
+    'var(--hafta-grn-100)',
+    'var(--hafta-grn-200)',
+    'var(--hafta-grn-300)',
+    'var(--hafta-grn-400)',
+  ];
+  const SUBOPTIMAL_RAMP = [
+    'var(--hafta-red-100)',
+    'var(--hafta-red-200)',
+    'var(--hafta-red-300)',
+    'var(--hafta-red-400)',
+  ];
+  const orderedMetrics = [...evaluationMetrics].sort((a, b) => Number(b.optimal) - Number(a.optimal));
+  let optimalSeen = 0;
+  let subOptimalSeen = 0;
+  const metricBars = orderedMetrics.map((metric) => {
+    const ramp = metric.optimal ? OPTIMAL_RAMP : SUBOPTIMAL_RAMP;
+    const groupSize = metric.optimal ? optimalCount : subOptimalCount;
+    const position = metric.optimal ? optimalSeen++ : subOptimalSeen++;
+    const rampIndex =
+      groupSize <= 1 ? ramp.length - 1 : Math.round((position / (groupSize - 1)) * (ramp.length - 1));
+    return { ...metric, color: ramp[Math.min(rampIndex, ramp.length - 1)] };
+  });
 
   function handleCancelPendingRequest() {
     if (!pendingRequest) return;
@@ -339,12 +349,12 @@ export function PatientDashboardOverview({
             {/* bar distribusi metrik — hijau = optimal, merah = sub optimal */}
             <div className="mt-4 flex h-20 items-stretch gap-1.5" role="img" aria-label="Distribusi hasil evaluasi metrik">
               {evaluationMetrics.length > 0
-                ? evaluationMetrics.map((metric, index) => (
+                ? metricBars.map((metric) => (
                     <span
                       key={metric.key}
                       title={`${metric.label} · ${metric.optimal ? 'Optimal' : 'Sub optimal'}`}
                       className="flex-1 rounded-md transition-colors"
-                      style={metricBarStyle(metric.optimal, index, evaluationMetrics.length)}
+                      style={{ backgroundColor: metric.color }}
                     />
                   ))
                 : [0, 1, 2, 3].map((item) => (
