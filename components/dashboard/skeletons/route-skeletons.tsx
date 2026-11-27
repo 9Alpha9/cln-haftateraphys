@@ -297,33 +297,16 @@ function PatientDashboardSkeleton() {
               <SkeletonBlock className="h-11 w-full rounded-full bg-stone-200/80" />
             </div>
           </SkeletonPanel>
-
-          {/* preview rekam medis */}
-          <SkeletonPanel className="rounded-3xl p-4 sm:p-5">
-            <div className="flex items-start justify-between gap-3">
-              <div className="space-y-2">
-                <SkeletonBlock className="h-3 w-24 bg-stone-200/80" />
-                <SkeletonBlock className="h-5 w-52 max-w-full bg-stone-200/70" />
-              </div>
-              <SkeletonLine className="w-24 bg-stone-200/60" />
-            </div>
-            <SkeletonBlock className="mt-4 h-16 w-full rounded-2xl bg-stone-100" />
-            <div className="mt-3 grid grid-cols-4 gap-2">
-              {[0, 1, 2, 3].map((item) => (
-                <SkeletonBlock key={item} className="h-14 rounded-2xl bg-stone-100" />
-              ))}
-            </div>
-          </SkeletonPanel>
         </div>
 
         <aside className="min-w-0 space-y-4 lg:col-span-4">
-          {/* kartu overview dengan bar distribusi */}
+          {/* kartu overview dengan 10 slot bar kecil */}
           <SkeletonPanel className="rounded-3xl p-4 sm:p-5">
             <SkeletonBlock className="h-3 w-20 bg-stone-200/80" />
             <SkeletonBlock className="mt-2 h-9 w-28 rounded-lg bg-stone-200" />
-            <div className="mt-4 flex h-20 items-stretch gap-1.5">
-              {[0, 1, 2, 3].map((item) => (
-                <SkeletonBlock key={item} className="flex-1 rounded-md bg-stone-200/60" />
+            <div className="mt-4 grid h-16 grid-cols-10 items-stretch gap-1">
+              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((item) => (
+                <SkeletonBlock key={item} className="h-full rounded-md bg-stone-200/60" />
               ))}
             </div>
             <div className="mt-3 grid grid-cols-2 gap-2">

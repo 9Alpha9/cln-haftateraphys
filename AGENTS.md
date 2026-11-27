@@ -165,6 +165,7 @@ Feature belum selesai jika salah satu berikut belum terpenuhi:
 - Mobile Gate lulus sebelum desktop enhancement;
 - Desktop Gate dan cross-breakpoint QA lulus;
 - UI responsive dan accessible;
+- skeleton loading di `components/dashboard/skeletons/route-skeletons.tsx` sudah disesuaikan dengan struktur section terbaru halaman (jumlah kolom, kartu, grid, dan komponen baru) sehingga tidak ada layout shift saat data termuat;
 - server-side validation ada;
 - server-side authorization ada;
 - audit event ada bila diperlukan;
